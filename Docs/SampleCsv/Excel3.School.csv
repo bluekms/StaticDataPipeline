@@ -1,0 +1,6 @@
+Id.Value,Name,Address.도시,Address.상세주소,Contact.Email,Contact.Phone,Departments[0],Departments[1],Departments[2],Grades[0],Grades[1],Established
+1,서울대학교,서울,관악구 관악로 1,info@snu.ac.kr,02-880-5114,공학,인문,자연과학,1,2,1946
+2,東京大学,東京,文京区本郷7-3-1,info@u-tokyo.ac.jp,,工学,文学,理学,1,2,1877
+3,Harvard University,Boston,Massachusetts Avenue,info@harvard.edu,617-495-1000,Engineering,Arts,Science,1,2,1636
+4,北京大学,北京,海淀区颐和园路5号,info@pku.edu.cn,,工程,文学,理学,1,2,1898
+5,МГУ,Москва,Ленинские горы 1,info@msu.ru,+7-495-939-1000,Инженерия,Гуманитарные,Естественные,1,2,1755

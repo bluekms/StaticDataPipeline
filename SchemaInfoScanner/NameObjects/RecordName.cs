@@ -47,8 +47,22 @@ public class RecordName : IEquatable<RecordName>
 
     public RecordName(INamedTypeSymbol namedTypeSymbol)
     {
-        Namespace = namedTypeSymbol.ContainingNamespace.Name;
+        Namespace = GetFullNamespace(namedTypeSymbol.ContainingNamespace);
         Name = namedTypeSymbol.Name;
+    }
+
+    private static string GetFullNamespace(INamespaceSymbol namespaceSymbol)
+    {
+        var parts = new List<string>();
+        var current = namespaceSymbol;
+        while (current is not null && !current.IsGlobalNamespace)
+        {
+            parts.Add(current.Name);
+            current = current.ContainingNamespace;
+        }
+
+        parts.Reverse();
+        return string.Join(".", parts);
     }
 
     public override bool Equals(object? obj)

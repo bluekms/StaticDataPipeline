@@ -14,7 +14,7 @@ public class LockedFileStreamOpenerAsyncTests
             "..",
             "..",
             "Docs",
-            "TestExcel",
+            "SampleExcel",
             "Excel1.xlsx");
     }
 

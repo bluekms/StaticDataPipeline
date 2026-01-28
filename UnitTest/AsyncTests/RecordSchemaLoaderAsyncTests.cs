@@ -16,7 +16,7 @@ public class RecordSchemaLoaderAsyncTests(ITestOutputHelper testOutputHelper)
             "..",
             "..",
             "Docs",
-            "TestRecord");
+            "SampleRecord");
     }
 
     [Fact]

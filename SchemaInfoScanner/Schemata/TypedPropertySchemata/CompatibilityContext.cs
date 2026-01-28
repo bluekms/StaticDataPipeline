@@ -66,9 +66,13 @@ public sealed class CompatibilityContext
             return;
         }
 
-        if (collectMode is CollectMode.KeyOnly && isKeyScope)
+        if (collectMode is CollectMode.KeyOnly)
         {
-            keyScopeComponents.Add(key);
+            if (isKeyScope)
+            {
+                keyScopeComponents.Add(key);
+            }
+
             return;
         }
 

@@ -1,6 +1,7 @@
 using Eds.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SchemaInfoScanner.Extensions;
 
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.RecordTypes;
 
@@ -18,23 +19,37 @@ public sealed record RecordKeyRecordValueMapSchema(
             throw new InvalidOperationException($"Parameter {PropertyName} cannot have LengthAttribute in the argument: {context}");
         }
 
+        if (ValueGenericArgumentSchema.NestedSchema is not RecordPropertySchema valueRecordSchema)
+        {
+            throw new InvalidOperationException($"Value type of RecordKeyRecordValueMapSchema must be a RecordPropertySchema: {PropertyName}");
+        }
+
+        var keyMemberSchema = valueRecordSchema.MemberSchemata
+            .SingleOrDefault(m => m.HasAttribute<KeyAttribute>());
+
+        if (keyMemberSchema is null)
+        {
+            throw new InvalidOperationException($"Value record must have exactly one [Key] member: {PropertyName}");
+        }
+
         var startPosition = context.Position;
         var keyContext = CompatibilityContext.CreateCollectKey(context.MetadataCatalogs, context.Cells, startPosition);
-        var valueContext = CompatibilityContext.CreateNoCollect(context.MetadataCatalogs, context.Cells, startPosition);
 
         for (var i = 0; i < length; i++)
         {
-            keyContext.BeginKeyScope();
-            var keyStartPosition = keyContext.Position;
-            KeyGenericArgumentSchema.CheckCompatibility(keyContext);
-            keyContext.EndKeyScope();
-
-            var valueStartPosition = valueContext.Position;
-            ValueGenericArgumentSchema.CheckCompatibility(valueContext);
-
-            var valueConsumed = valueContext.Position - valueStartPosition;
-            var keyConsumed = keyContext.Position - keyStartPosition;
-            keyContext.Skip(valueConsumed - keyConsumed);
+            foreach (var memberSchema in valueRecordSchema.MemberSchemata)
+            {
+                if (memberSchema == keyMemberSchema)
+                {
+                    keyContext.BeginKeyScope();
+                    memberSchema.CheckCompatibility(keyContext);
+                    keyContext.EndKeyScope();
+                }
+                else
+                {
+                    memberSchema.CheckCompatibility(keyContext);
+                }
+            }
         }
 
         keyContext.ValidateNoDuplicates();
