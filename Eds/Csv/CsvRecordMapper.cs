@@ -299,6 +299,22 @@ internal static class CsvRecordMapper
         }
 
         var typeInfo = CsvTypeCache.GetTypeInfo(recordType);
+
+        // for single parameter record types, map directly
+        if (typeInfo.Parameters.Length == 1 &&
+            IsPrimitiveOrSimpleType(typeInfo.Parameters[0].ParameterType))
+        {
+            if (headerIndexMap.TryGetValue(baseName, out var index))
+            {
+                var paramInfo = typeInfo.Parameters[0];
+                var value = ConvertStringValue(
+                    paramInfo.ParameterType,
+                    values[index],
+                    paramInfo.NullString ?? nullString);
+                return typeInfo.Constructor.Invoke([value]);
+            }
+        }
+
         var args = new object?[typeInfo.Parameters.Length];
 
         for (var i = 0; i < typeInfo.Parameters.Length; i++)

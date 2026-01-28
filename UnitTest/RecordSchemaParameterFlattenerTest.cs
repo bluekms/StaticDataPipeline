@@ -278,4 +278,86 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
         Assert.Equal(344, results.Count);
         Assert.Empty(logger.Logs);
     }
+
+    [Fact]
+    public void SingleParameterRecordTest()
+    {
+        var code = @"
+            public sealed record SchoolId(int Value);
+            public sealed record TeacherId(int Value);
+
+            [StaticDataRecord(""Test"", ""TestSheet"")]
+            public sealed record School(
+                SchoolId Id,
+                string Name,
+                TeacherId MainTeacher
+            );";
+
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var parseResult = SimpleCordParser.Parse(code, logger);
+
+        var results = RecordFlattener.Flatten(
+            parseResult.RawRecordSchemata[0],
+            parseResult.RecordSchemaCatalog,
+            logger);
+
+        foreach (var header in results)
+        {
+            testOutputHelper.WriteLine(header);
+        }
+
+        // 싱글 파라메터 레코드는 Id.Value가 아닌 Id로 출력
+        Assert.Equal(3, results.Count);
+        Assert.Equal("Id", results[0]);
+        Assert.Equal("Name", results[1]);
+        Assert.Equal("MainTeacher", results[2]);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void MixedSingleAndMultiParameterRecordTest()
+    {
+        var code = @"
+            public sealed record EntityId(int Value);
+            public sealed record Address(string City, string Street);
+
+            [StaticDataRecord(""Test"", ""TestSheet"")]
+            public sealed record Entity(
+                EntityId Id,
+                string Name,
+                Address Location
+            );";
+
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var parseResult = SimpleCordParser.Parse(code, logger);
+
+        var results = RecordFlattener.Flatten(
+            parseResult.RawRecordSchemata[0],
+            parseResult.RecordSchemaCatalog,
+            logger);
+
+        foreach (var header in results)
+        {
+            testOutputHelper.WriteLine(header);
+        }
+
+        // EntityId는 싱글 파라메터 → Id
+        // Address는 멀티 파라메터 → Location.City, Location.Street
+        Assert.Equal(4, results.Count);
+        Assert.Equal("Id", results[0]);
+        Assert.Equal("Name", results[1]);
+        Assert.Equal("Location.City", results[2]);
+        Assert.Equal("Location.Street", results[3]);
+        Assert.Empty(logger.Logs);
+    }
 }
