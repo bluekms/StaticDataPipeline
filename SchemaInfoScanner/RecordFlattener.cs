@@ -110,13 +110,22 @@ public static class RecordFlattener
             {
                 var innerRecordSchema = recordSchemaCatalog.Find(parameter.NamedTypeSymbol);
 
-                var innerFlatten = OnFlatten(
-                    innerRecordSchema,
-                    recordSchemaCatalog,
-                    headerName,
-                    logger);
+                // single parameter record
+                if (innerRecordSchema.PropertySchemata.Count == 1 &&
+                    PrimitiveTypeChecker.IsSupportedPrimitiveType(innerRecordSchema.PropertySchemata[0].NamedTypeSymbol))
+                {
+                    headers.Add(headerName);
+                }
+                else
+                {
+                    var innerFlatten = OnFlatten(
+                        innerRecordSchema,
+                        recordSchemaCatalog,
+                        headerName,
+                        logger);
 
-                headers.AddRange(innerFlatten);
+                    headers.AddRange(innerFlatten);
+                }
             }
         }
 
@@ -124,20 +133,6 @@ public static class RecordFlattener
     }
 
     private static readonly Regex IndexRegex = new(@"\[.*?\]");
-
-    private static int ParseLength(
-        IReadOnlyDictionary<string, int> collectionLengths,
-        string headerName,
-        ILogger logger)
-    {
-        var headerNameWithoutIndex = IndexRegex.Replace(headerName, string.Empty);
-        if (!collectionLengths.TryGetValue(headerNameWithoutIndex, out var length))
-        {
-            LogInformation(logger, "Cannot find length for", headerNameWithoutIndex, null);
-        }
-
-        return length;
-    }
 
     private static readonly Action<ILogger, string, string, Exception?> LogInformation =
         LoggerMessage.Define<string, string>(
