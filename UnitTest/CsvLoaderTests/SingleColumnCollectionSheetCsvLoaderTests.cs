@@ -61,6 +61,6 @@ public class SingleColumnCollectionSheetCsvLoaderTests
     {
         var baseDir = AppDomain.CurrentDomain.BaseDirectory;
         var solutionDir = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", ".."));
-        return Path.Combine(solutionDir, "Docs", "TestCsv", fileName);
+        return Path.Combine(solutionDir, "Docs", "SampleCsv", fileName);
     }
 }
