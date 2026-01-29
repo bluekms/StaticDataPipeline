@@ -135,7 +135,7 @@ public sealed class ExcelSheetProcessor
                 {
                     var column = startColumn + offset;
                     var address = ToExcelColumnName(column) + excelPhysicalRow;
-                    var value = x?.ToString() ?? string.Empty;
+                    var value = FormatCellValue(x);
 
                     return new CellData(address, value);
                 })
@@ -157,6 +157,17 @@ public sealed class ExcelSheetProcessor
         }
 
         return sb.ToString();
+    }
+
+    private static string FormatCellValue(object? value)
+    {
+        return value switch
+        {
+            null => string.Empty,
+            DateTime dt when dt.TimeOfDay == TimeSpan.Zero => dt.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+            DateTime dt => dt.ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture),
+            _ => value.ToString() ?? string.Empty,
+        };
     }
 
     private static bool IsValidCellAddress(string cellAddress)

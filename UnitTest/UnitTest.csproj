@@ -36,4 +36,8 @@
     <ProjectReference Include="..\SchemaInfoScanner\SchemaInfoScanner.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Docs\SampleRecord\*.cs" Link="SampleRecord\%(Filename)%(Extension)" />
+  </ItemGroup>
+
 </Project>

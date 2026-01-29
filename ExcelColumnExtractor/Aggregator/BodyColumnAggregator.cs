@@ -35,6 +35,7 @@ public static class BodyColumnAggregator
                     .Select(row => new ExtractedRow(row.Data
                         .Where((_, index) => targetColumnData.SheetHeaderIndexSet.Contains(index))
                         .ToList()))
+                    .Where(row => row.Data.Any(cell => !string.IsNullOrEmpty(cell.Value)))
                     .ToList();
 
                 result.Add(recordSchema, new(targetColumnData.SheetHeaders, filteredRows));

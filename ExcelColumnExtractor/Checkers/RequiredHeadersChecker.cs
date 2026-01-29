@@ -82,6 +82,14 @@ public static class RequiredHeadersChecker
         foreach (var standardHeader in standardHeaders)
         {
             var index = CaseInsensitiveIndexOf(sheetHeaders, standardHeader);
+
+            // Single parameter record 하위 호환: "Id" -> "Id.Value" 폴백
+            if (index is -1)
+            {
+                var fallbackHeader = $"{standardHeader}.Value";
+                index = CaseInsensitiveIndexOf(sheetHeaders, fallbackHeader);
+            }
+
             if (index is -1)
             {
                 var sb = new StringBuilder();
@@ -92,7 +100,9 @@ public static class RequiredHeadersChecker
                 throw new ArgumentException(sb.ToString());
             }
 
-            if (!sheetHeaders[index].Equals(standardHeader, StringComparison.OrdinalIgnoreCase))
+            var sheetHeader = sheetHeaders[index];
+            if (!sheetHeader.Equals(standardHeader, StringComparison.OrdinalIgnoreCase) &&
+                !sheetHeader.Equals($"{standardHeader}.Value", StringComparison.OrdinalIgnoreCase))
             {
                 throw new ArgumentException($"Header case sensitivity: {standardHeader}");
             }
