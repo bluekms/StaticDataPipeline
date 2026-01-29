@@ -1,6 +1,0 @@
-Id,Memo,Items[0].ItemId,Items[0].ItemName,Items[0].Quantity,Items[0].Description,Items[1].ItemId,Items[1].ItemName,Items[1].Quantity,Items[1].Description,Total
-1,주문A,101,노트북,5,업무용,102,마우스,20,N/A,25
-2,注文B,201,キーボード,10,N/A,202,モニター,3,대형,13
-3,Order C,301,Laptop,8,Business use,302,Keyboard,15,N/A,23
-4,Заказ D,401,Ноутбук,2,N/A,402,Мышь,30,Беспроводная,32
-5,订单E,501,笔记本,6,办公用,502,鼠标,25,N/A,31
