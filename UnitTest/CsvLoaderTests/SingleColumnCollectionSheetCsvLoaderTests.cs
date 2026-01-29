@@ -1,16 +1,10 @@
-using System.Collections.Immutable;
-using Eds.Attributes;
+using Docs.SampleRecord.Excel1;
 using Eds.Csv;
 
 namespace UnitTest.CsvLoaderTests;
 
 public class SingleColumnCollectionSheetCsvLoaderTests
 {
-    [StaticDataRecord("Excel1", "SingleColumnCollectionSheet")]
-    public sealed record SingleColumnCollectionSheet(
-        int Id,
-        [SingleColumnCollection(", ")] ImmutableArray<float> Values);
-
     [Fact]
     public void Load_SingleColumnCollectionSheetCsv_ReturnsValidRecords()
     {

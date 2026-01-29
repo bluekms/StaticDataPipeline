@@ -1,6 +1,8 @@
 using System.Text;
+using Eds.Attributes;
 using ExcelColumnExtractor.Aggregator;
 using ExcelColumnExtractor.Mappings;
+using SchemaInfoScanner.Extensions;
 
 namespace ExcelColumnExtractor.Writers;
 
@@ -16,7 +18,9 @@ public static class CsvWriter
     {
         foreach (var (recordSchema, table) in extractedTableMap.SortedTables)
         {
-            var fileName = Path.Combine(path, $"{recordSchema.RecordName.FullName}.csv");
+            var excelFileName = recordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(0);
+            var sheetName = recordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(1);
+            var fileName = Path.Combine(path, $"{excelFileName}.{sheetName}.csv");
             var sb = new StringBuilder();
             sb.AppendLine(string.Join(",", table.Headers));
 
