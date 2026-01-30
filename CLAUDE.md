@@ -35,6 +35,7 @@ int count = 10;
 #### 중괄호 규칙
 - **한 줄 코드여도 반드시 중괄호 사용**
 - Allman 스타일 (새 줄에 중괄호)
+- **닫는 중괄호 뒤에 빈 줄 추가** (SA1513)
 
 ```csharp
 // Good
@@ -48,6 +49,25 @@ if (condition)
     DoSomething();
 
 if (condition) DoSomething();
+```
+
+**SA1513 예시 (닫는 중괄호 뒤 빈 줄)**
+
+```csharp
+// Good
+if (condition)
+{
+    DoSomething();
+}
+
+DoNext();
+
+// Bad - SA1513 발생
+if (condition)
+{
+    DoSomething();
+}
+DoNext();
 ```
 
 #### Namespace
@@ -69,6 +89,7 @@ namespace NK.LobbyWebAPI.Feature.Arena
 #### Using 문
 - System namespace를 먼저 정렬
 - namespace 바깥에 위치
+- **불필요한 using은 즉시 제거**
 
 ```csharp
 using System;
@@ -103,12 +124,30 @@ public, private, protected, internal, required, file, static, extern, new, virtu
 
 #### empty string 사용
 
-```aiignore
+```csharp
 // Good
 string s = string.Empty;
 
 // bad
 string s = "";
+```
+
+#### 문화권 독립적 문자열 처리
+
+- **숫자/날짜 형식 지정 시 반드시 InvariantCulture 사용 (CA1305 방지)**
+- StringBuilder interpolation에는 `FormattableString.Invariant()` 사용
+- string.Format에는 `CultureInfo.InvariantCulture` 명시
+
+```csharp
+// Good
+sb.AppendLine(FormattableString.Invariant($"Total: {count}"));
+Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Count: {0}", count));
+var upper = text.ToUpper(CultureInfo.InvariantCulture);
+
+// Bad - CA1305 발생
+sb.AppendLine($"Total: {count}");
+Console.WriteLine($"Count: {count}");
+var upper = text.ToUpper();
 ```
 
 ### 로깅
