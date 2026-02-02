@@ -1,4 +1,4 @@
-using Docs.SampleRecord.Excel1;
+using Docs.SampleRecords.Excel1;
 using Eds.Csv;
 
 namespace UnitTest.CsvLoaderTests;
@@ -55,6 +55,6 @@ public class SingleColumnCollectionSheetCsvLoaderTests
     {
         var baseDir = AppDomain.CurrentDomain.BaseDirectory;
         var solutionDir = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", ".."));
-        return Path.Combine(solutionDir, "Docs", "SampleCsv", fileName);
+        return Path.Combine(solutionDir, "Docs", "SampleCsvs", fileName);
     }
 }

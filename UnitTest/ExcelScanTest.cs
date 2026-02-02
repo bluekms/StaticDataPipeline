@@ -81,7 +81,7 @@ public class ExcelScanTest(ITestOutputHelper testOutputHelper)
             "..",
             "..",
             "Docs",
-            "SampleExcel");
+            "SampleExcels");
 
         return SheetNameScanner.Scan(excelPath, logger);
     }
@@ -95,7 +95,7 @@ public class ExcelScanTest(ITestOutputHelper testOutputHelper)
             "..",
             "..",
             "Docs",
-            "SampleRecord",
+            "SampleRecords",
             "Excel3Records.cs");
 
         var loadResults = RecordSchemaLoader.Load(csPath, logger);

@@ -26,7 +26,7 @@ public class RecordScanTest(ITestOutputHelper testOutputHelper)
             "..",
             "..",
             "Docs",
-            "SampleRecord");
+            "SampleRecords");
 
         var loadResults = RecordSchemaLoader.Load(csPath, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResults, logger);
