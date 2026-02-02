@@ -18,7 +18,7 @@ public class ExcelSheetProcessorAsyncTests(ITestOutputHelper testOutputHelper)
             "..",
             "..",
             "Docs",
-            "SampleExcel",
+            "SampleExcels",
             "Excel1.xlsx");
     }
 
