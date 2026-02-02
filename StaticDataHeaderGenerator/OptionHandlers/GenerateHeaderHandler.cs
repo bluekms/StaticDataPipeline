@@ -1,7 +1,9 @@
-using System.Text.RegularExpressions;
+using System.Text;
 using CLICommonLibrary;
+using Eds.Attributes;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner;
+using SchemaInfoScanner.Extensions;
 using StaticDataHeaderGenerator.ProgramOptions;
 
 namespace StaticDataHeaderGenerator.OptionHandlers;
@@ -32,14 +34,16 @@ public static class GenerateHeaderHandler
             catalogs.RecordSchemaCatalog,
             logger);
 
-        var actualSeparator = Regex.Unescape(options.Separator);
-        var output = $"[{targetRecordSchema.RecordName.FullName}]\n{string.Join(actualSeparator, headers)}\n";
-        LogInformation(logger, $"\n{output}\n", null);
+        var excelFileName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(0);
+        var sheetName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(1);
+
+        var output = BuildMarkdownOutput(targetRecordSchema.RecordName.FullName, headers, excelFileName, sheetName);
+        LogInformation(logger, FormattableString.Invariant($"\n{output}\n"), null);
 
         if (!string.IsNullOrEmpty(options.OutputFileName))
         {
             var outputFileName = string.IsNullOrEmpty(Path.GetExtension(options.OutputFileName))
-                ? $"{options.OutputFileName}.txt"
+                ? FormattableString.Invariant($"{options.OutputFileName}.md")
                 : options.OutputFileName;
 
             var directoryName = Path.GetDirectoryName(outputFileName);
@@ -80,14 +84,16 @@ public static class GenerateHeaderHandler
             catalogs.RecordSchemaCatalog,
             logger);
 
-        var actualSeparator = Regex.Unescape(options.Separator);
-        var output = $"[{targetRecordSchema.RecordName.FullName}]\n{string.Join(actualSeparator, headers)}\n";
-        LogInformation(logger, $"\n{output}\n", null);
+        var excelFileName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(0);
+        var sheetName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(1);
+
+        var output = BuildMarkdownOutput(targetRecordSchema.RecordName.FullName, headers, excelFileName, sheetName);
+        LogInformation(logger, FormattableString.Invariant($"\n{output}\n"), null);
 
         if (!string.IsNullOrEmpty(options.OutputFileName))
         {
             var outputFileName = string.IsNullOrEmpty(Path.GetExtension(options.OutputFileName))
-                ? $"{options.OutputFileName}.txt"
+                ? FormattableString.Invariant($"{options.OutputFileName}.md")
                 : options.OutputFileName;
 
             var directoryName = Path.GetDirectoryName(outputFileName);
@@ -112,4 +118,30 @@ public static class GenerateHeaderHandler
 
     private static readonly Action<ILogger, string, Exception?> LogError =
         LoggerMessage.Define<string>(LogLevel.Error, new EventId(0, nameof(LogError)), "{Message}");
+
+    private static string BuildMarkdownOutput(string recordFullName, IReadOnlyList<string> headers, string excelFileName, string sheetName)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("# StaticDataHeaderGenerator Results");
+        sb.AppendLine();
+        sb.AppendLine(FormattableString.Invariant($"## {recordFullName}"));
+        sb.AppendLine(FormattableString.Invariant($"- Excel File: `Docs/SampleExcel/{excelFileName}.xlsx`"));
+        sb.AppendLine(FormattableString.Invariant($"- Sheet Name: `{sheetName}`"));
+        sb.AppendLine();
+
+        sb.AppendLine("### Headers (List)");
+        foreach (var header in headers)
+        {
+            sb.AppendLine(FormattableString.Invariant($"- {header}"));
+        }
+
+        sb.AppendLine();
+
+        sb.AppendLine("### Headers (TSV)");
+        sb.AppendLine("```");
+        sb.AppendLine(string.Join("\t", headers));
+        sb.AppendLine("```");
+
+        return sb.ToString();
+    }
 }
