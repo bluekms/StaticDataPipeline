@@ -1,8 +1,9 @@
 using System.Text;
-using System.Text.RegularExpressions;
 using CLICommonLibrary;
+using Eds.Attributes;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner;
+using SchemaInfoScanner.Extensions;
 using StaticDataHeaderGenerator.ProgramOptions;
 
 namespace StaticDataHeaderGenerator.OptionHandlers;
@@ -26,6 +27,9 @@ public class GenerateAllHeaderHandler
         }
 
         var sb = new StringBuilder();
+        sb.AppendLine("# StaticDataHeaderGenerator Results");
+        sb.AppendLine();
+
         foreach (var targetRecordSchema in catalogs.RecordSchemaCatalog.StaticDataRecordSchemata)
         {
             var headers = RecordFlattener.Flatten(
@@ -33,17 +37,35 @@ public class GenerateAllHeaderHandler
                 catalogs.RecordSchemaCatalog,
                 logger);
 
-            var actualSeparator = Regex.Unescape(options.Separator);
-            var output = $"[{targetRecordSchema.RecordName.FullName}]\n{string.Join(actualSeparator, headers)}\n";
-            sb.AppendLine(output);
+            var excelFileName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(0);
+            var sheetName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(1);
 
-            LogInformation(logger, $"\n{output}\n", null);
+            sb.AppendLine(FormattableString.Invariant($"## {targetRecordSchema.RecordName.FullName}"));
+            sb.AppendLine(FormattableString.Invariant($"- Excel File: `Docs/SampleExcel/{excelFileName}.xlsx`"));
+            sb.AppendLine(FormattableString.Invariant($"- Sheet Name: `{sheetName}`"));
+            sb.AppendLine();
+
+            sb.AppendLine("### Headers (List)");
+            foreach (var header in headers)
+            {
+                sb.AppendLine(FormattableString.Invariant($"- {header}"));
+            }
+
+            sb.AppendLine();
+
+            sb.AppendLine("### Headers (TSV)");
+            sb.AppendLine("```");
+            sb.AppendLine(string.Join("\t", headers));
+            sb.AppendLine("```");
+            sb.AppendLine();
+
+            LogInformation(logger, FormattableString.Invariant($"Generated headers for {targetRecordSchema.RecordName.FullName}"), null);
         }
 
         if (!string.IsNullOrEmpty(options.OutputFileName))
         {
             var outputFileName = string.IsNullOrEmpty(Path.GetExtension(options.OutputFileName))
-                ? $"{options.OutputFileName}.txt"
+                ? FormattableString.Invariant($"{options.OutputFileName}.md")
                 : options.OutputFileName;
 
             var directoryName = Path.GetDirectoryName(outputFileName);
@@ -77,6 +99,9 @@ public class GenerateAllHeaderHandler
         }
 
         var sb = new StringBuilder();
+        sb.AppendLine("# StaticDataHeaderGenerator Results");
+        sb.AppendLine();
+
         foreach (var targetRecordSchema in catalogs.RecordSchemaCatalog.StaticDataRecordSchemata)
         {
             var headers = RecordFlattener.Flatten(
@@ -84,17 +109,35 @@ public class GenerateAllHeaderHandler
                 catalogs.RecordSchemaCatalog,
                 logger);
 
-            var actualSeparator = Regex.Unescape(options.Separator);
-            var output = $"[{targetRecordSchema.RecordName.FullName}]\n{string.Join(actualSeparator, headers)}\n";
-            sb.AppendLine(output);
+            var excelFileName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(0);
+            var sheetName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(1);
 
-            LogInformation(logger, $"\n{output}\n", null);
+            sb.AppendLine(FormattableString.Invariant($"## {targetRecordSchema.RecordName.FullName}"));
+            sb.AppendLine(FormattableString.Invariant($"- Excel File: `Docs/SampleExcel/{excelFileName}.xlsx`"));
+            sb.AppendLine(FormattableString.Invariant($"- Sheet Name: `{sheetName}`"));
+            sb.AppendLine();
+
+            sb.AppendLine("### Headers (List)");
+            foreach (var header in headers)
+            {
+                sb.AppendLine(FormattableString.Invariant($"- {header}"));
+            }
+
+            sb.AppendLine();
+
+            sb.AppendLine("### Headers (TSV)");
+            sb.AppendLine("```");
+            sb.AppendLine(string.Join("\t", headers));
+            sb.AppendLine("```");
+            sb.AppendLine();
+
+            LogInformation(logger, FormattableString.Invariant($"Generated headers for {targetRecordSchema.RecordName.FullName}"), null);
         }
 
         if (!string.IsNullOrEmpty(options.OutputFileName))
         {
             var outputFileName = string.IsNullOrEmpty(Path.GetExtension(options.OutputFileName))
-                ? $"{options.OutputFileName}.txt"
+                ? FormattableString.Invariant($"{options.OutputFileName}.md")
                 : options.OutputFileName;
 
             var directoryName = Path.GetDirectoryName(outputFileName);
