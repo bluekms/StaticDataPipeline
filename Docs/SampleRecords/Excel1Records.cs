@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using Eds.Attributes;
 
-namespace Docs.SampleRecord.Excel1;
+namespace Docs.SampleRecords.Excel1;
 
 /// <summary>
 /// Excel1 - 기본 기능 예제
