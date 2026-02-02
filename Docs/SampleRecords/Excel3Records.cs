@@ -2,7 +2,7 @@ using System.Collections.Frozen;
 using System.Collections.Immutable;
 using Eds.Attributes;
 
-namespace Docs.SampleRecord.Excel3;
+namespace Docs.SampleRecords.Excel3;
 
 /// <summary>
 /// Excel3 - 복합 예제 (School 도메인)

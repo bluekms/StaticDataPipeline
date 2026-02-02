@@ -16,7 +16,7 @@ public class RecordScannerAsyncTests(ITestOutputHelper testOutputHelper)
             "..",
             "..",
             "Docs",
-            "SampleRecord");
+            "SampleRecords");
     }
 
     [Fact]

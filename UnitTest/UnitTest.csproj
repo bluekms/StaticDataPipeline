@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Docs\SampleRecord\*.cs" Link="SampleRecord\%(Filename)%(Extension)" />
+    <Compile Include="..\Docs\SampleRecords\*.cs" Link="SampleRecords\%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>

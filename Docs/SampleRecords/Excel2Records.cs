@@ -1,7 +1,7 @@
 using System.Collections.Frozen;
 using Eds.Attributes;
 
-namespace Docs.SampleRecord.Excel2;
+namespace Docs.SampleRecords.Excel2;
 
 /// <summary>
 /// Excel2 - 고급 기능 예제
