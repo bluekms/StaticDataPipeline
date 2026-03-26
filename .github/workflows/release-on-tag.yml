@@ -46,11 +46,11 @@ jobs:
           dotnet publish ./StaticDataHeaderGenerator -c Release -r linux-x64 /p:PublishSingleFile=true --self-contained true -o ./artifacts/StaticDataHeaderGenerator/linux-x64
           cp ./artifacts/StaticDataHeaderGenerator/linux-x64/StaticDataHeaderGenerator ./release-files/StaticDataHeaderGenerator-${GITHUB_REF#refs/tags/}-linux-x64
 
-      - name: Build Eds
-        run: dotnet build ./Eds -c Release
-      - name: Copy Eds DLL
+      - name: Build Sdp
+        run: dotnet build ./Sdp -c Release
+      - name: Copy Sdp DLL
         run: |
-          cp ./Eds/bin/Release/net10.0/Eds.dll ./release-files/Eds.dll
+          cp ./Sdp/bin/Release/net10.0/Sdp.dll ./release-files/Sdp.dll
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1

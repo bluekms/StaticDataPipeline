@@ -1,11 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
-using Eds.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Schemata;
+using Sdp.Attributes;
 
 namespace SchemaInfoScanner.TypeCheckers;
 

@@ -1,4 +1,4 @@
-# ExcelDataSolution
+# StaticDataPipeline
 
 ## 라이브러리
 * StaticDataAttribute

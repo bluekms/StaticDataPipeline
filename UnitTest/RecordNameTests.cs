@@ -85,7 +85,7 @@ public class RecordNameTests(ITestOutputHelper testOutputHelper)
 
         var code = """
             using System.Collections.Frozen;
-            using Eds.Attributes;
+            using Sdp.Attributes;
 
             namespace Docs.TestRecord;
 
@@ -119,7 +119,7 @@ public class RecordNameTests(ITestOutputHelper testOutputHelper)
 
         var code = """
             using System.Collections.Frozen;
-            using Eds.Attributes;
+            using Sdp.Attributes;
 
             namespace Docs.TestRecord;
 

@@ -28,7 +28,7 @@ public class XUnitTestLoggerAnalyzerTests
                    public class Bar { }
                    """;
 
-        var expected = CSharpAnalyzerVerifier<XunitTestLoggerTypeAnalyzer, DefaultVerifier>.Diagnostic("EDS1001")
+        var expected = CSharpAnalyzerVerifier<XunitTestLoggerTypeAnalyzer, DefaultVerifier>.Diagnostic("SDP1001")
             .WithSpan(9, 48, 9, 76)
             .WithArguments("Bar", "Foo");
 
@@ -58,7 +58,7 @@ public class XUnitTestLoggerAnalyzerTests
                    }
                    """;
 
-        var expected = CSharpAnalyzerVerifier<XunitTestLoggerLogsAnalyzer, DefaultVerifier>.Diagnostic("EDS1002")
+        var expected = CSharpAnalyzerVerifier<XunitTestLoggerLogsAnalyzer, DefaultVerifier>.Diagnostic("SDP1002")
             .WithSpan(9, 48, 9, 76);
 
         var code = test + XUnitTestPreferenceString;

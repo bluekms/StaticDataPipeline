@@ -1,9 +1,9 @@
 using System.Text;
 using CLICommonLibrary;
-using Eds.Attributes;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner;
 using SchemaInfoScanner.Extensions;
+using Sdp.Attributes;
 using StaticDataHeaderGenerator.ProgramOptions;
 
 namespace StaticDataHeaderGenerator.OptionHandlers;

@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using System.Text;
 
-namespace Eds.Csv;
+namespace Sdp.Csv;
 
 public static class CsvLoader
 {

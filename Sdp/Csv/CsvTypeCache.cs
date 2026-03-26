@@ -2,9 +2,9 @@ using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Reflection;
-using Eds.Attributes;
+using Sdp.Attributes;
 
-namespace Eds.Csv;
+namespace Sdp.Csv;
 
 internal static class CsvTypeCache
 {

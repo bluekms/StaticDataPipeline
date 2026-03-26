@@ -1,4 +1,4 @@
-namespace Eds.Attributes;
+namespace Sdp.Attributes;
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public class SingleColumnCollectionAttribute(string separator = ",")

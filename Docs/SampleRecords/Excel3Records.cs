@@ -1,6 +1,6 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
-using Eds.Attributes;
+using Sdp.Attributes;
 
 namespace Docs.SampleRecords.Excel3;
 
