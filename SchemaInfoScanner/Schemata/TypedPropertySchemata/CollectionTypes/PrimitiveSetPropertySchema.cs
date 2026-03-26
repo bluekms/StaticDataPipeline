@@ -1,6 +1,6 @@
-using Eds.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.CollectionTypes;
 

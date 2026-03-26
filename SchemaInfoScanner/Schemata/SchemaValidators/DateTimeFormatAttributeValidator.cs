@@ -1,10 +1,10 @@
-using Eds.Attributes;
 using FluentValidation;
 using Microsoft.CodeAnalysis;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes.NullableTypes;
 using SchemaInfoScanner.TypeCheckers;
+using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.SchemaValidators;
 

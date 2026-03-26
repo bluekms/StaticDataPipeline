@@ -1,8 +1,8 @@
 using System.Text;
-using Eds.Attributes;
 using ExcelColumnExtractor.Aggregator;
 using ExcelColumnExtractor.Mappings;
 using SchemaInfoScanner.Extensions;
+using Sdp.Attributes;
 
 namespace ExcelColumnExtractor.Writers;
 

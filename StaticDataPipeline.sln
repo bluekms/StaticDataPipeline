@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelColumnExtractor", "ExcelColumnExtractor\ExcelColumnExtractor.csproj", "{117C3167-99C1-4FF2-909D-F24311B3D046}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eds", "Eds\Eds.csproj", "{DB8FE708-33BD-43E1-A383-41876C117E6A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sdp", "Sdp\Sdp.csproj", "{DB8FE708-33BD-43E1-A383-41876C117E6A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchemaInfoScanner", "SchemaInfoScanner\SchemaInfoScanner.csproj", "{C65402FE-FCB3-4EBB-93DE-F11C81C9FC06}"
 EndProject

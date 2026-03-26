@@ -3,12 +3,12 @@ using System.Globalization;
 using System.Text;
 using CLICommonLibrary;
 using CommandLine;
-using Eds.Attributes;
 using ExcelColumnExtractor.Aggregator;
 using ExcelColumnExtractor.Checkers;
 using ExcelColumnExtractor.Scanners;
 using ExcelColumnExtractor.Writers;
 using Microsoft.Extensions.Logging;
+using Sdp.Attributes;
 
 namespace ExcelColumnExtractor;
 
