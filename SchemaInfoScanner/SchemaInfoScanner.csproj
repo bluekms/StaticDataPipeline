@@ -23,7 +23,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Analyzers\Analyzers\Analyzers.csproj"
                         OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-      <ProjectReference Include="..\Eds\Eds.csproj" />
+      <ProjectReference Include="..\Sdp\Sdp.csproj" />
     </ItemGroup>
 
 </Project>

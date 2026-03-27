@@ -1,10 +1,10 @@
 using System.Globalization;
-using Eds.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Schemata.AttributeCheckers;
+using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes;
 

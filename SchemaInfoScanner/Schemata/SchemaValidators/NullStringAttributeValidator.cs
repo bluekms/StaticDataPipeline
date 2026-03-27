@@ -1,8 +1,8 @@
-using Eds.Attributes;
 using FluentValidation;
 using Microsoft.CodeAnalysis;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.TypeCheckers;
+using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.SchemaValidators;
 

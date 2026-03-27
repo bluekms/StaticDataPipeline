@@ -1,6 +1,6 @@
 using System.Globalization;
-using Eds.Attributes;
 using SchemaInfoScanner.Extensions;
+using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.AttributeCheckers;
 

@@ -1,11 +1,11 @@
 using System.Globalization;
 using System.Text;
-using Eds.Attributes;
 using Microsoft.CodeAnalysis;
 using SchemaInfoScanner.Collectors;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Schemata;
+using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Catalogs;
 

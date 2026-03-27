@@ -1,5 +1,5 @@
 using System.Collections.Frozen;
-using Eds.Attributes;
+using Sdp.Attributes;
 
 namespace Docs.SampleRecords.Excel2;
 

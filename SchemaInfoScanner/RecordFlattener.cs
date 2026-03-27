@@ -1,11 +1,11 @@
 using System.Text.RegularExpressions;
-using Eds.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.Schemata;
 using SchemaInfoScanner.TypeCheckers;
+using Sdp.Attributes;
 
 namespace SchemaInfoScanner;
 

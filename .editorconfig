@@ -33,6 +33,7 @@ dotnet_diagnostic.IDE0078.severity = suggestion # 패턴 일치 사용
 dotnet_diagnostic.IDE0160.severity = none   # 블록 namespace 권장
 dotnet_diagnostic.IDE0270.severity = suggestion # null 검사 단순화
 dotnet_diagnostic.IDE0305.severity = none   # 컬렉션 초기화 단순화 (의미 체계 변경 가능성)
+dotnet_diagnostic.SA1210.severity = error   # using 지시문 알파벳 순서
 
 # ASP.NET Core 및 Razor 설정
 [**/*.cshtml]
