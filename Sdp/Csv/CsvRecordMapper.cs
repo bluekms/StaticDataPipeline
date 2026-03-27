@@ -1,7 +1,7 @@
 using System.Collections.Frozen;
 using System.Globalization;
 
-namespace Eds.Csv;
+namespace Sdp.Csv;
 
 internal static class CsvRecordMapper
 {

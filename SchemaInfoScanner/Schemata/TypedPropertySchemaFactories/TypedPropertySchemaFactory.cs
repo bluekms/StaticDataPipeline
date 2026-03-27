@@ -1,4 +1,3 @@
-using Eds.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
@@ -7,6 +6,7 @@ using SchemaInfoScanner.Schemata.TypedPropertySchemaFactories.CollectionTypes;
 using SchemaInfoScanner.Schemata.TypedPropertySchemaFactories.PrimitiveTypes;
 using SchemaInfoScanner.Schemata.TypedPropertySchemaFactories.RecordTypes;
 using SchemaInfoScanner.TypeCheckers;
+using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemaFactories;
 

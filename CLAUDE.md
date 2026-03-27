@@ -2,7 +2,7 @@
 
 ## 프로젝트 개요
 
-Excel Data Solution
+StaticDataPipeline
 
 ## 코딩 컨벤션
 

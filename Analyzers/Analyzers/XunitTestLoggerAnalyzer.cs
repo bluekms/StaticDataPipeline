@@ -12,7 +12,7 @@ namespace Analyzers;
 #pragma warning restore RS1038, RS1041
 public class XunitTestLoggerTypeAnalyzer : DiagnosticAnalyzer
 {
-    private const string DiagnosticId = "EDS1001";
+    private const string DiagnosticId = "SDP1001";
 
     private static readonly DiagnosticDescriptor Rule = new(
         DiagnosticId,

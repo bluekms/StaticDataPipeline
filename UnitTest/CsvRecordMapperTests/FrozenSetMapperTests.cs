@@ -1,6 +1,6 @@
 using System.Collections.Frozen;
-using Eds.Attributes;
-using Eds.Csv;
+using Sdp.Attributes;
+using Sdp.Csv;
 
 namespace UnitTest.CsvRecordMapperTests;
 
