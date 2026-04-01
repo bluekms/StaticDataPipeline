@@ -98,6 +98,33 @@ using Microsoft.AspNetCore.Mvc;
 using NK.LobbyWebAPI.Authentication.UserSessions;
 ```
 
+#### LINQ
+
+메서드 체인 문법을 사용한다:
+
+```csharp
+// Good
+var result = numbers.Where(n => n > 0).Select(n => n * 2);
+
+// Bad
+var result = from n in numbers where n > 0 select n * 2;
+```
+
+여러 조건이 있을 때 `Where`를 분리한다:
+
+```csharp
+// Good
+var result = records
+    .Where(x => x.IsValid)
+    .Where(x => x.Value > threshold)
+    .Select(...);
+
+// Bad
+var result = records
+    .Where(x => x.IsValid && x.Value > threshold)
+    .Select(...);
+```
+
 #### Switch 문
 - case 내용 들여쓰기
 - case가 블록일 때 추가 들여쓰기 없음
@@ -121,6 +148,20 @@ switch (value)
 ```
 public, private, protected, internal, required, file, static, extern, new, virtual, abstract, sealed, override, readonly, unsafe, volatile, async
 ```
+
+#### 네이밍 규칙
+
+- private 멤버에 `_` 접두사 사용 금지
+- 접근 제한자 명시 (생략 금지)
+- 단순 getter는 화살표 표현식 사용
+  - Good: `public int Count => items.Count;`
+  - Bad: `public int Count { get { return items.Count; } }`
+- `this.` 한정자는 생성자에서 파라미터와 이름이 충돌할 때만 사용
+
+#### Primary constructor
+
+가능하면 클래스에 Primary constructor 문법을 사용한다.
+별도 private 필드 선언과 이름 충돌을 피할 수 있다.
 
 #### empty string 사용
 
