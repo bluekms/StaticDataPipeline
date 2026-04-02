@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Sdp.Csv;
 
 namespace Sdp.Table;
 
@@ -10,10 +11,15 @@ public abstract class StaticDataTable<TRecord, TKey>
     private readonly UniqueIndex<TRecord, TKey> index;
     private readonly ImmutableList<TRecord> records;
 
-    protected StaticDataTable(ImmutableList<TRecord> records, Func<TRecord, TKey> keySelector)
+    internal StaticDataTable(ImmutableList<TRecord> records, Func<TRecord, TKey> keySelector)
     {
         this.records = records;
         index = new UniqueIndex<TRecord, TKey>(records, keySelector);
+    }
+
+    protected StaticDataTable(string filePath, Func<TRecord, TKey> keySelector)
+        : this(CsvLoader.Load<TRecord>(filePath), keySelector)
+    {
     }
 
     public IReadOnlyList<TRecord> Records => records;

@@ -3,24 +3,24 @@ using System.Text;
 
 namespace Sdp.Csv;
 
-public static class CsvLoader
+internal static class CsvLoader
 {
     public static ImmutableList<TRecord> Load<TRecord>(string filePath)
-        where TRecord : class
+        where TRecord : notnull
     {
         var content = File.ReadAllText(filePath);
         return Parse<TRecord>(content);
     }
 
     public static async Task<ImmutableList<TRecord>> LoadAsync<TRecord>(string filePath)
-        where TRecord : class
+        where TRecord : notnull
     {
         var content = await File.ReadAllTextAsync(filePath);
         return Parse<TRecord>(content);
     }
 
     public static ImmutableList<TRecord> Parse<TRecord>(string csvContent)
-        where TRecord : class
+        where TRecord : notnull
     {
         var rows = ParseCsvContent(csvContent);
         if (rows.Count == 0)

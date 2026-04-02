@@ -6,7 +6,7 @@ namespace Sdp.Csv;
 internal static class CsvRecordMapper
 {
     public static TRecord MapToRecord<TRecord>(string[] headers, string[] values)
-        where TRecord : class
+        where TRecord : notnull
     {
         var typeInfo = CsvTypeCache.GetTypeInfo(typeof(TRecord));
         var headerIndexMap = BuildHeaderIndexMap(headers);
