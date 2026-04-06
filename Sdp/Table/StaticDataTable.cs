@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using Sdp.Attributes;
 using Sdp.Csv;
 
 namespace Sdp.Table;
@@ -17,9 +19,23 @@ public abstract class StaticDataTable<TRecord, TKey>
         index = new UniqueIndex<TRecord, TKey>(records, keySelector);
     }
 
-    protected StaticDataTable(string filePath, Func<TRecord, TKey> keySelector)
-        : this(CsvLoader.Load<TRecord>(filePath), keySelector)
+    protected StaticDataTable(string path, Func<TRecord, TKey> keySelector)
+        : this(LoadRecords(path), keySelector)
     {
+    }
+
+    private static ImmutableList<TRecord> LoadRecords(string path)
+    {
+        if (Directory.Exists(path))
+        {
+            var attr = typeof(TRecord).GetCustomAttribute<StaticDataRecordAttribute>()
+                ?? throw new InvalidOperationException(FormattableString.Invariant(
+                    $"{typeof(TRecord).Name} requires [StaticDataRecord] attribute when loading from a directory."));
+
+            path = Path.Combine(path, FormattableString.Invariant($"{attr.ExcelFileName}.{attr.SheetName}.csv"));
+        }
+
+        return CsvLoader.Load<TRecord>(path);
     }
 
     public IReadOnlyList<TRecord> Records => records;
