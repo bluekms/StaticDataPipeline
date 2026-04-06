@@ -25,4 +25,7 @@ public sealed class ProgramOptions
 
     [Option('m', "min-log-level", Required = false, Default = LogEventLevel.Information, HelpText = "최소 로그 레벨 (Verbose, Debug, Information, Warning, Error, Fatal)")]
     public LogEventLevel MinLogLevel { get; set; }
+
+    [Option('f', "force", Required = false, Default = false, HelpText = "출력 디렉터리에 파일이 있어도 강제로 덮어씀")]
+    public bool Force { get; set; }
 }
