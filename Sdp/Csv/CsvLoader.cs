@@ -9,17 +9,17 @@ internal static class CsvLoader
         where TRecord : notnull
     {
         var content = File.ReadAllText(filePath);
-        return Parse<TRecord>(content);
+        return Parse<TRecord>(content, filePath);
     }
 
     public static async Task<ImmutableList<TRecord>> LoadAsync<TRecord>(string filePath)
         where TRecord : notnull
     {
         var content = await File.ReadAllTextAsync(filePath);
-        return Parse<TRecord>(content);
+        return Parse<TRecord>(content, filePath);
     }
 
-    public static ImmutableList<TRecord> Parse<TRecord>(string csvContent)
+    public static ImmutableList<TRecord> Parse<TRecord>(string csvContent, string? filePath = null)
         where TRecord : notnull
     {
         var rows = ParseCsvContent(csvContent);
@@ -39,8 +39,20 @@ internal static class CsvLoader
                 continue;
             }
 
-            var record = CsvRecordMapper.MapToRecord<TRecord>(headers, values);
-            builder.Add(record);
+            try
+            {
+                var record = CsvRecordMapper.MapToRecord<TRecord>(headers, values);
+                builder.Add(record);
+            }
+            catch (Exception ex)
+            {
+                var location = filePath is not null
+                    ? FormattableString.Invariant($"[{Path.GetFileName(filePath)}] CSV row {i + 1}")
+                    : FormattableString.Invariant($"CSV row {i + 1}");
+                throw new InvalidOperationException(
+                    FormattableString.Invariant($"{location}: {ex.Message}"),
+                    ex);
+            }
         }
 
         return builder.ToImmutable();
