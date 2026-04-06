@@ -47,7 +47,7 @@ public static class SheetNameScanner
         if (loader.IsTemp)
         {
             var lastWriteTime = File.GetLastWriteTime(filePath);
-            LogInformation(logger, $"{nameof(SheetNameScanner)}: {Path.GetFileName(filePath)} 이미 열려있어 사본을 읽습니다. 마지막으로 저장된 시간: {lastWriteTime}", null);
+            LogInformation(logger, $"{Path.GetFileName(filePath)} 이미 열려있어 사본을 읽습니다. 마지막으로 저장된 시간: {lastWriteTime}", null);
         }
 
         using var reader = ExcelReaderFactory.CreateReader(loader.Stream);
