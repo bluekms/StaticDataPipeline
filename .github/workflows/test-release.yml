@@ -17,20 +17,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Delete existing release
-        run: gh release delete ${{ env.TAG_NAME }} --yes || true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Delete existing tag
+      - name: Create tag if not exists
         run: |
-          git push origin --delete ${{ env.TAG_NAME }} || true
-          git tag -d ${{ env.TAG_NAME }} || true
-
-      - name: Create tag
-        run: |
-          git tag ${{ env.TAG_NAME }}
-          git push origin ${{ env.TAG_NAME }}
+          git tag ${{ env.TAG_NAME }} 2>/dev/null || true
+          git push origin ${{ env.TAG_NAME }} 2>/dev/null || true
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -70,11 +60,12 @@ jobs:
       - name: Copy Sdp DLL
         run: cp ./Sdp/bin/Release/net10.0/Sdp.dll ./release-files/Sdp.dll
 
-      - name: Create GitHub Pre-Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ env.TAG_NAME }}
-          prerelease: true
-          files: ./release-files/*
+      - name: Create release if not exists
+        run: gh release create ${{ env.TAG_NAME }} --prerelease --title "${{ env.TAG_NAME }}" 2>/dev/null || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        run: gh release upload ${{ env.TAG_NAME }} ./release-files/* --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
