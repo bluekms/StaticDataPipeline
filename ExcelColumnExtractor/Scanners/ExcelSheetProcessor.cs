@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using ExcelColumnExtractor.NameObjects;
+using ExcelColumnExtractor.Resources;
 using ExcelDataReader;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Exceptions;
@@ -42,7 +43,7 @@ public sealed class ExcelSheetProcessor
         if (loader.IsTemp)
         {
             var lastWriteTime = File.GetLastWriteTime(excelSheetName.ExcelPath);
-            LogInformation(logger, $"{excelSheetName.FullName} 이미 열려있어 사본을 읽습니다. 마지막으로 저장된 시간: {lastWriteTime}", null);
+            LogInformation(logger, Messages.FileAlreadyOpen(excelSheetName.FullName, lastWriteTime), null);
         }
 
         ProcessCore(loader.Stream, excelSheetName, logger);
@@ -54,7 +55,7 @@ public sealed class ExcelSheetProcessor
         if (loader.IsTemp)
         {
             var lastWriteTime = File.GetLastWriteTime(excelSheetName.ExcelPath);
-            LogInformation(logger, $"{excelSheetName.FullName} 이미 열려있어 사본을 읽습니다. 마지막으로 저장된 시간: {lastWriteTime}", null);
+            LogInformation(logger, Messages.FileAlreadyOpen(excelSheetName.FullName, lastWriteTime), null);
         }
 
         ProcessCore(loader.Stream, excelSheetName, logger);

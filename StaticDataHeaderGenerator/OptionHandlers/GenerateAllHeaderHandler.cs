@@ -5,6 +5,7 @@ using SchemaInfoScanner;
 using SchemaInfoScanner.Extensions;
 using Sdp.Attributes;
 using StaticDataHeaderGenerator.ProgramOptions;
+using StaticDataHeaderGenerator.Resources;
 
 namespace StaticDataHeaderGenerator.OptionHandlers;
 
@@ -16,7 +17,7 @@ public class GenerateAllHeaderHandler
             ? Logger.CreateLoggerWithoutFile<Program>(options.MinLogLevel)
             : Logger.CreateLogger<Program>(options.MinLogLevel, options.LogPath);
 
-        LogInformation(logger, "Generate Header File", null);
+        LogInformation(logger, Messages.GeneratingHeaderFile(), null);
 
         var catalogs = RecordScanner.Scan(options.RecordCsPath, logger);
         if (catalogs.RecordSchemaCatalog.StaticDataRecordSchemata.Count == 0)
@@ -59,7 +60,7 @@ public class GenerateAllHeaderHandler
             sb.AppendLine("```");
             sb.AppendLine();
 
-            LogInformation(logger, FormattableString.Invariant($"Generated headers for {targetRecordSchema.RecordName.FullName}"), null);
+            LogInformation(logger, Messages.HeadersGenerated(targetRecordSchema.RecordName.FullName), null);
         }
 
         if (!string.IsNullOrEmpty(options.OutputFileName))
@@ -76,7 +77,7 @@ public class GenerateAllHeaderHandler
 
             File.WriteAllText(outputFileName, sb.ToString());
 
-            LogInformation(logger, $"Header file saved to {outputFileName}", null);
+            LogInformation(logger, Messages.HeaderFileSaved(outputFileName), null);
         }
 
         return 0;
@@ -88,7 +89,7 @@ public class GenerateAllHeaderHandler
             ? Logger.CreateLoggerWithoutFile<Program>(options.MinLogLevel)
             : Logger.CreateLogger<Program>(options.MinLogLevel, options.LogPath);
 
-        LogInformation(logger, "Generate Header File", null);
+        LogInformation(logger, Messages.GeneratingHeaderFile(), null);
 
         var catalogs = await RecordScanner.ScanAsync(options.RecordCsPath, logger, cancellationToken);
         if (catalogs.RecordSchemaCatalog.StaticDataRecordSchemata.Count == 0)
@@ -131,7 +132,7 @@ public class GenerateAllHeaderHandler
             sb.AppendLine("```");
             sb.AppendLine();
 
-            LogInformation(logger, FormattableString.Invariant($"Generated headers for {targetRecordSchema.RecordName.FullName}"), null);
+            LogInformation(logger, Messages.HeadersGenerated(targetRecordSchema.RecordName.FullName), null);
         }
 
         if (!string.IsNullOrEmpty(options.OutputFileName))
@@ -148,7 +149,7 @@ public class GenerateAllHeaderHandler
 
             await File.WriteAllTextAsync(outputFileName, sb.ToString(), cancellationToken);
 
-            LogInformation(logger, $"Header file saved to {outputFileName}", null);
+            LogInformation(logger, Messages.HeaderFileSaved(outputFileName), null);
         }
 
         return 0;

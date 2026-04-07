@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.TypeCheckers;
 using Sdp.Attributes;
 
@@ -22,7 +23,7 @@ public static class RecordComplianceChecker
         {
             if (!visited.Add(recordSchema.RecordName))
             {
-                LogTrace(logger, $"{recordSchema.RecordName.FullName} is already visited.", null);
+                LogTrace(logger, Messages.AlreadyVisited(recordSchema.RecordName.FullName), null);
                 continue;
             }
 
@@ -54,7 +55,7 @@ public static class RecordComplianceChecker
 
             if (!visited.Add(recordSchema.RecordName))
             {
-                LogTrace(logger, $"{recordSchema.RecordName.FullName} is already visited.", null);
+                LogTrace(logger, Messages.AlreadyVisited(recordSchema.RecordName.FullName), null);
                 continue;
             }
 

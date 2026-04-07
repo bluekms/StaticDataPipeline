@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 using Sdp.Attributes;
 
@@ -19,7 +20,7 @@ internal static class RecordTypeChecker
     {
         if (recordSchema.HasAttribute<IgnoreAttribute>())
         {
-            LogTrace(logger, $"{recordSchema.RecordName.FullName} is ignored.", null);
+            LogTrace(logger, Messages.Ignored(recordSchema.RecordName.FullName), null);
             return;
         }
 
@@ -30,18 +31,18 @@ internal static class RecordTypeChecker
 
         if (!visited.Add(recordSchema.RecordName))
         {
-            LogTrace(logger, $"{recordSchema.RecordName.FullName} is already visited.", null);
+            LogTrace(logger, Messages.AlreadyVisited(recordSchema.RecordName.FullName), null);
             return;
         }
 
-        LogTrace(logger, $"{recordSchema.RecordName.FullName} Started.", null);
+        LogTrace(logger, Messages.RecordStarted(recordSchema.RecordName.FullName), null);
 
         foreach (var recordParameterSchema in recordSchema.PropertySchemata)
         {
             SupportedTypeChecker.Check(recordParameterSchema, recordSchemaCatalog, visited, logger);
         }
 
-        LogTrace(logger, $"{recordSchema.RecordName.FullName} Finished.", null);
+        LogTrace(logger, Messages.RecordFinished(recordSchema.RecordName.FullName), null);
     }
 
     public static bool IsSupportedRecordType(INamedTypeSymbol symbol)
