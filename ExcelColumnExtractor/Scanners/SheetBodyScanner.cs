@@ -1,4 +1,5 @@
 using ExcelColumnExtractor.NameObjects;
+using ExcelColumnExtractor.Resources;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata;
 
@@ -20,11 +21,11 @@ public class SheetBodyScanner
         var processor = new ExcelSheetProcessor(ProcessBody);
         processor.Process(excelSheetName, logger);
 
-        LogTrace(logger, excelSheetName.FullName, rows.Count, null);
+        LogTrace(logger, Messages.SheetScanned(excelSheetName.FullName, rows.Count), null);
         return new(rows.AsReadOnly());
     }
 
-    private static readonly Action<ILogger, string, int, Exception?> LogTrace =
-        LoggerMessage.Define<string, int>(
-            LogLevel.Trace, new EventId(1, nameof(SheetBodyScanner)), "{ExcelSheetName}'s data is scanned. ({Count})");
+    private static readonly Action<ILogger, string, Exception?> LogTrace =
+        LoggerMessage.Define<string>(
+            LogLevel.Trace, new EventId(1, nameof(SheetBodyScanner)), "{Message}");
 }

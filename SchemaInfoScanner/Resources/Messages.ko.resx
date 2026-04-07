@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="AlreadyVisited" xml:space="preserve">
+    <value>{0} 이미 처리되었습니다.</value>
+  </data>
+  <data name="Ignored" xml:space="preserve">
+    <value>{0} 무시됩니다.</value>
+  </data>
+  <data name="RecordStarted" xml:space="preserve">
+    <value>{0} 처리 시작.</value>
+  </data>
+  <data name="RecordFinished" xml:space="preserve">
+    <value>{0} 처리 완료.</value>
+  </data>
+  <data name="CodeNotCompilable" xml:space="preserve">
+    <value>코드를 컴파일할 수 없습니다: {0}</value>
+  </data>
+</root>

@@ -1,3 +1,4 @@
+using System.Globalization;
 using ExcelColumnExtractor.Checkers;
 using ExcelColumnExtractor.Scanners;
 using Microsoft.Extensions.Logging;
@@ -49,76 +50,103 @@ public class FolderUpdateCheckerTest(ITestOutputHelper testOutputHelper)
     [Fact]
     public void AddedCheckTest()
     {
-        var now = DateTime.UtcNow;
-        var dummy = new Dictionary<string, DateTime> { { "dummy", now } };
-        var added = new Dictionary<string, DateTime>
+        var savedCulture = CultureInfo.CurrentUICulture;
+        CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
+        try
         {
-            { "dummy", now },
-            { "Foo", now }
-        };
+            var now = DateTime.UtcNow;
+            var dummy = new Dictionary<string, DateTime> { { "dummy", now } };
+            var added = new Dictionary<string, DateTime>
+            {
+                { "dummy", now },
+                { "Foo", now }
+            };
 
-        var before = new FolderState("DummyPath", dummy);
-        var after = new FolderState("DummyPath", added);
+            var before = new FolderState("DummyPath", dummy);
+            var after = new FolderState("DummyPath", added);
 
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Trace);
-        if (factory.CreateLogger<FolderUpdateCheckerTest>() is not TestOutputLogger<FolderUpdateCheckerTest> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
+            var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Trace);
+            if (factory.CreateLogger<FolderUpdateCheckerTest>() is not TestOutputLogger<FolderUpdateCheckerTest> logger)
+            {
+                throw new InvalidOperationException("Logger creation failed.");
+            }
+
+            FolderUpdateChecker.Check(before, after, logger);
+
+            Assert.Single(logger.Logs);
+            Assert.Equal("File added: Foo", logger.Logs.First().Message);
         }
-
-        FolderUpdateChecker.Check(before, after, logger);
-
-        Assert.Single(logger.Logs);
-        Assert.Equal("File Foo was added.", logger.Logs.First().Message);
+        finally
+        {
+            CultureInfo.CurrentUICulture = savedCulture;
+        }
     }
 
     [Fact]
     public void RemoveCheckTest()
     {
-        var now = DateTime.UtcNow;
-        var dummy = new Dictionary<string, DateTime>
+        var savedCulture = CultureInfo.CurrentUICulture;
+        CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
+        try
         {
-            { "dummy", now },
-            { "Foo", now }
-        };
+            var now = DateTime.UtcNow;
+            var dummy = new Dictionary<string, DateTime>
+            {
+                { "dummy", now },
+                { "Foo", now }
+            };
 
-        var removed = new Dictionary<string, DateTime> { { "dummy", now } };
+            var removed = new Dictionary<string, DateTime> { { "dummy", now } };
 
-        var before = new FolderState("DummyPath", dummy);
-        var after = new FolderState("DummyPath", removed);
+            var before = new FolderState("DummyPath", dummy);
+            var after = new FolderState("DummyPath", removed);
 
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Trace);
-        if (factory.CreateLogger<FolderUpdateCheckerTest>() is not TestOutputLogger<FolderUpdateCheckerTest> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
+            var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Trace);
+            if (factory.CreateLogger<FolderUpdateCheckerTest>() is not TestOutputLogger<FolderUpdateCheckerTest> logger)
+            {
+                throw new InvalidOperationException("Logger creation failed.");
+            }
+
+            FolderUpdateChecker.Check(before, after, logger);
+
+            Assert.Single(logger.Logs);
+            Assert.Equal("File removed: Foo", logger.Logs.First().Message);
         }
-
-        FolderUpdateChecker.Check(before, after, logger);
-
-        Assert.Single(logger.Logs);
-        Assert.Equal("File Foo was removed.", logger.Logs.First().Message);
+        finally
+        {
+            CultureInfo.CurrentUICulture = savedCulture;
+        }
     }
 
     [Fact]
     public void UpdateCheckTest()
     {
-        var now = DateTime.UtcNow;
-        var beforeState = new Dictionary<string, DateTime> { { "dummy", now.AddSeconds(-1) } };
-        var afterState = new Dictionary<string, DateTime> { { "dummy", now } };
-
-        var before = new FolderState("DummyPath", beforeState);
-        var after = new FolderState("DummyPath", afterState);
-
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Trace);
-        if (factory.CreateLogger<FolderUpdateCheckerTest>() is not TestOutputLogger<FolderUpdateCheckerTest> logger)
+        var savedCulture = CultureInfo.CurrentUICulture;
+        CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
+        try
         {
-            throw new InvalidOperationException("Logger creation failed.");
+            var now = DateTime.UtcNow;
+            var beforeState = new Dictionary<string, DateTime> { { "dummy", now.AddSeconds(-1) } };
+            var afterState = new Dictionary<string, DateTime> { { "dummy", now } };
+
+            var before = new FolderState("DummyPath", beforeState);
+            var after = new FolderState("DummyPath", afterState);
+
+            var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Trace);
+            if (factory.CreateLogger<FolderUpdateCheckerTest>() is not TestOutputLogger<FolderUpdateCheckerTest> logger)
+            {
+                throw new InvalidOperationException("Logger creation failed.");
+            }
+
+            FolderUpdateChecker.Check(before, after, logger);
+
+            Assert.Single(logger.Logs);
+            Assert.Equal("File changed since last scan: dummy", logger.Logs.First().Message);
         }
-
-        FolderUpdateChecker.Check(before, after, logger);
-
-        Assert.Single(logger.Logs);
-        Assert.Equal("File dummy was updated after the last capture.", logger.Logs.First().Message);
+        finally
+        {
+            CultureInfo.CurrentUICulture = savedCulture;
+        }
     }
 
     [Fact]
