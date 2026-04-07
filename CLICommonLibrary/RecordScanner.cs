@@ -1,3 +1,4 @@
+using CLICommonLibrary.Resources;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner;
 using SchemaInfoScanner.Catalogs;
@@ -18,7 +19,7 @@ public static class RecordScanner
         var exceptionCount = RecordComplianceChecker.TryCheck(recordSchemaCatalog, logger);
         if (exceptionCount > 0)
         {
-            logger.LogError("There are {ExceptionCount} exceptions.", exceptionCount);
+            LogError(logger, Messages.ExceptionCount(exceptionCount), null);
         }
 
         var enumMemberCatalog = new EnumMemberCatalog(loadResults);
@@ -36,10 +37,13 @@ public static class RecordScanner
         var exceptionCount = RecordComplianceChecker.TryCheck(recordSchemaCatalog, logger);
         if (exceptionCount > 0)
         {
-            logger.LogError("There are {ExceptionCount} exceptions.", exceptionCount);
+            LogError(logger, Messages.ExceptionCount(exceptionCount), null);
         }
 
         var enumMemberCatalog = new EnumMemberCatalog(loadResults);
         return new(recordSchemaCatalog, enumMemberCatalog);
     }
+
+    private static readonly Action<ILogger, string, Exception?> LogError =
+        LoggerMessage.Define<string>(LogLevel.Error, new EventId(0, nameof(LogError)), "{Message}");
 }

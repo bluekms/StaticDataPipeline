@@ -3,6 +3,7 @@ using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Exceptions;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 using SchemaInfoScanner.Schemata.SchemaValidators;
 using Sdp.Attributes;
@@ -19,7 +20,7 @@ internal static class SupportedTypeChecker
     {
         if (property.HasAttribute<IgnoreAttribute>())
         {
-            LogTrace(logger, $"{property.PropertyName.FullName} is ignored.", null);
+            LogTrace(logger, Messages.Ignored(property.PropertyName.FullName), null);
             return;
         }
 

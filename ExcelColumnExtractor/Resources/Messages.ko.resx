@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="FileAlreadyOpen" xml:space="preserve">
+    <value>{0} 파일이 열려 있어 사본을 읽습니다. 마지막으로 저장된 시간: {1}</value>
+  </data>
+  <data name="FileAdded" xml:space="preserve">
+    <value>파일이 추가되었습니다: {0}</value>
+  </data>
+  <data name="FileRemoved" xml:space="preserve">
+    <value>파일이 삭제되었습니다: {0}</value>
+  </data>
+  <data name="FileUpdated" xml:space="preserve">
+    <value>마지막 스캔 이후 변경된 파일: {0}</value>
+  </data>
+  <data name="SheetScanned" xml:space="preserve">
+    <value>{0}: {1}개 행을 읽었습니다.</value>
+  </data>
+</root>
