@@ -5,6 +5,7 @@ using SchemaInfoScanner;
 using SchemaInfoScanner.Extensions;
 using Sdp.Attributes;
 using StaticDataHeaderGenerator.ProgramOptions;
+using StaticDataHeaderGenerator.Resources;
 
 namespace StaticDataHeaderGenerator.OptionHandlers;
 
@@ -16,7 +17,7 @@ public static class GenerateHeaderHandler
             ? Logger.CreateLoggerWithoutFile<Program>(options.MinLogLevel)
             : Logger.CreateLogger<Program>(options.MinLogLevel, options.LogPath);
 
-        LogInformation(logger, "Generate Header File", null);
+        LogInformation(logger, Messages.GeneratingHeaderFile(), null);
 
         var catalogs = RecordScanner.Scan(options.RecordCsPath, logger);
         if (catalogs.RecordSchemaCatalog.StaticDataRecordSchemata.Count == 0)
@@ -54,7 +55,7 @@ public static class GenerateHeaderHandler
 
             File.WriteAllText(outputFileName, output);
 
-            LogInformation(logger, $"Header file saved to {outputFileName}", null);
+            LogInformation(logger, Messages.HeaderFileSaved(outputFileName), null);
         }
 
         return 0;
@@ -66,7 +67,7 @@ public static class GenerateHeaderHandler
             ? Logger.CreateLoggerWithoutFile<Program>(options.MinLogLevel)
             : Logger.CreateLogger<Program>(options.MinLogLevel, options.LogPath);
 
-        LogInformation(logger, "Generate Header File", null);
+        LogInformation(logger, Messages.GeneratingHeaderFile(), null);
 
         var catalogs = await RecordScanner.ScanAsync(options.RecordCsPath, logger, cancellationToken);
         if (catalogs.RecordSchemaCatalog.StaticDataRecordSchemata.Count == 0)
@@ -104,7 +105,7 @@ public static class GenerateHeaderHandler
 
             await File.WriteAllTextAsync(outputFileName, output, cancellationToken);
 
-            LogInformation(logger, $"Header file saved to {outputFileName}", null);
+            LogInformation(logger, Messages.HeaderFileSaved(outputFileName), null);
         }
 
         return 0;

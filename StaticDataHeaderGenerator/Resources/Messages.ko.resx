@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="GeneratingHeaderFile" xml:space="preserve">
+    <value>헤더 파일 생성 중...</value>
+  </data>
+  <data name="HeadersGenerated" xml:space="preserve">
+    <value>헤더 생성 완료: {0}</value>
+  </data>
+  <data name="HeaderFileSaved" xml:space="preserve">
+    <value>헤더 파일 저장됨: {0}</value>
+  </data>
+</root>

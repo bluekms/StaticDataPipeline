@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
+using SchemaInfoScanner.Resources;
 
 namespace SchemaInfoScanner;
 
@@ -90,7 +91,7 @@ public static class RecordSchemaLoader
 
         if (compileErrors.Count is not 0)
         {
-            LogException(logger, $"Code is not compilable. '{code}'", null);
+            LogException(logger, Messages.CodeNotCompilable(code), null);
             foreach (var error in compileErrors)
             {
                 LogException(logger, error.ToString(), null);

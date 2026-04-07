@@ -133,8 +133,4 @@ public static class RecordFlattener
     }
 
     private static readonly Regex IndexRegex = new(@"\[.*?\]");
-
-    private static readonly Action<ILogger, string, string, Exception?> LogInformation =
-        LoggerMessage.Define<string, string>(
-            LogLevel.Information, new EventId(0, nameof(RecordFlattener)), "{Message} {Argument}");
 }

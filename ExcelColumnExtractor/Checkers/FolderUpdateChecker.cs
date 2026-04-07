@@ -1,4 +1,5 @@
 using System.Globalization;
+using ExcelColumnExtractor.Resources;
 using ExcelColumnExtractor.Scanners;
 using Microsoft.Extensions.Logging;
 
@@ -18,13 +19,13 @@ public static class FolderUpdateChecker
         var added = after.FileStates.Keys.Except(before.FileStates.Keys).ToList();
         foreach (var path in added)
         {
-            LogWarning(logger, $"File {path} was added.", null);
+            LogWarning(logger, Messages.FileAdded(path), null);
         }
 
         var removed = before.FileStates.Keys.Except(after.FileStates.Keys).ToList();
         foreach (var path in removed)
         {
-            LogWarning(logger, $"File {path} was removed.", null);
+            LogWarning(logger, Messages.FileRemoved(path), null);
         }
 
         foreach (var file in before.FileStates.Keys.Intersect(after.FileStates.Keys))
@@ -39,7 +40,7 @@ public static class FolderUpdateChecker
                     throw new InvalidOperationException($"File {file} was updated before the last capture. {beforeTime.ToString(DateTimeFormat, CultureInfo.InvariantCulture)} -> {afterTime.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}");
                 }
 
-                LogWarning(logger, $"File {file} was updated after the last capture.", null);
+                LogWarning(logger, Messages.FileUpdated(file), null);
             }
         }
     }

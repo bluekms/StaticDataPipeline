@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="AlreadyVisited" xml:space="preserve">
+    <value>{0} already visited.</value>
+  </data>
+  <data name="Ignored" xml:space="preserve">
+    <value>{0} ignored.</value>
+  </data>
+  <data name="RecordStarted" xml:space="preserve">
+    <value>{0} started.</value>
+  </data>
+  <data name="RecordFinished" xml:space="preserve">
+    <value>{0} finished.</value>
+  </data>
+  <data name="CodeNotCompilable" xml:space="preserve">
+    <value>Code is not compilable: {0}</value>
+  </data>
+</root>
