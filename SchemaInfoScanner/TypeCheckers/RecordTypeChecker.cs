@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
@@ -20,29 +21,49 @@ internal static class RecordTypeChecker
     {
         if (recordSchema.HasAttribute<IgnoreAttribute>())
         {
-            LogTrace(logger, Messages.Ignored(recordSchema.RecordName.FullName), null);
+            var ignoredMsg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.Ignored,
+                recordSchema.RecordName.FullName);
+            LogTrace(logger, ignoredMsg, null);
             return;
         }
 
         if (!IsSupportedRecordType(recordSchema.NamedTypeSymbol))
         {
-            throw new InvalidOperationException($"{recordSchema.RecordName.FullName} is not supported record type.");
+            throw new InvalidOperationException(
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.NotSupportedRecordType,
+                    recordSchema.RecordName.FullName));
         }
 
         if (!visited.Add(recordSchema.RecordName))
         {
-            LogTrace(logger, Messages.AlreadyVisited(recordSchema.RecordName.FullName), null);
+            var visitedMsg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.AlreadyVisited,
+                recordSchema.RecordName.FullName);
+            LogTrace(logger, visitedMsg, null);
             return;
         }
 
-        LogTrace(logger, Messages.RecordStarted(recordSchema.RecordName.FullName), null);
+        var startedMsg = string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.RecordStarted,
+            recordSchema.RecordName.FullName);
+        LogTrace(logger, startedMsg, null);
 
         foreach (var recordParameterSchema in recordSchema.PropertySchemata)
         {
             SupportedTypeChecker.Check(recordParameterSchema, recordSchemaCatalog, visited, logger);
         }
 
-        LogTrace(logger, Messages.RecordFinished(recordSchema.RecordName.FullName), null);
+        var finishedMsg = string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.RecordFinished,
+            recordSchema.RecordName.FullName);
+        LogTrace(logger, finishedMsg, null);
     }
 
     public static bool IsSupportedRecordType(INamedTypeSymbol symbol)
@@ -88,8 +109,16 @@ internal static class RecordTypeChecker
         var recordSchema = recordSchemaCatalog.TryFind(symbol);
         if (recordSchema is null)
         {
-            var innerException = new KeyNotFoundException($"{symbol.Name} is not found in the RecordSchemaDictionary");
-            throw new NotSupportedException($"{symbol.Name} is not supported type.", innerException);
+            var innerException = new KeyNotFoundException(
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.RecordSchemaTypeArgNotFound,
+                    symbol.Name));
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NotSupportedType,
+                symbol.Name);
+            throw new NotSupportedException(msg, innerException);
         }
 
         Check(recordSchema, recordSchemaCatalog, visited, logger);

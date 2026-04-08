@@ -21,4 +21,253 @@
   <data name="CodeNotCompilable" xml:space="preserve">
     <value>Code is not compilable: {0}</value>
   </data>
+  <data name="NoStaticDataRecordFound" xml:space="preserve">
+    <value>No static data record is found.</value>
+  </data>
+  <data name="RecordSchemaNotFound" xml:space="preserve">
+    <value>Record schema not found: {0}</value>
+  </data>
+  <data name="ExceptionCountWhileCollecting" xml:space="preserve">
+    <value>There are {0} exceptions while collecting record schema set.</value>
+  </data>
+  <data name="RecordNotNamedTypeSymbol" xml:space="preserve">
+    <value>{0} is not a named type symbol</value>
+  </data>
+  <data name="ParseResultCountMismatch" xml:space="preserve">
+    <value>Count mismatch</value>
+  </data>
+  <data name="ParseResultParameterNotFound" xml:space="preserve">
+    <value>{0} not found</value>
+  </data>
+  <data name="AttributeHasNoProperty" xml:space="preserve">
+    <value>{0} has no property.</value>
+  </data>
+  <data name="UnsupportedExpressionType" xml:space="preserve">
+    <value>Unsupported expression type.</value>
+  </data>
+  <data name="ExpectedRecordCollectionType" xml:space="preserve">
+    <value>Expected {0} to be record collection type.</value>
+  </data>
+  <data name="NotSupportedType" xml:space="preserve">
+    <value>{0} is not supported type.</value>
+  </data>
+  <data name="RecordSchemaTypeArgNotFound" xml:space="preserve">
+    <value>{0} is not found in the RecordSchemaDictionary</value>
+  </data>
+  <data name="NullStringAttributeNotFound" xml:space="preserve">
+    <value>Property {0} does not have a NullStringAttribute.</value>
+  </data>
+  <data name="RangeAttributeCannotBeUsedInEnum" xml:space="preserve">
+    <value>RangeAttribute cannot be used in enum.</value>
+  </data>
+  <data name="RangeAttributeMustHaveTwoValues" xml:space="preserve">
+    <value>RangeAttribute must have two values.</value>
+  </data>
+  <data name="ValueOutOfRange" xml:space="preserve">
+    <value>Value({0}) must be between {1} and {2}.</value>
+  </data>
+  <data name="ParameterCannotHaveLengthAttribute" xml:space="preserve">
+    <value>Parameter {0} cannot have LengthAttribute</value>
+  </data>
+  <data name="ParameterCannotHaveLengthAttributeWithContext" xml:space="preserve">
+    <value>Parameter {0} cannot have LengthAttribute in the argument: {1}</value>
+  </data>
+  <data name="DuplicateKeyInContext" xml:space="preserve">
+    <value>Parameter {0} has duplicate key: {1} in context {2}.</value>
+  </data>
+  <data name="InvalidDataLength" xml:space="preserve">
+    <value>Invalid data length: {0}</value>
+  </data>
+  <data name="InvalidCellValue" xml:space="preserve">
+    <value>Invalid value '{0}' in cell {1}.</value>
+  </data>
+  <data name="InvalidCellValueWithPattern" xml:space="preserve">
+    <value>Invalid value '{0}' in cell {1}. Expected to match pattern '{2}'.</value>
+  </data>
+  <data name="ValueTypeMustBeRecordPropertySchema" xml:space="preserve">
+    <value>Value type of RecordKeyRecordValueMapSchema must be a RecordPropertySchema: {0}</value>
+  </data>
+  <data name="ValueRecordMustHaveOneKeyMember" xml:space="preserve">
+    <value>Value record must have exactly one [Key] member: {0}</value>
+  </data>
+  <data name="StartIndexOutOfRange" xml:space="preserve">
+    <value>StartIndex {0} is out of range for the provided arguments.</value>
+  </data>
+  <data name="UnreachableCodeInCollect" xml:space="preserve">
+    <value>Unreachable code reached in Collect method.</value>
+  </data>
+  <data name="CannotValidateDuplicatesInNoneMode" xml:space="preserve">
+    <value>Cannot validate duplicates when CollectMode is None: {0}</value>
+  </data>
+  <data name="DuplicateValuesInArgument" xml:space="preserve">
+    <value>Duplicate values found in the argument: {0}</value>
+  </data>
+  <data name="BeginKeyScopeOnlyInKeyOnlyMode" xml:space="preserve">
+    <value>BeginKeyScope can only be called in KeyOnly collect mode: {0}</value>
+  </data>
+  <data name="NestedKeyScopesNotAllowed" xml:space="preserve">
+    <value>Nested key scopes are not allowed: {0}</value>
+  </data>
+  <data name="EndKeyScopeOnlyInKeyOnlyMode" xml:space="preserve">
+    <value>EndKeyScope can only be called in KeyOnly collect mode: {0}</value>
+  </data>
+  <data name="EndKeyScopeWithoutBeginKeyScope" xml:space="preserve">
+    <value>EndKeyScope called without a matching BeginKeyScope: {0}</value>
+  </data>
+  <data name="NoComponentsInKeyScope" xml:space="preserve">
+    <value>No components collected in key scope: {0}</value>
+  </data>
+  <data name="ExpectedArrayType" xml:space="preserve">
+    <value>Expected {0} to be supported array type, but actually not supported.</value>
+  </data>
+  <data name="NullableRecordArrayNotSupported" xml:space="preserve">
+    <value>{0} is not supported array type. Nullable record item for array is not supported.</value>
+  </data>
+  <data name="SingleColumnArrayOnlyPrimitive" xml:space="preserve">
+    <value>{0} is not supported array type. SingleColumnCollectionAttribute can only be used in primitive type array.</value>
+  </data>
+  <data name="ExpectedHashSetType" xml:space="preserve">
+    <value>Expected {0} to be supported hashset type, but actually not supported.</value>
+  </data>
+  <data name="NullableRecordHashSetNotSupported" xml:space="preserve">
+    <value>{0} is not supported hashset type. Nullable record item for hashset is not supported.</value>
+  </data>
+  <data name="SingleColumnHashSetOnlyPrimitive" xml:space="preserve">
+    <value>{0} is not supported hashset type. SingleColumnCollectionAttribute can only be used in primitive type hashset.</value>
+  </data>
+  <data name="ExpectedDictionaryType" xml:space="preserve">
+    <value>Expected {0} to be supported dictionary type, but actually not supported.</value>
+  </data>
+  <data name="DictionaryKeyMustBeNonNullable" xml:space="preserve">
+    <value>Key type of dictionary must be non-nullable.</value>
+  </data>
+  <data name="DictionaryValueMustBeNonNullable" xml:space="preserve">
+    <value>Value type of dictionary must be non-nullable.</value>
+  </data>
+  <data name="KeyAttributeRequiredInDictionaryValue" xml:space="preserve">
+    <value>{0} is used as a value in dictionary {1}, KeyAttribute must be used in one of the parameters.</value>
+  </data>
+  <data name="DictionaryKeyValueMustBeSameType" xml:space="preserve">
+    <value>Key and value type of dictionary must be same type.</value>
+  </data>
+  <data name="FileOrDirectoryNotExist" xml:space="preserve">
+    <value>The file or directory does not exist.</value>
+  </data>
+  <data name="NullableCollectionNotSupported" xml:space="preserve">
+    <value>{0}({1}): nullable collection type is not supported.</value>
+  </data>
+  <data name="DateTimeFormatAttributeNotApplicable" xml:space="preserve">
+    <value>{0}({1}): DateTime is not applicable, so DateTimeFormatAttribute cannot be used.</value>
+  </data>
+  <data name="DateTimeFormatAttributeRequired" xml:space="preserve">
+    <value>{0}({1}): DateTime type must use DateTimeFormatAttribute.</value>
+  </data>
+  <data name="LengthAttributeRequired" xml:space="preserve">
+    <value>{0}({1}): collection type must use LengthAttribute.</value>
+  </data>
+  <data name="NullStringAttributeRequiredForNullable" xml:space="preserve">
+    <value>{0}({1}): nullable type must use NullStringAttribute.</value>
+  </data>
+  <data name="NullStringAttributeRequiredForNullableArray" xml:space="preserve">
+    <value>{0}({1}): nullable primitive array type must use NullStringAttribute.</value>
+  </data>
+  <data name="NullStringAttributeRequiredForNullableSet" xml:space="preserve">
+    <value>{0}({1}): nullable primitive set type must use NullStringAttribute.</value>
+  </data>
+  <data name="NullStringAttributeRequiredForNullableMap" xml:space="preserve">
+    <value>{0}({1}): nullable primitive map type must use NullStringAttribute.</value>
+  </data>
+  <data name="NullStringAttributeNotAllowed" xml:space="preserve">
+    <value>{0}({1}): not a nullable or nullable-containing collection, so NullStringAttribute cannot be used.</value>
+  </data>
+  <data name="RegularExpressionAttributeOnlyForString" xml:space="preserve">
+    <value>{0}({1}): not a string, so RegularExpressionAttribute cannot be used.</value>
+  </data>
+  <data name="SingleColumnCollectionNotForUnsupportedCollection" xml:space="preserve">
+    <value>{0}({1}): not a supported collection, so SingleColumnCollectionAttribute cannot be used.</value>
+  </data>
+  <data name="SingleColumnCollectionNotForMap" xml:space="preserve">
+    <value>{0}({1}): SingleColumnCollectionAttribute cannot be used with Map collection.</value>
+  </data>
+  <data name="TimeSpanFormatAttributeNotApplicable" xml:space="preserve">
+    <value>{0}({1}): TimeSpan is not applicable, so TimeSpanFormatAttribute cannot be used.</value>
+  </data>
+  <data name="TimeSpanFormatAttributeRequired" xml:space="preserve">
+    <value>{0}({1}): TimeSpan type must use TimeSpanFormatAttribute.</value>
+  </data>
+  <data name="FileSchemaNotFound" xml:space="preserve">
+    <value>{0} is not supported type.</value>
+  </data>
+  <data name="InvalidCellValueForEnum" xml:space="preserve">
+    <value>Invalid value '{0}' in cell {1}. Expected a member of {2}.</value>
+  </data>
+  <data name="SingleColumnCellCountMismatch" xml:space="preserve">
+    <value>Cell {0} contains {1} value(s), but {2} expects {3}.</value>
+  </data>
+  <data name="SingleColumnCellEmptyValue" xml:space="preserve">
+    <value>Cell {0} contains an empty value for {1}.</value>
+  </data>
+  <data name="CompileErrorsOccurred" xml:space="preserve">
+    <value>{0} compile errors occurred.</value>
+  </data>
+  <data name="NotSupportedRecordType" xml:space="preserve">
+    <value>{0} is not supported record type.</value>
+  </data>
+  <data name="NotSupportedRecordTypeWithMessage" xml:space="preserve">
+    <value>{0} is not supported record type. {1}</value>
+  </data>
+  <data name="NotFoundInRecordSchemaDictionary" xml:space="preserve">
+    <value>{0} is not found in the record schema dictionary.</value>
+  </data>
+  <data name="NotSupportedCollectionType" xml:space="preserve">
+    <value>{0} is not supported collection type.</value>
+  </data>
+  <data name="NotSupportedPrimitiveType" xml:space="preserve">
+    <value>{0} is not supported primitive type.</value>
+  </data>
+  <data name="NotSupportedPropertyType" xml:space="preserve">
+    <value>{0}({1}) is not a supported property type.</value>
+  </data>
+  <data name="FactoryNotSupportedPrimitiveType" xml:space="preserve">
+    <value>{0}({1}) is not a supported primitive type.</value>
+  </data>
+  <data name="NotSupportedListType" xml:space="preserve">
+    <value>{0}({1}) is not a supported list type.</value>
+  </data>
+  <data name="NotSingleColumnList" xml:space="preserve">
+    <value>{0}({1}) is not a single column list.</value>
+  </data>
+  <data name="NotSupportedHashSetType" xml:space="preserve">
+    <value>{0}({1}) is not a supported hash set type.</value>
+  </data>
+  <data name="NotSingleColumnHashSet" xml:space="preserve">
+    <value>{0}({1}) is not a single column hash set.</value>
+  </data>
+  <data name="FactoryNotSupportedArrayType" xml:space="preserve">
+    <value>{0}({1}) is not a supported array type.</value>
+  </data>
+  <data name="IsRecordArrayType" xml:space="preserve">
+    <value>{0}({1}) is record array type.</value>
+  </data>
+  <data name="NotSupportedNestedCollectionType" xml:space="preserve">
+    <value>{0}({1}) is not a supported nested collection type.</value>
+  </data>
+  <data name="FactoryDictionaryKeyMustBeRecordType" xml:space="preserve">
+    <value>{0}({1}) Key type of dictionary must be a supported record type.</value>
+  </data>
+  <data name="FactoryDictionaryValueMustBeRecordType" xml:space="preserve">
+    <value>{0}({1}) Value type of dictionary must be a supported record type.</value>
+  </data>
+  <data name="FactoryDictionaryKeyMustBePrimitiveType" xml:space="preserve">
+    <value>{0}({1}) Key type of dictionary must be a supported primitive type.</value>
+  </data>
+  <data name="FactoryNotSupportedRecordType" xml:space="preserve">
+    <value>{0}({1}) is not a supported record type.</value>
+  </data>
+  <data name="IsRecordHashSetType" xml:space="preserve">
+    <value>{0}({1}) is record hash set type.</value>
+  </data>
+  <data name="InvalidFullName" xml:space="preserve">
+    <value>fullName should not be null, empty, or end with '.'</value>
+  </data>
 </root>

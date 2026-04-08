@@ -1,7 +1,9 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.AttributeCheckers;
 using Sdp.Attributes;
 
@@ -19,7 +21,11 @@ public sealed record CharPropertySchema(
 
         if (!char.TryParse(cell.Value, out var value))
         {
-            throw new InvalidOperationException($"Invalid value '{cell.Value}' in cell {cell.Address}.");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.InvalidCellValue,
+                cell.Value,
+                cell.Address));
         }
 
         if (this.HasAttribute<RangeAttribute>())

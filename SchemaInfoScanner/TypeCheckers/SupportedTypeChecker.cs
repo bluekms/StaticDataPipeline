@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Exceptions;
@@ -20,7 +21,11 @@ internal static class SupportedTypeChecker
     {
         if (property.HasAttribute<IgnoreAttribute>())
         {
-            LogTrace(logger, Messages.Ignored(property.PropertyName.FullName), null);
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.Ignored,
+                property.PropertyName.FullName);
+            LogTrace(logger, msg, null);
             return;
         }
 
@@ -31,7 +36,11 @@ internal static class SupportedTypeChecker
         if (!validateResult.IsValid)
         {
             var errorMessage = string.Join(", ", validateResult.Errors.Select(e => e.ErrorMessage));
-            throw new InvalidAttributeUsageException($"{property.PropertyName.FullName} is not supported record type. {errorMessage}");
+            throw new InvalidAttributeUsageException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NotSupportedRecordTypeWithMessage,
+                property.PropertyName.FullName,
+                errorMessage));
         }
 
         if (PrimitiveTypeChecker.IsSupportedPrimitiveType(property.NamedTypeSymbol))
@@ -49,8 +58,16 @@ internal static class SupportedTypeChecker
         var recordSchema = recordSchemaCatalog.TryFind(property.NamedTypeSymbol);
         if (recordSchema is null)
         {
-            var innerException = new KeyNotFoundException($"{property.NamedTypeSymbol.Name} is not found in the record schema dictionary.");
-            throw new NotSupportedException($"{property.PropertyName.FullName} is not supported record type.", innerException);
+            var innerException = new KeyNotFoundException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NotFoundInRecordSchemaDictionary,
+                property.NamedTypeSymbol.Name));
+
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NotSupportedRecordType,
+                property.PropertyName.FullName);
+            throw new NotSupportedException(msg, innerException);
         }
 
         RecordTypeChecker.Check(recordSchema, recordSchemaCatalog, visited, logger);
@@ -76,7 +93,10 @@ internal static class SupportedTypeChecker
         }
         else
         {
-            throw new NotSupportedException($"{property.PropertyName.FullName} is not supported collection type.");
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NotSupportedCollectionType,
+                property.PropertyName.FullName));
         }
     }
 

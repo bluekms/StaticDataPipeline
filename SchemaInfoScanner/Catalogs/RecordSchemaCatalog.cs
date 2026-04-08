@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using SchemaInfoScanner.Collectors;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 using Sdp.Attributes;
 
@@ -50,7 +51,10 @@ public sealed class RecordSchemaCatalog
 
         return recordSchemaDictionary.TryGetValue(name, out var recordSchema)
             ? recordSchema
-            : throw new InvalidOperationException($"Record schema not found: {name}");
+            : throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.RecordSchemaNotFound,
+                name));
     }
 
     public RecordSchema? TryFind(INamedTypeSymbol namedTypeSymbol)

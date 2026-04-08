@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SchemaInfoScanner.Resources;
 
 namespace SchemaInfoScanner.Extensions;
 
@@ -24,7 +25,10 @@ public static class AttributeAccessors
 
         if (attribute.ArgumentList is null)
         {
-            throw new ArgumentNullException($"{typeof(TAttribute).Name} has no property.");
+            throw new ArgumentNullException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.AttributeHasNoProperty,
+                typeof(TAttribute).Name));
         }
 
         var valueString = attribute.ArgumentList.Arguments[attributeParameterIndex].ToString().Trim('"');

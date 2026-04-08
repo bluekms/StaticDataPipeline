@@ -1,6 +1,8 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.RecordTypes;
 using SchemaInfoScanner.TypeCheckers;
 
@@ -16,18 +18,30 @@ public static class RecordArrayPropertySchemaFactory
     {
         if (!ArrayTypeChecker.IsSupportedArrayType(propertySymbol))
         {
-            throw new InvalidOperationException($"{propertyName}({propertySymbol.Name}) is not a supported array type.");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FactoryNotSupportedArrayType,
+                propertyName,
+                propertySymbol.Name));
         }
 
         if (ArrayTypeChecker.IsPrimitiveArrayType(propertySymbol))
         {
-            throw new InvalidOperationException($"{propertyName}({propertySymbol.Name}) is record array type.");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.IsRecordArrayType,
+                propertyName,
+                propertySymbol.Name));
         }
 
         var typeArgumentSymbol = (INamedTypeSymbol)propertySymbol.TypeArguments.Single();
         if (CollectionTypeChecker.IsSupportedCollectionType(typeArgumentSymbol))
         {
-            throw new NotSupportedException($"{propertyName}({typeArgumentSymbol.Name}) is not a supported nested collection type.");
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NotSupportedNestedCollectionType,
+                propertyName,
+                typeArgumentSymbol.Name));
         }
 
         var nestedSchema = RecordPropertySchemaFactory.Create(

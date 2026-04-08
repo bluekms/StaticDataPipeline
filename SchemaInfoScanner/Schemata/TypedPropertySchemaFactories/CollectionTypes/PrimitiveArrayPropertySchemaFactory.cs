@@ -1,7 +1,9 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.TypedPropertySchemaFactories.PrimitiveTypes;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.CollectionTypes;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.CollectionTypes.NullableTypes;
@@ -19,7 +21,11 @@ public static class PrimitiveArrayPropertySchemaFactory
     {
         if (!ArrayTypeChecker.IsPrimitiveArrayType(propertySymbol))
         {
-            throw new NotSupportedException($"{propertyName}({propertySymbol.Name}) is not a supported list type.");
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NotSupportedListType,
+                propertyName,
+                propertySymbol.Name));
         }
 
         var typeArgumentSymbol = (INamedTypeSymbol)propertySymbol.TypeArguments.Single();
@@ -54,14 +60,22 @@ public static class PrimitiveArrayPropertySchemaFactory
     {
         if (!ArrayTypeChecker.IsPrimitiveArrayType(propertySymbol))
         {
-            throw new NotSupportedException($"{propertyName}({propertySymbol.Name}) is not a supported list type.");
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NotSupportedListType,
+                propertyName,
+                propertySymbol.Name));
         }
 
         if (!AttributeAccessors.TryGetAttributeValue<SingleColumnCollectionAttribute, string>(
             attributeList,
             out var separator))
         {
-            throw new InvalidOperationException($"{propertyName}({propertySymbol.Name}) is not a single column list.");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NotSingleColumnList,
+                propertyName,
+                propertySymbol.Name));
         }
 
         var typeArgumentSymbol = (INamedTypeSymbol)propertySymbol.TypeArguments.Single();

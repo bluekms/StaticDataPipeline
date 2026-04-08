@@ -1,6 +1,8 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
+using SchemaInfoScanner.Resources;
 using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.RecordTypes;
@@ -16,12 +18,19 @@ public sealed record RecordKeyRecordValueMapSchema(
     {
         if (!TryGetAttributeValue<LengthAttribute, int>(out var length))
         {
-            throw new InvalidOperationException($"Parameter {PropertyName} cannot have LengthAttribute in the argument: {context}");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ParameterCannotHaveLengthAttributeWithContext,
+                PropertyName,
+                context));
         }
 
         if (ValueGenericArgumentSchema.NestedSchema is not RecordPropertySchema valueRecordSchema)
         {
-            throw new InvalidOperationException($"Value type of RecordKeyRecordValueMapSchema must be a RecordPropertySchema: {PropertyName}");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ValueTypeMustBeRecordPropertySchema,
+                PropertyName));
         }
 
         var keyMemberSchema = valueRecordSchema.MemberSchemata
@@ -29,7 +38,10 @@ public sealed record RecordKeyRecordValueMapSchema(
 
         if (keyMemberSchema is null)
         {
-            throw new InvalidOperationException($"Value record must have exactly one [Key] member: {PropertyName}");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ValueRecordMustHaveOneKeyMember,
+                PropertyName));
         }
 
         var startPosition = context.Position;

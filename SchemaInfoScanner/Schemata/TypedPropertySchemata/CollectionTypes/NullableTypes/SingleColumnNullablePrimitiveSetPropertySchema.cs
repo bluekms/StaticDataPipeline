@@ -1,5 +1,7 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.AttributeCheckers;
 using Sdp.Attributes;
 
@@ -21,8 +23,13 @@ public sealed record SingleColumnNullablePrimitiveSetPropertySchema(
         {
             if (arguments.Length != length)
             {
-                throw new InvalidOperationException(
-                    $"Cell {cell.Address} contains {arguments.Length} value(s), but {PropertyName} expects {length}.");
+                throw new InvalidOperationException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.SingleColumnCellCountMismatch,
+                    cell.Address,
+                    arguments.Length,
+                    PropertyName,
+                    length));
             }
         }
 

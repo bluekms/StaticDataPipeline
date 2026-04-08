@@ -1,6 +1,8 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.CollectionTypes;
@@ -17,12 +19,19 @@ public sealed record PrimitiveKeyPrimitiveValueMapPropertySchema(
     {
         if (!TryGetAttributeValue<LengthAttribute, int>(out var length))
         {
-            throw new InvalidOperationException($"Parameter {PropertyName} cannot have LengthAttribute in the argument: {context}");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ParameterCannotHaveLengthAttributeWithContext,
+                PropertyName,
+                context));
         }
 
         if (context.Cells.Count % 2 != 0)
         {
-            throw new InvalidOperationException($"Invalid data length: {context}");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.InvalidDataLength,
+                context));
         }
 
         var startPosition = context.Position;

@@ -1,6 +1,8 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.RecordTypes;
 using SchemaInfoScanner.TypeCheckers;
 
@@ -17,13 +19,21 @@ public static class RecordKeyAndValueMapPropertySchemaFactory
         var keySymbol = (INamedTypeSymbol)propertySymbol.TypeArguments[0];
         if (!RecordTypeChecker.IsSupportedRecordType(keySymbol))
         {
-            throw new InvalidOperationException($"{propertyName}({propertySymbol.Name}) Key type of dictionary must be a supported record type.");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FactoryDictionaryKeyMustBeRecordType,
+                propertyName,
+                propertySymbol.Name));
         }
 
         var valueSymbol = (INamedTypeSymbol)propertySymbol.TypeArguments[1];
         if (!RecordTypeChecker.IsSupportedRecordType(valueSymbol))
         {
-            throw new NotSupportedException($"{propertyName}({propertySymbol.Name}) Value type of dictionary must be a supported record type.");
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FactoryDictionaryValueMustBeRecordType,
+                propertyName,
+                propertySymbol.Name));
         }
 
         var keySchema = new RecordTypeGenericArgumentSchema(
