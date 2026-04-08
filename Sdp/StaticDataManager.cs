@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Reflection;
+using Sdp.Resources;
 using Sdp.Table;
 
 namespace Sdp;
@@ -45,7 +47,7 @@ public abstract class StaticDataManager<TTableSet>
 
         if (errors.Count > 0)
         {
-            throw new AggregateException("One or more tables failed to load.", errors);
+            throw new AggregateException(Messages.TablesFailedToLoad, errors);
         }
 
         return (TTableSet)ctor.Invoke(args);
@@ -55,8 +57,11 @@ public abstract class StaticDataManager<TTableSet>
     {
         if (!IsStaticDataTable(param.ParameterType))
         {
-            throw new InvalidOperationException(FormattableString.Invariant(
-                $"Parameter '{param.Name}' of type '{param.ParameterType.Name}' is not a StaticDataTable<,> subtype."));
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.InvalidTableParameter,
+                param.Name!,
+                param.ParameterType.Name));
         }
 
         if (disabledTables?.Contains(param.Name!) == true)

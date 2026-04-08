@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="TablesFailedToLoad" xml:space="preserve">
+    <value>One or more tables failed to load.</value>
+  </data>
+  <data name="InvalidTableParameter" xml:space="preserve">
+    <value>Parameter '{0}' of type '{1}' is not a StaticDataTable&lt;,&gt; subtype.</value>
+  </data>
+  <data name="FkTargetNotFound" xml:space="preserve">
+    <value>FK target '{0}' not found or disabled.</value>
+  </data>
+  <data name="IndexNotRegistered" xml:space="preserve">
+    <value>No index registered for '{0}' in {1}. Call RegisterIndex() in the constructor to use it as a FK target.</value>
+  </data>
+  <data name="FkValueNotFound" xml:space="preserve">
+    <value>{0}.{1}({2}) not found in any of: [{3}]</value>
+  </data>
+  <data name="FkValidationFailed" xml:space="preserve">
+    <value>FK validation failed.</value>
+  </data>
+  <data name="KeySelectorInvalid" xml:space="preserve">
+    <value>Key selector must be a simple property access (e.g. x =&gt; x.Id).</value>
+  </data>
+  <data name="StaticDataRecordAttributeRequired" xml:space="preserve">
+    <value>{0} requires [StaticDataRecord] attribute when loading from a directory.</value>
+  </data>
+  <data name="DuplicateKey" xml:space="preserve">
+    <value>Duplicate key '{0}' in {1}.</value>
+  </data>
+  <data name="KeyNotFound" xml:space="preserve">
+    <value>Key '{0}' not found in {1}.</value>
+  </data>
+  <data name="CsvRowWithFile" xml:space="preserve">
+    <value>[{0}] CSV row {1}</value>
+  </data>
+  <data name="CsvRowWithoutFile" xml:space="preserve">
+    <value>CSV row {0}</value>
+  </data>
+  <data name="CsvRowParseError" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="CsvHeaderNotFound" xml:space="preserve">
+    <value>Header '{0}' not found in CSV</value>
+  </data>
+  <data name="EnumValueNotDefined" xml:space="preserve">
+    <value>'{0}' is not a defined value of enum '{1}'</value>
+  </data>
+  <data name="UnknownCollectionType" xml:space="preserve">
+    <value>Unknown collection type: {0}</value>
+  </data>
+  <data name="KeyAttributeRequired" xml:space="preserve">
+    <value>Value type '{0}' must have a parameter with [Key] attribute.</value>
+  </data>
+  <data name="KeyPropertyNotFound" xml:space="preserve">
+    <value>Property '{0}' not found on type '{1}'.</value>
+  </data>
+</root>
