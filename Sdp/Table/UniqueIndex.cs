@@ -1,5 +1,7 @@
 using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using Sdp.Resources;
 
 namespace Sdp.Table;
 
@@ -17,8 +19,11 @@ public sealed class UniqueIndex<TRecord, TKey>
             var key = keySelector(record);
             if (!dictionary.TryAdd(key, record))
             {
-                throw new InvalidOperationException(
-                    FormattableString.Invariant($"Duplicate key '{key}' in {typeof(TRecord).Name}."));
+                throw new InvalidOperationException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.DuplicateKey,
+                    key,
+                    typeof(TRecord).Name));
             }
         }
 
@@ -32,8 +37,11 @@ public sealed class UniqueIndex<TRecord, TKey>
             return record;
         }
 
-        throw new KeyNotFoundException(
-            FormattableString.Invariant($"Key '{key}' not found in {typeof(TRecord).Name}."));
+        throw new KeyNotFoundException(string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.KeyNotFound,
+            key,
+            typeof(TRecord).Name));
     }
 
     public bool TryGet(TKey key, [NotNullWhen(true)] out TRecord? record)
