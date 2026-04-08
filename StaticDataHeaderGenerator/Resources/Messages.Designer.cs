@@ -44,9 +44,9 @@ internal static class Messages
 
     internal static class Composite
     {
-        internal static readonly CompositeFormat HeadersGenerated = CompositeFormat.Parse(Messages.HeadersGenerated);
-        internal static readonly CompositeFormat HeaderFileSaved = CompositeFormat.Parse(Messages.HeaderFileSaved);
-        internal static readonly CompositeFormat RecordNameNotFound = CompositeFormat.Parse(Messages.RecordNameNotFound);
-        internal static readonly CompositeFormat ParseErrorCount = CompositeFormat.Parse(Messages.ParseErrorCount);
+        internal static CompositeFormat HeadersGenerated => CompositeFormat.Parse(Messages.HeadersGenerated);
+        internal static CompositeFormat HeaderFileSaved => CompositeFormat.Parse(Messages.HeaderFileSaved);
+        internal static CompositeFormat RecordNameNotFound => CompositeFormat.Parse(Messages.RecordNameNotFound);
+        internal static CompositeFormat ParseErrorCount => CompositeFormat.Parse(Messages.ParseErrorCount);
     }
 }

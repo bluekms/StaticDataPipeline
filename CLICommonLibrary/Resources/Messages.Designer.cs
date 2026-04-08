@@ -32,6 +32,6 @@ internal static class Messages
 
     internal static class Composite
     {
-        internal static readonly CompositeFormat ExceptionCount = CompositeFormat.Parse(Messages.ExceptionCount);
+        internal static CompositeFormat ExceptionCount => CompositeFormat.Parse(Messages.ExceptionCount);
     }
 }

@@ -1,3 +1,4 @@
+using System.Globalization;
 using Sdp.Csv;
 
 namespace UnitTest.CsvRecordMapperTests;
@@ -9,6 +10,8 @@ public class ErrorHandlingTests
     [Fact]
     public void ThrowsWhenHeaderNotFound()
     {
+        CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
+
         var headers = new[] { "Id" };
         var values = new[] { "1" };
 

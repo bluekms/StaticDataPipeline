@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner;
 using SchemaInfoScanner.Catalogs;
@@ -239,6 +240,8 @@ public class ErrorMessageTests(ITestOutputHelper testOutputHelper)
 
     private static MetadataCatalogs CreateCatalogs(string code, ILogger logger)
     {
+        CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
+
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
         var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
