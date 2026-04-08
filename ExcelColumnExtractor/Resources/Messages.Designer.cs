@@ -92,24 +92,24 @@ internal static class Messages
 
     internal static class Composite
     {
-        internal static readonly CompositeFormat FileAlreadyOpen = CompositeFormat.Parse(Messages.FileAlreadyOpen);
-        internal static readonly CompositeFormat FileAdded = CompositeFormat.Parse(Messages.FileAdded);
-        internal static readonly CompositeFormat FileRemoved = CompositeFormat.Parse(Messages.FileRemoved);
-        internal static readonly CompositeFormat FileUpdated = CompositeFormat.Parse(Messages.FileUpdated);
-        internal static readonly CompositeFormat SheetScanned = CompositeFormat.Parse(Messages.SheetScanned);
-        internal static readonly CompositeFormat FolderPathsDifferent = CompositeFormat.Parse(Messages.FolderPathsDifferent);
-        internal static readonly CompositeFormat FileUpdatedBeforeCapture = CompositeFormat.Parse(Messages.FileUpdatedBeforeCapture);
-        internal static readonly CompositeFormat HeadersLine = CompositeFormat.Parse(Messages.HeadersLine);
-        internal static readonly CompositeFormat IndexSetLine = CompositeFormat.Parse(Messages.IndexSetLine);
-        internal static readonly CompositeFormat RequiredHeaderNotFound = CompositeFormat.Parse(Messages.RequiredHeaderNotFound);
-        internal static readonly CompositeFormat SheetHeadersLine = CompositeFormat.Parse(Messages.SheetHeadersLine);
-        internal static readonly CompositeFormat RecordHeadersLine = CompositeFormat.Parse(Messages.RecordHeadersLine);
-        internal static readonly CompositeFormat HeaderCaseSensitivity = CompositeFormat.Parse(Messages.HeaderCaseSensitivity);
-        internal static readonly CompositeFormat SheetNotFound = CompositeFormat.Parse(Messages.SheetNotFound);
-        internal static readonly CompositeFormat UnexpectedEndOfSheet = CompositeFormat.Parse(Messages.UnexpectedEndOfSheet);
-        internal static readonly CompositeFormat UnexpectedEndOfSheetWithStartCell = CompositeFormat.Parse(Messages.UnexpectedEndOfSheetWithStartCell);
-        internal static readonly CompositeFormat FileOrDirectoryNotExist = CompositeFormat.Parse(Messages.FileOrDirectoryNotExist);
-        internal static readonly CompositeFormat DirectoryAlreadyHasFiles = CompositeFormat.Parse(Messages.DirectoryAlreadyHasFiles);
-        internal static readonly CompositeFormat ParseErrorCount = CompositeFormat.Parse(Messages.ParseErrorCount);
+        internal static CompositeFormat FileAlreadyOpen => CompositeFormat.Parse(Messages.FileAlreadyOpen);
+        internal static CompositeFormat FileAdded => CompositeFormat.Parse(Messages.FileAdded);
+        internal static CompositeFormat FileRemoved => CompositeFormat.Parse(Messages.FileRemoved);
+        internal static CompositeFormat FileUpdated => CompositeFormat.Parse(Messages.FileUpdated);
+        internal static CompositeFormat SheetScanned => CompositeFormat.Parse(Messages.SheetScanned);
+        internal static CompositeFormat FolderPathsDifferent => CompositeFormat.Parse(Messages.FolderPathsDifferent);
+        internal static CompositeFormat FileUpdatedBeforeCapture => CompositeFormat.Parse(Messages.FileUpdatedBeforeCapture);
+        internal static CompositeFormat HeadersLine => CompositeFormat.Parse(Messages.HeadersLine);
+        internal static CompositeFormat IndexSetLine => CompositeFormat.Parse(Messages.IndexSetLine);
+        internal static CompositeFormat RequiredHeaderNotFound => CompositeFormat.Parse(Messages.RequiredHeaderNotFound);
+        internal static CompositeFormat SheetHeadersLine => CompositeFormat.Parse(Messages.SheetHeadersLine);
+        internal static CompositeFormat RecordHeadersLine => CompositeFormat.Parse(Messages.RecordHeadersLine);
+        internal static CompositeFormat HeaderCaseSensitivity => CompositeFormat.Parse(Messages.HeaderCaseSensitivity);
+        internal static CompositeFormat SheetNotFound => CompositeFormat.Parse(Messages.SheetNotFound);
+        internal static CompositeFormat UnexpectedEndOfSheet => CompositeFormat.Parse(Messages.UnexpectedEndOfSheet);
+        internal static CompositeFormat UnexpectedEndOfSheetWithStartCell => CompositeFormat.Parse(Messages.UnexpectedEndOfSheetWithStartCell);
+        internal static CompositeFormat FileOrDirectoryNotExist => CompositeFormat.Parse(Messages.FileOrDirectoryNotExist);
+        internal static CompositeFormat DirectoryAlreadyHasFiles => CompositeFormat.Parse(Messages.DirectoryAlreadyHasFiles);
+        internal static CompositeFormat ParseErrorCount => CompositeFormat.Parse(Messages.ParseErrorCount);
     }
 }

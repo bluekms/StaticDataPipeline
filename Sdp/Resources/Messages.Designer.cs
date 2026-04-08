@@ -80,20 +80,20 @@ internal static class Messages
 
     internal static class Composite
     {
-        internal static readonly CompositeFormat InvalidTableParameter = CompositeFormat.Parse(Messages.InvalidTableParameter);
-        internal static readonly CompositeFormat FkTargetNotFound = CompositeFormat.Parse(Messages.FkTargetNotFound);
-        internal static readonly CompositeFormat IndexNotRegistered = CompositeFormat.Parse(Messages.IndexNotRegistered);
-        internal static readonly CompositeFormat FkValueNotFound = CompositeFormat.Parse(Messages.FkValueNotFound);
-        internal static readonly CompositeFormat StaticDataRecordAttributeRequired = CompositeFormat.Parse(Messages.StaticDataRecordAttributeRequired);
-        internal static readonly CompositeFormat DuplicateKey = CompositeFormat.Parse(Messages.DuplicateKey);
-        internal static readonly CompositeFormat KeyNotFound = CompositeFormat.Parse(Messages.KeyNotFound);
-        internal static readonly CompositeFormat CsvRowWithFile = CompositeFormat.Parse(Messages.CsvRowWithFile);
-        internal static readonly CompositeFormat CsvRowWithoutFile = CompositeFormat.Parse(Messages.CsvRowWithoutFile);
-        internal static readonly CompositeFormat CsvRowParseError = CompositeFormat.Parse(Messages.CsvRowParseError);
-        internal static readonly CompositeFormat CsvHeaderNotFound = CompositeFormat.Parse(Messages.CsvHeaderNotFound);
-        internal static readonly CompositeFormat EnumValueNotDefined = CompositeFormat.Parse(Messages.EnumValueNotDefined);
-        internal static readonly CompositeFormat UnknownCollectionType = CompositeFormat.Parse(Messages.UnknownCollectionType);
-        internal static readonly CompositeFormat KeyAttributeRequired = CompositeFormat.Parse(Messages.KeyAttributeRequired);
-        internal static readonly CompositeFormat KeyPropertyNotFound = CompositeFormat.Parse(Messages.KeyPropertyNotFound);
+        internal static CompositeFormat InvalidTableParameter => CompositeFormat.Parse(Messages.InvalidTableParameter);
+        internal static CompositeFormat FkTargetNotFound => CompositeFormat.Parse(Messages.FkTargetNotFound);
+        internal static CompositeFormat IndexNotRegistered => CompositeFormat.Parse(Messages.IndexNotRegistered);
+        internal static CompositeFormat FkValueNotFound => CompositeFormat.Parse(Messages.FkValueNotFound);
+        internal static CompositeFormat StaticDataRecordAttributeRequired => CompositeFormat.Parse(Messages.StaticDataRecordAttributeRequired);
+        internal static CompositeFormat DuplicateKey => CompositeFormat.Parse(Messages.DuplicateKey);
+        internal static CompositeFormat KeyNotFound => CompositeFormat.Parse(Messages.KeyNotFound);
+        internal static CompositeFormat CsvRowWithFile => CompositeFormat.Parse(Messages.CsvRowWithFile);
+        internal static CompositeFormat CsvRowWithoutFile => CompositeFormat.Parse(Messages.CsvRowWithoutFile);
+        internal static CompositeFormat CsvRowParseError => CompositeFormat.Parse(Messages.CsvRowParseError);
+        internal static CompositeFormat CsvHeaderNotFound => CompositeFormat.Parse(Messages.CsvHeaderNotFound);
+        internal static CompositeFormat EnumValueNotDefined => CompositeFormat.Parse(Messages.EnumValueNotDefined);
+        internal static CompositeFormat UnknownCollectionType => CompositeFormat.Parse(Messages.UnknownCollectionType);
+        internal static CompositeFormat KeyAttributeRequired => CompositeFormat.Parse(Messages.KeyAttributeRequired);
+        internal static CompositeFormat KeyPropertyNotFound => CompositeFormat.Parse(Messages.KeyPropertyNotFound);
     }
 }
