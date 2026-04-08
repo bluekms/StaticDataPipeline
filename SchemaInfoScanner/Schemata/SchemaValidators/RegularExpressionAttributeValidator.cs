@@ -1,5 +1,7 @@
+using System.Globalization;
 using FluentValidation;
 using SchemaInfoScanner.Extensions;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes;
 using Sdp.Attributes;
 
@@ -14,7 +16,11 @@ internal partial class SchemaRuleValidator
             RuleFor(x => x)
                 .Must(x => x is StringPropertySchema)
                 .WithMessage(x =>
-                    $"{x.PropertyName.FullName}({x.GetType().FullName}): string이 아니므로 {nameof(RegularExpressionAttribute)}를 사용할 수 없습니다.");
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.RegularExpressionAttributeOnlyForString,
+                        x.PropertyName.FullName,
+                        x.GetType().FullName));
         });
     }
 }

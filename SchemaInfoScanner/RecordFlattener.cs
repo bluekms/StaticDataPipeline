@@ -1,8 +1,10 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Extensions;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 using SchemaInfoScanner.TypeCheckers;
 using Sdp.Attributes;
@@ -55,7 +57,10 @@ public static class RecordFlattener
                 {
                     if (!parameter.TryGetAttributeValue<LengthAttribute, int>(out var length))
                     {
-                        throw new InvalidOperationException($"Parameter {parameter.PropertyName} cannot have LengthAttribute");
+                        throw new InvalidOperationException(string.Format(
+                            CultureInfo.CurrentCulture,
+                            Messages.Composite.ParameterCannotHaveLengthAttribute,
+                            parameter.PropertyName));
                     }
 
                     for (var i = 0; i < length; ++i)
@@ -71,7 +76,10 @@ public static class RecordFlattener
 
                 if (!parameter.TryGetAttributeValue<LengthAttribute, int>(out var length))
                 {
-                    throw new InvalidOperationException($"Parameter {parameter.PropertyName} cannot have LengthAttribute");
+                    throw new InvalidOperationException(string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.ParameterCannotHaveLengthAttribute,
+                        parameter.PropertyName));
                 }
 
                 for (var i = 0; i < length; ++i)
@@ -92,7 +100,10 @@ public static class RecordFlattener
 
                 if (!parameter.TryGetAttributeValue<LengthAttribute, int>(out var length))
                 {
-                    throw new InvalidOperationException($"Parameter {parameter.PropertyName} cannot have LengthAttribute");
+                    throw new InvalidOperationException(string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.ParameterCannotHaveLengthAttribute,
+                        parameter.PropertyName));
                 }
 
                 for (var i = 0; i < length; ++i)

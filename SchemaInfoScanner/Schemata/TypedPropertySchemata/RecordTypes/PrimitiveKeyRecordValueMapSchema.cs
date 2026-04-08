@@ -1,5 +1,7 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.CollectionTypes;
 using Sdp.Attributes;
 
@@ -16,7 +18,11 @@ public sealed record PrimitiveKeyRecordValueMapSchema(
     {
         if (!TryGetAttributeValue<LengthAttribute, int>(out var length))
         {
-            throw new InvalidOperationException($"Parameter {PropertyName} cannot have LengthAttribute in the argument: {context}");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ParameterCannotHaveLengthAttributeWithContext,
+                PropertyName,
+                context));
         }
 
         var startPosition = context.Position;

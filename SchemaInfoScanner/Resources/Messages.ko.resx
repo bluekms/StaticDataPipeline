@@ -21,4 +21,253 @@
   <data name="CodeNotCompilable" xml:space="preserve">
     <value>코드를 컴파일할 수 없습니다: {0}</value>
   </data>
+  <data name="NoStaticDataRecordFound" xml:space="preserve">
+    <value>StaticData 레코드를 찾을 수 없습니다.</value>
+  </data>
+  <data name="RecordSchemaNotFound" xml:space="preserve">
+    <value>레코드 스키마를 찾을 수 없습니다: {0}</value>
+  </data>
+  <data name="ExceptionCountWhileCollecting" xml:space="preserve">
+    <value>레코드 스키마 수집 중 {0}개의 예외가 발생했습니다.</value>
+  </data>
+  <data name="RecordNotNamedTypeSymbol" xml:space="preserve">
+    <value>{0}은(는) named type symbol이 아닙니다</value>
+  </data>
+  <data name="ParseResultCountMismatch" xml:space="preserve">
+    <value>개수가 일치하지 않습니다</value>
+  </data>
+  <data name="ParseResultParameterNotFound" xml:space="preserve">
+    <value>{0}을(를) 찾을 수 없습니다</value>
+  </data>
+  <data name="AttributeHasNoProperty" xml:space="preserve">
+    <value>{0}에 프로퍼티가 없습니다.</value>
+  </data>
+  <data name="UnsupportedExpressionType" xml:space="preserve">
+    <value>지원하지 않는 표현식 타입입니다.</value>
+  </data>
+  <data name="ExpectedRecordCollectionType" xml:space="preserve">
+    <value>{0}이(가) 레코드 컬렉션 타입이어야 합니다.</value>
+  </data>
+  <data name="NotSupportedType" xml:space="preserve">
+    <value>{0}은(는) 지원하지 않는 타입입니다.</value>
+  </data>
+  <data name="RecordSchemaTypeArgNotFound" xml:space="preserve">
+    <value>{0}을(를) RecordSchemaDictionary에서 찾을 수 없습니다</value>
+  </data>
+  <data name="NullStringAttributeNotFound" xml:space="preserve">
+    <value>{0} 프로퍼티에 NullStringAttribute가 없습니다.</value>
+  </data>
+  <data name="RangeAttributeCannotBeUsedInEnum" xml:space="preserve">
+    <value>RangeAttribute는 열거형에 사용할 수 없습니다.</value>
+  </data>
+  <data name="RangeAttributeMustHaveTwoValues" xml:space="preserve">
+    <value>RangeAttribute는 두 개의 값을 가져야 합니다.</value>
+  </data>
+  <data name="ValueOutOfRange" xml:space="preserve">
+    <value>값({0})은 {1}과(와) {2} 사이여야 합니다.</value>
+  </data>
+  <data name="ParameterCannotHaveLengthAttribute" xml:space="preserve">
+    <value>{0} 파라미터에는 LengthAttribute를 사용할 수 없습니다</value>
+  </data>
+  <data name="ParameterCannotHaveLengthAttributeWithContext" xml:space="preserve">
+    <value>{0} 파라미터에는 인자 {1}에서 LengthAttribute를 사용할 수 없습니다</value>
+  </data>
+  <data name="DuplicateKeyInContext" xml:space="preserve">
+    <value>{0} 파라미터에 중복 키 {1}이(가) 있습니다. 컨텍스트: {2}</value>
+  </data>
+  <data name="InvalidDataLength" xml:space="preserve">
+    <value>잘못된 데이터 길이: {0}</value>
+  </data>
+  <data name="InvalidCellValue" xml:space="preserve">
+    <value>셀 {1}의 값 '{0}'이(가) 올바르지 않습니다.</value>
+  </data>
+  <data name="InvalidCellValueWithPattern" xml:space="preserve">
+    <value>셀 {1}의 값 '{0}'이(가) 올바르지 않습니다. 패턴 '{2}'과(와) 일치해야 합니다.</value>
+  </data>
+  <data name="ValueTypeMustBeRecordPropertySchema" xml:space="preserve">
+    <value>RecordKeyRecordValueMapSchema의 값 타입은 RecordPropertySchema이어야 합니다: {0}</value>
+  </data>
+  <data name="ValueRecordMustHaveOneKeyMember" xml:space="preserve">
+    <value>값 레코드는 정확히 하나의 [Key] 멤버를 가져야 합니다: {0}</value>
+  </data>
+  <data name="StartIndexOutOfRange" xml:space="preserve">
+    <value>StartIndex {0}이(가) 제공된 인자의 범위를 벗어났습니다.</value>
+  </data>
+  <data name="UnreachableCodeInCollect" xml:space="preserve">
+    <value>Collect 메서드에서 도달할 수 없는 코드에 진입했습니다.</value>
+  </data>
+  <data name="CannotValidateDuplicatesInNoneMode" xml:space="preserve">
+    <value>CollectMode가 None일 때는 중복 검사를 할 수 없습니다: {0}</value>
+  </data>
+  <data name="DuplicateValuesInArgument" xml:space="preserve">
+    <value>인자에 중복된 값이 있습니다: {0}</value>
+  </data>
+  <data name="BeginKeyScopeOnlyInKeyOnlyMode" xml:space="preserve">
+    <value>BeginKeyScope는 KeyOnly 모드에서만 호출할 수 있습니다: {0}</value>
+  </data>
+  <data name="NestedKeyScopesNotAllowed" xml:space="preserve">
+    <value>중첩된 키 스코프는 허용되지 않습니다: {0}</value>
+  </data>
+  <data name="EndKeyScopeOnlyInKeyOnlyMode" xml:space="preserve">
+    <value>EndKeyScope는 KeyOnly 모드에서만 호출할 수 있습니다: {0}</value>
+  </data>
+  <data name="EndKeyScopeWithoutBeginKeyScope" xml:space="preserve">
+    <value>BeginKeyScope 없이 EndKeyScope가 호출되었습니다: {0}</value>
+  </data>
+  <data name="NoComponentsInKeyScope" xml:space="preserve">
+    <value>키 스코프에서 수집된 컴포넌트가 없습니다: {0}</value>
+  </data>
+  <data name="ExpectedArrayType" xml:space="preserve">
+    <value>{0}이(가) 지원되는 배열 타입이어야 하지만 그렇지 않습니다.</value>
+  </data>
+  <data name="NullableRecordArrayNotSupported" xml:space="preserve">
+    <value>{0}은(는) 지원하지 않는 배열 타입입니다. nullable 레코드 아이템은 배열에 사용할 수 없습니다.</value>
+  </data>
+  <data name="SingleColumnArrayOnlyPrimitive" xml:space="preserve">
+    <value>{0}은(는) 지원하지 않는 배열 타입입니다. SingleColumnCollectionAttribute는 기본 타입 배열에만 사용할 수 있습니다.</value>
+  </data>
+  <data name="ExpectedHashSetType" xml:space="preserve">
+    <value>{0}이(가) 지원되는 해시셋 타입이어야 하지만 그렇지 않습니다.</value>
+  </data>
+  <data name="NullableRecordHashSetNotSupported" xml:space="preserve">
+    <value>{0}은(는) 지원하지 않는 해시셋 타입입니다. nullable 레코드 아이템은 해시셋에 사용할 수 없습니다.</value>
+  </data>
+  <data name="SingleColumnHashSetOnlyPrimitive" xml:space="preserve">
+    <value>{0}은(는) 지원하지 않는 해시셋 타입입니다. SingleColumnCollectionAttribute는 기본 타입 해시셋에만 사용할 수 있습니다.</value>
+  </data>
+  <data name="ExpectedDictionaryType" xml:space="preserve">
+    <value>{0}이(가) 지원되는 딕셔너리 타입이어야 하지만 그렇지 않습니다.</value>
+  </data>
+  <data name="DictionaryKeyMustBeNonNullable" xml:space="preserve">
+    <value>딕셔너리 키 타입은 nullable이 아니어야 합니다.</value>
+  </data>
+  <data name="DictionaryValueMustBeNonNullable" xml:space="preserve">
+    <value>딕셔너리 값 타입은 nullable이 아니어야 합니다.</value>
+  </data>
+  <data name="KeyAttributeRequiredInDictionaryValue" xml:space="preserve">
+    <value>{0}이(가) 딕셔너리 {1}의 값으로 사용되므로 파라미터 중 하나에 KeyAttribute를 사용해야 합니다.</value>
+  </data>
+  <data name="DictionaryKeyValueMustBeSameType" xml:space="preserve">
+    <value>딕셔너리의 키와 값 타입은 같은 타입이어야 합니다.</value>
+  </data>
+  <data name="FileOrDirectoryNotExist" xml:space="preserve">
+    <value>파일 또는 디렉터리가 존재하지 않습니다.</value>
+  </data>
+  <data name="NullableCollectionNotSupported" xml:space="preserve">
+    <value>{0}({1}): nullable collection 타입은 지원하지 않습니다.</value>
+  </data>
+  <data name="DateTimeFormatAttributeNotApplicable" xml:space="preserve">
+    <value>{0}({1}): DateTime이 아니므로 DateTimeFormatAttribute를 사용할 수 없습니다.</value>
+  </data>
+  <data name="DateTimeFormatAttributeRequired" xml:space="preserve">
+    <value>{0}({1}): DateTime 타입은 반드시 DateTimeFormatAttribute를 사용해야 합니다.</value>
+  </data>
+  <data name="LengthAttributeRequired" xml:space="preserve">
+    <value>{0}({1}): 컬렉션 타입에는 반드시 LengthAttribute를 사용해야 합니다.</value>
+  </data>
+  <data name="NullStringAttributeRequiredForNullable" xml:space="preserve">
+    <value>{0}({1}): nullable 타입은 NullStringAttribute를 사용해야 합니다.</value>
+  </data>
+  <data name="NullStringAttributeRequiredForNullableArray" xml:space="preserve">
+    <value>{0}({1}): nullable primitive array 타입은 NullStringAttribute를 사용해야 합니다.</value>
+  </data>
+  <data name="NullStringAttributeRequiredForNullableSet" xml:space="preserve">
+    <value>{0}({1}): nullable primitive set 타입은 NullStringAttribute를 사용해야 합니다.</value>
+  </data>
+  <data name="NullStringAttributeRequiredForNullableMap" xml:space="preserve">
+    <value>{0}({1}): nullable primitive map 타입은 NullStringAttribute를 사용해야 합니다.</value>
+  </data>
+  <data name="NullStringAttributeNotAllowed" xml:space="preserve">
+    <value>{0}({1}): nullable이거나 nullable을 갖는 컬렉션이 아니므로 NullStringAttribute를 사용할 수 없습니다.</value>
+  </data>
+  <data name="RegularExpressionAttributeOnlyForString" xml:space="preserve">
+    <value>{0}({1}): string이 아니므로 RegularExpressionAttribute를 사용할 수 없습니다.</value>
+  </data>
+  <data name="SingleColumnCollectionNotForUnsupportedCollection" xml:space="preserve">
+    <value>{0}({1}): 지원되는 컬렉션이 아니기 때문에 SingleColumnCollectionAttribute를 사용할 수 없습니다.</value>
+  </data>
+  <data name="SingleColumnCollectionNotForMap" xml:space="preserve">
+    <value>{0}({1}): Map 컬렉션에서는 SingleColumnCollectionAttribute를 사용할 수 없습니다.</value>
+  </data>
+  <data name="TimeSpanFormatAttributeNotApplicable" xml:space="preserve">
+    <value>{0}({1}): TimeSpan이 아니므로 TimeSpanFormatAttribute를 사용할 수 없습니다.</value>
+  </data>
+  <data name="TimeSpanFormatAttributeRequired" xml:space="preserve">
+    <value>{0}({1}): TimeSpan 타입은 TimeSpanFormatAttribute를 사용해야 합니다.</value>
+  </data>
+  <data name="FileSchemaNotFound" xml:space="preserve">
+    <value>{0}은(는) 지원하지 않는 타입입니다.</value>
+  </data>
+  <data name="InvalidCellValueForEnum" xml:space="preserve">
+    <value>셀 {1}의 값 '{0}'이 잘못되었습니다. {2}의 멤버여야 합니다.</value>
+  </data>
+  <data name="SingleColumnCellCountMismatch" xml:space="preserve">
+    <value>셀 {0}에는 {1}개의 값이 있지만, {2}는 {3}개를 기대합니다.</value>
+  </data>
+  <data name="SingleColumnCellEmptyValue" xml:space="preserve">
+    <value>셀 {0}에 {1}에 대한 빈 값이 포함되어 있습니다.</value>
+  </data>
+  <data name="CompileErrorsOccurred" xml:space="preserve">
+    <value>{0}개의 컴파일 오류가 발생했습니다.</value>
+  </data>
+  <data name="NotSupportedRecordType" xml:space="preserve">
+    <value>{0}은(는) 지원하지 않는 record 타입입니다.</value>
+  </data>
+  <data name="NotSupportedRecordTypeWithMessage" xml:space="preserve">
+    <value>{0}은(는) 지원하지 않는 record 타입입니다. {1}</value>
+  </data>
+  <data name="NotFoundInRecordSchemaDictionary" xml:space="preserve">
+    <value>{0}을(를) record schema dictionary에서 찾을 수 없습니다.</value>
+  </data>
+  <data name="NotSupportedCollectionType" xml:space="preserve">
+    <value>{0}은(는) 지원하지 않는 collection 타입입니다.</value>
+  </data>
+  <data name="NotSupportedPrimitiveType" xml:space="preserve">
+    <value>{0}은(는) 지원하지 않는 primitive 타입입니다.</value>
+  </data>
+  <data name="NotSupportedPropertyType" xml:space="preserve">
+    <value>{0}({1})은(는) 지원하지 않는 property 타입입니다.</value>
+  </data>
+  <data name="FactoryNotSupportedPrimitiveType" xml:space="preserve">
+    <value>{0}({1})은(는) 지원하지 않는 primitive 타입입니다.</value>
+  </data>
+  <data name="NotSupportedListType" xml:space="preserve">
+    <value>{0}({1})은(는) 지원하지 않는 list 타입입니다.</value>
+  </data>
+  <data name="NotSingleColumnList" xml:space="preserve">
+    <value>{0}({1})은(는) single column list가 아닙니다.</value>
+  </data>
+  <data name="NotSupportedHashSetType" xml:space="preserve">
+    <value>{0}({1})은(는) 지원하지 않는 hash set 타입입니다.</value>
+  </data>
+  <data name="NotSingleColumnHashSet" xml:space="preserve">
+    <value>{0}({1})은(는) single column hash set이 아닙니다.</value>
+  </data>
+  <data name="FactoryNotSupportedArrayType" xml:space="preserve">
+    <value>{0}({1})은(는) 지원하지 않는 array 타입입니다.</value>
+  </data>
+  <data name="IsRecordArrayType" xml:space="preserve">
+    <value>{0}({1})은(는) record array 타입입니다.</value>
+  </data>
+  <data name="NotSupportedNestedCollectionType" xml:space="preserve">
+    <value>{0}({1})은(는) 지원하지 않는 중첩 collection 타입입니다.</value>
+  </data>
+  <data name="FactoryDictionaryKeyMustBeRecordType" xml:space="preserve">
+    <value>{0}({1}) dictionary의 key 타입은 지원하는 record 타입이어야 합니다.</value>
+  </data>
+  <data name="FactoryDictionaryValueMustBeRecordType" xml:space="preserve">
+    <value>{0}({1}) dictionary의 value 타입은 지원하는 record 타입이어야 합니다.</value>
+  </data>
+  <data name="FactoryDictionaryKeyMustBePrimitiveType" xml:space="preserve">
+    <value>{0}({1}) dictionary의 key 타입은 지원하는 primitive 타입이어야 합니다.</value>
+  </data>
+  <data name="FactoryNotSupportedRecordType" xml:space="preserve">
+    <value>{0}({1})은(는) 지원하지 않는 record 타입입니다.</value>
+  </data>
+  <data name="IsRecordHashSetType" xml:space="preserve">
+    <value>{0}({1})은(는) record hash set 타입입니다.</value>
+  </data>
+  <data name="InvalidFullName" xml:space="preserve">
+    <value>fullName은 null이거나 비어있거나 '.'으로 끝날 수 없습니다.</value>
+  </data>
 </root>
