@@ -5,10 +5,10 @@ using CLICommonLibrary;
 using CommandLine;
 using ExcelColumnExtractor.Aggregator;
 using ExcelColumnExtractor.Checkers;
+using ExcelColumnExtractor.Resources;
 using ExcelColumnExtractor.Scanners;
 using ExcelColumnExtractor.Writers;
 using Microsoft.Extensions.Logging;
-using Sdp.Attributes;
 
 namespace ExcelColumnExtractor;
 
@@ -35,7 +35,7 @@ public class Program
         var catalogs = RecordScanner.Scan(options.RecordCsPath, logger);
         if (catalogs.RecordSchemaCatalog.StaticDataRecordSchemata.Count == 0)
         {
-            var exception = new ArgumentException($"{nameof(StaticDataRecordAttribute)} is not found.");
+            var exception = new ArgumentException(Messages.StaticDataRecordAttributeNotFound);
             LogError(logger, exception.Message, exception);
             throw exception;
         }
@@ -112,7 +112,11 @@ public class Program
             var fileCount = Directory.GetFiles(path).Length;
             if (fileCount > 0)
             {
-                var exception = new ArgumentException($"The directory already exists and contains {fileCount} files.");
+                var exception = new ArgumentException(
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.DirectoryAlreadyHasFiles,
+                        fileCount));
                 LogError(logger, exception.Message, exception);
                 throw exception;
             }
@@ -125,7 +129,11 @@ public class Program
     {
         var errorList = errors.ToList();
 
-        Console.WriteLine($@"Errors {errorList.Count}");
+        Console.WriteLine(string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.ParseErrorCount,
+            errorList.Count));
+
         foreach (var error in errorList)
         {
             Console.WriteLine(error.ToString());

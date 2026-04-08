@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using ExcelColumnExtractor.Mappings;
 using ExcelColumnExtractor.NameObjects;
+using ExcelColumnExtractor.Resources;
 using ExcelColumnExtractor.Scanners;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner;
@@ -66,9 +67,15 @@ public static class RequiredHeadersChecker
         if (requiredSheetHeaders.Count != targetColumnIndexSet.Count)
         {
             var sb = new StringBuilder();
-            sb.AppendLine(CultureInfo.InvariantCulture, $"Header and index count mismatch.");
-            sb.AppendLine(CultureInfo.InvariantCulture, $"Headers: {{ {string.Join(", ", requiredSheetHeaders)} }}");
-            sb.AppendLine(CultureInfo.InvariantCulture, $"IndexSet: {{ {string.Join(", ", targetColumnIndexSet)} }}");
+            sb.AppendLine(Messages.HeaderAndIndexCountMismatch);
+            sb.AppendLine(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.HeadersLine,
+                string.Join(", ", requiredSheetHeaders)));
+            sb.AppendLine(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.IndexSetLine,
+                string.Join(", ", targetColumnIndexSet)));
 
             throw new ArgumentException(sb.ToString());
         }
@@ -93,9 +100,18 @@ public static class RequiredHeadersChecker
             if (index is -1)
             {
                 var sb = new StringBuilder();
-                sb.AppendLine(CultureInfo.InvariantCulture, $"Header not found: {standardHeader}");
-                sb.AppendLine(CultureInfo.InvariantCulture, $"SheetHeaders: {{ {string.Join(", ", sheetHeaders)} }}");
-                sb.AppendLine(CultureInfo.InvariantCulture, $"RecordHeaders: {{ {string.Join(", ", standardHeaders)} }}");
+                sb.AppendLine(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.RequiredHeaderNotFound,
+                    standardHeader));
+                sb.AppendLine(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.SheetHeadersLine,
+                    string.Join(", ", sheetHeaders)));
+                sb.AppendLine(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.RecordHeadersLine,
+                    string.Join(", ", standardHeaders)));
 
                 throw new ArgumentException(sb.ToString());
             }
@@ -104,7 +120,10 @@ public static class RequiredHeadersChecker
             if (!sheetHeader.Equals(standardHeader, StringComparison.OrdinalIgnoreCase) &&
                 !sheetHeader.Equals($"{standardHeader}.Value", StringComparison.OrdinalIgnoreCase))
             {
-                throw new ArgumentException($"Header case sensitivity: {standardHeader}");
+                throw new ArgumentException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.HeaderCaseSensitivity,
+                    standardHeader));
             }
 
             requiredHeaderIndices.Add(index);
