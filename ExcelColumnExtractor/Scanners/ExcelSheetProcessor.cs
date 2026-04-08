@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using ExcelColumnExtractor.NameObjects;
@@ -43,7 +44,12 @@ public sealed class ExcelSheetProcessor
         if (loader.IsTemp)
         {
             var lastWriteTime = File.GetLastWriteTime(excelSheetName.ExcelPath);
-            LogInformation(logger, Messages.FileAlreadyOpen(excelSheetName.FullName, lastWriteTime), null);
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FileAlreadyOpen,
+                excelSheetName.FullName,
+                lastWriteTime);
+            LogInformation(logger, msg, null);
         }
 
         ProcessCore(loader.Stream, excelSheetName, logger);
@@ -55,7 +61,12 @@ public sealed class ExcelSheetProcessor
         if (loader.IsTemp)
         {
             var lastWriteTime = File.GetLastWriteTime(excelSheetName.ExcelPath);
-            LogInformation(logger, Messages.FileAlreadyOpen(excelSheetName.FullName, lastWriteTime), null);
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FileAlreadyOpen,
+                excelSheetName.FullName,
+                lastWriteTime);
+            LogInformation(logger, msg, null);
         }
 
         ProcessCore(loader.Stream, excelSheetName, logger);
@@ -78,12 +89,18 @@ public sealed class ExcelSheetProcessor
 
         if (!sheetFound)
         {
-            throw new ArgumentException($"{excelSheetName.FullName} 을 찾을 수 없습니다.");
+            throw new ArgumentException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.SheetNotFound,
+                excelSheetName.FullName));
         }
 
         if (!reader.Read())
         {
-            throw new EndOfStreamException($"{excelSheetName.FullName} 예상치 못한 Sheet의 끝입니다.");
+            throw new EndOfStreamException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.UnexpectedEndOfSheet,
+                excelSheetName.FullName));
         }
 
         var excelPhysicalRow = 1;
@@ -91,7 +108,7 @@ public sealed class ExcelSheetProcessor
         var startCell = reader.GetValue(0)?.ToString();
         if (startCell is null || !IsValidCellAddress(startCell))
         {
-            throw new InvalidUsageException($"A1 셀에는 반드시 첫 번째 헤더의 Cell Address가 있어야 합니다. ex) B10");
+            throw new InvalidUsageException(Messages.CellAddressRequired);
         }
 
         var (startColumn, startRow) = ParseCellAddress(startCell);
@@ -99,7 +116,11 @@ public sealed class ExcelSheetProcessor
         {
             if (!reader.Read())
             {
-                throw new EndOfStreamException($"{excelSheetName.FullName} 예상치 못한 Sheet의 끝입니다. A1: {startCell}");
+                throw new EndOfStreamException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.UnexpectedEndOfSheetWithStartCell,
+                    excelSheetName.FullName,
+                    startCell));
             }
 
             excelPhysicalRow++;
@@ -165,8 +186,8 @@ public sealed class ExcelSheetProcessor
         return value switch
         {
             null => string.Empty,
-            DateTime dt when dt.TimeOfDay == TimeSpan.Zero => dt.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
-            DateTime dt => dt.ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture),
+            DateTime dt when dt.TimeOfDay == TimeSpan.Zero => dt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            DateTime dt => dt.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
             _ => value.ToString() ?? string.Empty,
         };
     }
