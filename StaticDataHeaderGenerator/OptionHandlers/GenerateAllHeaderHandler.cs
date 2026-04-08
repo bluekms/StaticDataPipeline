@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using CLICommonLibrary;
 using Microsoft.Extensions.Logging;
@@ -17,12 +18,12 @@ public class GenerateAllHeaderHandler
             ? Logger.CreateLoggerWithoutFile<Program>(options.MinLogLevel)
             : Logger.CreateLogger<Program>(options.MinLogLevel, options.LogPath);
 
-        LogInformation(logger, Messages.GeneratingHeaderFile(), null);
+        LogInformation(logger, Messages.GeneratingHeaderFile, null);
 
         var catalogs = RecordScanner.Scan(options.RecordCsPath, logger);
         if (catalogs.RecordSchemaCatalog.StaticDataRecordSchemata.Count == 0)
         {
-            var exception = new ArgumentException("No records found.");
+            var exception = new ArgumentException(Messages.NoRecordsFound);
             LogError(logger, exception.Message, exception);
             throw exception;
         }
@@ -60,7 +61,11 @@ public class GenerateAllHeaderHandler
             sb.AppendLine("```");
             sb.AppendLine();
 
-            LogInformation(logger, Messages.HeadersGenerated(targetRecordSchema.RecordName.FullName), null);
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.HeadersGenerated,
+                targetRecordSchema.RecordName.FullName);
+            LogInformation(logger, msg, null);
         }
 
         if (!string.IsNullOrEmpty(options.OutputFileName))
@@ -77,7 +82,11 @@ public class GenerateAllHeaderHandler
 
             File.WriteAllText(outputFileName, sb.ToString());
 
-            LogInformation(logger, Messages.HeaderFileSaved(outputFileName), null);
+            var savedMsg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.HeaderFileSaved,
+                outputFileName);
+            LogInformation(logger, savedMsg, null);
         }
 
         return 0;
@@ -89,12 +98,12 @@ public class GenerateAllHeaderHandler
             ? Logger.CreateLoggerWithoutFile<Program>(options.MinLogLevel)
             : Logger.CreateLogger<Program>(options.MinLogLevel, options.LogPath);
 
-        LogInformation(logger, Messages.GeneratingHeaderFile(), null);
+        LogInformation(logger, Messages.GeneratingHeaderFile, null);
 
         var catalogs = await RecordScanner.ScanAsync(options.RecordCsPath, logger, cancellationToken);
         if (catalogs.RecordSchemaCatalog.StaticDataRecordSchemata.Count == 0)
         {
-            var exception = new ArgumentException("No records found.");
+            var exception = new ArgumentException(Messages.NoRecordsFound);
             LogError(logger, exception.Message, exception);
             throw exception;
         }
@@ -132,7 +141,11 @@ public class GenerateAllHeaderHandler
             sb.AppendLine("```");
             sb.AppendLine();
 
-            LogInformation(logger, Messages.HeadersGenerated(targetRecordSchema.RecordName.FullName), null);
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.HeadersGenerated,
+                targetRecordSchema.RecordName.FullName);
+            LogInformation(logger, msg, null);
         }
 
         if (!string.IsNullOrEmpty(options.OutputFileName))
@@ -149,7 +162,11 @@ public class GenerateAllHeaderHandler
 
             await File.WriteAllTextAsync(outputFileName, sb.ToString(), cancellationToken);
 
-            LogInformation(logger, Messages.HeaderFileSaved(outputFileName), null);
+            var savedMsg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.HeaderFileSaved,
+                outputFileName);
+            LogInformation(logger, savedMsg, null);
         }
 
         return 0;

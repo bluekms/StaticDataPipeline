@@ -1,6 +1,8 @@
+using System.Globalization;
 using CommandLine;
 using StaticDataHeaderGenerator.OptionHandlers;
 using StaticDataHeaderGenerator.ProgramOptions;
+using StaticDataHeaderGenerator.Resources;
 
 namespace StaticDataHeaderGenerator;
 
@@ -21,7 +23,11 @@ internal class Program
     {
         var errorList = errors.ToList();
 
-        Console.WriteLine($"Errors {errorList.Count}");
+        Console.WriteLine(string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.ParseErrorCount,
+            errorList.Count));
+
         foreach (var error in errorList)
         {
             Console.WriteLine(error.ToString());
