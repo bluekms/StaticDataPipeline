@@ -15,4 +15,13 @@
   <data name="HeaderFileSaved" xml:space="preserve">
     <value>Header file saved: {0}</value>
   </data>
+  <data name="RecordNameNotFound" xml:space="preserve">
+    <value>RecordName {0} is not found.</value>
+  </data>
+  <data name="NoRecordsFound" xml:space="preserve">
+    <value>No records found.</value>
+  </data>
+  <data name="ParseErrorCount" xml:space="preserve">
+    <value>Parse errors: {0}</value>
+  </data>
 </root>

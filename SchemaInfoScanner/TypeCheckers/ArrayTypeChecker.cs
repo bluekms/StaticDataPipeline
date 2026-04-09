@@ -1,8 +1,10 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 using Sdp.Attributes;
 
@@ -23,7 +25,10 @@ internal static class ArrayTypeChecker
     {
         if (!IsSupportedArrayType(property.NamedTypeSymbol))
         {
-            throw new InvalidOperationException($"Expected {property.PropertyName.FullName} to be supported array type, but actually not supported.");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ExpectedArrayType,
+                property.PropertyName.FullName));
         }
 
         var typeArgument = (INamedTypeSymbol)property.NamedTypeSymbol.TypeArguments.Single();
@@ -35,12 +40,18 @@ internal static class ArrayTypeChecker
 
         if (typeArgument.NullableAnnotation is NullableAnnotation.Annotated)
         {
-            throw new NotSupportedException($"{property.PropertyName.FullName} is not supported array type. Nullable record item for array is not supported.");
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NullableRecordArrayNotSupported,
+                property.PropertyName.FullName));
         }
 
         if (property.HasAttribute<SingleColumnCollectionAttribute>())
         {
-            throw new NotSupportedException($"{property.PropertyName.FullName} is not supported array type. {nameof(SingleColumnCollectionAttribute)} can only be used in primitive type array.");
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.SingleColumnArrayOnlyPrimitive,
+                property.PropertyName.FullName));
         }
 
         var innerRecordSchema = property.FindInnerRecordSchema(recordSchemaCatalog);

@@ -1,7 +1,9 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 using SchemaInfoScanner.Schemata.TypedPropertySchemaFactories;
 
@@ -58,7 +60,10 @@ public sealed class RecordSchemaSet
 
         if (errorCount > 0)
         {
-            throw new AggregateException($"There are {errorCount} exceptions while collecting record schema set.");
+            throw new AggregateException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ExceptionCountWhileCollecting,
+                errorCount));
         }
     }
 
@@ -132,7 +137,10 @@ public sealed class RecordSchemaSet
             var recordName = new RecordName(recordDeclaration);
             if (loadResult.SemanticModel.GetDeclaredSymbol(recordDeclaration) is not INamedTypeSymbol namedTypeSymbol)
             {
-                throw new NotSupportedException($"{recordName.FullName} is not a named type symbol");
+                throw new NotSupportedException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.RecordNotNamedTypeSymbol,
+                    recordName.FullName));
             }
 
             recordNamedTypeSymbolCollector.Add(recordName, namedTypeSymbol);
@@ -178,14 +186,17 @@ public sealed class RecordSchemaSet
         {
             if (parameterNamedTypeSymbolCollector.Count != parameterAttributeCollector.Count)
             {
-                throw new ArgumentException("Count mismatch");
+                throw new ArgumentException(Messages.ParseResultCountMismatch);
             }
 
             foreach (var parameterFullName in parameterNamedTypeSymbolCollector.ParameterNames)
             {
                 if (!parameterAttributeCollector.ContainsRecord(parameterFullName))
                 {
-                    throw new ArgumentException($"{parameterFullName} not found");
+                    throw new ArgumentException(string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.ParseResultParameterNotFound,
+                        parameterFullName));
                 }
             }
 

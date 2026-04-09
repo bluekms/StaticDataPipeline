@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Extensions;
@@ -16,14 +17,18 @@ public static class RecordComplianceChecker
 
         if (recordSchemaCatalog.StaticDataRecordSchemata.Count is 0)
         {
-            throw new InvalidOperationException("No static data record is found.");
+            throw new InvalidOperationException(Messages.NoStaticDataRecordFound);
         }
 
         foreach (var recordSchema in recordSchemaCatalog.StaticDataRecordSchemata)
         {
             if (!visited.Add(recordSchema.RecordName))
             {
-                LogTrace(logger, Messages.AlreadyVisited(recordSchema.RecordName.FullName), null);
+                var msg = string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.AlreadyVisited,
+                    recordSchema.RecordName.FullName);
+                LogTrace(logger, msg, null);
                 continue;
             }
 
@@ -55,7 +60,11 @@ public static class RecordComplianceChecker
 
             if (!visited.Add(recordSchema.RecordName))
             {
-                LogTrace(logger, Messages.AlreadyVisited(recordSchema.RecordName.FullName), null);
+                var msg = string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.AlreadyVisited,
+                    recordSchema.RecordName.FullName);
+                LogTrace(logger, msg, null);
                 continue;
             }
 

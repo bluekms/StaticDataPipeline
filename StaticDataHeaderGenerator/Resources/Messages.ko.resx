@@ -15,4 +15,13 @@
   <data name="HeaderFileSaved" xml:space="preserve">
     <value>헤더 파일 저장됨: {0}</value>
   </data>
+  <data name="RecordNameNotFound" xml:space="preserve">
+    <value>RecordName {0}을(를) 찾을 수 없습니다.</value>
+  </data>
+  <data name="NoRecordsFound" xml:space="preserve">
+    <value>레코드를 찾을 수 없습니다.</value>
+  </data>
+  <data name="ParseErrorCount" xml:space="preserve">
+    <value>파싱 오류: {0}개</value>
+  </data>
 </root>

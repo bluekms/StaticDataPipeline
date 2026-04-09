@@ -1,7 +1,9 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.TypedPropertySchemaFactories.CollectionTypes;
 using SchemaInfoScanner.Schemata.TypedPropertySchemaFactories.PrimitiveTypes;
 using SchemaInfoScanner.Schemata.TypedPropertySchemaFactories.RecordTypes;
@@ -86,6 +88,10 @@ public static class TypedPropertySchemaFactory
                 parentRecordSymbol);
         }
 
-        throw new NotSupportedException($"{propertyName}({propertySymbol.Name}) is not a supported property type.");
+        throw new NotSupportedException(string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.NotSupportedPropertyType,
+            propertyName,
+            propertySymbol.Name));
     }
 }

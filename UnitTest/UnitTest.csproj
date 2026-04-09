@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Analyzers\Analyzers\Analyzers.csproj"
                       OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\CLICommonLibrary\CLICommonLibrary.csproj" />
     <ProjectReference Include="..\Sdp\Sdp.csproj" />
     <ProjectReference Include="..\ExcelColumnExtractor\ExcelColumnExtractor.csproj" />
     <ProjectReference Include="..\StaticDataHeaderGenerator\StaticDataHeaderGenerator.csproj" />

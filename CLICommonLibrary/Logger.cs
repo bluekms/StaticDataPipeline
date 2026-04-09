@@ -1,3 +1,4 @@
+using CLICommonLibrary.Resources;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
@@ -13,7 +14,7 @@ public static class Logger
     {
         if (string.IsNullOrEmpty(logPath))
         {
-            throw new InvalidOperationException("logPath is required.");
+            throw new InvalidOperationException(Messages.LogPathRequired);
         }
 
         var formatter = new MessageTemplateTextFormatter(OutputTemplate, null);

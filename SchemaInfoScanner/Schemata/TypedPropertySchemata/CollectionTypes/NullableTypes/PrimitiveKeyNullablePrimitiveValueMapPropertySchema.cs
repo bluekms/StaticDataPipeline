@@ -1,6 +1,8 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.AttributeCheckers;
 using Sdp.Attributes;
 
@@ -18,7 +20,11 @@ public sealed record PrimitiveKeyNullablePrimitiveValueMapPropertySchema(
     {
         if (!TryGetAttributeValue<LengthAttribute, int>(out var length))
         {
-            throw new InvalidOperationException($"Parameter {PropertyName} cannot have LengthAttribute in the argument: {context}");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ParameterCannotHaveLengthAttributeWithContext,
+                PropertyName,
+                context));
         }
 
         var keys = new List<object?>();
@@ -38,7 +44,12 @@ public sealed record PrimitiveKeyNullablePrimitiveValueMapPropertySchema(
         {
             if (!hs.Add(key))
             {
-                throw new InvalidOperationException($"Parameter {PropertyName} has duplicate key: {key} in context {context}.");
+                throw new InvalidOperationException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.DuplicateKeyInContext,
+                    PropertyName,
+                    key,
+                    context));
             }
         }
     }

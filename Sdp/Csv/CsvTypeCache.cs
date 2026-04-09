@@ -1,8 +1,10 @@
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Reflection;
 using Sdp.Attributes;
+using Sdp.Resources;
 
 namespace Sdp.Csv;
 
@@ -68,8 +70,10 @@ internal static class CsvTypeCache
 
             if (keyParam is null)
             {
-                throw new InvalidOperationException(
-                    $"Value type '{vt.Name}' must have a parameter with [Key] attribute");
+                throw new InvalidOperationException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.KeyAttributeRequired,
+                    vt.Name));
             }
 
             var keyPropertyName = keyParam.Name!;
@@ -79,8 +83,11 @@ internal static class CsvTypeCache
 
             if (property is null)
             {
-                throw new InvalidOperationException(
-                    $"Could not find property '{keyPropertyName}' on type '{vt.Name}'");
+                throw new InvalidOperationException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.KeyPropertyNotFound,
+                    keyPropertyName,
+                    vt.Name));
             }
 
             return property;

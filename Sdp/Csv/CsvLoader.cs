@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text;
+using Sdp.Resources;
 
 namespace Sdp.Csv;
 
@@ -47,10 +49,21 @@ internal static class CsvLoader
             catch (Exception ex)
             {
                 var location = filePath is not null
-                    ? FormattableString.Invariant($"[{Path.GetFileName(filePath)}] CSV row {i + 1}")
-                    : FormattableString.Invariant($"CSV row {i + 1}");
+                    ? string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.CsvRowWithFile,
+                        Path.GetFileName(filePath),
+                        i + 1)
+                    : string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.CsvRowWithoutFile,
+                        i + 1);
                 throw new InvalidOperationException(
-                    FormattableString.Invariant($"{location}: {ex.Message}"),
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.CsvRowParseError,
+                        location,
+                        ex.Message),
                     ex);
             }
         }

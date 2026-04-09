@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using CLICommonLibrary;
 using Microsoft.Extensions.Logging;
@@ -17,12 +18,16 @@ public static class GenerateHeaderHandler
             ? Logger.CreateLoggerWithoutFile<Program>(options.MinLogLevel)
             : Logger.CreateLogger<Program>(options.MinLogLevel, options.LogPath);
 
-        LogInformation(logger, Messages.GeneratingHeaderFile(), null);
+        LogInformation(logger, Messages.GeneratingHeaderFile, null);
 
         var catalogs = RecordScanner.Scan(options.RecordCsPath, logger);
         if (catalogs.RecordSchemaCatalog.StaticDataRecordSchemata.Count == 0)
         {
-            var exception = new ArgumentException($"RecordName {options.RecordName} is not found.");
+            var exception = new ArgumentException(
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.RecordNameNotFound,
+                    options.RecordName));
             LogError(logger, exception.Message, exception);
             throw exception;
         }
@@ -55,7 +60,11 @@ public static class GenerateHeaderHandler
 
             File.WriteAllText(outputFileName, output);
 
-            LogInformation(logger, Messages.HeaderFileSaved(outputFileName), null);
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.HeaderFileSaved,
+                outputFileName);
+            LogInformation(logger, msg, null);
         }
 
         return 0;
@@ -67,12 +76,16 @@ public static class GenerateHeaderHandler
             ? Logger.CreateLoggerWithoutFile<Program>(options.MinLogLevel)
             : Logger.CreateLogger<Program>(options.MinLogLevel, options.LogPath);
 
-        LogInformation(logger, Messages.GeneratingHeaderFile(), null);
+        LogInformation(logger, Messages.GeneratingHeaderFile, null);
 
         var catalogs = await RecordScanner.ScanAsync(options.RecordCsPath, logger, cancellationToken);
         if (catalogs.RecordSchemaCatalog.StaticDataRecordSchemata.Count == 0)
         {
-            var exception = new ArgumentException($"RecordName {options.RecordName} is not found.");
+            var exception = new ArgumentException(
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.RecordNameNotFound,
+                    options.RecordName));
             LogError(logger, exception.Message, exception);
             throw exception;
         }
@@ -105,7 +118,11 @@ public static class GenerateHeaderHandler
 
             await File.WriteAllTextAsync(outputFileName, output, cancellationToken);
 
-            LogInformation(logger, Messages.HeaderFileSaved(outputFileName), null);
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.HeaderFileSaved,
+                outputFileName);
+            LogInformation(logger, msg, null);
         }
 
         return 0;

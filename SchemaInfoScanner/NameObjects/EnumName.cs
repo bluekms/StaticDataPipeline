@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
+using SchemaInfoScanner.Resources;
 
 namespace SchemaInfoScanner.NameObjects;
 
@@ -25,7 +26,7 @@ public class EnumName : IEquatable<EnumName>
 
         if (string.IsNullOrEmpty(fullName) || fullName[^1] == '.')
         {
-            throw new ArgumentException("fullName should not be null, empty, or end with '.'");
+            throw new ArgumentException(Messages.InvalidFullName);
         }
 
         var parts = fullName.Split('.');

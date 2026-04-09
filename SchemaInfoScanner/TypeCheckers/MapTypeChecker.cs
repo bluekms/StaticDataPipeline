@@ -1,9 +1,11 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Exceptions;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 using Sdp.Attributes;
 
@@ -24,13 +26,16 @@ public static class MapTypeChecker
     {
         if (!IsSupportedMapType(property.NamedTypeSymbol))
         {
-            throw new InvalidOperationException($"Expected {property.PropertyName.FullName} to be supported dictionary type, but actually not supported.");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ExpectedDictionaryType,
+                property.PropertyName.FullName));
         }
 
         var keySymbol = (INamedTypeSymbol)property.NamedTypeSymbol.TypeArguments[0];
         if (keySymbol.NullableAnnotation is NullableAnnotation.Annotated)
         {
-            throw new NotSupportedException($"Key type of dictionary must be non-nullable.");
+            throw new NotSupportedException(Messages.DictionaryKeyMustBeNonNullable);
         }
 
         var valueSymbol = (INamedTypeSymbol)property.NamedTypeSymbol.TypeArguments[1];
@@ -42,7 +47,7 @@ public static class MapTypeChecker
 
         if (valueSymbol.NullableAnnotation is NullableAnnotation.Annotated)
         {
-            throw new NotSupportedException("Value type of dictionary must be non-nullable.");
+            throw new NotSupportedException(Messages.DictionaryValueMustBeNonNullable);
         }
 
         var valueRecordSchema = RecordTypeChecker.CheckAndGetSchema(valueSymbol, recordSchemaCatalog, visited, logger);
@@ -52,7 +57,11 @@ public static class MapTypeChecker
 
         if (valueRecordKeyParameterSchema is null)
         {
-            throw new InvalidAttributeUsageException($"{valueRecordSchema.RecordName.FullName} is used as a value in dictionary {property.PropertyName.FullName}, {nameof(KeyAttribute)} must be used in one of the parameters.");
+            throw new InvalidAttributeUsageException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.KeyAttributeRequiredInDictionaryValue,
+                valueRecordSchema.RecordName.FullName,
+                property.PropertyName.FullName));
         }
 
         if (RecordTypeChecker.IsSupportedRecordType(keySymbol))
@@ -62,7 +71,7 @@ public static class MapTypeChecker
             var valueRecordKeyParameterRecordName = new RecordName(valueRecordKeyParameterSchema.NamedTypeSymbol);
             if (!keyRecordSchema.RecordName.Equals(valueRecordKeyParameterRecordName))
             {
-                throw new NotSupportedException($"Key and value type of dictionary must be same type.");
+                throw new NotSupportedException(Messages.DictionaryKeyValueMustBeSameType);
             }
 
             return;
@@ -96,13 +105,13 @@ public static class MapTypeChecker
         var keySymbol = (INamedTypeSymbol)symbol.TypeArguments[0];
         if (keySymbol.NullableAnnotation is NullableAnnotation.Annotated)
         {
-            throw new NotSupportedException($"Key type of dictionary must be non-nullable.");
+            throw new NotSupportedException(Messages.DictionaryKeyMustBeNonNullable);
         }
 
         var valueSymbol = (INamedTypeSymbol)symbol.TypeArguments[1];
         if (valueSymbol.NullableAnnotation is NullableAnnotation.Annotated)
         {
-            throw new NotSupportedException($"Value type of dictionary must be non-nullable.");
+            throw new NotSupportedException(Messages.DictionaryValueMustBeNonNullable);
         }
 
         return PrimitiveTypeChecker.IsSupportedPrimitiveType(keySymbol) &&
@@ -119,13 +128,13 @@ public static class MapTypeChecker
         var keySymbol = (INamedTypeSymbol)symbol.TypeArguments[0];
         if (keySymbol.NullableAnnotation is NullableAnnotation.Annotated)
         {
-            throw new NotSupportedException($"Key type of dictionary must be non-nullable.");
+            throw new NotSupportedException(Messages.DictionaryKeyMustBeNonNullable);
         }
 
         var valueSymbol = (INamedTypeSymbol)symbol.TypeArguments[1];
         if (valueSymbol.NullableAnnotation is NullableAnnotation.Annotated)
         {
-            throw new NotSupportedException($"Value type of dictionary must be non-nullable.");
+            throw new NotSupportedException(Messages.DictionaryValueMustBeNonNullable);
         }
 
         return RecordTypeChecker.IsSupportedRecordType(keySymbol) &&
@@ -198,12 +207,12 @@ public static class MapTypeChecker
 
         if (keySymbol.TypeKind is not TypeKind.Enum || valueSymbol.TypeKind is not TypeKind.Enum)
         {
-            throw new NotSupportedException($"Key and value type of dictionary must be same type.");
+            throw new NotSupportedException(Messages.DictionaryKeyValueMustBeSameType);
         }
 
         if (keySymbol.Name != valueSymbol.Name)
         {
-            throw new NotSupportedException($"Key and value type of dictionary must be same type.");
+            throw new NotSupportedException(Messages.DictionaryKeyValueMustBeSameType);
         }
     }
 }

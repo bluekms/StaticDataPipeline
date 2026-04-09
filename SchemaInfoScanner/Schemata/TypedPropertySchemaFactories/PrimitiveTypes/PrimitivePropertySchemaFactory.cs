@@ -1,6 +1,8 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes.NullableTypes;
 using SchemaInfoScanner.TypeCheckers;
@@ -16,7 +18,11 @@ public static class PrimitivePropertySchemaFactory
     {
         if (!PrimitiveTypeChecker.IsSupportedPrimitiveType(propertySymbol))
         {
-            throw new NotSupportedException($"{propertyName}({propertySymbol.Name}) is not a supported primitive type.");
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FactoryNotSupportedPrimitiveType,
+                propertyName,
+                propertySymbol.Name));
         }
 
         var isNullable = propertySymbol.OriginalDefinition.SpecialType is SpecialType.System_Nullable_T;
@@ -66,7 +72,11 @@ public static class PrimitivePropertySchemaFactory
                     "Double" => new NullableDoublePropertySchema(propertyName, propertySymbol, attributeList),
                     "Decimal" => new NullableDecimalPropertySchema(propertyName, propertySymbol, attributeList),
                     "String" => new NullableStringPropertySchema(propertyName, propertySymbol, attributeList),
-                    _ => throw new NotSupportedException($"{propertySymbol.Name} is not supported primitive type.")
+                    _ => throw new NotSupportedException(
+                        string.Format(
+                            CultureInfo.CurrentCulture,
+                            Messages.Composite.NotSupportedPrimitiveType,
+                            propertySymbol.Name))
                 };
             }
             else
@@ -87,7 +97,11 @@ public static class PrimitivePropertySchemaFactory
                     "Double" => new DoublePropertySchema(propertyName, propertySymbol, attributeList),
                     "Decimal" => new DecimalPropertySchema(propertyName, propertySymbol, attributeList),
                     "String" => new StringPropertySchema(propertyName, propertySymbol, attributeList),
-                    _ => throw new NotSupportedException($"{propertySymbol.Name} is not supported primitive type.")
+                    _ => throw new NotSupportedException(
+                        string.Format(
+                            CultureInfo.CurrentCulture,
+                            Messages.Composite.NotSupportedPrimitiveType,
+                            propertySymbol.Name))
                 };
             }
         }
@@ -110,7 +124,11 @@ public static class PrimitivePropertySchemaFactory
                 SpecialType.System_Double => new NullableDoublePropertySchema(propertyName, propertySymbol, attributeList),
                 SpecialType.System_Decimal => new NullableDecimalPropertySchema(propertyName, propertySymbol, attributeList),
                 SpecialType.System_String => new NullableStringPropertySchema(propertyName, propertySymbol, attributeList),
-                _ => throw new NotSupportedException($"{propertySymbol.Name} is not supported primitive type.")
+                _ => throw new NotSupportedException(
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.NotSupportedPrimitiveType,
+                        propertySymbol.Name))
             };
         }
         else
@@ -131,7 +149,11 @@ public static class PrimitivePropertySchemaFactory
                 SpecialType.System_Double => new DoublePropertySchema(propertyName, propertySymbol, attributeList),
                 SpecialType.System_Decimal => new DecimalPropertySchema(propertyName, propertySymbol, attributeList),
                 SpecialType.System_String => new StringPropertySchema(propertyName, propertySymbol, attributeList),
-                _ => throw new NotSupportedException($"{propertySymbol.Name} is not supported primitive type.")
+                _ => throw new NotSupportedException(
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.NotSupportedPrimitiveType,
+                        propertySymbol.Name))
             };
         }
     }

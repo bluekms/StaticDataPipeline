@@ -1,8 +1,10 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 using Sdp.Attributes;
 
@@ -23,7 +25,10 @@ public static class SetTypeChecker
     {
         if (!IsSupportedSetType(property.NamedTypeSymbol))
         {
-            throw new InvalidOperationException($"Expected {property.PropertyName.FullName} to be supported hashset type, but actually not supported.");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ExpectedHashSetType,
+                property.PropertyName.FullName));
         }
 
         var typeArgument = (INamedTypeSymbol)property.NamedTypeSymbol.TypeArguments.Single();
@@ -35,12 +40,18 @@ public static class SetTypeChecker
 
         if (typeArgument.NullableAnnotation is NullableAnnotation.Annotated)
         {
-            throw new NotSupportedException($"{property.PropertyName.FullName} is not supported hashset type. Nullable record item for hashset is not supported.");
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NullableRecordHashSetNotSupported,
+                property.PropertyName.FullName));
         }
 
         if (property.HasAttribute<SingleColumnCollectionAttribute>())
         {
-            throw new NotSupportedException($"{property.PropertyName.FullName} is not supported hashset type. {nameof(SingleColumnCollectionAttribute)} can only be used in primitive type hashset.");
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.SingleColumnHashSetOnlyPrimitive,
+                property.PropertyName.FullName));
         }
 
         var innerRecordSchema = property.FindInnerRecordSchema(recordSchemaCatalog);

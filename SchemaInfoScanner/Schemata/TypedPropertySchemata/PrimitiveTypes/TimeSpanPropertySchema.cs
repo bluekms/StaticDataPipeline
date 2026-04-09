@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.AttributeCheckers;
 using Sdp.Attributes;
 
@@ -21,7 +22,12 @@ public sealed record TimeSpanPropertySchema(
         var format = this.GetAttributeValue<TimeSpanFormatAttribute, string>();
         if (!TimeSpan.TryParseExact(cell.Value, format, CultureInfo.InvariantCulture, out var value))
         {
-            throw new InvalidOperationException($"Invalid value '{cell.Value}' in cell {cell.Address}.");
+            throw new InvalidOperationException(
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.InvalidCellValue,
+                    cell.Value,
+                    cell.Address));
         }
 
         if (this.HasAttribute<RangeAttribute>())

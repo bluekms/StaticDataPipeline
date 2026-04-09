@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 
 namespace SchemaInfoScanner.Extensions;
@@ -25,7 +26,10 @@ public static class ParameterSchemaBaseAttributeAccessors
 
         if (attribute.ArgumentList is null)
         {
-            throw new ArgumentNullException($"{typeof(TAttribute).Name} has no property.");
+            throw new ArgumentNullException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.AttributeHasNoProperty,
+                typeof(TAttribute).Name));
         }
 
         var valueString = attribute.ArgumentList.Arguments[attributeParameterIndex].ToString().Trim('"');
@@ -59,7 +63,10 @@ public static class ParameterSchemaBaseAttributeAccessors
 
         if (attribute.ArgumentList is null)
         {
-            throw new ArgumentNullException($"{typeof(TAttribute).Name} has no property.");
+            throw new ArgumentNullException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.AttributeHasNoProperty,
+                typeof(TAttribute).Name));
         }
 
         return attribute.ArgumentList.Arguments
@@ -67,7 +74,7 @@ public static class ParameterSchemaBaseAttributeAccessors
             {
                 LiteralExpressionSyntax literal => literal.Token.ValueText,
                 MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.Text, // for enum
-                _ => throw new InvalidOperationException("Unsupported expression type."),
+                _ => throw new InvalidOperationException(Messages.UnsupportedExpressionType),
             }).ToList();
     }
 }
