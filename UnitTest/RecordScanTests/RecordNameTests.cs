@@ -8,7 +8,7 @@ using SchemaInfoScanner.NameObjects;
 using UnitTest.Utility;
 using Xunit.Abstractions;
 
-namespace UnitTest;
+namespace UnitTest.RecordScanTests;
 
 public class RecordNameTests(ITestOutputHelper testOutputHelper)
 {

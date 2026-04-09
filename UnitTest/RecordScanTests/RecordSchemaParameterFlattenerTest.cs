@@ -3,7 +3,7 @@ using SchemaInfoScanner;
 using UnitTest.Utility;
 using Xunit.Abstractions;
 
-namespace UnitTest;
+namespace UnitTest.RecordScanTests;
 
 public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelper)
 {
