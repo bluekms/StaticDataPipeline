@@ -2,7 +2,7 @@ using System.Collections;
 using System.Globalization;
 using System.Resources;
 
-namespace UnitTest;
+namespace UnitTest.LocalizationTests;
 
 public class MessagesLocalizationTests
 {

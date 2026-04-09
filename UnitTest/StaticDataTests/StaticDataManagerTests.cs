@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 using Sdp;
 using Sdp.Table;
 
-namespace UnitTest;
+namespace UnitTest.StaticDataTests;
 
 public class StaticDataManagerTests
 {
