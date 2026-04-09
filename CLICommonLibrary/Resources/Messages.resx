@@ -9,4 +9,7 @@
   <data name="ExceptionCount" xml:space="preserve">
     <value>{0} exception(s) found.</value>
   </data>
+  <data name="LogPathRequired" xml:space="preserve">
+    <value>logPath is required.</value>
+  </data>
 </root>

@@ -1,4 +1,6 @@
+using System.Globalization;
 using SchemaInfoScanner.Extensions;
+using SchemaInfoScanner.Resources;
 using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.AttributeCheckers;
@@ -11,7 +13,10 @@ public static class NullStringAttributeChecker
     {
         if (!propertySchema.TryGetAttributeValue<NullStringAttribute, string>(0, out var attributeValue))
         {
-            throw new InvalidOperationException($"Property {propertySchema.PropertyName.FullName} does not have a NullStringAttribute.");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NullStringAttributeNotFound,
+                propertySchema.PropertyName.FullName));
         }
 
         return new(argument == attributeValue);

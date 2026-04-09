@@ -1,3 +1,4 @@
+using System.Globalization;
 using ExcelColumnExtractor.NameObjects;
 using ExcelColumnExtractor.Resources;
 using Microsoft.Extensions.Logging;
@@ -21,7 +22,12 @@ public class SheetBodyScanner
         var processor = new ExcelSheetProcessor(ProcessBody);
         processor.Process(excelSheetName, logger);
 
-        LogTrace(logger, Messages.SheetScanned(excelSheetName.FullName, rows.Count), null);
+        var msg = string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.SheetScanned,
+            excelSheetName.FullName,
+            rows.Count);
+        LogTrace(logger, msg, null);
         return new(rows.AsReadOnly());
     }
 

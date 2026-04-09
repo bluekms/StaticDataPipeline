@@ -21,4 +21,55 @@
   <data name="SheetScanned" xml:space="preserve">
     <value>{0}: {1} row(s) scanned.</value>
   </data>
+  <data name="FolderPathsDifferent" xml:space="preserve">
+    <value>The folder paths are different. {0} != {1}</value>
+  </data>
+  <data name="FileUpdatedBeforeCapture" xml:space="preserve">
+    <value>File {0} was updated before the last capture. {1} -> {2}</value>
+  </data>
+  <data name="HeaderAndIndexCountMismatch" xml:space="preserve">
+    <value>Header and index count mismatch.</value>
+  </data>
+  <data name="HeadersLine" xml:space="preserve">
+    <value>Headers: {{ {0} }}</value>
+  </data>
+  <data name="IndexSetLine" xml:space="preserve">
+    <value>IndexSet: {{ {0} }}</value>
+  </data>
+  <data name="RequiredHeaderNotFound" xml:space="preserve">
+    <value>Header not found: {0}</value>
+  </data>
+  <data name="SheetHeadersLine" xml:space="preserve">
+    <value>SheetHeaders: {{ {0} }}</value>
+  </data>
+  <data name="RecordHeadersLine" xml:space="preserve">
+    <value>RecordHeaders: {{ {0} }}</value>
+  </data>
+  <data name="HeaderCaseSensitivity" xml:space="preserve">
+    <value>Header case sensitivity: {0}</value>
+  </data>
+  <data name="SheetNotFound" xml:space="preserve">
+    <value>Sheet '{0}' not found.</value>
+  </data>
+  <data name="UnexpectedEndOfSheet" xml:space="preserve">
+    <value>Unexpected end of sheet: {0}.</value>
+  </data>
+  <data name="CellAddressRequired" xml:space="preserve">
+    <value>A1 cell must contain the Cell Address of the first header. (e.g. B10)</value>
+  </data>
+  <data name="UnexpectedEndOfSheetWithStartCell" xml:space="preserve">
+    <value>Unexpected end of sheet: {0}. A1: {1}</value>
+  </data>
+  <data name="FileOrDirectoryNotExist" xml:space="preserve">
+    <value>The file or directory does not exist. {0}</value>
+  </data>
+  <data name="StaticDataRecordAttributeNotFound" xml:space="preserve">
+    <value>StaticDataRecordAttribute is not found.</value>
+  </data>
+  <data name="DirectoryAlreadyHasFiles" xml:space="preserve">
+    <value>The directory already exists and contains {0} files.</value>
+  </data>
+  <data name="ParseErrorCount" xml:space="preserve">
+    <value>Parse errors: {0}</value>
+  </data>
 </root>

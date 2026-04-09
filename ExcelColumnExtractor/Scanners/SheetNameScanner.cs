@@ -1,3 +1,4 @@
+using System.Globalization;
 using ExcelColumnExtractor.Mappings;
 using ExcelColumnExtractor.NameObjects;
 using ExcelColumnExtractor.Resources;
@@ -34,7 +35,10 @@ public static class SheetNameScanner
         }
         else
         {
-            throw new ArgumentException($"The file or directory does not exist. {nameof(excelPath)}");
+            throw new ArgumentException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FileOrDirectoryNotExist,
+                nameof(excelPath)));
         }
 
         return new(sheetNames);
@@ -48,7 +52,12 @@ public static class SheetNameScanner
         if (loader.IsTemp)
         {
             var lastWriteTime = File.GetLastWriteTime(filePath);
-            LogInformation(logger, Messages.FileAlreadyOpen(Path.GetFileName(filePath), lastWriteTime), null);
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FileAlreadyOpen,
+                Path.GetFileName(filePath),
+                lastWriteTime);
+            LogInformation(logger, msg, null);
         }
 
         using var reader = ExcelReaderFactory.CreateReader(loader.Stream);

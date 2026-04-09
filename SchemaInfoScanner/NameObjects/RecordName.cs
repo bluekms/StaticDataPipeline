@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
+using SchemaInfoScanner.Resources;
 
 namespace SchemaInfoScanner.NameObjects;
 
@@ -24,12 +25,12 @@ public class RecordName : IEquatable<RecordName>
     {
         if (string.IsNullOrEmpty(fullName))
         {
-            throw new ArgumentException("fullName should not be null, empty, or end with '.'");
+            throw new ArgumentException(Messages.InvalidFullName);
         }
 
         if (fullName[^1] == '.')
         {
-            throw new ArgumentException("fullName should not be null, empty, or end with '.'");
+            throw new ArgumentException(Messages.InvalidFullName);
         }
 
         var parts = fullName.Split('.');

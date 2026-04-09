@@ -1,5 +1,7 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using SchemaInfoScanner.Catalogs;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 using SchemaInfoScanner.TypeCheckers;
 
@@ -15,8 +17,15 @@ public static class ParameterSchemaInnerSchemaFinder
         var typeArgumentSchema = recordSchemaCatalog.TryFind(typeArgument);
         if (typeArgumentSchema is null)
         {
-            var innerException = new KeyNotFoundException($"{typeArgument.Name} is not found in the RecordSchemaDictionary");
-            throw new NotSupportedException($"{property.PropertyName.FullName} is not supported type.", innerException);
+            var innerException = new KeyNotFoundException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.RecordSchemaTypeArgNotFound,
+                typeArgument.Name));
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NotSupportedType,
+                property.PropertyName.FullName);
+            throw new NotSupportedException(msg, innerException);
         }
 
         return typeArgumentSchema;
@@ -34,6 +43,9 @@ public static class ParameterSchemaInnerSchemaFinder
             return (INamedTypeSymbol)property.NamedTypeSymbol.TypeArguments.Last();
         }
 
-        throw new InvalidOperationException($"Expected {property.PropertyName.FullName} to be record collection type.");
+        throw new InvalidOperationException(string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.ExpectedRecordCollectionType,
+            property.PropertyName.FullName));
     }
 }

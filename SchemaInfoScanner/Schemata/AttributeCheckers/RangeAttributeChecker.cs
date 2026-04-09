@@ -1,5 +1,6 @@
 using System.Globalization;
 using SchemaInfoScanner.Extensions;
+using SchemaInfoScanner.Resources;
 using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.AttributeCheckers;
@@ -11,7 +12,7 @@ public static class RangeAttributeChecker
     {
         if (typeof(T).IsEnum)
         {
-            throw new InvalidOperationException("RangeAttribute cannot be used in enum.");
+            throw new InvalidOperationException(Messages.RangeAttributeCannotBeUsedInEnum);
         }
 
         var attributeValues = propertySchema.GetAttributeValueList<RangeAttribute>();
@@ -22,7 +23,7 @@ public static class RangeAttributeChecker
 
         if (attributeValues.Count != 2)
         {
-            throw new InvalidOperationException("RangeAttribute must have two values.");
+            throw new InvalidOperationException(Messages.RangeAttributeMustHaveTwoValues);
         }
 
         var min = (T)Convert.ChangeType(attributeValues[0], typeof(T), CultureInfo.InvariantCulture);
@@ -30,7 +31,12 @@ public static class RangeAttributeChecker
 
         if (value.CompareTo(min) < 0 || value.CompareTo(max) > 0)
         {
-            throw new ArgumentOutOfRangeException(propertySchema.PropertyName.FullName, value, $"Value({value}) must be between {min} and {max}.");
+            throw new ArgumentOutOfRangeException(propertySchema.PropertyName.FullName, value, string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ValueOutOfRange,
+                value,
+                min,
+                max));
         }
     }
 }

@@ -1,6 +1,8 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.RecordTypes;
 using SchemaInfoScanner.TypeCheckers;
 
@@ -16,7 +18,11 @@ public static class RecordPropertySchemaFactory
     {
         if (!RecordTypeChecker.IsSupportedRecordType(propertySymbol))
         {
-            throw new NotSupportedException($"{propertyName}({propertySymbol.Name}) is not a supported record type.");
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FactoryNotSupportedRecordType,
+                propertyName,
+                propertySymbol.Name));
         }
 
         var memberProperties = propertySymbol

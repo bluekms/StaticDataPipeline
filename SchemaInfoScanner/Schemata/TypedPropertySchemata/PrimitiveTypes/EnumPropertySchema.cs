@@ -1,6 +1,9 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
+
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes;
 
 public sealed record EnumPropertySchema(
@@ -19,8 +22,12 @@ public sealed record EnumPropertySchema(
 
         if (!enumMembers.Contains(value))
         {
-            throw new InvalidOperationException(
-                $"Invalid value '{cell.Value}' in cell {cell.Address}. Expected a member of {enumName.FullName}.");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.InvalidCellValueForEnum,
+                cell.Value,
+                cell.Address,
+                enumName.FullName));
         }
 
         context.Collect(value);

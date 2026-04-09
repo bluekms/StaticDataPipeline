@@ -13,19 +13,31 @@ public static class FolderUpdateChecker
     {
         if (before.FolderPath != after.FolderPath)
         {
-            throw new ArgumentException($"The folder paths are different. {before.FolderPath} != {after.FolderPath}");
+            throw new ArgumentException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FolderPathsDifferent,
+                before.FolderPath,
+                after.FolderPath));
         }
 
         var added = after.FileStates.Keys.Except(before.FileStates.Keys).ToList();
         foreach (var path in added)
         {
-            LogWarning(logger, Messages.FileAdded(path), null);
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FileAdded,
+                path);
+            LogWarning(logger, msg, null);
         }
 
         var removed = before.FileStates.Keys.Except(after.FileStates.Keys).ToList();
         foreach (var path in removed)
         {
-            LogWarning(logger, Messages.FileRemoved(path), null);
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FileRemoved,
+                path);
+            LogWarning(logger, msg, null);
         }
 
         foreach (var file in before.FileStates.Keys.Intersect(after.FileStates.Keys))
@@ -37,10 +49,19 @@ public static class FolderUpdateChecker
             {
                 if (afterTime < beforeTime)
                 {
-                    throw new InvalidOperationException($"File {file} was updated before the last capture. {beforeTime.ToString(DateTimeFormat, CultureInfo.InvariantCulture)} -> {afterTime.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}");
+                    throw new InvalidOperationException(string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.FileUpdatedBeforeCapture,
+                        file,
+                        beforeTime.ToString(DateTimeFormat, CultureInfo.InvariantCulture),
+                        afterTime.ToString(DateTimeFormat, CultureInfo.InvariantCulture)));
                 }
 
-                LogWarning(logger, Messages.FileUpdated(file), null);
+                var msg = string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.FileUpdated,
+                    file);
+                LogWarning(logger, msg, null);
             }
         }
     }

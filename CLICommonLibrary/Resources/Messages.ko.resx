@@ -9,4 +9,7 @@
   <data name="ExceptionCount" xml:space="preserve">
     <value>예외 {0}개가 발생했습니다.</value>
   </data>
+  <data name="LogPathRequired" xml:space="preserve">
+    <value>logPath가 필요합니다.</value>
+  </data>
 </root>

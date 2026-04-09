@@ -1,6 +1,8 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.TypedPropertySchemaFactories.PrimitiveTypes;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.CollectionTypes;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.RecordTypes;
@@ -19,13 +21,21 @@ public static class PrimitiveKeyRecordValueMapPropertySchemaFactory
         var keySymbol = (INamedTypeSymbol)propertySymbol.TypeArguments[0];
         if (!PrimitiveTypeChecker.IsSupportedPrimitiveType(keySymbol))
         {
-            throw new NotSupportedException($"{propertyName}({propertySymbol.Name}) Key type of dictionary must be a supported primitive type.");
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FactoryDictionaryKeyMustBePrimitiveType,
+                propertyName,
+                propertySymbol.Name));
         }
 
         var valueSymbol = (INamedTypeSymbol)propertySymbol.TypeArguments[1];
         if (!RecordTypeChecker.IsSupportedRecordType(valueSymbol))
         {
-            throw new NotSupportedException($"{propertyName}({propertySymbol.Name}) Value type of dictionary must be a supported record type.");
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FactoryDictionaryValueMustBeRecordType,
+                propertyName,
+                propertySymbol.Name));
         }
 
         var keySchema = new PrimitiveTypeGenericArgumentSchema(

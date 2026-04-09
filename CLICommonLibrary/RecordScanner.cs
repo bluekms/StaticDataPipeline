@@ -1,3 +1,4 @@
+using System.Globalization;
 using CLICommonLibrary.Resources;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner;
@@ -19,7 +20,11 @@ public static class RecordScanner
         var exceptionCount = RecordComplianceChecker.TryCheck(recordSchemaCatalog, logger);
         if (exceptionCount > 0)
         {
-            LogError(logger, Messages.ExceptionCount(exceptionCount), null);
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ExceptionCount,
+                exceptionCount);
+            LogError(logger, msg, null);
         }
 
         var enumMemberCatalog = new EnumMemberCatalog(loadResults);
@@ -37,7 +42,11 @@ public static class RecordScanner
         var exceptionCount = RecordComplianceChecker.TryCheck(recordSchemaCatalog, logger);
         if (exceptionCount > 0)
         {
-            LogError(logger, Messages.ExceptionCount(exceptionCount), null);
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ExceptionCount,
+                exceptionCount);
+            LogError(logger, msg, null);
         }
 
         var enumMemberCatalog = new EnumMemberCatalog(loadResults);

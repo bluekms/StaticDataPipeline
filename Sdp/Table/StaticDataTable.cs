@@ -1,8 +1,10 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using Sdp.Attributes;
 using Sdp.Csv;
+using Sdp.Resources;
 
 namespace Sdp.Table;
 
@@ -28,9 +30,14 @@ public abstract class StaticDataTable<TRecord, TKey>
     {
         if (Directory.Exists(path))
         {
-            var attr = typeof(TRecord).GetCustomAttribute<StaticDataRecordAttribute>()
-                ?? throw new InvalidOperationException(FormattableString.Invariant(
-                    $"{typeof(TRecord).Name} requires [StaticDataRecord] attribute when loading from a directory."));
+            var attr = typeof(TRecord).GetCustomAttribute<StaticDataRecordAttribute>();
+            if (attr is null)
+            {
+                throw new InvalidOperationException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.StaticDataRecordAttributeRequired,
+                    typeof(TRecord).Name));
+            }
 
             path = Path.Combine(path, FormattableString.Invariant($"{attr.ExcelFileName}.{attr.SheetName}.csv"));
         }

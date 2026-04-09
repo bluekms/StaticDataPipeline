@@ -21,4 +21,55 @@
   <data name="SheetScanned" xml:space="preserve">
     <value>{0}: {1}개 행을 읽었습니다.</value>
   </data>
+  <data name="FolderPathsDifferent" xml:space="preserve">
+    <value>폴더 경로가 다릅니다. {0} != {1}</value>
+  </data>
+  <data name="FileUpdatedBeforeCapture" xml:space="preserve">
+    <value>파일 {0}이(가) 마지막 캡처 이전에 수정되었습니다. {1} -> {2}</value>
+  </data>
+  <data name="HeaderAndIndexCountMismatch" xml:space="preserve">
+    <value>헤더와 인덱스 개수가 맞지 않습니다.</value>
+  </data>
+  <data name="HeadersLine" xml:space="preserve">
+    <value>Headers: {{ {0} }}</value>
+  </data>
+  <data name="IndexSetLine" xml:space="preserve">
+    <value>IndexSet: {{ {0} }}</value>
+  </data>
+  <data name="RequiredHeaderNotFound" xml:space="preserve">
+    <value>헤더를 찾을 수 없습니다: {0}</value>
+  </data>
+  <data name="SheetHeadersLine" xml:space="preserve">
+    <value>SheetHeaders: {{ {0} }}</value>
+  </data>
+  <data name="RecordHeadersLine" xml:space="preserve">
+    <value>RecordHeaders: {{ {0} }}</value>
+  </data>
+  <data name="HeaderCaseSensitivity" xml:space="preserve">
+    <value>헤더 대소문자 구분: {0}</value>
+  </data>
+  <data name="SheetNotFound" xml:space="preserve">
+    <value>'{0}' 시트를 찾을 수 없습니다.</value>
+  </data>
+  <data name="UnexpectedEndOfSheet" xml:space="preserve">
+    <value>예상치 못한 시트 끝: {0}.</value>
+  </data>
+  <data name="CellAddressRequired" xml:space="preserve">
+    <value>A1 셀에는 반드시 첫 번째 헤더의 Cell Address가 있어야 합니다. ex) B10</value>
+  </data>
+  <data name="UnexpectedEndOfSheetWithStartCell" xml:space="preserve">
+    <value>예상치 못한 시트 끝: {0}. A1: {1}</value>
+  </data>
+  <data name="FileOrDirectoryNotExist" xml:space="preserve">
+    <value>파일 또는 디렉터리가 존재하지 않습니다. {0}</value>
+  </data>
+  <data name="StaticDataRecordAttributeNotFound" xml:space="preserve">
+    <value>StaticDataRecordAttribute를 찾을 수 없습니다.</value>
+  </data>
+  <data name="DirectoryAlreadyHasFiles" xml:space="preserve">
+    <value>디렉터리가 이미 존재하며 {0}개의 파일이 있습니다.</value>
+  </data>
+  <data name="ParseErrorCount" xml:space="preserve">
+    <value>파싱 오류: {0}개</value>
+  </data>
 </root>

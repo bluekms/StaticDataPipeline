@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 
 namespace SchemaInfoScanner.Extensions;
@@ -25,7 +26,10 @@ public static class RecordSchemaAttributeAccessors
 
         if (attribute.ArgumentList is null)
         {
-            throw new ArgumentNullException($"{typeof(TAttribute).Name} has no property.");
+            throw new ArgumentNullException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.AttributeHasNoProperty,
+                typeof(TAttribute).Name));
         }
 
         var argument = attribute.ArgumentList.Arguments[attributeParameterIndex].Expression;
@@ -33,7 +37,7 @@ public static class RecordSchemaAttributeAccessors
         {
             LiteralExpressionSyntax literal => literal.Token.ValueText,
             MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.Text,
-            _ => throw new InvalidOperationException("Unsupported expression type."),
+            _ => throw new InvalidOperationException(Messages.UnsupportedExpressionType),
         };
 
         return typeof(TValue).IsEnum
@@ -66,7 +70,10 @@ public static class RecordSchemaAttributeAccessors
 
         if (attribute.ArgumentList is null)
         {
-            throw new ArgumentNullException($"{typeof(TAttribute).Name} has no property.");
+            throw new ArgumentNullException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.AttributeHasNoProperty,
+                typeof(TAttribute).Name));
         }
 
         return attribute.ArgumentList.Arguments
@@ -74,7 +81,7 @@ public static class RecordSchemaAttributeAccessors
             {
                 LiteralExpressionSyntax literal => literal.Token.ValueText,
                 MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.Text,
-                _ => throw new InvalidOperationException("Unsupported expression type."),
+                _ => throw new InvalidOperationException(Messages.UnsupportedExpressionType),
             }).ToList();
     }
 }

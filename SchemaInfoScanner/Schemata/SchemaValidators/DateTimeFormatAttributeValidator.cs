@@ -1,6 +1,8 @@
+using System.Globalization;
 using FluentValidation;
 using Microsoft.CodeAnalysis;
 using SchemaInfoScanner.Extensions;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes.NullableTypes;
 using SchemaInfoScanner.TypeCheckers;
@@ -19,7 +21,11 @@ internal partial class SchemaRuleValidator
                     IsDateTimeCollection(x) ||
                     x is DateTimePropertySchema or NullableDateTimePropertySchema)
                 .WithMessage(x =>
-                    $"{x.PropertyName.FullName}({x.GetType().FullName}): {nameof(DateTime)}이 아니므로 {nameof(DateTimeFormatAttribute)}를 사용할 수 없습니다.");
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.DateTimeFormatAttributeNotApplicable,
+                        x.PropertyName.FullName,
+                        x.GetType().FullName));
         });
 
         When(x => x is DateTimePropertySchema, () =>
@@ -27,7 +33,11 @@ internal partial class SchemaRuleValidator
             RuleFor(x => x)
                 .Must(x => x.HasAttribute<DateTimeFormatAttribute>())
                 .WithMessage(x =>
-                    $"{x.PropertyName.FullName}({x.GetType().FullName}): {nameof(DateTime)} 타입은 반드시 {nameof(DateTimeFormatAttribute)}를 사용해야 합니다.");
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.DateTimeFormatAttributeRequired,
+                        x.PropertyName.FullName,
+                        x.GetType().FullName));
         });
     }
 

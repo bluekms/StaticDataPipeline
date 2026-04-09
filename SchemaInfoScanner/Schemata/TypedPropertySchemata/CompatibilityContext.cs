@@ -1,4 +1,6 @@
+using System.Globalization;
 using SchemaInfoScanner.Catalogs;
+using SchemaInfoScanner.Resources;
 
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemata;
 
@@ -53,7 +55,10 @@ public sealed class CompatibilityContext
     {
         if (Position >= Cells.Count)
         {
-            throw new InvalidOperationException($"StartIndex {Position} is out of range for the provided arguments.");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.StartIndexOutOfRange,
+                Position));
         }
 
         return Cells[Position++];
@@ -76,19 +81,25 @@ public sealed class CompatibilityContext
             return;
         }
 
-        throw new InvalidOperationException("Unreachable code reached in Collect method.");
+        throw new InvalidOperationException(Messages.UnreachableCodeInCollect);
     }
 
     public void ValidateNoDuplicates()
     {
         if (collectMode is CollectMode.None)
         {
-            throw new InvalidOperationException($"Cannot validate duplicates when CollectMode is None: {this}");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.CannotValidateDuplicatesInNoneMode,
+                this));
         }
 
         if (duplicateCandidates.Count != duplicateCandidates.Distinct().Count())
         {
-            throw new InvalidOperationException($"Duplicate values found in the argument: {this}");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.DuplicateValuesInArgument,
+                this));
         }
     }
 
@@ -107,12 +118,18 @@ public sealed class CompatibilityContext
     {
         if (collectMode is not CollectMode.KeyOnly)
         {
-            throw new InvalidOperationException($"BeginKeyScope can only be called in KeyOnly collect mode: {this}");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.BeginKeyScopeOnlyInKeyOnlyMode,
+                this));
         }
 
         if (isKeyScope)
         {
-            throw new InvalidOperationException($"Nested key scopes are not allowed: {this}");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NestedKeyScopesNotAllowed,
+                this));
         }
 
         isKeyScope = true;
@@ -123,17 +140,26 @@ public sealed class CompatibilityContext
     {
         if (collectMode is not CollectMode.KeyOnly)
         {
-            throw new InvalidOperationException($"EndKeyScope can only be called in KeyOnly collect mode: {this}");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.EndKeyScopeOnlyInKeyOnlyMode,
+                this));
         }
 
         if (!isKeyScope)
         {
-            throw new InvalidOperationException($"EndKeyScope called without a matching BeginKeyScope: {this}");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.EndKeyScopeWithoutBeginKeyScope,
+                this));
         }
 
         if (keyScopeComponents.Count == 0)
         {
-            throw new InvalidOperationException($"No components collected in key scope: {this}");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NoComponentsInKeyScope,
+                this));
         }
 
         object? keyObject;

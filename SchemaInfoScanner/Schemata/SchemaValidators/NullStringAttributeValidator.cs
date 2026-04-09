@@ -1,6 +1,8 @@
+using System.Globalization;
 using FluentValidation;
 using Microsoft.CodeAnalysis;
 using SchemaInfoScanner.Extensions;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.TypeCheckers;
 using Sdp.Attributes;
 
@@ -16,7 +18,11 @@ internal partial class SchemaRuleValidator
             RuleFor(x => x)
                 .Must(x => x.HasAttribute<NullStringAttribute>())
                 .WithMessage(x =>
-                    $"{x.PropertyName.FullName}({x.GetType().FullName}): nullable 타입은 {nameof(NullStringAttribute)}를 사용해야 합니다.");
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.NullStringAttributeRequiredForNullable,
+                        x.PropertyName.FullName,
+                        x.GetType().FullName));
         });
 
         // nullable 타입이 사용된 array 이면 반드시 있어야 한다.
@@ -25,7 +31,11 @@ internal partial class SchemaRuleValidator
             RuleFor(x => x)
                 .Must(x => x.HasAttribute<NullStringAttribute>())
                 .WithMessage(x =>
-                    $"{x.PropertyName.FullName}({x.GetType().FullName}): nullable primitive array 타입은 {nameof(NullStringAttribute)}를 사용해야 합니다.");
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.NullStringAttributeRequiredForNullableArray,
+                        x.PropertyName.FullName,
+                        x.GetType().FullName));
         });
 
         // nullable 타입이 사용된 set 이라면 반드시 있어야 한다.
@@ -34,7 +44,11 @@ internal partial class SchemaRuleValidator
             RuleFor(x => x)
                 .Must(x => x.HasAttribute<NullStringAttribute>())
                 .WithMessage(x =>
-                    $"{x.PropertyName.FullName}({x.GetType().FullName}): nullable primitive set 타입은 {nameof(NullStringAttribute)}를 사용해야 합니다.");
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.NullStringAttributeRequiredForNullableSet,
+                        x.PropertyName.FullName,
+                        x.GetType().FullName));
         });
 
         // nullable 타입이 사용된 map 이라면 반드시 있어야 한다.
@@ -43,7 +57,11 @@ internal partial class SchemaRuleValidator
             RuleFor(x => x)
                 .Must(x => x.HasAttribute<NullStringAttribute>())
                 .WithMessage(x =>
-                    $"{x.PropertyName.FullName}({x.GetType().FullName}): nullable primitive map 타입은 {nameof(NullStringAttribute)}를 사용해야 합니다.");
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.NullStringAttributeRequiredForNullableMap,
+                        x.PropertyName.FullName,
+                        x.GetType().FullName));
         });
 
         When(IsDisallowType, () =>
@@ -51,7 +69,11 @@ internal partial class SchemaRuleValidator
             RuleFor(x => x)
                 .Must(x => !x.HasAttribute<NullStringAttribute>())
                 .WithMessage(x =>
-                    $"{x.PropertyName.FullName}({x.GetType().FullName}): nullable이거나 nullable을 갖는 컬렉션이 아니므로 {nameof(NullStringAttribute)}를 사용할 수 없습니다.");
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.NullStringAttributeNotAllowed,
+                        x.PropertyName.FullName,
+                        x.GetType().FullName));
         });
     }
 

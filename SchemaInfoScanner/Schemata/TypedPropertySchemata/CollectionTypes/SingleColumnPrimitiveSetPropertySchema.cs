@@ -1,5 +1,7 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SchemaInfoScanner.Resources;
 using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.CollectionTypes;
@@ -20,8 +22,13 @@ public sealed record SingleColumnPrimitiveSetPropertySchema(
         {
             if (parts.Length != length)
             {
-                throw new InvalidOperationException(
-                    $"Cell {cell.Address} contains {parts.Length} value(s), but {PropertyName} expects {length}.");
+                throw new InvalidOperationException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.SingleColumnCellCountMismatch,
+                    cell.Address,
+                    parts.Length,
+                    PropertyName,
+                    length));
             }
         }
 

@@ -1,4 +1,5 @@
 using System.Data;
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -44,7 +45,7 @@ public static class RecordSchemaLoader
         }
         else
         {
-            throw new ArgumentException("The file or directory does not exist.", nameof(csPath));
+            throw new ArgumentException(Messages.FileOrDirectoryNotExist, nameof(csPath));
         }
 
         return results;
@@ -72,7 +73,7 @@ public static class RecordSchemaLoader
         }
         else
         {
-            throw new ArgumentException("The file or directory does not exist.", nameof(csPath));
+            throw new ArgumentException(Messages.FileOrDirectoryNotExist, nameof(csPath));
         }
 
         return results;
@@ -91,13 +92,20 @@ public static class RecordSchemaLoader
 
         if (compileErrors.Count is not 0)
         {
-            LogException(logger, Messages.CodeNotCompilable(code), null);
+            var msg = string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.CodeNotCompilable,
+                code);
+            LogException(logger, msg, null);
             foreach (var error in compileErrors)
             {
                 LogException(logger, error.ToString(), null);
             }
 
-            throw new SyntaxErrorException($"{compileErrors.Count} compile errors occurred.");
+            throw new SyntaxErrorException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.CompileErrorsOccurred,
+                compileErrors.Count));
         }
 
         var semanticModel = compilation.GetSemanticModel(syntaxTree);

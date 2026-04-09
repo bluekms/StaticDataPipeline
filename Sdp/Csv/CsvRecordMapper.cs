@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using System.Globalization;
+using Sdp.Resources;
 
 namespace Sdp.Csv;
 
@@ -70,7 +71,10 @@ internal static class CsvRecordMapper
                     paramInfo.SingleColumnSeparator!,
                     headerIndexMap,
                     values),
-                _ => throw new InvalidOperationException($"Unknown collection type: {paramInfo.CollectionKind}"),
+                _ => throw new InvalidOperationException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.UnknownCollectionType,
+                    paramInfo.CollectionKind)),
             };
         }
 
@@ -86,7 +90,10 @@ internal static class CsvRecordMapper
 
         if (!headerIndexMap.TryGetValue(baseName, out var index))
         {
-            throw new InvalidOperationException($"Header '{baseName}' not found in CSV");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.CsvHeaderNotFound,
+                baseName));
         }
 
         return ConvertStringValue(paramInfo.ParameterType, values[index], paramInfo.NullString);
@@ -120,7 +127,11 @@ internal static class CsvRecordMapper
             var parsed = Enum.Parse(targetType, value);
             if (!Enum.IsDefined(targetType, parsed))
             {
-                throw new ArgumentException($"'{value}' is not a defined value of enum '{targetType.Name}'");
+                throw new ArgumentException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.EnumValueNotDefined,
+                    value,
+                    targetType.Name));
             }
 
             return parsed;
@@ -149,7 +160,10 @@ internal static class CsvRecordMapper
             {
                 if (!headerIndexMap.TryGetValue(headerName, out var index))
                 {
-                    throw new InvalidOperationException($"Header '{headerName}' not found in CSV");
+                    throw new InvalidOperationException(string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.CsvHeaderNotFound,
+                        headerName));
                 }
 
                 convertedValue = ConvertStringValue(elementType, values[index], nullString);
@@ -175,7 +189,10 @@ internal static class CsvRecordMapper
     {
         if (!headerIndexMap.TryGetValue(baseName, out var index))
         {
-            throw new InvalidOperationException($"Header '{baseName}' not found in CSV");
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.CsvHeaderNotFound,
+                baseName));
         }
 
         var cellValue = values[index];
@@ -225,7 +242,10 @@ internal static class CsvRecordMapper
             {
                 if (!headerIndexMap.TryGetValue(headerName, out var index))
                 {
-                    throw new InvalidOperationException($"Header '{headerName}' not found in CSV");
+                    throw new InvalidOperationException(string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.CsvHeaderNotFound,
+                        headerName));
                 }
 
                 convertedValue = ConvertStringValue(elementType, values[index], nullString);
@@ -292,7 +312,10 @@ internal static class CsvRecordMapper
         {
             if (!headerIndexMap.TryGetValue(baseName, out var index))
             {
-                throw new InvalidOperationException($"Header '{baseName}' not found in CSV");
+                throw new InvalidOperationException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.CsvHeaderNotFound,
+                    baseName));
             }
 
             return ConvertStringValue(recordType, values[index], nullString);
@@ -362,7 +385,10 @@ internal static class CsvRecordMapper
                     headerIndexMap,
                     values,
                     effectiveNullString),
-                _ => throw new InvalidOperationException($"Unknown collection type: {paramInfo.CollectionKind}"),
+                _ => throw new InvalidOperationException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.UnknownCollectionType,
+                    paramInfo.CollectionKind)),
             };
         }
 
@@ -370,7 +396,10 @@ internal static class CsvRecordMapper
         {
             if (!headerIndexMap.TryGetValue(baseName, out var index))
             {
-                throw new InvalidOperationException($"Header '{baseName}' not found in CSV");
+                throw new InvalidOperationException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.CsvHeaderNotFound,
+                    baseName));
             }
 
             return ConvertStringValue(paramInfo.ParameterType, values[index], effectiveNullString);

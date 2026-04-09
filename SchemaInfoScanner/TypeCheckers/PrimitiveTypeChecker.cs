@@ -1,4 +1,6 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
+using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 
 namespace SchemaInfoScanner.TypeCheckers;
@@ -9,7 +11,10 @@ internal static class PrimitiveTypeChecker
     {
         if (!IsSupportedPrimitiveType(property.NamedTypeSymbol))
         {
-            throw new NotSupportedException($"{property.PropertyName.FullName} is not supported primitive type.");
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.NotSupportedPrimitiveType,
+                property.PropertyName.FullName));
         }
     }
 
