@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <SelfContained>false</SelfContained>
   </PropertyGroup>
 
   <ItemGroup>

@@ -9,14 +9,6 @@ namespace Docs.SampleRecords.Excel3;
 /// nested record Id 래핑 패턴, 외부 정의 record 재사용
 /// </summary>
 
-// Id 래핑 패턴 - 연산 방지, 비교만 가능
-// int Id 대신 record로 래핑하면 실수로 Id + 1 같은 연산을 방지
-public sealed record SchoolId(int Value);
-
-public sealed record TeacherId(int Value);
-
-public sealed record StudentId(int Value);
-
 // 외부 정의 nested record - 여러 record에서 재사용
 public sealed record Address(
     [ColumnName("도시")] string City,
@@ -29,9 +21,33 @@ public sealed record ContactInfo(
 // School 시트 - 복합 구조
 [StaticDataRecord("Excel3", "School")]
 public sealed record School(
-    SchoolId Id,
+    School.SchoolId Id,
     string Name,
     Address Address,
     ContactInfo Contact,
     [Length(3)] ImmutableArray<string> Departments,
-    [Length(2)] FrozenSet<int> Grades);
+    [Length(2)] FrozenSet<int> Grades)
+{
+    public record struct SchoolId(int Value);
+}
+
+// Teacher 시트 - School 비PK FK 예제 (SchoolName은 School의 PK가 아님)
+[StaticDataRecord("Excel3", "Teacher")]
+public sealed record Teacher(
+    Teacher.TeacherId Id,
+    string Name,
+    [ForeignKey("School", "Name")] string SchoolName)
+{
+    public record struct TeacherId(int Value);
+}
+
+// Student 시트 - School + Teacher 다중 FK 예제
+[StaticDataRecord("Excel3", "Student")]
+public sealed record Student(
+    Student.StudentId Id,
+    string Name,
+    [ForeignKey("School", "Id")] School.SchoolId SchoolId,
+    [ForeignKey("Teacher", "Id")] Teacher.TeacherId TeacherId)
+{
+    public record struct StudentId(int Value);
+}
