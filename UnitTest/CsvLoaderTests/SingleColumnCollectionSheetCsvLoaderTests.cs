@@ -5,12 +5,24 @@ namespace UnitTest.CsvLoaderTests;
 
 public class SingleColumnCollectionSheetCsvLoaderTests
 {
+    private const string SingleColumnCollectionSheetCsv =
+        """
+        Id,Values
+        1,99.9
+        2,"1.234, 5.678"
+        3,"123.456, 78.9, 0.123"
+        4,"10.0, 20.0, 30.0, 40.0"
+        5,"1.1, 2.2, 3.3, 4.4, 5.5"
+        6,100
+        7,"50.5, 60.6"
+        8,567.89
+        9,"0.1, 0.2, 0.3"
+        """;
+
     [Fact]
     public void Load_SingleColumnCollectionSheetCsv_ReturnsValidRecords()
     {
-        var csvPath = GetCsvPath("Excel1.SingleColumnCollectionSheet.csv");
-
-        var records = CsvLoader.Load<SingleColumnCollectionSheet>(csvPath);
+        var records = CsvLoader.Parse<SingleColumnCollectionSheet>(SingleColumnCollectionSheetCsv);
 
         Assert.NotEmpty(records);
         Assert.Equal(9, records.Count);
@@ -37,9 +49,7 @@ public class SingleColumnCollectionSheetCsvLoaderTests
     [Fact]
     public void Load_SingleColumnCollectionSheetCsv_ParsesAllFloatValues()
     {
-        var csvPath = GetCsvPath("Excel1.SingleColumnCollectionSheet.csv");
-
-        var records = CsvLoader.Load<SingleColumnCollectionSheet>(csvPath);
+        var records = CsvLoader.Parse<SingleColumnCollectionSheet>(SingleColumnCollectionSheetCsv);
 
         foreach (var record in records)
         {
@@ -49,12 +59,5 @@ public class SingleColumnCollectionSheetCsvLoaderTests
                 Assert.True(float.IsFinite(value));
             }
         }
-    }
-
-    private static string GetCsvPath(string fileName)
-    {
-        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        var solutionDir = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", ".."));
-        return Path.Combine(solutionDir, "Docs", "SampleCsvs", fileName);
     }
 }
