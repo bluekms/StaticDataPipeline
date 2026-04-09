@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using UnitTest.Utility;
 using Xunit.Abstractions;
 
-namespace UnitTest;
+namespace UnitTest.FolderUpdateCheckerTests;
 
 public class FolderUpdateCheckerLocalizationTest(ITestOutputHelper testOutputHelper)
 {

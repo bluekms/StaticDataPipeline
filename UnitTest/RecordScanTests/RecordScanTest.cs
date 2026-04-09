@@ -6,7 +6,7 @@ using SchemaInfoScanner.Collectors;
 using UnitTest.Utility;
 using Xunit.Abstractions;
 
-namespace UnitTest;
+namespace UnitTest.RecordScanTests;
 
 public class RecordScanTest(ITestOutputHelper testOutputHelper)
 {

@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using Sdp.Table;
 
-namespace UnitTest;
+namespace UnitTest.StaticDataTests;
 
 public class StaticDataTableTests
 {
