@@ -191,6 +191,19 @@ Console.WriteLine($"Count: {count}");
 var upper = text.ToUpper();
 ```
 
+`FormattableString.Invariant()`가 줄 바꿈이 필요한 경우, 호출부와 같은 줄에서 시작하고 문자열만 다음 줄로 내린다:
+
+```csharp
+// Good - FormattableString.Invariant(가 호출부와 같은 줄
+throw new InvalidOperationException(FormattableString.Invariant(
+    $"No index registered for '{name}' in {GetType().Name}."));
+
+// Bad - FormattableString.Invariant(가 별도 줄로 분리
+throw new InvalidOperationException(
+    FormattableString.Invariant(
+        $"No index registered for '{name}' in {GetType().Name}."));
+```
+
 ### 로깅
 
 - **`logger.LogXxx()` 스타일 유지**
