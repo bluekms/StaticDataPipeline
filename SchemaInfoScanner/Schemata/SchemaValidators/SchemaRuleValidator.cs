@@ -10,6 +10,7 @@ internal partial class SchemaRuleValidator : AbstractValidator<PropertySchemaBas
         RegisterDisallowNullableCollectionRule();
 
         // Attribute Validators
+        RegisterCountRangeAttributeRule();
         RegisterDateTimeFormatAttributeRule();
         RegisterLengthAttributeRule();
         RegisterNullStringAttributeRule();

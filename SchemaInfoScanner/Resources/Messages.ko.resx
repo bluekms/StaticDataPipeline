@@ -183,6 +183,15 @@
   <data name="RegularExpressionAttributeOnlyForString" xml:space="preserve">
     <value>{0}({1}): string이 아니므로 RegularExpressionAttribute를 사용할 수 없습니다.</value>
   </data>
+  <data name="CountRangeAttributeOnlyForSingleColumnCollection" xml:space="preserve">
+    <value>CountRangeAttribute는 SingleColumnCollectionAttribute와 함께만 사용할 수 있습니다.</value>
+  </data>
+  <data name="CountRangeAndLengthMutuallyExclusive" xml:space="preserve">
+    <value>CountRangeAttribute와 LengthAttribute는 함께 사용할 수 없습니다.</value>
+  </data>
+  <data name="CountOutOfRange" xml:space="preserve">
+    <value>셀 {0}에는 {1}개의 값이 있지만, {2}는 {3}~{4}개를 기대합니다.</value>
+  </data>
   <data name="SingleColumnCollectionNotForUnsupportedCollection" xml:space="preserve">
     <value>{0}({1}): 지원되는 컬렉션이 아니기 때문에 SingleColumnCollectionAttribute를 사용할 수 없습니다.</value>
   </data>

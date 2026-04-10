@@ -183,6 +183,15 @@
   <data name="RegularExpressionAttributeOnlyForString" xml:space="preserve">
     <value>{0}({1}): not a string, so RegularExpressionAttribute cannot be used.</value>
   </data>
+  <data name="CountRangeAttributeOnlyForSingleColumnCollection" xml:space="preserve">
+    <value>CountRangeAttribute can only be used with SingleColumnCollectionAttribute.</value>
+  </data>
+  <data name="CountRangeAndLengthMutuallyExclusive" xml:space="preserve">
+    <value>CountRangeAttribute and LengthAttribute cannot be used together.</value>
+  </data>
+  <data name="CountOutOfRange" xml:space="preserve">
+    <value>Cell {0} contains {1} item(s), but {2} expects between {3} and {4}.</value>
+  </data>
   <data name="SingleColumnCollectionNotForUnsupportedCollection" xml:space="preserve">
     <value>{0}({1}): not a supported collection, so SingleColumnCollectionAttribute cannot be used.</value>
   </data>
