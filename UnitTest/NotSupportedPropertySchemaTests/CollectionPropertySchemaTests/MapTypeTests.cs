@@ -19,10 +19,11 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
-                         Dictionary<int, {{collection}}<int>> Property,
+                         Dictionary<int, {collection}<int>> Property,
                      );
                      """;
 
@@ -40,7 +41,8 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          Dictionary<int, Dictionary<int, string>> Property,
@@ -75,10 +77,11 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
-                         [Length(3)] FrozenDictionary<int, {{value}}> Property
+                         [Length(3)] FrozenDictionary<int, {value}> Property
                      );
                      """;
 
@@ -96,6 +99,7 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
+        // language=C#
         var code = """
                    public enum KeyEnum { A, B, C }
                    public enum ValueEnum { A, B, C }
@@ -120,6 +124,7 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
+        // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
                    public sealed record MyRecord(
@@ -143,6 +148,7 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
+        // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
                    public sealed record MyRecord(

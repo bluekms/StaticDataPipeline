@@ -19,7 +19,8 @@ public class RegularExpressionAttributeRuleTests(ITestOutputHelper testOutputHel
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [RegularExpression(@"^[\w\.-]+@[\w\.-]+\.\w+$")]
@@ -44,7 +45,8 @@ public class RegularExpressionAttributeRuleTests(ITestOutputHelper testOutputHel
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [RegularExpression(@"^[\w\.-]+@[\w\.-]+\.\w+$")]

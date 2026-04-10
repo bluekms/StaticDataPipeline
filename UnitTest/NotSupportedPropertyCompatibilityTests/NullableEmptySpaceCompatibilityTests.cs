@@ -19,7 +19,8 @@ public class NullableEmptySpaceCompatibilityTests(ITestOutputHelper testOutputHe
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [NullString("-")]

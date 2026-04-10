@@ -19,7 +19,8 @@ public class DateTimeFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
@@ -44,7 +45,8 @@ public class DateTimeFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          DateTime Property,
@@ -68,7 +70,8 @@ public class DateTimeFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]

@@ -32,10 +32,11 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                    [StaticDataRecord("Test", "TestSheet")]
                    public sealed record MyRecord(
-                       [Length(3)] ImmutableArray<{{type}}> Property,
+                       [Length(3)] ImmutableArray<{type}> Property,
                    );
                    """;
 
@@ -71,12 +72,13 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [NullString("")]
                          [Length(3)]
-                         ImmutableArray<{{type}}> Property,
+                         ImmutableArray<{type}> Property,
                      );
                      """;
 
@@ -99,14 +101,15 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
+        // language=C#
         var code = $$"""
-                   public enum MyEnum { A, B, C }
+                     public enum MyEnum { A, B, C }
 
-                   [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
-                       [Length(3)] ImmutableArray<{{type}}> Property,
-                   );
-                   """;
+                     [StaticDataRecord("Test", "TestSheet")]
+                     public sealed record MyRecord(
+                        [Length(3)] ImmutableArray<{{type}}> Property,
+                     );
+                     """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -127,12 +130,13 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                    [StaticDataRecord("Test", "TestSheet")]
                    public sealed record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
                        [Length(3)]
-                       ImmutableArray<{{type}}> Property,
+                       ImmutableArray<{type}> Property,
                    );
                    """;
 
@@ -155,13 +159,14 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
                          [NullString("")]
                          [Length(3)]
-                         ImmutableArray<{{type}}> Property,
+                         ImmutableArray<{type}> Property,
                      );
                      """;
 
@@ -184,12 +189,13 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                    [StaticDataRecord("Test", "TestSheet")]
                    public sealed record MyRecord(
                        [TimeSpanFormat("c")]
                        [Length(3)]
-                       ImmutableArray<{{type}}> Property,
+                       ImmutableArray<{type}> Property,
                    );
                    """;
 
@@ -212,13 +218,14 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [TimeSpanFormat("c")]
                          [NullString("")]
                          [Length(3)]
-                         ImmutableArray<{{type}}> Property,
+                         ImmutableArray<{type}> Property,
                      );
                      """;
 
@@ -240,7 +247,8 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [SingleColumnCollection(", ")]
@@ -266,7 +274,8 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [SingleColumnCollection(", ")]

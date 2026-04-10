@@ -16,17 +16,19 @@ public class MapPrimitiveTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record UserInfo(
                 [Key] string Name,
                 int Age,
                 string Email
             );
 
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyRecord(
                 [Length(2)] FrozenDictionary<string, UserInfo> Users
-            );";
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -54,22 +56,24 @@ public class MapPrimitiveTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
-        public sealed record AddressInfo(
-            string City,
-            string ZipCode
-        );
+        // language=C#
+        var code = """
+            public sealed record AddressInfo(
+                string City,
+                string ZipCode
+            );
 
-        public sealed record UserInfo(
-            [Key] string Name,
-            int Age,
-            AddressInfo Address
-        );
+            public sealed record UserInfo(
+                [Key] string Name,
+                int Age,
+                AddressInfo Address
+            );
 
-        [StaticDataRecord(""Test"", ""TestSheet"")]
-        public sealed record MyRecord(
-            [Length(2)] FrozenDictionary<string, UserInfo> Users
-        );";
+            [StaticDataRecord("Test", "TestSheet")]
+            public sealed record MyRecord(
+                [Length(2)] FrozenDictionary<string, UserInfo> Users
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -100,16 +104,18 @@ public class MapPrimitiveTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record UserInfo(
-                [Key][ColumnName(""UserName"")] string Name,
-                [ColumnName(""UserAge"")] int Age
+                [Key][ColumnName("UserName")] string Name,
+                [ColumnName("UserAge")] int Age
             );
 
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyRecord(
-                [ColumnName(""UserData"")][Length(2)] FrozenDictionary<string, UserInfo> Users
-            );";
+                [ColumnName("UserData")][Length(2)] FrozenDictionary<string, UserInfo> Users
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 

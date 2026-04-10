@@ -19,7 +19,8 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [Length(3)][NullString("-")] ImmutableArray<int?> Property,
@@ -58,7 +59,8 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      public enum MyEnum { A, B, C }
 
                      [StaticDataRecord("Test", "TestSheet")]
@@ -98,7 +100,8 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
@@ -139,7 +142,8 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [TimeSpanFormat("c")]
@@ -179,7 +183,8 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [NullString("")]
@@ -217,7 +222,8 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      public enum MyEnum { A, B, C }
 
                      [StaticDataRecord("Test", "TestSheet")]
@@ -257,7 +263,8 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [SingleColumnCollection(", ")]
@@ -296,7 +303,8 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [SingleColumnCollection(", ")]

@@ -19,7 +19,8 @@ public class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [TimeSpanFormat("c")]
@@ -44,7 +45,8 @@ public class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          TimeSpan Property,
@@ -68,7 +70,8 @@ public class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [TimeSpanFormat("c")]

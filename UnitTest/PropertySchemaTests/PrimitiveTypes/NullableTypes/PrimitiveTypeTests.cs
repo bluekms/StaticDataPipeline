@@ -32,10 +32,11 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
-                         [NullString("")] {{type}}? Property,
+                         [NullString("")] {type}? Property,
                      );
                      """;
 
@@ -71,10 +72,11 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
-                         [NullString("")] {{type}}? Property,
+                         [NullString("")] {type}? Property,
                      );
                      """;
 
@@ -97,6 +99,7 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
+        // language=C#
         var code = $$"""
                      public enum MyEnum { A, B, C }
 
@@ -125,12 +128,13 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
                          [NullString("")]
-                         {{type}}? Property,
+                         {type}? Property,
                      );
                      """;
 
@@ -153,12 +157,13 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [TimeSpanFormat("c")]
                          [NullString("")]
-                         {{type}}? Property,
+                         {type}? Property,
                      );
                      """;
 
