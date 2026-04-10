@@ -19,7 +19,8 @@ public class SingleColumnCollectionAttributeRuleTests(ITestOutputHelper testOutp
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [SingleColumnCollection(",")]
@@ -44,7 +45,8 @@ public class SingleColumnCollectionAttributeRuleTests(ITestOutputHelper testOutp
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [SingleColumnCollection(",")]
@@ -69,7 +71,8 @@ public class SingleColumnCollectionAttributeRuleTests(ITestOutputHelper testOutp
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          [SingleColumnCollection(",")]

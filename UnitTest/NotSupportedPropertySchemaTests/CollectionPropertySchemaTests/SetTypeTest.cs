@@ -19,10 +19,11 @@ public class SetTypeTest(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
-                         HashSet<{{collection}}<int>> Property,
+                         HashSet<{collection}<int>> Property,
                      );
                      """;
 
@@ -40,7 +41,8 @@ public class SetTypeTest(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          HashSet<Dictionary<int, string>> Property,

@@ -23,10 +23,11 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
-                         {{type}} Property,
+                         {type} Property,
                      );
                      """;
 
@@ -63,10 +64,11 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
-                         {{type}} Property,
+                         {type} Property,
                      );
                      """;
 
