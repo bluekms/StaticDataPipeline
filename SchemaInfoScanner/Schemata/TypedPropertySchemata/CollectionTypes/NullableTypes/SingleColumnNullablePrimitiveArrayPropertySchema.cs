@@ -33,6 +33,25 @@ public sealed record SingleColumnNullablePrimitiveArrayPropertySchema(
             }
         }
 
+        if (TryGetAttributeValue<CountRangeAttribute, int>(out var minCount) &&
+            TryGetAttributeValue<CountRangeAttribute, int>(out var maxCount, 1))
+        {
+            if (parts.Length < minCount || parts.Length > maxCount)
+            {
+                throw new ArgumentOutOfRangeException(
+                    PropertyName.FullName,
+                    parts.Length,
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.CountOutOfRange,
+                        cell.Address,
+                        parts.Length,
+                        PropertyName,
+                        minCount,
+                        maxCount));
+            }
+        }
+
         foreach (var part in parts)
         {
             var result = NullStringAttributeChecker.Check(this, part);

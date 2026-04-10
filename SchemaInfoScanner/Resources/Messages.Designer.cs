@@ -201,6 +201,15 @@ internal static class Messages
     internal static string RegularExpressionAttributeOnlyForString
         => ResourceManager.GetString("RegularExpressionAttributeOnlyForString", Culture)!;
 
+    internal static string CountRangeAttributeOnlyForSingleColumnCollection
+        => ResourceManager.GetString("CountRangeAttributeOnlyForSingleColumnCollection", Culture)!;
+
+    internal static string CountRangeAndLengthMutuallyExclusive
+        => ResourceManager.GetString("CountRangeAndLengthMutuallyExclusive", Culture)!;
+
+    internal static string CountOutOfRange
+        => ResourceManager.GetString("CountOutOfRange", Culture)!;
+
     internal static string SingleColumnCollectionNotForUnsupportedCollection
         => ResourceManager.GetString("SingleColumnCollectionNotForUnsupportedCollection", Culture)!;
 
@@ -336,6 +345,8 @@ internal static class Messages
         internal static CompositeFormat NullStringAttributeRequiredForNullableMap => CompositeFormat.Parse(Messages.NullStringAttributeRequiredForNullableMap);
         internal static CompositeFormat NullStringAttributeNotAllowed => CompositeFormat.Parse(Messages.NullStringAttributeNotAllowed);
         internal static CompositeFormat RegularExpressionAttributeOnlyForString => CompositeFormat.Parse(Messages.RegularExpressionAttributeOnlyForString);
+        internal static CompositeFormat CountRangeAttributeOnlyForSingleColumnCollection => CompositeFormat.Parse(Messages.CountRangeAttributeOnlyForSingleColumnCollection);
+        internal static CompositeFormat CountOutOfRange => CompositeFormat.Parse(Messages.CountOutOfRange);
         internal static CompositeFormat SingleColumnCollectionNotForUnsupportedCollection => CompositeFormat.Parse(Messages.SingleColumnCollectionNotForUnsupportedCollection);
         internal static CompositeFormat SingleColumnCollectionNotForMap => CompositeFormat.Parse(Messages.SingleColumnCollectionNotForMap);
         internal static CompositeFormat TimeSpanFormatAttributeNotApplicable => CompositeFormat.Parse(Messages.TimeSpanFormatAttributeNotApplicable);
