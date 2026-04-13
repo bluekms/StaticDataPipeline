@@ -42,6 +42,9 @@ internal static class Messages
     internal static string FkValidationFailed
         => ResourceManager.GetString("FkValidationFailed", Culture)!;
 
+    internal static string SwitchFkConditionColumnNotFound
+        => ResourceManager.GetString("SwitchFkConditionColumnNotFound", Culture)!;
+
     internal static string KeySelectorInvalid
         => ResourceManager.GetString("KeySelectorInvalid", Culture)!;
 
@@ -84,6 +87,7 @@ internal static class Messages
         internal static CompositeFormat FkTargetNotFound => CompositeFormat.Parse(Messages.FkTargetNotFound);
         internal static CompositeFormat IndexNotRegistered => CompositeFormat.Parse(Messages.IndexNotRegistered);
         internal static CompositeFormat FkValueNotFound => CompositeFormat.Parse(Messages.FkValueNotFound);
+        internal static CompositeFormat SwitchFkConditionColumnNotFound => CompositeFormat.Parse(Messages.SwitchFkConditionColumnNotFound);
         internal static CompositeFormat StaticDataRecordAttributeRequired => CompositeFormat.Parse(Messages.StaticDataRecordAttributeRequired);
         internal static CompositeFormat DuplicateKey => CompositeFormat.Parse(Messages.DuplicateKey);
         internal static CompositeFormat KeyNotFound => CompositeFormat.Parse(Messages.KeyNotFound);

@@ -24,6 +24,9 @@
   <data name="FkValidationFailed" xml:space="preserve">
     <value>FK 검증에 실패했습니다.</value>
   </data>
+  <data name="SwitchFkConditionColumnNotFound" xml:space="preserve">
+    <value>Switch FK 조건 컬럼 '{0}'을(를) {1}에서 찾을 수 없습니다.</value>
+  </data>
   <data name="KeySelectorInvalid" xml:space="preserve">
     <value>키 셀렉터는 단순 프로퍼티 접근이어야 합니다. (예: x =&gt; x.Id)</value>
   </data>
