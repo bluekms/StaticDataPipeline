@@ -16,7 +16,8 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record ItemKey(
                 int Id,
                 string Type
@@ -28,10 +29,11 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
                 int Power
             );
 
-            [StaticDataRecord(""GameData"", ""Items"")]
+            [StaticDataRecord("GameData", "Items")]
             public sealed record ItemCollection(
                 [Length(2)] FrozenDictionary<ItemKey, ItemStatus> Inventory
-            );";
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -61,7 +63,8 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record ItemKey(
                 int Id,
                 string Type
@@ -78,10 +81,11 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
                 StatInfo Stats
             );
 
-            [StaticDataRecord(""GameData"", ""Items"")]
+            [StaticDataRecord("GameData", "Items")]
             public sealed record ItemCollection(
                 [Length(2)] FrozenDictionary<ItemKey, ItemStatus> Inventory
-            );";
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -113,7 +117,8 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record ItemKey(
                 int Id,
                 string Type
@@ -128,10 +133,11 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
                 public sealed record StatInfo(int Attack, int Defense);
             }
 
-            [StaticDataRecord(""GameData"", ""Items"")]
+            [StaticDataRecord("GameData", "Items")]
             public sealed record ItemCollection(
                 [Length(2)] FrozenDictionary<ItemKey, ItemStatus> Inventory
-            );";
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -163,7 +169,8 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record KeyRecord(
                 int Id,
                 [Length(3)] ImmutableArray<string> Tags
@@ -174,10 +181,11 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
                 int Score
             );
 
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyRecord(
                 [Length(2)] FrozenDictionary<KeyRecord, ValueRecord> Data
-            );";
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -209,21 +217,23 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record KeyRecord(
-                [ColumnName(""ID"")] int Id,
-                [Length(3), ColumnName(""Tag"")] ImmutableArray<string> Tags
+                [ColumnName("ID")] int Id,
+                [Length(3), ColumnName("Tag")] ImmutableArray<string> Tags
             );
 
             public sealed record ValueRecord(
                 [Key] KeyRecord Name,
-                [ColumnName(""Point"")] int Score
+                [ColumnName("Point")] int Score
             );
 
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyRecord(
-                [Length(2), ColumnName(""Inven"")] FrozenDictionary<KeyRecord, ValueRecord> Data
-            );";
+                [Length(2), ColumnName("Inven")] FrozenDictionary<KeyRecord, ValueRecord> Data
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -255,28 +265,30 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record UserKey(
-                [ColumnName(""UID"")] int UserId,
-                [Length(2), ColumnName(""TR"")] ImmutableArray<UserKey.TraitInfo> Traits
+                [ColumnName("UID")] int UserId,
+                [Length(2), ColumnName("TR")] ImmutableArray<UserKey.TraitInfo> Traits
             )
             {
-                public sealed record TraitInfo([ColumnName(""Tid"")] int TraitId, int Level);
+                public sealed record TraitInfo([ColumnName("Tid")] int TraitId, int Level);
             }
 
             public sealed record UserProfile(
                 [Key] UserKey Key,
-                [Length(2), ColumnName(""SK"")] FrozenSet<UserProfile.SkillInfo> Skills,
+                [Length(2), ColumnName("SK")] FrozenSet<UserProfile.SkillInfo> Skills,
                 int Rank
             )
             {
-                public sealed record SkillInfo([ColumnName(""Sid"")] string SkillId, bool IsActive);
+                public sealed record SkillInfo([ColumnName("Sid")] string SkillId, bool IsActive);
             }
 
-            [StaticDataRecord(""GameData"", ""Users"")]
+            [StaticDataRecord("GameData", "Users")]
             public sealed record UserDataCatalog(
-                [Length(2), ColumnName(""Player"")] FrozenDictionary<UserKey, UserProfile> Data
-            );";
+                [Length(2), ColumnName("Player")] FrozenDictionary<UserKey, UserProfile> Data
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 

@@ -19,10 +19,11 @@ public class ListTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
-                         ImmutableArray<{{collection}}<int>> Property,
+                         ImmutableArray<{collection}<int>> Property,
                      );
                      """;
 
@@ -40,7 +41,8 @@ public class ListTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = """
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
                          List<Dictionary<int, string>> Property,

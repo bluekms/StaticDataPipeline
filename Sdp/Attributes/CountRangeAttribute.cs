@@ -1,7 +1,8 @@
 namespace Sdp.Attributes;
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public class MaxCountAttribute(int maxCount) : Attribute
+public class CountRangeAttribute(int minCount, int maxCount) : Attribute
 {
+    public int MinCount { get; } = minCount;
     public int MaxCount { get; } = maxCount;
 }

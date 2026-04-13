@@ -15,6 +15,7 @@ public class RecordNameTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public void RecordName_FromSymbol_ReturnsFullNamespace()
     {
+        // language=C#
         var code = """
             namespace Docs.TestRecord;
 
@@ -45,6 +46,7 @@ public class RecordNameTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public void RecordName_NestedRecord_FromSymbol_ReturnsFullNamespace()
     {
+        // language=C#
         var code = """
             namespace Docs.TestRecord;
 
@@ -83,6 +85,7 @@ public class RecordNameTests(ITestOutputHelper testOutputHelper)
         var logger = factory.CreateLogger<RecordNameTests>() as TestOutputLogger<RecordNameTests>;
         Assert.NotNull(logger);
 
+        // language=C#
         var code = """
             using System.Collections.Frozen;
             using Sdp.Attributes;
@@ -117,6 +120,7 @@ public class RecordNameTests(ITestOutputHelper testOutputHelper)
         var logger = factory.CreateLogger<RecordNameTests>() as TestOutputLogger<RecordNameTests>;
         Assert.NotNull(logger);
 
+        // language=C#
         var code = """
             using System.Collections.Frozen;
             using Sdp.Attributes;

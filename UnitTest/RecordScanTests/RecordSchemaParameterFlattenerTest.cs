@@ -10,19 +10,21 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void MyClassTest()
     {
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record Subject(
                 string Name,
                 [Length(2)] ImmutableArray<int> QuarterScore
             );
 
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyClass(
                 string Name,
                 [Length(3)] ImmutableArray<Subject> SubjectA,
                 int Age,
                 [Length(4)] ImmutableArray<Subject> SubjectB
-            );";
+            );
+            """;
 
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
@@ -49,19 +51,21 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void MyClassWithSingleColumnTest()
     {
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record Subject(
                 string Name,
-                [SingleColumnCollection("", "")][Length(4)] ImmutableArray<int> QuarterScore
+                [SingleColumnCollection(", ")][Length(4)] ImmutableArray<int> QuarterScore
             );
 
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyClass(
                 string Name,
                 [Length(3)] ImmutableArray<Subject> SubjectA,
                 int Age,
                 [Length(4)] ImmutableArray<Subject> SubjectB
-            );";
+            );
+            """;
 
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
@@ -88,19 +92,21 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void MyClassWithSingleColumnAndColumnNameTest()
     {
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record Subject(
                 string Name,
-                [SingleColumnCollection("", "")][ColumnName(""QuarterScores"")][Length(4)] ImmutableArray<int> QuarterScore
+                [SingleColumnCollection(", ")][ColumnName("QuarterScores")][Length(4)] ImmutableArray<int> QuarterScore
             );
 
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyClass(
                 string Name,
                 [Length(3)] ImmutableArray<Subject> SubjectA,
                 int Age,
                 [Length(4)] ImmutableArray<Subject> SubjectB
-            );";
+            );
+            """;
 
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
@@ -127,19 +133,21 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void MyClassWithNameAttributesTest()
     {
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record Subject(
-                [ColumnName(""Bar"")] string Name,
-                [ColumnName(""Scores"")][Length(2)] ImmutableArray<int> QuarterScore
+                [ColumnName("Bar")] string Name,
+                [ColumnName("Scores")][Length(2)] ImmutableArray<int> QuarterScore
             );
 
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyClass(
                 string Name,
-                [Length(3)][ColumnName(""SubjectF"")] ImmutableArray<Subject> SubjectA,
+                [Length(3)][ColumnName("SubjectF")] ImmutableArray<Subject> SubjectA,
                 int Age,
                 [Length(4)]ImmutableArray<Subject> SubjectB,
-            );";
+            );
+            """;
 
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
@@ -166,14 +174,16 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void DictionaryWithPrimitiveKeyTest()
     {
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record MyRecord([Key] int Id, int Value);
 
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyStaticData(
                 string Name,
                 [Length(3)] FrozenDictionary<int, MyRecord> MyDictionary,
-            );";
+            );
+            """;
 
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
@@ -200,14 +210,16 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void DictionaryWithRecordKeyTest()
     {
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record Human(string Name, int Age);
             public sealed record MyRecord([Key] Human Human, int Value);
 
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyStaticData(
                 [Length(3)] FrozenDictionary<Human, MyRecord> MyDictionary,
-            );";
+            );
+            """;
 
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
@@ -234,7 +246,8 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void CompanyTest()
     {
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record Address(string Street, string City);
             public sealed record ContactInfo(string PhoneNumber, string Email);
             public sealed record Project(string ProjectName, [Length(6)] ImmutableArray<string> TeamMembers, double Budget);
@@ -249,13 +262,14 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
                 [Length(3)] ImmutableArray<Department> Departments
             );
 
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record Company(
                 string CompanyName,
                 Address HeadquartersAddress,
                 [Length(5)] FrozenSet<Employee> Employees,
                 [Length(3)] ImmutableArray<Department> CoreDepartments
-            );";
+            );
+            """;
 
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
@@ -282,16 +296,18 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void SingleParameterRecordTest()
     {
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record SchoolId(int Value);
             public sealed record TeacherId(int Value);
 
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record School(
                 SchoolId Id,
                 string Name,
                 TeacherId MainTeacher
-            );";
+            );
+            """;
 
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
@@ -322,16 +338,18 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void MixedSingleAndMultiParameterRecordTest()
     {
-        var code = @"
+        // language=C#
+        var code = """
             public sealed record EntityId(int Value);
             public sealed record Address(string City, string Street);
 
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record Entity(
                 EntityId Id,
                 string Name,
                 Address Location
-            );";
+            );
+            """;
 
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)

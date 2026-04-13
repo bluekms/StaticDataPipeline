@@ -16,11 +16,13 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+        // language=C#
+        var code = """
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyRecord(
                 [Length(3)] FrozenSet<int> Ids
-            );";
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -45,11 +47,13 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+        // language=C#
+        var code = """
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyRecord(
-                [ColumnName(""UserId"")][Length(2)] FrozenSet<int> Ids
-            );";
+                [ColumnName("UserId")][Length(2)] FrozenSet<int> Ids
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -73,11 +77,13 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+        // language=C#
+        var code = """
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyRecord(
-                [SingleColumnCollection("","")][Length(3)] FrozenSet<string> Tags
-            );";
+                [SingleColumnCollection(",")][Length(3)] FrozenSet<string> Tags
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -100,13 +106,15 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+        // language=C#
+        var code = """
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyRecord(
                 string Name,
                 [Length(2)] FrozenSet<int> Ids,
                 [Length(3)] FrozenSet<string> Tags
-            );";
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -134,16 +142,18 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
-        public sealed record ItemInfo(
-            [ColumnName(""ID"")] int ItemId,
-            int Count
-        );
+        // language=C#
+        var code = """
+            public sealed record ItemInfo(
+                [ColumnName("ID")] int ItemId,
+                int Count
+            );
 
-        [StaticDataRecord(""Test"", ""TestSheet"")]
-        public sealed record MyRecord(
-            [Length(2), ColumnName(""Inven"")] FrozenSet<ItemInfo> Items
-        );";
+            [StaticDataRecord("Test", "TestSheet")]
+            public sealed record MyRecord(
+                [Length(2), ColumnName("Inven")] FrozenSet<ItemInfo> Items
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 

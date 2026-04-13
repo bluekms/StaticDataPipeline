@@ -15,6 +15,7 @@ internal partial class SchemaRuleValidator
         {
             RuleFor(x => x)
                 .Must(x => x.HasAttribute<LengthAttribute>())
+                .When(x => !x.HasAttribute<CountRangeAttribute>())
                 .WithMessage(x =>
                     string.Format(
                         CultureInfo.CurrentCulture,

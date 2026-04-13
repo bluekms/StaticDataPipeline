@@ -16,11 +16,13 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+        // language=C#
+        var code = """
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyRecord(
                 int Id
-            );";
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -43,14 +45,16 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+        // language=C#
+        var code = """
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyRecord(
                 int Id,
                 string Name,
                 double Score,
                 bool IsActive
-            );";
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -76,12 +80,14 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = @"
-            [StaticDataRecord(""Test"", ""TestSheet"")]
+        // language=C#
+        var code = """
+            [StaticDataRecord("Test", "TestSheet")]
             public sealed record MyRecord(
-                [ColumnName(""UserId"")] int Id,
-                [ColumnName(""UserName"")] string Name
-            );";
+                [ColumnName("UserId")] int Id,
+                [ColumnName("UserName")] string Name
+            );
+            """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
