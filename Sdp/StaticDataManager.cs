@@ -92,103 +92,36 @@ public abstract class StaticDataManager<TTableSet>
 
     private static void ValidateForeignKeys(TTableSet tableSet)
     {
-        var ctor = typeof(TTableSet).GetConstructors().Single();
-        var tableMap = ctor.GetParameters()
-            .ToDictionary(
-                p => p.Name!,
-                p => typeof(TTableSet).GetProperty(p.Name!)?.GetValue(tableSet) as IStaticDataTable);
-
+        var tableMap = BuildTableMap(tableSet);
         var errors = new List<Exception>();
-        var valueSetCache = new Dictionary<(string TableName, string ColumnName), HashSet<object?>>();
+        var cache = new Dictionary<(string TableName, string ColumnName), HashSet<object?>>();
 
-        foreach (var (_, tableObj) in tableMap)
+        foreach (var (_, table) in tableMap)
         {
-            if (tableObj is null)
+            if (table is null)
             {
                 continue;
             }
 
-            var recordType = tableObj.RecordType;
-            var fkParams = recordType.GetConstructors().Single()
-                .GetParameters()
-                .Select(p => (Param: p, Attrs: p.GetCustomAttributes<ForeignKeyAttribute>().ToList()))
-                .Where(x => x.Attrs.Count > 0)
-                .ToList();
+            var recordType = table.RecordType;
+            var fkChecks = BuildFkChecks(recordType, tableMap, errors);
+            var switchFkChecks = BuildSwitchFkChecks(recordType, tableMap, errors);
 
-            if (fkParams.Count == 0)
+            if (fkChecks.Count == 0 && switchFkChecks.Count == 0)
             {
                 continue;
             }
 
-            var validChecks = new List<FkCheck>();
-
-            foreach (var (param, attrs) in fkParams)
+            foreach (var record in table.GetAllRecords())
             {
-                var targets = new List<FkTarget>();
-
-                foreach (var attr in attrs)
+                foreach (var check in fkChecks)
                 {
-                    if (!tableMap.TryGetValue(attr.TableSetName, out var targetTable) || targetTable is null)
-                    {
-                        errors.Add(new InvalidOperationException(string.Format(
-                            CultureInfo.CurrentCulture,
-                            Messages.Composite.FkTargetNotFound,
-                            attr.TableSetName)));
-
-                        continue;
-                    }
-
-                    var isPk = attr.RecordColumnName == targetTable.PrimaryKeyPropertyName;
-                    if (!isPk)
-                    {
-                        var prop = targetTable.RecordType.GetProperty(attr.RecordColumnName);
-                        if (prop is null)
-                        {
-                            errors.Add(new InvalidOperationException(string.Format(
-                                CultureInfo.CurrentCulture,
-                                Messages.Composite.IndexNotRegistered,
-                                attr.RecordColumnName,
-                                targetTable.RecordType.Name)));
-
-                            continue;
-                        }
-                    }
-
-                    targets.Add(new FkTarget(attr.TableSetName, attr.RecordColumnName, targetTable, isPk));
+                    ValidateFkRecord(record, check, recordType, errors, cache);
                 }
 
-                if (targets.Count > 0)
+                foreach (var check in switchFkChecks)
                 {
-                    validChecks.Add(new FkCheck(recordType.GetProperty(param.Name!)!, targets));
-                }
-            }
-
-            if (validChecks.Count == 0)
-            {
-                continue;
-            }
-
-            foreach (var record in tableObj.GetAllRecords())
-            {
-                foreach (var check in validChecks)
-                {
-                    var fkValue = check.FkProperty.GetValue(record);
-                    var existsInAny = check.Targets.Any(t =>
-                        ContainsFkValue(t, fkValue, valueSetCache));
-
-                    if (!existsInAny)
-                    {
-                        var targetList = string.Join(", ", check.Targets.Select(t =>
-                            FormattableString.Invariant($"{t.TargetName}.{t.ColumnName}")));
-
-                        errors.Add(new InvalidOperationException(string.Format(
-                            CultureInfo.CurrentCulture,
-                            Messages.Composite.FkValueNotFound,
-                            recordType.Name,
-                            check.FkProperty.Name,
-                            fkValue,
-                            targetList)));
-                    }
+                    ValidateSwitchFkRecord(record, check, recordType, errors, cache);
                 }
             }
         }
@@ -199,10 +132,176 @@ public abstract class StaticDataManager<TTableSet>
         }
     }
 
+    private static Dictionary<string, IStaticDataTable?> BuildTableMap(TTableSet tableSet)
+    {
+        var ctor = typeof(TTableSet).GetConstructors().Single();
+        return ctor.GetParameters()
+            .ToDictionary(
+                p => p.Name!,
+                p => typeof(TTableSet).GetProperty(p.Name!)?.GetValue(tableSet) as IStaticDataTable);
+    }
+
+    private static FkTarget? ResolveTarget(
+        string tableSetName,
+        string columnName,
+        Dictionary<string, IStaticDataTable?> tableMap,
+        List<Exception> errors)
+    {
+        if (!tableMap.TryGetValue(tableSetName, out var targetTable) || targetTable is null)
+        {
+            errors.Add(new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.FkTargetNotFound,
+                tableSetName)));
+
+            return null;
+        }
+
+        var isPk = columnName == targetTable.PrimaryKeyPropertyName;
+        if (!isPk && targetTable.RecordType.GetProperty(columnName) is null)
+        {
+            errors.Add(new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.IndexNotRegistered,
+                columnName,
+                targetTable.RecordType.Name)));
+
+            return null;
+        }
+
+        return new FkTarget(tableSetName, columnName, targetTable, isPk);
+    }
+
+    private static List<FkCheck> BuildFkChecks(
+        Type recordType,
+        Dictionary<string, IStaticDataTable?> tableMap,
+        List<Exception> errors)
+    {
+        var checks = new List<FkCheck>();
+
+        foreach (var (param, attrs) in GetParamsWithAttribute<ForeignKeyAttribute>(recordType))
+        {
+            var targets = attrs
+                .Select(a => ResolveTarget(a.TableSetName, a.RecordColumnName, tableMap, errors))
+                .OfType<FkTarget>()
+                .ToList();
+
+            if (targets.Count > 0)
+            {
+                checks.Add(new FkCheck(recordType.GetProperty(param.Name!)!, targets));
+            }
+        }
+
+        return checks;
+    }
+
+    private static List<SwitchFkCheck> BuildSwitchFkChecks(
+        Type recordType,
+        Dictionary<string, IStaticDataTable?> tableMap,
+        List<Exception> errors)
+    {
+        var checks = new List<SwitchFkCheck>();
+
+        foreach (var (param, attrs) in GetParamsWithAttribute<SwitchForeignKeyAttribute>(recordType))
+        {
+            foreach (var conditionGroup in attrs.GroupBy(a => a.ConditionColumnName))
+            {
+                var conditionProp = recordType.GetProperty(conditionGroup.Key);
+                if (conditionProp is null)
+                {
+                    errors.Add(new InvalidOperationException(string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.SwitchFkConditionColumnNotFound,
+                        conditionGroup.Key,
+                        recordType.Name)));
+
+                    continue;
+                }
+
+                var branches = conditionGroup
+                    .Select(a => ResolveTarget(a.TableSetName, a.RecordColumnName, tableMap, errors) is { } target
+                        ? new SwitchFkBranch(a.ConditionValue, target)
+                        : null)
+                    .OfType<SwitchFkBranch>()
+                    .ToList();
+
+                if (branches.Count > 0)
+                {
+                    checks.Add(new SwitchFkCheck(conditionProp, recordType.GetProperty(param.Name!)!, branches));
+                }
+            }
+        }
+
+        return checks;
+    }
+
+    private static IEnumerable<(ParameterInfo Param, List<TAttr> Attrs)> GetParamsWithAttribute<TAttr>(Type recordType)
+        where TAttr : Attribute
+        => recordType.GetConstructors().Single()
+            .GetParameters()
+            .Select(p => (Param: p, Attrs: p.GetCustomAttributes<TAttr>().ToList()))
+            .Where(x => x.Attrs.Count > 0);
+
+    private static void ValidateFkRecord(
+        object record,
+        FkCheck check,
+        Type recordType,
+        List<Exception> errors,
+        Dictionary<(string TableName, string ColumnName), HashSet<object?>> cache)
+    {
+        var fkValue = check.FkProperty.GetValue(record);
+        if (check.Targets.Any(t => ContainsFkValue(t, fkValue, cache)))
+        {
+            return;
+        }
+
+        var targetList = string.Join(", ", check.Targets.Select(t =>
+            FormattableString.Invariant($"{t.TargetName}.{t.ColumnName}")));
+
+        errors.Add(new InvalidOperationException(string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.FkValueNotFound,
+            recordType.Name,
+            check.FkProperty.Name,
+            fkValue,
+            targetList)));
+    }
+
+    private static void ValidateSwitchFkRecord(
+        object record,
+        SwitchFkCheck check,
+        Type recordType,
+        List<Exception> errors,
+        Dictionary<(string TableName, string ColumnName), HashSet<object?>> cache)
+    {
+        var conditionValue = check.ConditionProperty.GetValue(record)?.ToString();
+        var matchingBranch = check.Branches.Find(b => b.ConditionValue == conditionValue);
+
+        if (matchingBranch is null)
+        {
+            return;
+        }
+
+        var fkValue = check.FkProperty.GetValue(record);
+        if (ContainsFkValue(matchingBranch.Target, fkValue, cache))
+        {
+            return;
+        }
+
+        errors.Add(new InvalidOperationException(string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.FkValueNotFound,
+            recordType.Name,
+            check.FkProperty.Name,
+            fkValue,
+            FormattableString.Invariant(
+                $"{matchingBranch.Target.TargetName}.{matchingBranch.Target.ColumnName} (when {check.ConditionProperty.Name}={conditionValue})"))));
+    }
+
     private static bool ContainsFkValue(
         FkTarget target,
         object? fkValue,
-        Dictionary<(string TargetName, string ColumnName), HashSet<object?>> valueSetCache)
+        Dictionary<(string TargetName, string ColumnName), HashSet<object?>> cache)
     {
         if (target.IsPrimaryKey)
         {
@@ -210,14 +309,14 @@ public abstract class StaticDataManager<TTableSet>
         }
 
         var cacheKey = (target.TargetName, target.ColumnName);
-        if (!valueSetCache.TryGetValue(cacheKey, out var valueSet))
+        if (!cache.TryGetValue(cacheKey, out var valueSet))
         {
             var prop = target.TargetTable.RecordType.GetProperty(target.ColumnName)!;
             valueSet = target.TargetTable.GetAllRecords()
                 .Cast<object>()
                 .Select(r => prop.GetValue(r))
                 .ToHashSet();
-            valueSetCache[cacheKey] = valueSet;
+            cache[cacheKey] = valueSet;
         }
 
         return valueSet.Contains(fkValue);
@@ -229,5 +328,16 @@ public abstract class StaticDataManager<TTableSet>
         IStaticDataTable TargetTable,
         bool IsPrimaryKey);
 
-    private sealed record FkCheck(PropertyInfo FkProperty, List<FkTarget> Targets);
+    private sealed record FkCheck(
+        PropertyInfo FkProperty,
+        List<FkTarget> Targets);
+
+    private sealed record SwitchFkBranch(
+        string ConditionValue,
+        FkTarget Target);
+
+    private sealed record SwitchFkCheck(
+        PropertyInfo ConditionProperty,
+        PropertyInfo FkProperty,
+        List<SwitchFkBranch> Branches);
 }
