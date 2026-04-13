@@ -29,6 +29,7 @@ public static class RecordPropertySchemaFactory
             .GetMembers()
             .OfType<IPropertySymbol>()
             .Where(x => x.DeclaringSyntaxReferences.Length > 0)
+            .Where(x => !string.IsNullOrEmpty(x.Name))
             .Where(x => x.Type is INamedTypeSymbol);
 
         var memberSchemata = new List<PropertySchemaBase>();

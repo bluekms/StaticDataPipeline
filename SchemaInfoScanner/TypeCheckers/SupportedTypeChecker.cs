@@ -36,11 +36,7 @@ internal static class SupportedTypeChecker
         if (!validateResult.IsValid)
         {
             var errorMessage = string.Join(", ", validateResult.Errors.Select(e => e.ErrorMessage));
-            throw new InvalidAttributeUsageException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.NotSupportedRecordTypeWithMessage,
-                property.PropertyName.FullName,
-                errorMessage));
+            throw new InvalidAttributeUsageException(errorMessage);
         }
 
         if (PrimitiveTypeChecker.IsSupportedPrimitiveType(property.NamedTypeSymbol))

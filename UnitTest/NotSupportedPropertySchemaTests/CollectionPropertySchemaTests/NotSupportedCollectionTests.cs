@@ -32,10 +32,11 @@ public class NotSupportedCollectionTests(ITestOutputHelper testOutputHelper)
             throw new InvalidOperationException("Logger creation failed.");
         }
 
-        var code = $$"""
+        // language=C#
+        var code = $"""
                      [StaticDataRecord("Test", "TestSheet")]
                      public sealed record MyRecord(
-                         {{collection}}<int> Property,
+                         {collection}<int> Property,
                      );
                      """;
 

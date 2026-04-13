@@ -32,6 +32,25 @@ public sealed record SingleColumnPrimitiveSetPropertySchema(
             }
         }
 
+        if (TryGetAttributeValue<CountRangeAttribute, int>(out var minCount) &&
+            TryGetAttributeValue<CountRangeAttribute, int>(out var maxCount, 1))
+        {
+            if (parts.Length < minCount || parts.Length > maxCount)
+            {
+                throw new ArgumentOutOfRangeException(
+                    PropertyName.FullName,
+                    parts.Length,
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.CountOutOfRange,
+                        cell.Address,
+                        parts.Length,
+                        PropertyName,
+                        minCount,
+                        maxCount));
+            }
+        }
+
         var nestedCells = parts
             .Select(x => new CellData(cell.Address, x))
             .ToArray();
