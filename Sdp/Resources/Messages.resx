@@ -24,6 +24,9 @@
   <data name="FkValidationFailed" xml:space="preserve">
     <value>FK validation failed.</value>
   </data>
+  <data name="SwitchFkConditionColumnNotFound" xml:space="preserve">
+    <value>Switch FK condition column '{0}' not found on {1}.</value>
+  </data>
   <data name="KeySelectorInvalid" xml:space="preserve">
     <value>Key selector must be a simple property access (e.g. x =&gt; x.Id).</value>
   </data>
