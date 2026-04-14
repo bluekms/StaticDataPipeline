@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
-using Sdp;
 using Sdp.Attributes;
 using Sdp.Csv;
+using Sdp.Manager;
 using Sdp.Table;
 
 namespace UnitTest.ForeignKeyTests;
@@ -52,7 +52,7 @@ public class SwitchForeignKeyNonKeyValidationTests
     private record Engineer(int Id, string Name);
     private record Designer(int Id, string Name);
 
-    private sealed class StaffTable : StaticDataTable<Staff, int>
+    private sealed class StaffTable : StaticDataTable<StaffTable, Staff, int>
     {
         public StaffTable(ImmutableList<Staff> records)
             : base(records, x => x.Id, "Id")
@@ -60,7 +60,7 @@ public class SwitchForeignKeyNonKeyValidationTests
         }
     }
 
-    private sealed class EngineerTable : StaticDataTable<Engineer, int>
+    private sealed class EngineerTable : StaticDataTable<EngineerTable, Engineer, int>
     {
         public EngineerTable(ImmutableList<Engineer> records)
             : base(records, x => x.Id, "Id")
@@ -68,7 +68,7 @@ public class SwitchForeignKeyNonKeyValidationTests
         }
     }
 
-    private sealed class DesignerTable : StaticDataTable<Designer, int>
+    private sealed class DesignerTable : StaticDataTable<DesignerTable, Designer, int>
     {
         public DesignerTable(ImmutableList<Designer> records)
             : base(records, x => x.Id, "Id")
