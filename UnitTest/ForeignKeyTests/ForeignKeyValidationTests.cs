@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
-using Sdp;
 using Sdp.Attributes;
 using Sdp.Csv;
+using Sdp.Manager;
 using Sdp.Table;
 
 namespace UnitTest.ForeignKeyTests;
@@ -69,7 +69,7 @@ public class ForeignKeyValidationTests
         [ForeignKey("School", "Id")] int SchoolId,
         [ForeignKey("Teacher", "Id")] int TeacherId);
 
-    private sealed class SchoolTable : StaticDataTable<School, int>
+    private sealed class SchoolTable : StaticDataTable<SchoolTable, School, int>
     {
         public SchoolTable(ImmutableList<School> records)
             : base(records, x => x.Id, "Id")
@@ -77,7 +77,7 @@ public class ForeignKeyValidationTests
         }
     }
 
-    private sealed class TeacherTable : StaticDataTable<Teacher, int>
+    private sealed class TeacherTable : StaticDataTable<TeacherTable, Teacher, int>
     {
         public TeacherTable(ImmutableList<Teacher> records)
             : base(records, x => x.Id, "Id")
@@ -85,7 +85,7 @@ public class ForeignKeyValidationTests
         }
     }
 
-    private sealed class StudentTable : StaticDataTable<Student, int>
+    private sealed class StudentTable : StaticDataTable<StudentTable, Student, int>
     {
         public StudentTable(ImmutableList<Student> records)
             : base(records, x => x.Id, "Id")
