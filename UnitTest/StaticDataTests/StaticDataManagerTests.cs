@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using Sdp;
+using Sdp.Manager;
 using Sdp.Table;
 
 namespace UnitTest.StaticDataTests;
@@ -8,25 +8,26 @@ public class StaticDataManagerTests
 {
     private sealed record FakeRecord(int Id);
 
-    private sealed class FakeTable : StaticDataTable<FakeRecord, int>
+    private sealed class FakeTable : StaticDataTable<FakeTable, FakeRecord, int>
     {
-        public const string PathA = "version-a";
-        public const string PathB = "version-b";
+        public const string VersionA = "a";
+        public const string VersionB = "b";
         public const int CountA = 3;
         public const int CountB = 7;
 
-        public FakeTable(string path)
-            : base(CreateRecords(path), r => r.Id)
+        private FakeTable(ImmutableList<FakeRecord> records)
+            : base(records, r => r.Id)
         {
-            Thread.Sleep(50);
         }
 
-        private static ImmutableList<FakeRecord> CreateRecords(string path)
+        public static new async Task<FakeTable> CreateAsync(string version)
         {
-            var count = path == PathB ? CountB : CountA;
-            return Enumerable.Range(1, count)
+            await Task.Delay(50);
+            var count = version == VersionB ? CountB : CountA;
+            var records = Enumerable.Range(1, count)
                 .Select(i => new FakeRecord(i))
                 .ToImmutableList();
+            return new(records);
         }
     }
 
@@ -38,10 +39,10 @@ public class StaticDataManagerTests
     }
 
     [Fact]
-    public void ConcurrentLoadAndRead_AlwaysSeesCompleteDataset()
+    public async Task ConcurrentLoadAndRead_AlwaysSeesCompleteDataset()
     {
         var manager = new FakeManager();
-        manager.Load(FakeTable.PathA);
+        await manager.LoadAsync(FakeTable.VersionA);
 
         var cts = new CancellationTokenSource();
 
@@ -50,7 +51,7 @@ public class StaticDataManagerTests
             var toggle = false;
             while (!cts.Token.IsCancellationRequested)
             {
-                manager.Load(toggle ? FakeTable.PathB : FakeTable.PathA);
+                manager.LoadAsync(toggle ? FakeTable.VersionB : FakeTable.VersionA).GetAwaiter().GetResult();
                 toggle = !toggle;
             }
         });
