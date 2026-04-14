@@ -84,7 +84,7 @@ public class CsvLoaderTests
     }
 
     [Fact]
-    public void Load_WithValidFile_ReturnsImmutableList()
+    public async Task Load_WithValidFile_ReturnsImmutableList()
     {
         var tempFile = Path.GetTempFileName();
         try
@@ -94,9 +94,9 @@ public class CsvLoaderTests
                 1,Alice,95.5
                 2,Bob,87.3
                 """;
-            File.WriteAllText(tempFile, csv);
+            await File.WriteAllTextAsync(tempFile, csv);
 
-            var result = CsvLoader.Load<SimpleRecord>(tempFile);
+            var result = await CsvLoader.LoadAsync<SimpleRecord>(tempFile);
 
             Assert.Equal(2, result.Count);
             Assert.Equal(1, result[0].Id);

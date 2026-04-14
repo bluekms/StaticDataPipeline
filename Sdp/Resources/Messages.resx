@@ -12,6 +12,9 @@
   <data name="InvalidTableParameter" xml:space="preserve">
     <value>Parameter '{0}' of type '{1}' is not a StaticDataTable&lt;,&gt; subtype.</value>
   </data>
+  <data name="CreateAsyncNotFound" xml:space="preserve">
+    <value>{0} does not have a public static CreateAsync(string) method.</value>
+  </data>
   <data name="FkTargetNotFound" xml:space="preserve">
     <value>FK target '{0}' not found or disabled.</value>
   </data>

@@ -10,18 +10,19 @@ using Sdp.Resources;
 
 namespace Sdp.Table;
 
-public abstract class StaticDataTable<TRecord, TKey> : IStaticDataTable
+public abstract class StaticDataTable<TSelf, TRecord, TKey> : IStaticDataTable
+    where TSelf : StaticDataTable<TSelf, TRecord, TKey>
     where TRecord : notnull
     where TKey : notnull
 {
     private readonly UniqueIndex<TRecord, TKey> index;
     private readonly ImmutableList<TRecord> records;
-    private readonly string? primaryKeyPropertyName;
+    private readonly string primaryKeyPropertyName;
 
     internal StaticDataTable(
         ImmutableList<TRecord> records,
         Func<TRecord, TKey> keySelector,
-        string? primaryKeyPropertyName = null)
+        string primaryKeyPropertyName)
     {
         this.records = records;
         this.primaryKeyPropertyName = primaryKeyPropertyName;
@@ -29,12 +30,9 @@ public abstract class StaticDataTable<TRecord, TKey> : IStaticDataTable
     }
 
     protected StaticDataTable(
-        string path,
+        ImmutableList<TRecord> records,
         Expression<Func<TRecord, TKey>> keySelector)
-        : this(
-            LoadRecords(path),
-            keySelector.Compile(),
-            ExtractPropertyName(keySelector))
+        : this(records, keySelector.Compile(), ExtractPropertyName(keySelector))
     {
     }
 
@@ -48,7 +46,34 @@ public abstract class StaticDataTable<TRecord, TKey> : IStaticDataTable
         throw new ArgumentException(Messages.KeySelectorInvalid, nameof(expr));
     }
 
-    private static ImmutableList<TRecord> LoadRecords(string path)
+    [SuppressMessage(
+        "Design",
+        "CA1000:Do not declare static members on generic types",
+        Justification = "CRTP 패턴: 서브클래스 이름으로 호출하므로 타입 인자 지정 불필요 (e.g. MyTable.CreateAsync)")]
+    public static async Task<TSelf> CreateAsync(string csvDir)
+    {
+        var records = await LoadRecordsAsync(csvDir);
+
+        var ctor = typeof(TSelf).GetConstructor(
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+            [typeof(ImmutableList<TRecord>)]);
+
+        if (ctor is null)
+        {
+            throw new InvalidOperationException(FormattableString.Invariant(
+                $"{typeof(TSelf).Name} must have a constructor accepting ImmutableList<{typeof(TRecord).Name}>."));
+        }
+
+        var instance = (TSelf)ctor.Invoke([records]);
+        instance.Validate();
+        return instance;
+    }
+
+    protected virtual void Validate()
+    {
+    }
+
+    private static async Task<ImmutableList<TRecord>> LoadRecordsAsync(string path)
     {
         if (Directory.Exists(path))
         {
@@ -64,7 +89,7 @@ public abstract class StaticDataTable<TRecord, TKey> : IStaticDataTable
             path = Path.Combine(path, FormattableString.Invariant($"{attr.ExcelFileName}.{attr.SheetName}.csv"));
         }
 
-        return CsvLoader.Load<TRecord>(path);
+        return await CsvLoader.LoadAsync<TRecord>(path);
     }
 
     public IReadOnlyList<TRecord> Records => records;
@@ -77,7 +102,7 @@ public abstract class StaticDataTable<TRecord, TKey> : IStaticDataTable
 
     Type IStaticDataTable.RecordType => typeof(TRecord);
 
-    string? IStaticDataTable.PrimaryKeyPropertyName => primaryKeyPropertyName;
+    string IStaticDataTable.PrimaryKeyPropertyName => primaryKeyPropertyName;
 
     IEnumerable IStaticDataTable.GetAllRecords() => records;
 
