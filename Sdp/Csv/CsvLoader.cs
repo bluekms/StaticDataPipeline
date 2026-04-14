@@ -7,13 +7,6 @@ namespace Sdp.Csv;
 
 internal static class CsvLoader
 {
-    public static ImmutableList<TRecord> Load<TRecord>(string filePath)
-        where TRecord : notnull
-    {
-        var content = File.ReadAllText(filePath);
-        return Parse<TRecord>(content, filePath);
-    }
-
     public static async Task<ImmutableList<TRecord>> LoadAsync<TRecord>(string filePath)
         where TRecord : notnull
     {
