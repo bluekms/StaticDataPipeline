@@ -12,6 +12,9 @@
   <data name="InvalidTableParameter" xml:space="preserve">
     <value>'{0}' 파라미터의 타입 '{1}'이(가) StaticDataTable&lt;,&gt; 서브타입이 아닙니다.</value>
   </data>
+  <data name="CreateAsyncNotFound" xml:space="preserve">
+    <value>{0}에 public static CreateAsync(string) 메서드가 없습니다.</value>
+  </data>
   <data name="FkTargetNotFound" xml:space="preserve">
     <value>FK 타겟 '{0}'을(를) 찾을 수 없거나 비활성화되어 있습니다.</value>
   </data>
