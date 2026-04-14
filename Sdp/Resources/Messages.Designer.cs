@@ -30,6 +30,9 @@ internal static class Messages
     internal static string InvalidTableParameter
         => ResourceManager.GetString("InvalidTableParameter", Culture)!;
 
+    internal static string CreateAsyncNotFound
+        => ResourceManager.GetString("CreateAsyncNotFound", Culture)!;
+
     internal static string FkTargetNotFound
         => ResourceManager.GetString("FkTargetNotFound", Culture)!;
 
@@ -84,6 +87,7 @@ internal static class Messages
     internal static class Composite
     {
         internal static CompositeFormat InvalidTableParameter => CompositeFormat.Parse(Messages.InvalidTableParameter);
+        internal static CompositeFormat CreateAsyncNotFound => CompositeFormat.Parse(Messages.CreateAsyncNotFound);
         internal static CompositeFormat FkTargetNotFound => CompositeFormat.Parse(Messages.FkTargetNotFound);
         internal static CompositeFormat IndexNotRegistered => CompositeFormat.Parse(Messages.IndexNotRegistered);
         internal static CompositeFormat FkValueNotFound => CompositeFormat.Parse(Messages.FkValueNotFound);
