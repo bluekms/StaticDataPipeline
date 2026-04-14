@@ -8,7 +8,7 @@ public class StaticDataTableTests
     private sealed record Item(int Id, string Name);
 
     private sealed class ItemTable(ImmutableList<Item> records)
-        : StaticDataTable<Item, int>(records, r => r.Id);
+        : StaticDataTable<ItemTable, Item, int>(records, r => r.Id);
 
     private static ItemTable CreateTable()
     {
@@ -84,25 +84,17 @@ public class StaticDataTableTests
     }
 
     [Fact]
-    public void CompositeKey_WorksWithTuple()
+    public void Constructor_NonPropertyKeySelector_ThrowsArgumentException()
     {
-        var compositeRecords = ImmutableList.Create(
-            new Item(1, "Alpha"),
-            new Item(2, "Alpha"),
-            new Item(1, "Beta"));
+        var records = ImmutableList<Item>.Empty;
 
-        var compositeTable = new CompositeKeyTable(compositeRecords);
-
-        var record = compositeTable.Get((1, "Alpha"));
-
-        Assert.Equal(1, record.Id);
-        Assert.Equal("Alpha", record.Name);
+        Assert.Throws<ArgumentException>(() => new NonPropertyKeyTable(records));
     }
 
-    private sealed class CompositeKeyTable : StaticDataTable<Item, (int Id, string Name)>
+    private sealed class NonPropertyKeyTable : StaticDataTable<NonPropertyKeyTable, Item, int>
     {
-        public CompositeKeyTable(ImmutableList<Item> records)
-            : base(records, r => (r.Id, r.Name))
+        public NonPropertyKeyTable(ImmutableList<Item> records)
+            : base(records, r => r.Id + 1)
         {
         }
     }
