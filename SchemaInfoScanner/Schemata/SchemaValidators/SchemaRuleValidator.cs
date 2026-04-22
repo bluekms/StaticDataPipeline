@@ -7,6 +7,7 @@ internal partial class SchemaRuleValidator : AbstractValidator<PropertySchemaBas
     public SchemaRuleValidator()
     {
         // Supported Type Validators
+        RegisterDisallowNullableKeyRule();
         RegisterDisallowNullableCollectionRule();
 
         // Attribute Validators
