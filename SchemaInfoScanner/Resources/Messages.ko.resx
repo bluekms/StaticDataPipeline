@@ -156,6 +156,9 @@
   <data name="NullableCollectionNotSupported" xml:space="preserve">
     <value>{0}({1}): nullable collection 타입은 지원하지 않습니다.</value>
   </data>
+  <data name="KeyAttributeMustBeNonNullable" xml:space="preserve">
+    <value>{0}({1}): KeyAttribute가 붙은 파라미터는 nullable이 될 수 없습니다.</value>
+  </data>
   <data name="DateTimeFormatAttributeNotApplicable" xml:space="preserve">
     <value>{0}({1}): DateTime이 아니므로 DateTimeFormatAttribute를 사용할 수 없습니다.</value>
   </data>
