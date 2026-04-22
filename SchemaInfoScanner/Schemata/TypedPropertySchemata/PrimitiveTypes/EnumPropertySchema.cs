@@ -1,8 +1,10 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
+using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes;
 
@@ -14,20 +16,23 @@ public sealed record EnumPropertySchema(
 {
     protected override void OnCheckCompatibility(CompatibilityContext context)
     {
-        var enumName = new EnumName(NamedTypeSymbol);
-        var enumMembers = context.MetadataCatalogs.EnumMemberCatalog.GetEnumMembers(enumName);
-
         var cell = context.Consume();
         var value = cell.Value;
 
-        if (!enumMembers.Contains(value))
+        if (!AttributeAccessors.HasAttribute<KeyAttribute>(AttributeList))
         {
-            throw new InvalidOperationException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.InvalidCellValueForEnum,
-                cell.Value,
-                cell.Address,
-                enumName.FullName));
+            var enumName = new EnumName(NamedTypeSymbol);
+            var enumMembers = context.MetadataCatalogs.EnumMemberCatalog.GetEnumMembers(enumName);
+
+            if (!enumMembers.Contains(value))
+            {
+                throw new InvalidOperationException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.InvalidCellValueForEnum,
+                    cell.Value,
+                    cell.Address,
+                    enumName.FullName));
+            }
         }
 
         context.Collect(value);
