@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner;
+using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Collectors;
 using UnitTest.Utility;
 using Xunit.Abstractions;
@@ -113,6 +114,71 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         Assert.Throws<NotSupportedException>(() => new RecordSchemaSet(loadResult, logger));
         Assert.Single(logger.Logs);
+    }
+
+    [Fact]
+    public void EnumKeyDictionary_DifferentEnumTypeInValueRecord_NotSupported()
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<MapTypeTests>() is not TestOutputLogger<MapTypeTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = """
+                   public enum ItemIdA { None = 0 }
+                   public enum ItemIdB { None = 0 }
+
+                   public sealed record ValueRecord(
+                       [Key] ItemIdB Id,
+                       string Name,
+                   );
+
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(2)] FrozenDictionary<ItemIdA, ValueRecord> Properties,
+                   );
+                   """;
+
+        var loadResult = RecordSchemaLoader.OnLoad(code, logger);
+        var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
+        var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
+
+        Assert.Throws<NotSupportedException>(() => RecordComplianceChecker.Check(recordSchemaCatalog, logger));
+        Assert.Single(logger.Logs);
+    }
+
+    [Fact]
+    public void EnumKeyDictionary_SameEnumTypeInValueRecord_Supported()
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<MapTypeTests>() is not TestOutputLogger<MapTypeTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = """
+                   public enum ItemId { None = 0 }
+
+                   public sealed record ValueRecord(
+                       [Key] ItemId Id,
+                       string Name,
+                   );
+
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(2)] FrozenDictionary<ItemId, ValueRecord> Properties,
+                   );
+                   """;
+
+        var loadResult = RecordSchemaLoader.OnLoad(code, logger);
+        var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
+        var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
+
+        RecordComplianceChecker.Check(recordSchemaCatalog, logger);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
