@@ -156,6 +156,9 @@
   <data name="NullableCollectionNotSupported" xml:space="preserve">
     <value>{0}({1}): nullable collection type is not supported.</value>
   </data>
+  <data name="KeyAttributeMustBeNonNullable" xml:space="preserve">
+    <value>{0}({1}): parameter with KeyAttribute must be non-nullable.</value>
+  </data>
   <data name="DateTimeFormatAttributeNotApplicable" xml:space="preserve">
     <value>{0}({1}): DateTime is not applicable, so DateTimeFormatAttribute cannot be used.</value>
   </data>
