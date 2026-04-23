@@ -100,6 +100,7 @@ internal static class CsvTypeCache
         var lengthAttr = param.GetCustomAttribute<LengthAttribute>();
         var nullStringAttr = param.GetCustomAttribute<NullStringAttribute>();
         var singleColumnAttr = param.GetCustomAttribute<SingleColumnCollectionAttribute>();
+        var isKey = param.GetCustomAttribute<KeyAttribute>() is not null;
 
         var paramType = param.ParameterType;
         var collectionType = CollectionKind.None;
@@ -147,7 +148,8 @@ internal static class CsvTypeCache
             collectionType,
             elementType,
             keyType,
-            singleColumnSeparator);
+            singleColumnSeparator,
+            isKey);
     }
 }
 
@@ -161,7 +163,8 @@ internal sealed record ParameterMappingInfo(
     CollectionKind CollectionKind,
     Type? ElementType,
     Type? KeyType,
-    string? SingleColumnSeparator);
+    string? SingleColumnSeparator,
+    bool IsKey);
 
 internal enum CollectionKind
 {

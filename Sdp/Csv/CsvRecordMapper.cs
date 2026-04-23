@@ -96,10 +96,10 @@ internal static class CsvRecordMapper
                 baseName));
         }
 
-        return ConvertStringValue(paramInfo.ParameterType, values[index], paramInfo.NullString);
+        return ConvertStringValue(paramInfo.ParameterType, values[index], paramInfo.NullString, paramInfo.IsKey);
     }
 
-    private static object ConvertStringValue(Type targetType, string value, string? nullString)
+    private static object ConvertStringValue(Type targetType, string value, string? nullString, bool skipEnumDefinedCheck = false)
     {
         var underlyingType = Nullable.GetUnderlyingType(targetType);
         if (underlyingType is not null)
@@ -125,7 +125,7 @@ internal static class CsvRecordMapper
         if (targetType.IsEnum)
         {
             var parsed = Enum.Parse(targetType, value);
-            if (!Enum.IsDefined(targetType, parsed))
+            if (!skipEnumDefinedCheck && !Enum.IsDefined(targetType, parsed))
             {
                 throw new ArgumentException(string.Format(
                     CultureInfo.CurrentCulture,
@@ -333,7 +333,8 @@ internal static class CsvRecordMapper
                 var value = ConvertStringValue(
                     paramInfo.ParameterType,
                     values[index],
-                    paramInfo.NullString ?? nullString);
+                    paramInfo.NullString ?? nullString,
+                    paramInfo.IsKey);
                 return typeInfo.Constructor.Invoke([value]);
             }
         }
@@ -402,7 +403,7 @@ internal static class CsvRecordMapper
                     baseName));
             }
 
-            return ConvertStringValue(paramInfo.ParameterType, values[index], effectiveNullString);
+            return ConvertStringValue(paramInfo.ParameterType, values[index], effectiveNullString, paramInfo.IsKey);
         }
 
         return CreateRecordInstance(paramInfo.ParameterType, baseName, headerIndexMap, values, effectiveNullString);
