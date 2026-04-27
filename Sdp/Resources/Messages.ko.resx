@@ -12,14 +12,14 @@
   <data name="InvalidTableParameter" xml:space="preserve">
     <value>'{0}' 파라미터의 타입 '{1}'이(가) StaticDataTable&lt;,&gt; 서브타입이 아닙니다.</value>
   </data>
-  <data name="CreateAsyncNotFound" xml:space="preserve">
-    <value>{0}에 public static CreateAsync(string) 메서드가 없습니다.</value>
+  <data name="TableConstructorNotFound" xml:space="preserve">
+    <value>{0}에는 ImmutableList&lt;{1}&gt;를 받는 생성자가 필요합니다.</value>
   </data>
   <data name="FkTargetNotFound" xml:space="preserve">
     <value>FK 타겟 '{0}'을(를) 찾을 수 없거나 비활성화되어 있습니다.</value>
   </data>
   <data name="IndexNotRegistered" xml:space="preserve">
-    <value>'{1}'에 '{0}' 인덱스가 등록되어 있지 않습니다. FK 타겟으로 사용하려면 생성자에서 RegisterIndex()를 호출하세요.</value>
+    <value>'{1}'에 '{0}' 컬럼이 존재하지 않습니다.</value>
   </data>
   <data name="FkValueNotFound" xml:space="preserve">
     <value>{0}.{1}({2})이(가) [{3}] 중 어디에도 존재하지 않습니다.</value>
@@ -30,11 +30,8 @@
   <data name="SwitchFkConditionColumnNotFound" xml:space="preserve">
     <value>Switch FK 조건 컬럼 '{0}'을(를) {1}에서 찾을 수 없습니다.</value>
   </data>
-  <data name="KeySelectorInvalid" xml:space="preserve">
-    <value>키 셀렉터는 단순 프로퍼티 접근이어야 합니다. (예: x =&gt; x.Id)</value>
-  </data>
   <data name="StaticDataRecordAttributeRequired" xml:space="preserve">
-    <value>{0}은(는) 디렉터리에서 로드할 때 [StaticDataRecord] 어트리뷰트가 필요합니다.</value>
+    <value>{0}에 [StaticDataRecord] 어트리뷰트가 필요합니다.</value>
   </data>
   <data name="DuplicateKey" xml:space="preserve">
     <value>{1}에 중복된 키 '{0}'이(가) 있습니다.</value>
