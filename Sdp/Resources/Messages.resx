@@ -12,14 +12,14 @@
   <data name="InvalidTableParameter" xml:space="preserve">
     <value>Parameter '{0}' of type '{1}' is not a StaticDataTable&lt;,&gt; subtype.</value>
   </data>
-  <data name="CreateAsyncNotFound" xml:space="preserve">
-    <value>{0} does not have a public static CreateAsync(string) method.</value>
+  <data name="TableConstructorNotFound" xml:space="preserve">
+    <value>{0} must have a constructor accepting ImmutableList&lt;{1}&gt;.</value>
   </data>
   <data name="FkTargetNotFound" xml:space="preserve">
     <value>FK target '{0}' not found or disabled.</value>
   </data>
   <data name="IndexNotRegistered" xml:space="preserve">
-    <value>No index registered for '{0}' in {1}. Call RegisterIndex() in the constructor to use it as a FK target.</value>
+    <value>Column '{0}' not found on {1}.</value>
   </data>
   <data name="FkValueNotFound" xml:space="preserve">
     <value>{0}.{1}({2}) not found in any of: [{3}]</value>
@@ -30,11 +30,8 @@
   <data name="SwitchFkConditionColumnNotFound" xml:space="preserve">
     <value>Switch FK condition column '{0}' not found on {1}.</value>
   </data>
-  <data name="KeySelectorInvalid" xml:space="preserve">
-    <value>Key selector must be a simple property access (e.g. x =&gt; x.Id).</value>
-  </data>
   <data name="StaticDataRecordAttributeRequired" xml:space="preserve">
-    <value>{0} requires [StaticDataRecord] attribute when loading from a directory.</value>
+    <value>{0} requires [StaticDataRecord] attribute.</value>
   </data>
   <data name="DuplicateKey" xml:space="preserve">
     <value>Duplicate key '{0}' in {1}.</value>

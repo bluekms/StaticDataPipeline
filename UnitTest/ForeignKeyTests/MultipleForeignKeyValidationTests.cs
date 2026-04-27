@@ -56,29 +56,14 @@ public class MultipleForeignKeyValidationTests
         [ForeignKey("Teacher", "Id")]
         int RecipientId);
 
-    private sealed class SchoolTable : StaticDataTable<SchoolTable, School, int>
-    {
-        public SchoolTable(ImmutableList<School> records)
-            : base(records, x => x.Id, "Id")
-        {
-        }
-    }
+    private sealed class SchoolTable(ImmutableList<School> records)
+        : StaticDataTable<SchoolTable, School>(records);
 
-    private sealed class TeacherTable : StaticDataTable<TeacherTable, Teacher, int>
-    {
-        public TeacherTable(ImmutableList<Teacher> records)
-            : base(records, x => x.Id, "Id")
-        {
-        }
-    }
+    private sealed class TeacherTable(ImmutableList<Teacher> records)
+        : StaticDataTable<TeacherTable, Teacher>(records);
 
-    private sealed class ScholarshipTable : StaticDataTable<ScholarshipTable, Scholarship, int>
-    {
-        public ScholarshipTable(ImmutableList<Scholarship> records)
-            : base(records, x => x.Id, "Id")
-        {
-        }
-    }
+    private sealed class ScholarshipTable(ImmutableList<Scholarship> records)
+        : StaticDataTable<ScholarshipTable, Scholarship>(records);
 
     private sealed class StaticData : StaticDataManager<StaticData.TableSet>
     {

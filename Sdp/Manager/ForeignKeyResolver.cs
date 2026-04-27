@@ -11,10 +11,22 @@ internal static class ForeignKeyResolver
     {
         var type = typeof(TTableSet);
         var ctor = type.GetConstructors().Single();
-        return ctor.GetParameters()
-            .Select(p => (Name: p.Name!, Table: type.GetProperty(p.Name!)?.GetValue(tableSet) as IStaticDataTable))
-            .Where(x => x.Table is not null)
-            .ToDictionary(x => x.Name, x => x.Table!);
+        var map = new Dictionary<string, IStaticDataTable>();
+
+        foreach (var param in ctor.GetParameters())
+        {
+            var name = param.Name!;
+            var property = type.GetProperty(name);
+
+            if (property?.GetValue(tableSet) is not IStaticDataTable table)
+            {
+                continue;
+            }
+
+            map[name] = table;
+        }
+
+        return map;
     }
 
     internal static bool TryResolveTarget(
@@ -36,8 +48,7 @@ internal static class ForeignKeyResolver
             return false;
         }
 
-        var isPk = columnName == targetTable.PrimaryKeyPropertyName;
-        if (!isPk && targetTable.RecordType.GetProperty(columnName) is null)
+        if (targetTable.RecordType.GetProperty(columnName) is null)
         {
             errors.Add(new InvalidOperationException(string.Format(
                 CultureInfo.CurrentCulture,
@@ -48,7 +59,7 @@ internal static class ForeignKeyResolver
             return false;
         }
 
-        target = new FkTarget(tableSetName, columnName, targetTable, isPk);
+        target = new FkTarget(tableSetName, columnName, targetTable);
         return true;
     }
 
@@ -57,14 +68,8 @@ internal static class ForeignKeyResolver
         object? fkValue,
         Dictionary<(string TargetName, string ColumnName), HashSet<object?>> cache)
     {
-        if (target.IsPrimaryKey)
-        {
-            return target.TargetTable.ContainsPrimaryKey(fkValue);
-        }
-
         var cacheKey = (target.TargetName, target.ColumnName);
 
-        // 첫 조회 시(cache에 값이 없음) target 테이블의 해당 컬럼 전체 값을 조회해서 HashSet cache에 저장
         if (!cache.TryGetValue(cacheKey, out var valueSet))
         {
             var prop = target.TargetTable.RecordType.GetProperty(target.ColumnName)!;
@@ -92,6 +97,5 @@ internal static class ForeignKeyResolver
     internal sealed record FkTarget(
         string TargetName,
         string ColumnName,
-        IStaticDataTable TargetTable,
-        bool IsPrimaryKey);
+        IStaticDataTable TargetTable);
 }
