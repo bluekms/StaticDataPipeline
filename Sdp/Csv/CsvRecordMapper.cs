@@ -6,10 +6,9 @@ namespace Sdp.Csv;
 
 internal static class CsvRecordMapper
 {
-    public static TRecord MapToRecord<TRecord>(string[] headers, string[] values)
-        where TRecord : notnull
+    public static object MapToRecord(Type recordType, string[] headers, string[] values)
     {
-        var typeInfo = CsvTypeCache.GetTypeInfo(typeof(TRecord));
+        var typeInfo = CsvTypeCache.GetTypeInfo(recordType);
         var headerIndexMap = BuildHeaderIndexMap(headers);
         var args = new object?[typeInfo.Parameters.Length];
 
@@ -19,8 +18,12 @@ internal static class CsvRecordMapper
             args[i] = ConvertValue(paramInfo, paramInfo.ColumnName, headerIndexMap, values);
         }
 
-        return (TRecord)typeInfo.Constructor.Invoke(args);
+        return typeInfo.Constructor.Invoke(args)!;
     }
+
+    public static TRecord MapToRecord<TRecord>(string[] headers, string[] values)
+        where TRecord : notnull
+        => (TRecord)MapToRecord(typeof(TRecord), headers, values);
 
     private static Dictionary<string, int> BuildHeaderIndexMap(string[] headers)
     {
