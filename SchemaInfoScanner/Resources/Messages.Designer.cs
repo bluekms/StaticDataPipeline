@@ -303,6 +303,9 @@ internal static class Messages
     internal static string ForeignKeyValidationFailed
         => ResourceManager.GetString("ForeignKeyValidationFailed", Culture)!;
 
+    internal static string TableSetValidationFailed
+        => ResourceManager.GetString("TableSetValidationFailed", Culture)!;
+
     internal static string ForeignKeyColumnNotFound
         => ResourceManager.GetString("ForeignKeyColumnNotFound", Culture)!;
 
@@ -311,6 +314,12 @@ internal static class Messages
 
     internal static string SwitchForeignKeyColumnNotFound
         => ResourceManager.GetString("SwitchForeignKeyColumnNotFound", Culture)!;
+
+    internal static string ForeignKeyTableSetNameNotFound
+        => ResourceManager.GetString("ForeignKeyTableSetNameNotFound", Culture)!;
+
+    internal static string SwitchForeignKeyTableSetNameNotFound
+        => ResourceManager.GetString("SwitchForeignKeyTableSetNameNotFound", Culture)!;
 
     internal static class Composite
     {
@@ -397,5 +406,7 @@ internal static class Messages
         internal static CompositeFormat ForeignKeyColumnNotFound => CompositeFormat.Parse(Messages.ForeignKeyColumnNotFound);
         internal static CompositeFormat SwitchForeignKeyConditionColumnNotFound => CompositeFormat.Parse(Messages.SwitchForeignKeyConditionColumnNotFound);
         internal static CompositeFormat SwitchForeignKeyColumnNotFound => CompositeFormat.Parse(Messages.SwitchForeignKeyColumnNotFound);
+        internal static CompositeFormat ForeignKeyTableSetNameNotFound => CompositeFormat.Parse(Messages.ForeignKeyTableSetNameNotFound);
+        internal static CompositeFormat SwitchForeignKeyTableSetNameNotFound => CompositeFormat.Parse(Messages.SwitchForeignKeyTableSetNameNotFound);
     }
 }
