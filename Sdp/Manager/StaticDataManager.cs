@@ -1,5 +1,9 @@
+using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Reflection;
+using Sdp.Attributes;
+using Sdp.Csv;
 using Sdp.Resources;
 using Sdp.Table;
 
@@ -15,35 +19,42 @@ public abstract class StaticDataManager<TTableSet>
     public async Task LoadAsync(string csvDir, List<string>? disabledTables = null)
     {
         var tableSet = await BuildTablesAsync(csvDir, disabledTables);
-
-        var tableMap = ForeignKeyResolver.BuildTableMap(tableSet);
-        ForeignKeyValidator.Validate(tableMap);
-        SwitchForeignKeyValidator.Validate(tableMap);
-
-        Validate(tableSet);
-        current = tableSet;
+        FinalizeLoad(tableSet);
     }
 
     internal void Load(TTableSet tableSet)
     {
-        var tableMap = ForeignKeyResolver.BuildTableMap(tableSet);
-        ForeignKeyValidator.Validate(tableMap);
-        SwitchForeignKeyValidator.Validate(tableMap);
-
-        Validate(tableSet);
-        current = tableSet;
+        FinalizeLoad(tableSet);
     }
 
     protected virtual void Validate(TTableSet tableSet)
     {
     }
 
+    private void FinalizeLoad(TTableSet tableSet)
+    {
+        var tableMap = ForeignKeyResolver.BuildTableMap(tableSet);
+
+        foreach (var table in tableMap.Values)
+        {
+            table.Validate();
+        }
+
+        ForeignKeyValidator.Validate(tableMap);
+        SwitchForeignKeyValidator.Validate(tableMap);
+
+        Validate(tableSet);
+        current = tableSet;
+    }
+
     private static async Task<TTableSet> BuildTablesAsync(string csvDir, List<string>? disabledTables)
     {
         var ctor = typeof(TTableSet).GetConstructors().Single();
         var parameters = ctor.GetParameters();
+        var recordCache = new ConcurrentDictionary<RecordCacheKey, Lazy<Task<object>>>();
+
         var tasks = parameters
-            .Select(p => CreateArgAsync(p, csvDir, disabledTables))
+            .Select(p => CreateTableAsync(p, csvDir, disabledTables, recordCache))
             .ToArray();
 
         try
@@ -68,15 +79,20 @@ public abstract class StaticDataManager<TTableSet>
         return (TTableSet)ctor.Invoke(tasks.Select(t => t.Result).ToArray());
     }
 
-    private static async Task<object?> CreateArgAsync(ParameterInfo param, string csvDir, List<string>? disabledTables)
+    private static async Task<object?> CreateTableAsync(
+        ParameterInfo param,
+        string csvDir,
+        List<string>? disabledTables,
+        ConcurrentDictionary<RecordCacheKey, Lazy<Task<object>>> recordCache)
     {
-        if (!IsStaticDataTable(param.ParameterType))
+        var tableType = param.ParameterType;
+        if (!IsStaticDataTable(tableType))
         {
             throw new InvalidOperationException(string.Format(
                 CultureInfo.CurrentCulture,
                 Messages.Composite.InvalidTableParameter,
                 param.Name!,
-                param.ParameterType.Name));
+                tableType.Name));
         }
 
         if (disabledTables?.Contains(param.Name!) == true)
@@ -84,32 +100,80 @@ public abstract class StaticDataManager<TTableSet>
             return null;
         }
 
-        var method = param.ParameterType.GetMethod(
-            "CreateAsync",
-            BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+        var recordType = ExtractRecordType(tableType);
+        var csvPath = ResolveCsvPath(csvDir, recordType);
 
-        if (method is null)
-        {
-            throw new InvalidOperationException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.CreateAsyncNotFound,
-                param.ParameterType.FullName ?? param.ParameterType.Name));
-        }
+        var lazyTask = recordCache.GetOrAdd(
+            new RecordCacheKey(csvPath, recordType),
+            key => new Lazy<Task<object>>(() => CsvLoader.LoadAsync(key.CsvPath, key.RecordType)));
 
-        Task task;
+        var records = await lazyTask.Value;
+
+        var ctor = FindTableConstructor(tableType, recordType);
         try
         {
-            task = (Task)method.Invoke(null, [csvDir])!;
+            return ctor.Invoke([records]);
         }
         catch (TargetInvocationException tie)
         {
             throw tie.InnerException ?? tie;
         }
-
-        await task;
-        return task.GetType().GetProperty("Result")!.GetValue(task);
     }
 
     private static bool IsStaticDataTable(Type type)
         => typeof(IStaticDataTable).IsAssignableFrom(type);
+
+    private static Type ExtractRecordType(Type tableType)
+    {
+        var current = tableType;
+        while (current is not null && current != typeof(object))
+        {
+            if (current.IsGenericType && current.GetGenericTypeDefinition() == typeof(StaticDataTable<,>))
+            {
+                return current.GetGenericArguments()[1];
+            }
+
+            current = current.BaseType;
+        }
+
+        throw new InvalidOperationException(FormattableString.Invariant(
+            $"{tableType.Name} does not derive from StaticDataTable<,>."));
+    }
+
+    private static string ResolveCsvPath(string csvDir, Type recordType)
+    {
+        var attr = recordType.GetCustomAttribute<StaticDataRecordAttribute>();
+
+        if (attr is null)
+        {
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.StaticDataRecordAttributeRequired,
+                recordType.Name));
+        }
+
+        var fileName = FormattableString.Invariant($"{attr.ExcelFileName}.{attr.SheetName}.csv");
+        return Path.Combine(csvDir, fileName);
+    }
+
+    private sealed record RecordCacheKey(string CsvPath, Type RecordType);
+
+    private static ConstructorInfo FindTableConstructor(Type tableType, Type recordType)
+    {
+        var paramType = typeof(ImmutableList<>).MakeGenericType(recordType);
+        var ctor = tableType.GetConstructor(
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+            [paramType]);
+
+        if (ctor is null)
+        {
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.TableConstructorNotFound,
+                tableType.Name,
+                recordType.Name));
+        }
+
+        return ctor;
+    }
 }

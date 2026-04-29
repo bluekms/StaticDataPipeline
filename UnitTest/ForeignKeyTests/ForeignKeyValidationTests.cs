@@ -69,28 +69,43 @@ public class ForeignKeyValidationTests
         [ForeignKey("School", "Id")] int SchoolId,
         [ForeignKey("Teacher", "Id")] int TeacherId);
 
-    private sealed class SchoolTable : StaticDataTable<SchoolTable, School, int>
+    private sealed class SchoolTable : StaticDataTable<SchoolTable, School>
     {
+        private readonly UniqueIndex<School, int> byId;
+
         public SchoolTable(ImmutableList<School> records)
-            : base(records, x => x.Id, "Id")
+            : base(records)
         {
+            byId = new(records, x => x.Id);
         }
+
+        public School Get(int id) => byId.Get(id);
     }
 
-    private sealed class TeacherTable : StaticDataTable<TeacherTable, Teacher, int>
+    private sealed class TeacherTable : StaticDataTable<TeacherTable, Teacher>
     {
+        private readonly UniqueIndex<Teacher, int> byId;
+
         public TeacherTable(ImmutableList<Teacher> records)
-            : base(records, x => x.Id, "Id")
+            : base(records)
         {
+            byId = new(records, x => x.Id);
         }
+
+        public Teacher Get(int id) => byId.Get(id);
     }
 
-    private sealed class StudentTable : StaticDataTable<StudentTable, Student, int>
+    private sealed class StudentTable : StaticDataTable<StudentTable, Student>
     {
+        private readonly UniqueIndex<Student, int> byId;
+
         public StudentTable(ImmutableList<Student> records)
-            : base(records, x => x.Id, "Id")
+            : base(records)
         {
+            byId = new(records, x => x.Id);
         }
+
+        public Student Get(int id) => byId.Get(id);
     }
 
     private sealed class StaticData : StaticDataManager<StaticData.TableSet>
@@ -121,9 +136,6 @@ public class ForeignKeyValidationTests
                 new(CsvLoader.Parse<School>(SchoolCsv)),
                 new(CsvLoader.Parse<Teacher>(TeacherCsv)),
                 new(CsvLoader.Parse<Student>(ErrorStudentCsv))));
-
-        public void Load(SchoolTable school, TeacherTable teacher, StudentTable? student = null)
-            => Load(new TableSet(school, teacher, student));
     }
 
     [Fact]

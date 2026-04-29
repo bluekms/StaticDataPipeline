@@ -52,29 +52,14 @@ public class SwitchForeignKeyNonKeyValidationTests
     private record Engineer(int Id, string Name);
     private record Designer(int Id, string Name);
 
-    private sealed class StaffTable : StaticDataTable<StaffTable, Staff, int>
-    {
-        public StaffTable(ImmutableList<Staff> records)
-            : base(records, x => x.Id, "Id")
-        {
-        }
-    }
+    private sealed class StaffTable(ImmutableList<Staff> records)
+        : StaticDataTable<StaffTable, Staff>(records);
 
-    private sealed class EngineerTable : StaticDataTable<EngineerTable, Engineer, int>
-    {
-        public EngineerTable(ImmutableList<Engineer> records)
-            : base(records, x => x.Id, "Id")
-        {
-        }
-    }
+    private sealed class EngineerTable(ImmutableList<Engineer> records)
+        : StaticDataTable<EngineerTable, Engineer>(records);
 
-    private sealed class DesignerTable : StaticDataTable<DesignerTable, Designer, int>
-    {
-        public DesignerTable(ImmutableList<Designer> records)
-            : base(records, x => x.Id, "Id")
-        {
-        }
-    }
+    private sealed class DesignerTable(ImmutableList<Designer> records)
+        : StaticDataTable<DesignerTable, Designer>(records);
 
     private sealed class StaticData : StaticDataManager<StaticData.TableSet>
     {

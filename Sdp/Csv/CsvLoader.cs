@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 using Sdp.Resources;
 
@@ -7,24 +8,29 @@ namespace Sdp.Csv;
 
 internal static class CsvLoader
 {
-    public static async Task<ImmutableList<TRecord>> LoadAsync<TRecord>(string filePath)
-        where TRecord : notnull
+    private static readonly MethodInfo BuildImmutableListGenericMethod = typeof(CsvLoader)
+        .GetMethod(nameof(BuildImmutableListTyped), BindingFlags.NonPublic | BindingFlags.Static)!;
+
+    public static async Task<object> LoadAsync(string filePath, Type recordType)
     {
         var content = await File.ReadAllTextAsync(filePath);
-        return Parse<TRecord>(content, filePath);
+        return Parse(content, recordType, filePath);
     }
 
-    public static ImmutableList<TRecord> Parse<TRecord>(string csvContent, string? filePath = null)
+    public static async Task<ImmutableList<TRecord>> LoadAsync<TRecord>(string filePath)
         where TRecord : notnull
+        => (ImmutableList<TRecord>)await LoadAsync(filePath, typeof(TRecord));
+
+    private static object Parse(string csvContent, Type recordType, string? filePath = null)
     {
         var rows = ParseCsvContent(csvContent);
         if (rows.Count == 0)
         {
-            return ImmutableList<TRecord>.Empty;
+            return BuildEmptyList(recordType);
         }
 
         var headers = rows[0];
-        var builder = ImmutableList.CreateBuilder<TRecord>();
+        var records = new List<object>(rows.Count - 1);
 
         for (var i = 1; i < rows.Count; i++)
         {
@@ -36,8 +42,8 @@ internal static class CsvLoader
 
             try
             {
-                var record = CsvRecordMapper.MapToRecord<TRecord>(headers, values);
-                builder.Add(record);
+                var record = CsvRecordMapper.MapToRecord(recordType, headers, values);
+                records.Add(record);
             }
             catch (Exception ex)
             {
@@ -61,8 +67,22 @@ internal static class CsvLoader
             }
         }
 
-        return builder.ToImmutable();
+        return BuildImmutableList(recordType, records);
     }
+
+    public static ImmutableList<TRecord> Parse<TRecord>(string csvContent, string? filePath = null)
+        where TRecord : notnull
+        => (ImmutableList<TRecord>)Parse(csvContent, typeof(TRecord), filePath);
+
+    private static object BuildImmutableList(Type recordType, List<object> records)
+        => BuildImmutableListGenericMethod.MakeGenericMethod(recordType).Invoke(null, [records])!;
+
+    private static object BuildEmptyList(Type recordType)
+    => BuildImmutableListGenericMethod.MakeGenericMethod(recordType).Invoke(null, [new List<object>()])!;
+
+    private static ImmutableList<T> BuildImmutableListTyped<T>(List<object> records)
+        where T : notnull
+        => records.Cast<T>().ToImmutableList();
 
     private static List<string[]> ParseCsvContent(string content)
     {
