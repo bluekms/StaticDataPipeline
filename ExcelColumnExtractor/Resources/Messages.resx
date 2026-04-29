@@ -72,4 +72,10 @@
   <data name="ParseErrorCount" xml:space="preserve">
     <value>Parse errors: {0}</value>
   </data>
+  <data name="PrimaryKeyDuplicateFound" xml:space="preserve">
+    <value>Primary key '{0}' has duplicate value '{1}'.</value>
+  </data>
+  <data name="PrimaryKeyHeaderNotFound" xml:space="preserve">
+    <value>Primary key column '{0}' not found in sheet headers.</value>
+  </data>
 </root>

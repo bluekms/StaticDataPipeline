@@ -90,6 +90,12 @@ internal static class Messages
     internal static string ParseErrorCount
         => ResourceManager.GetString("ParseErrorCount", Culture)!;
 
+    internal static string PrimaryKeyDuplicateFound
+        => ResourceManager.GetString("PrimaryKeyDuplicateFound", Culture)!;
+
+    internal static string PrimaryKeyHeaderNotFound
+        => ResourceManager.GetString("PrimaryKeyHeaderNotFound", Culture)!;
+
     internal static class Composite
     {
         internal static CompositeFormat FileAlreadyOpen => CompositeFormat.Parse(Messages.FileAlreadyOpen);
@@ -111,5 +117,7 @@ internal static class Messages
         internal static CompositeFormat FileOrDirectoryNotExist => CompositeFormat.Parse(Messages.FileOrDirectoryNotExist);
         internal static CompositeFormat DirectoryAlreadyHasFiles => CompositeFormat.Parse(Messages.DirectoryAlreadyHasFiles);
         internal static CompositeFormat ParseErrorCount => CompositeFormat.Parse(Messages.ParseErrorCount);
+        internal static CompositeFormat PrimaryKeyDuplicateFound => CompositeFormat.Parse(Messages.PrimaryKeyDuplicateFound);
+        internal static CompositeFormat PrimaryKeyHeaderNotFound => CompositeFormat.Parse(Messages.PrimaryKeyHeaderNotFound);
     }
 }
