@@ -72,4 +72,10 @@
   <data name="ParseErrorCount" xml:space="preserve">
     <value>파싱 오류: {0}개</value>
   </data>
+  <data name="PrimaryKeyDuplicateFound" xml:space="preserve">
+    <value>기본 키 '{0}' 에 중복된 값 '{1}' 이(가) 있습니다.</value>
+  </data>
+  <data name="PrimaryKeyHeaderNotFound" xml:space="preserve">
+    <value>기본 키 컬럼 '{0}' 을(를) 시트 헤더에서 찾을 수 없습니다.</value>
+  </data>
 </root>

@@ -1,9 +1,11 @@
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
+using SchemaInfoScanner.Exceptions;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
+using SchemaInfoScanner.Schemata;
 using SchemaInfoScanner.TypeCheckers;
 using Sdp.Attributes;
 
@@ -31,6 +33,8 @@ public static class RecordComplianceChecker
                 LogTrace(logger, msg, null);
                 continue;
             }
+
+            CheckKeyAttributeCount(recordSchema, logger);
 
             foreach (var propertySchema in recordSchema.PropertySchemata)
             {
@@ -68,6 +72,15 @@ public static class RecordComplianceChecker
                 continue;
             }
 
+            try
+            {
+                CheckKeyAttributeCount(recordSchema, logger);
+            }
+            catch (InvalidAttributeUsageException)
+            {
+                exceptionCount += 1;
+            }
+
             foreach (var recordParameter in recordSchema.PropertySchemata)
             {
                 try
@@ -83,6 +96,22 @@ public static class RecordComplianceChecker
         }
 
         return exceptionCount;
+    }
+
+    private static void CheckKeyAttributeCount(RecordSchema recordSchema, ILogger logger)
+    {
+        var keyCount = recordSchema.PropertySchemata.Count(p => p.HasAttribute<KeyAttribute>());
+        if (keyCount <= 1)
+        {
+            return;
+        }
+
+        var message = string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.StaticDataRecordMustHaveAtMostOneKey,
+            recordSchema.RecordName.FullName);
+        LogException(logger, message, null);
+        throw new InvalidAttributeUsageException(message);
     }
 
     private static readonly Action<ILogger, string, Exception?> LogTrace =
