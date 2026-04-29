@@ -79,37 +79,17 @@ public class SwitchForeignKeyValidationTests
     private record Character(int Id, string Name);
     private record Currency(int Id, string Name);
 
-    private sealed class QuestTable : StaticDataTable<QuestTable, Quest, int>
-    {
-        public QuestTable(ImmutableList<Quest> records)
-            : base(records, x => x.QuestId, "QuestId")
-        {
-        }
-    }
+    private sealed class QuestTable(ImmutableList<Quest> records)
+        : StaticDataTable<QuestTable, Quest>(records);
 
-    private sealed class ItemTable : StaticDataTable<ItemTable, Item, int>
-    {
-        public ItemTable(ImmutableList<Item> records)
-            : base(records, x => x.Id, "Id")
-        {
-        }
-    }
+    private sealed class ItemTable(ImmutableList<Item> records)
+        : StaticDataTable<ItemTable, Item>(records);
 
-    private sealed class CharacterTable : StaticDataTable<CharacterTable, Character, int>
-    {
-        public CharacterTable(ImmutableList<Character> records)
-            : base(records, x => x.Id, "Id")
-        {
-        }
-    }
+    private sealed class CharacterTable(ImmutableList<Character> records)
+        : StaticDataTable<CharacterTable, Character>(records);
 
-    private sealed class CurrencyTable : StaticDataTable<CurrencyTable, Currency, int>
-    {
-        public CurrencyTable(ImmutableList<Currency> records)
-            : base(records, x => x.Id, "Id")
-        {
-        }
-    }
+    private sealed class CurrencyTable(ImmutableList<Currency> records)
+        : StaticDataTable<CurrencyTable, Currency>(records);
 
     private sealed class StaticData : StaticDataManager<StaticData.TableSet>
     {
@@ -219,21 +199,11 @@ public class SwitchForeignKeyConfigurationErrorTests
 
     private record Target(int Id);
 
-    private sealed class BadConditionQuestTable : StaticDataTable<BadConditionQuestTable, BadConditionQuest, int>
-    {
-        public BadConditionQuestTable(ImmutableList<BadConditionQuest> records)
-            : base(records, x => x.Id, "Id")
-        {
-        }
-    }
+    private sealed class BadConditionQuestTable(ImmutableList<BadConditionQuest> records)
+        : StaticDataTable<BadConditionQuestTable, BadConditionQuest>(records);
 
-    private sealed class TargetTable : StaticDataTable<TargetTable, Target, int>
-    {
-        public TargetTable(ImmutableList<Target> records)
-            : base(records, x => x.Id, "Id")
-        {
-        }
-    }
+    private sealed class TargetTable(ImmutableList<Target> records)
+        : StaticDataTable<TargetTable, Target>(records);
 
     private sealed class ConditionColumnStaticData : StaticDataManager<ConditionColumnStaticData.TableSet>
     {
@@ -263,13 +233,8 @@ public class SwitchForeignKeyConfigurationErrorTests
         [SwitchForeignKey("RewardType", "Item", "NonExistentTable", "Id")]
         int RewardId);
 
-    private sealed class BadTargetQuestTable : StaticDataTable<BadTargetQuestTable, BadTargetQuest, int>
-    {
-        public BadTargetQuestTable(ImmutableList<BadTargetQuest> records)
-            : base(records, x => x.Id, "Id")
-        {
-        }
-    }
+    private sealed class BadTargetQuestTable(ImmutableList<BadTargetQuest> records)
+        : StaticDataTable<BadTargetQuestTable, BadTargetQuest>(records);
 
     private sealed class TargetTableStaticData : StaticDataManager<TargetTableStaticData.TableSet>
     {

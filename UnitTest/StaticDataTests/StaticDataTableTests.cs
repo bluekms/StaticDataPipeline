@@ -8,22 +8,31 @@ public class StaticDataTableTests
     private sealed record Item(int Id, string Name);
 
     private sealed class ItemTable(ImmutableList<Item> records)
-        : StaticDataTable<ItemTable, Item, int>(records, r => r.Id);
+        : StaticDataTable<ItemTable, Item>(records);
 
-    private static ItemTable CreateTable()
+    private sealed class IndexedItemTable : StaticDataTable<IndexedItemTable, Item>
     {
-        var records = ImmutableList.Create(
+        private readonly UniqueIndex<Item, int> byId;
+
+        public IndexedItemTable(ImmutableList<Item> records)
+            : base(records)
+        {
+            byId = new(records, x => x.Id);
+        }
+
+        public Item Get(int id) => byId.Get(id);
+    }
+
+    private static ImmutableList<Item> SampleRecords()
+        => ImmutableList.Create(
             new Item(1, "Alpha"),
             new Item(2, "Beta"),
             new Item(3, "Gamma"));
 
-        return new ItemTable(records);
-    }
-
     [Fact]
     public void Records_ReturnsAllRecordsInInsertionOrder()
     {
-        var table = CreateTable();
+        var table = new ItemTable(SampleRecords());
 
         Assert.Equal(3, table.Records.Count);
         Assert.Equal(1, table.Records[0].Id);
@@ -32,70 +41,34 @@ public class StaticDataTableTests
     }
 
     [Fact]
-    public void Get_ExistingKey_ReturnsRecord()
+    public void BaseTable_DoesNotEnforcePrimaryKeyIndex()
     {
-        var table = CreateTable();
+        var duplicated = ImmutableList.Create(
+            new Item(1, "Alpha"),
+            new Item(1, "Duplicate"));
+
+        var table = new ItemTable(duplicated);
+
+        Assert.Equal(2, table.Records.Count);
+    }
+
+    [Fact]
+    public void Subclass_WithUniqueIndex_ProvidesLookup()
+    {
+        var table = new IndexedItemTable(SampleRecords());
 
         var record = table.Get(2);
 
-        Assert.Equal(2, record.Id);
         Assert.Equal("Beta", record.Name);
     }
 
     [Fact]
-    public void Get_MissingKey_ThrowsKeyNotFoundException()
+    public void Subclass_WithUniqueIndex_DuplicateKey_ThrowsInvalidOperationException()
     {
-        var table = CreateTable();
-
-        Assert.Throws<KeyNotFoundException>(() => table.Get(99));
-    }
-
-    [Fact]
-    public void TryGet_ExistingKey_ReturnsTrueAndRecord()
-    {
-        var table = CreateTable();
-
-        var result = table.TryGet(1, out var record);
-
-        Assert.True(result);
-        Assert.NotNull(record);
-        Assert.Equal("Alpha", record.Name);
-    }
-
-    [Fact]
-    public void TryGet_MissingKey_ReturnsFalse()
-    {
-        var table = CreateTable();
-
-        var result = table.TryGet(99, out var record);
-
-        Assert.False(result);
-        Assert.Null(record);
-    }
-
-    [Fact]
-    public void Constructor_DuplicateKey_ThrowsInvalidOperationException()
-    {
-        var records = ImmutableList.Create(
+        var duplicated = ImmutableList.Create(
             new Item(1, "Alpha"),
             new Item(1, "Duplicate"));
 
-        Assert.Throws<InvalidOperationException>(() => new ItemTable(records));
-    }
-
-    [Fact]
-    public void Constructor_NonPropertyKeySelector_ThrowsArgumentException()
-    {
-        var records = ImmutableList<Item>.Empty;
-
-        Assert.Throws<ArgumentException>(() => new NonPropertyKeyTable(records));
-    }
-
-    private sealed class NonPropertyKeyTable : StaticDataTable<NonPropertyKeyTable, Item, int>
-    {
-        public NonPropertyKeyTable(ImmutableList<Item> records)
-            : base(records, r => r.Id + 1)
-        {
-        }
+        Assert.Throws<InvalidOperationException>(() => new IndexedItemTable(duplicated));
     }
 }

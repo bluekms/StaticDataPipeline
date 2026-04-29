@@ -8,41 +8,32 @@ public class StaticDataManagerTests
 {
     private sealed record FakeRecord(int Id);
 
-    private sealed class FakeTable : StaticDataTable<FakeTable, FakeRecord, int>
-    {
-        public const string VersionA = "a";
-        public const string VersionB = "b";
-        public const int CountA = 3;
-        public const int CountB = 7;
-
-        private FakeTable(ImmutableList<FakeRecord> records)
-            : base(records, r => r.Id)
-        {
-        }
-
-        public static new async Task<FakeTable> CreateAsync(string version)
-        {
-            await Task.Delay(50);
-            var count = version == VersionB ? CountB : CountA;
-            var records = Enumerable.Range(1, count)
-                .Select(i => new FakeRecord(i))
-                .ToImmutableList();
-            return new(records);
-        }
-    }
+    private sealed class FakeTable(ImmutableList<FakeRecord> records)
+        : StaticDataTable<FakeTable, FakeRecord>(records);
 
     private sealed class FakeManager : StaticDataManager<FakeManager.TableSet>
     {
         public sealed record TableSet(FakeTable? Items);
 
         public TableSet Tables => Current;
+
+        public void Load(int count)
+        {
+            var records = Enumerable.Range(1, count)
+                .Select(i => new FakeRecord(i))
+                .ToImmutableList();
+            Load(new TableSet(new FakeTable(records)));
+        }
     }
 
     [Fact]
-    public async Task ConcurrentLoadAndRead_AlwaysSeesCompleteDataset()
+    public void ConcurrentLoadAndRead_AlwaysSeesCompleteDataset()
     {
+        const int CountA = 3;
+        const int CountB = 7;
+
         var manager = new FakeManager();
-        await manager.LoadAsync(FakeTable.VersionA);
+        manager.Load(CountA);
 
         var cts = new CancellationTokenSource();
 
@@ -51,7 +42,7 @@ public class StaticDataManagerTests
             var toggle = false;
             while (!cts.Token.IsCancellationRequested)
             {
-                manager.LoadAsync(toggle ? FakeTable.VersionB : FakeTable.VersionA).GetAwaiter().GetResult();
+                manager.Load(toggle ? CountB : CountA);
                 toggle = !toggle;
             }
         });
@@ -62,8 +53,8 @@ public class StaticDataManagerTests
         {
             var count = manager.Tables.Items?.Records.Count;
             Assert.True(
-                count == FakeTable.CountA || count == FakeTable.CountB,
-                FormattableString.Invariant($"예상: {FakeTable.CountA} 또는 {FakeTable.CountB}, 실제: {count}"));
+                count == CountA || count == CountB,
+                FormattableString.Invariant($"예상: {CountA} 또는 {CountB}, 실제: {count}"));
         }
 
         cts.Cancel();
