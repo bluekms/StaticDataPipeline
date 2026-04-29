@@ -27,6 +27,9 @@ public static class RecordScanner
             LogError(logger, msg, null);
         }
 
+        ForeignKeySchemaChecker.Check(recordSchemaCatalog, logger);
+        TableSetSchemaChecker.Check(recordSchemaCatalog, logger);
+
         var enumMemberCatalog = new EnumMemberCatalog(loadResults);
         return new(recordSchemaCatalog, enumMemberCatalog);
     }
@@ -48,6 +51,9 @@ public static class RecordScanner
                 exceptionCount);
             LogError(logger, msg, null);
         }
+
+        ForeignKeySchemaChecker.Check(recordSchemaCatalog, logger);
+        TableSetSchemaChecker.Check(recordSchemaCatalog, logger);
 
         var enumMemberCatalog = new EnumMemberCatalog(loadResults);
         return new(recordSchemaCatalog, enumMemberCatalog);
