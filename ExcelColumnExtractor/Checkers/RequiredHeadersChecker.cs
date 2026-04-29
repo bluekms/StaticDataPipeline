@@ -88,13 +88,13 @@ public static class RequiredHeadersChecker
         var requiredHeaderIndices = new HashSet<int>();
         foreach (var standardHeader in standardHeaders)
         {
-            var index = CaseInsensitiveIndexOf(sheetHeaders, standardHeader);
+            var index = IndexOf(sheetHeaders, standardHeader);
 
             // Single parameter record 하위 호환: "Id" -> "Id.Value" 폴백
             if (index is -1)
             {
                 var fallbackHeader = $"{standardHeader}.Value";
-                index = CaseInsensitiveIndexOf(sheetHeaders, fallbackHeader);
+                index = IndexOf(sheetHeaders, fallbackHeader);
             }
 
             if (index is -1)
@@ -132,11 +132,11 @@ public static class RequiredHeadersChecker
         return requiredHeaderIndices;
     }
 
-    private static int CaseInsensitiveIndexOf(IReadOnlyList<string> list, string value)
+    private static int IndexOf(IReadOnlyList<string> list, string value)
     {
         for (var i = 0; i < list.Count; i++)
         {
-            if (list[i].Equals(value, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(list[i], value, StringComparison.Ordinal))
             {
                 return i;
             }

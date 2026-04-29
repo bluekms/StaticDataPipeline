@@ -50,7 +50,7 @@ public class Program
         LogTrace(logger, sw.Elapsed.TotalMilliseconds, nameof(RequiredHeadersChecker), null);
 
         sw.Restart();
-        var extractedTableCollection = BodyColumnAggregator.Aggregate(
+        var extractedTableMap = BodyColumnAggregator.Aggregate(
             catalogs.RecordSchemaCatalog.StaticDataRecordSchemata,
             sheetNameMap,
             requiredHeaderMap,
@@ -59,15 +59,19 @@ public class Program
 
         sw.Restart();
 
-        DataBodyChecker.Check(catalogs, extractedTableCollection, logger);
+        DataBodyChecker.Check(catalogs, extractedTableMap, logger);
         LogTrace(logger, sw.Elapsed.TotalMilliseconds, nameof(DataBodyChecker), null);
+
+        sw.Restart();
+        PrimaryKeyDuplicateChecker.Check(extractedTableMap, logger);
+        LogTrace(logger, sw.Elapsed.TotalMilliseconds, nameof(PrimaryKeyDuplicateChecker), null);
 
         // TODO BodyChecker 결과로 FK를 체크해줄 수 있을까?
         sw.Restart();
         CsvWriter.Write(
             EnsureOutputDirectory(options, logger),
             GetEncoding(options.Encoding),
-            extractedTableCollection);
+            extractedTableMap);
         LogTrace(logger, sw.Elapsed.TotalMilliseconds, nameof(CsvWriter), null);
 
         sw.Restart();
