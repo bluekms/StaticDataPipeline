@@ -177,6 +177,9 @@ internal static class Messages
     internal static string KeyAttributeMustBeNonNullable
         => ResourceManager.GetString("KeyAttributeMustBeNonNullable", Culture)!;
 
+    internal static string StaticDataRecordMustHaveAtMostOneKey
+        => ResourceManager.GetString("StaticDataRecordMustHaveAtMostOneKey", Culture)!;
+
     internal static string DateTimeFormatAttributeNotApplicable
         => ResourceManager.GetString("DateTimeFormatAttributeNotApplicable", Culture)!;
 
@@ -340,6 +343,7 @@ internal static class Messages
         internal static CompositeFormat KeyAttributeRequiredInDictionaryValue => CompositeFormat.Parse(Messages.KeyAttributeRequiredInDictionaryValue);
         internal static CompositeFormat NullableCollectionNotSupported => CompositeFormat.Parse(Messages.NullableCollectionNotSupported);
         internal static CompositeFormat KeyAttributeMustBeNonNullable => CompositeFormat.Parse(Messages.KeyAttributeMustBeNonNullable);
+        internal static CompositeFormat StaticDataRecordMustHaveAtMostOneKey => CompositeFormat.Parse(Messages.StaticDataRecordMustHaveAtMostOneKey);
         internal static CompositeFormat DateTimeFormatAttributeNotApplicable => CompositeFormat.Parse(Messages.DateTimeFormatAttributeNotApplicable);
         internal static CompositeFormat DateTimeFormatAttributeRequired => CompositeFormat.Parse(Messages.DateTimeFormatAttributeRequired);
         internal static CompositeFormat LengthAttributeRequired => CompositeFormat.Parse(Messages.LengthAttributeRequired);
