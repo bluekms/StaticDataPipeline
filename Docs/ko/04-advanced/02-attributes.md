@@ -14,6 +14,7 @@ Sdp는 14개의 Attribute를 제공합니다. 용도에 따라 5개 그룹으로
 
 ## 메타 Attribute
 
+<a id="attr-staticdatarecord"></a>
 ### `[StaticDataRecord(excelFileName, sheetName)]`
 
 |항목|내용|
@@ -26,6 +27,7 @@ Sdp는 14개의 Attribute를 제공합니다. 용도에 따라 5개 그룹으로
 
 이 Attribute가 없는 Record는 "정적 데이터 테이블 대상이 아닌 보조 Record" 로 간주되어 추출/로드 대상에서 제외됩니다.
 
+<a id="attr-key"></a>
 ### `[Key]`
 
 |항목|내용|
@@ -34,10 +36,13 @@ Sdp는 14개의 Attribute를 제공합니다. 용도에 따라 5개 그룹으로
 |인자|없음|
 |다중 허용|X (Record 당 하나)|
 |검증 시점|스캐너 (Dictionary Value Record 에서의 필수성), 로드|
-|누락 시|Dictionary Value Record에서 `KeyAttributeRequiredInDictionaryValue`. 일반 테이블 Record에서도 `StaticDataTable` 의 키 선택자와 일관되어야 함.|
+|누락 시|Dictionary Value Record 에서 `KeyAttributeRequiredInDictionaryValue`.|
 
-`StaticDataTable<TSelf, TRecord, TKey>` 의 키 선택자(`base(records, x => x.Id)`)가 `[Key]` 가 붙은 파라미터를 가리키도록 일치시켜야 합니다.
+기본 키임을 표시합니다. `FrozenDictionary<K, V>` 처럼 Value 가 Record 인 컬렉션에서 어떤 파라미터가 키인지 식별하기 위해 사용됩니다. 일반 테이블 Record 에서는 의미 표시 (FK 대상이 될 키 컬럼임을 명시) 와 도메인 가독성을 위해 붙여 두는 것을 권장합니다.
 
+또한, enum 파라미터에 `[Key]` 를 붙이면 매핑 시 `Enum.IsDefined` 검사가 생략됩니다. enum 을 ID 코드 공간으로 활용하는 [4.3 타입 브랜딩 패턴](./03-type-branding.md) 에서 사용됩니다.
+
+<a id="attr-ignore"></a>
 ### `[Ignore]`
 
 |항목|내용|
@@ -54,6 +59,7 @@ Sdp는 14개의 Attribute를 제공합니다. 용도에 따라 5개 그룹으로
 
 ## 컬럼 매핑 Attribute
 
+<a id="attr-columnname"></a>
 ### `[ColumnName(name)]`
 
 |항목|내용|
@@ -70,6 +76,7 @@ Sdp는 14개의 Attribute를 제공합니다. 용도에 따라 5개 그룹으로
 
 ## 컬렉션 크기 Attribute
 
+<a id="attr-length"></a>
 ### `[Length(length)]`
 
 |항목|내용|
@@ -83,6 +90,7 @@ Sdp는 14개의 Attribute를 제공합니다. 용도에 따라 5개 그룹으로
 
 Excel 헤더가 `Col[0]`, `Col[1]`, ..., `Col[length-1]` 로 펼쳐지는 다중 컬럼 방식입니다.
 
+<a id="attr-singlecolumncollection"></a>
 ### `[SingleColumnCollection(separator = ",")]`
 
 |항목|내용|
@@ -97,6 +105,7 @@ Excel 헤더가 `Col[0]`, `Col[1]`, ..., `Col[length-1]` 로 펼쳐지는 다중
 
 하나의 셀에 `"a,b,c"` 형태로 여러 값을 몰아 넣는 방식입니다.
 
+<a id="attr-countrange"></a>
 ### `[CountRange(minCount, maxCount)]`
 
 |항목|내용|
@@ -114,6 +123,7 @@ Excel 헤더가 `Col[0]`, `Col[1]`, ..., `Col[length-1]` 로 펼쳐지는 다중
 
 ## 타입 제약 Attribute
 
+<a id="attr-nullstring"></a>
 ### `[NullString(nullString)]`
 
 |항목|내용|
@@ -127,6 +137,7 @@ Excel 헤더가 `Col[0]`, `Col[1]`, ..., `Col[length-1]` 로 펼쳐지는 다중
 
 CSV 셀 값이 이 문자열과 일치하면 `null` 로 해석합니다. 흔히 `"NULL"`, `""`, `"N/A"` 등을 씁니다.
 
+<a id="attr-datetimeformat"></a>
 ### `[DateTimeFormat(format)]`
 
 |항목|내용|
@@ -140,6 +151,7 @@ CSV 셀 값이 이 문자열과 일치하면 `null` 로 해석합니다. 흔히 
 
 `DateTime` 은 이 Attribute 없이는 사용할 수 없습니다.
 
+<a id="attr-timespanformat"></a>
 ### `[TimeSpanFormat(format)]`
 
 |항목|내용|
@@ -153,6 +165,7 @@ CSV 셀 값이 이 문자열과 일치하면 `null` 로 해석합니다. 흔히 
 
 `TimeSpan` 도 이 Attribute 없이는 사용할 수 없습니다.
 
+<a id="attr-range"></a>
 ### `[Range(min, max)]`
 
 |항목|내용|
@@ -166,6 +179,7 @@ CSV 셀 값이 이 문자열과 일치하면 `null` 로 해석합니다. 흔히 
 
 `System.ComponentModel.DataAnnotations.RangeAttribute` 를 상속한 타입입니다. 값이 범위를 벗어나면 `ArgumentOutOfRangeException` 이 발생합니다.
 
+<a id="attr-regularexpression"></a>
 ### `[RegularExpression(pattern)]`
 
 |항목|내용|
@@ -183,6 +197,7 @@ CSV 셀 값이 이 문자열과 일치하면 `null` 로 해석합니다. 흔히 
 
 ## 관계 Attribute
 
+<a id="attr-foreignkey"></a>
 ### `[ForeignKey(tableSetName, recordColumnName)]`
 
 |항목|내용|
@@ -196,11 +211,11 @@ CSV 셀 값이 이 문자열과 일치하면 `null` 로 해석합니다. 흔히 
 |오사용 (로드)|`tableSetName` 이 없으면 `FkTargetNotFound`. `recordColumnName` 이 존재하지 않으면 `IndexNotRegistered`.|
 |실패 시|`AggregateException` 내부에 `FkValueNotFound`|
 
-- `recordColumnName` 이 대상 Record 의 기본 키 (`[Key]`) 와 같다면 기본 키 인덱스를 직접 조회.
-- 아니면 대상 테이블을 한 번 스캔해 값 집합을 만들어 검증 (이후에는 캐시).
+- 검증 시 대상 테이블의 `recordColumnName` 컬럼 값을 모두 모아 `HashSet` 을 한 번 만든 뒤 (이후 같은 (TableSet, Column) 조합은 캐시 재사용) 그 안에 값이 있는지 확인합니다.
 - **여러 FK 를 같은 파라미터에 붙이면** 그 중 하나에만 존재해도 유효. 서로 다른 테이블에서 공유되는 키 ID 체계에 유용합니다.
 - 스캐너 단계 검증은 인자가 가리키는 **TableSet 파라미터 이름**·**대상 컬럼 이름** 이 실제로 존재하는지만 본다. 값이 실제로 있는지 (`FkValueNotFound` 등) 는 로드 단계의 검사에 맡긴다.
 
+<a id="attr-switchforeignkey"></a>
 ### `[SwitchForeignKey(conditionColumnName, conditionValue, tableSetName, recordColumnName)]`
 
 |항목|내용|
@@ -246,4 +261,4 @@ public sealed record Reward(
 
 ---
 
-[← 이전: 4.1 지원 타입 (Schemata)](./01-schemata.md) | [목차](../README.md) | [다음: 4.3 기타 공개 API →](./03-public-api.md)
+[← 이전: 4.1 지원 타입 (Schemata)](./01-schemata.md) | [목차](../README.md) | [다음: 4.3 타입 브랜딩 패턴 →](./03-type-branding.md)
