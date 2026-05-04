@@ -5,7 +5,7 @@ namespace ExcelColumnExtractor.Scanners;
 
 public static class SheetHeaderScanner
 {
-    public static IReadOnlyList<string> Scan(ExcelSheetName excelSheetName, ILogger logger)
+    public static IReadOnlyList<string> Scan(ExcelSheetName excelSheetName, string startCell, ILogger logger)
     {
         IReadOnlyList<string>? headerCells = null;
         void ProcessHeader(SheetHeader header)
@@ -14,7 +14,7 @@ public static class SheetHeaderScanner
         }
 
         var processor = new ExcelSheetProcessor(ProcessHeader);
-        processor.Process(excelSheetName, logger);
+        processor.Process(excelSheetName, startCell, logger);
 
         var headers = headerCells ?? [];
         LogTrace(logger, excelSheetName.FullName, string.Join(", ", headers), null);

@@ -18,6 +18,7 @@ public static class BodyColumnAggregator
         IReadOnlyList<RecordSchema> recordSchemaList,
         ExcelSheetNameMap sheetNameMap,
         RequiredHeaderMap requiredHeaderMap,
+        string startCell,
         ILogger logger)
     {
         var result = new Dictionary<RecordSchema, ExtractedTable>();
@@ -28,7 +29,7 @@ public static class BodyColumnAggregator
             try
             {
                 var excelSheetName = sheetNameMap.Get(recordSchema);
-                var sheetBody = SheetBodyScanner.Scan(excelSheetName, logger);
+                var sheetBody = SheetBodyScanner.Scan(excelSheetName, startCell, logger);
                 var targetColumnData = requiredHeaderMap.Get(recordSchema);
 
                 var filteredRows = sheetBody.Rows

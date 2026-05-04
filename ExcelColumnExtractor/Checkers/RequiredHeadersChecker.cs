@@ -18,6 +18,7 @@ public static class RequiredHeadersChecker
     public static RequiredHeaderMap Check(
         RecordSchemaCatalog recordSchemaCatalog,
         ExcelSheetNameMap sheetNameMap,
+        string startCell,
         ILogger logger)
     {
         var result = new Dictionary<RecordSchema, RequiredHeaderMapping>(recordSchemaCatalog.StaticDataRecordSchemata.Count);
@@ -33,6 +34,7 @@ public static class RequiredHeadersChecker
                     recordSchema,
                     recordSchemaCatalog,
                     excelSheetName,
+                    startCell,
                     logger);
 
                 result.Add(recordSchema, targetColumnIndexSet);
@@ -54,9 +56,10 @@ public static class RequiredHeadersChecker
         RecordSchema recordSchema,
         RecordSchemaCatalog recordSchemaCatalog,
         ExcelSheetName excelSheetName,
+        string startCell,
         ILogger logger)
     {
-        var sheetHeaders = SheetHeaderScanner.Scan(excelSheetName, logger);
+        var sheetHeaders = SheetHeaderScanner.Scan(excelSheetName, startCell, logger);
         var standardHeaders = RecordFlattener.Flatten(
             recordSchema,
             recordSchemaCatalog,

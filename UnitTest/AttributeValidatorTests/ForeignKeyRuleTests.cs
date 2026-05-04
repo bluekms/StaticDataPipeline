@@ -68,7 +68,7 @@ public class ForeignKeyRuleTests(ITestOutputHelper testOutputHelper)
                    [StaticDataRecord("Item", "ItemSheet")]
                    public sealed record ItemRecord(
                        int Id,
-                       [ForeignKey("Category", "Idd")] int CategoryId);
+                       [ForeignKey("Category", "Id")] int CategoryId);
 
                    public record CategoryTable : StaticDataTable<CategoryTable, CategoryRecord, int>;
                    public record ItemTable : StaticDataTable<ItemTable, ItemRecord, int>;
@@ -146,7 +146,7 @@ public class ForeignKeyRuleTests(ITestOutputHelper testOutputHelper)
                    public sealed record ItemRecord(
                        int Id,
                        string Kind,
-                       [SwitchForeignKey("Kind", "A", "Category", "Idd")] int CategoryId);
+                       [SwitchForeignKey("Kind", "A", "Category", "Id")] int CategoryId);
 
                    public record CategoryTable : StaticDataTable<CategoryTable, CategoryRecord, int>;
                    public record ItemTable : StaticDataTable<ItemTable, ItemRecord, int>;
@@ -184,8 +184,8 @@ public class ForeignKeyRuleTests(ITestOutputHelper testOutputHelper)
                    [StaticDataRecord("Item", "ItemSheet")]
                    public sealed record ItemRecord(
                        int Id,
-                       [ForeignKey("Category", "Idd")] int CategoryId,
-                       [ForeignKey("Category", "Namee")] string CategoryName);
+                       [ForeignKey("Category", "Id")] int CategoryId,
+                       [ForeignKey("Category", "Name")] string CategoryName);
 
                    public record CategoryTable : StaticDataTable<CategoryTable, CategoryRecord, int>;
                    public record ItemTable : StaticDataTable<ItemTable, ItemRecord, int>;

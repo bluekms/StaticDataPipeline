@@ -5,7 +5,6 @@ using ExcelColumnExtractor.NameObjects;
 using ExcelColumnExtractor.Resources;
 using ExcelDataReader;
 using Microsoft.Extensions.Logging;
-using SchemaInfoScanner.Exceptions;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata;
 
 namespace ExcelColumnExtractor.Scanners;
@@ -14,6 +13,8 @@ public sealed class ExcelSheetProcessor
 {
     public delegate void ProcessHeader(SheetHeader header);
     public delegate void ProcessBodyRow(SheetBodyRow row);
+
+    private sealed record CellAddress(int Column, int Row);
 
     private readonly ProcessHeader? processHeader;
     private readonly ProcessBodyRow? processBodyRow;
@@ -38,10 +39,12 @@ public sealed class ExcelSheetProcessor
         this.processBodyRow = processBodyRow;
     }
 
-    public void Process(ExcelSheetName excelSheetName, ILogger logger)
+    public void Process(ExcelSheetName excelSheetName, string startCell, ILogger logger)
     {
-        using var loader = new LockedFileStreamOpener(excelSheetName.ExcelPath);
-        if (loader.IsTemp)
+        var startAddress = ParseStartCell(startCell);
+
+        using var opener = new LockedFileStreamOpener(excelSheetName.ExcelPath);
+        if (opener.IsTemp)
         {
             var lastWriteTime = File.GetLastWriteTime(excelSheetName.ExcelPath);
             var msg = string.Format(
@@ -52,13 +55,15 @@ public sealed class ExcelSheetProcessor
             LogInformation(logger, msg, null);
         }
 
-        ProcessCore(loader.Stream, excelSheetName, logger);
+        ProcessCore(opener.Stream, excelSheetName, startCell, startAddress);
     }
 
-    public async Task ProcessAsync(ExcelSheetName excelSheetName, ILogger logger, CancellationToken cancellationToken = default)
+    public async Task ProcessAsync(ExcelSheetName excelSheetName, string startCell, ILogger logger, CancellationToken cancellationToken = default)
     {
-        using var loader = await LockedFileStreamOpener.CreateAsync(excelSheetName.ExcelPath, cancellationToken);
-        if (loader.IsTemp)
+        var startAddress = ParseStartCell(startCell);
+
+        using var opener = await LockedFileStreamOpener.CreateAsync(excelSheetName.ExcelPath, cancellationToken);
+        if (opener.IsTemp)
         {
             var lastWriteTime = File.GetLastWriteTime(excelSheetName.ExcelPath);
             var msg = string.Format(
@@ -69,10 +74,14 @@ public sealed class ExcelSheetProcessor
             LogInformation(logger, msg, null);
         }
 
-        ProcessCore(loader.Stream, excelSheetName, logger);
+        ProcessCore(opener.Stream, excelSheetName, startCell, startAddress);
     }
 
-    private void ProcessCore(Stream stream, ExcelSheetName excelSheetName, ILogger logger)
+    private void ProcessCore(
+        Stream stream,
+        ExcelSheetName excelSheetName,
+        string startCell,
+        CellAddress startAddress)
     {
         using var reader = ExcelReaderFactory.CreateReader(stream);
 
@@ -95,24 +104,8 @@ public sealed class ExcelSheetProcessor
                 excelSheetName.FullName));
         }
 
-        if (!reader.Read())
-        {
-            throw new EndOfStreamException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.UnexpectedEndOfSheet,
-                excelSheetName.FullName));
-        }
-
-        var excelPhysicalRow = 1;
-
-        var startCell = reader.GetValue(0)?.ToString();
-        if (startCell is null || !IsValidCellAddress(startCell))
-        {
-            throw new InvalidUsageException(Messages.CellAddressRequired);
-        }
-
-        var (startColumn, startRow) = ParseCellAddress(startCell);
-        while (excelPhysicalRow < startRow)
+        var excelPhysicalRow = 0;
+        while (excelPhysicalRow < startAddress.Row)
         {
             if (!reader.Read())
             {
@@ -132,7 +125,7 @@ public sealed class ExcelSheetProcessor
             reader.GetValues(cells);
 
             var headerCells = cells
-                .Skip(startColumn - 1)
+                .Skip(startAddress.Column - 1)
                 .Select(x => x?.ToString() ?? string.Empty)
                 .ToList();
 
@@ -152,10 +145,10 @@ public sealed class ExcelSheetProcessor
             reader.GetValues(cells);
 
             var rowCells = cells
-                .Skip(startColumn - 1)
+                .Skip(startAddress.Column - 1)
                 .Select((x, offset) =>
                 {
-                    var column = startColumn + offset;
+                    var column = startAddress.Column + offset;
                     var address = ToExcelColumnName(column) + excelPhysicalRow;
                     var value = FormatCellValue(x);
 
@@ -192,13 +185,26 @@ public sealed class ExcelSheetProcessor
         };
     }
 
+    private static CellAddress ParseStartCell(string startCell)
+    {
+        if (string.IsNullOrEmpty(startCell) || !IsValidCellAddress(startCell))
+        {
+            throw new ArgumentException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.InvalidStartCellAddress,
+                startCell));
+        }
+
+        return ParseCellAddress(startCell);
+    }
+
     private static bool IsValidCellAddress(string cellAddress)
     {
         var regex = new Regex(@"^[A-Z]+[0-9]+$", RegexOptions.IgnoreCase);
         return regex.IsMatch(cellAddress);
     }
 
-    private static (int Column, int Row) ParseCellAddress(string cellAddress)
+    private static CellAddress ParseCellAddress(string cellAddress)
     {
         var row = 0;
         var column = 0;
@@ -215,7 +221,7 @@ public sealed class ExcelSheetProcessor
             }
         }
 
-        return (column, row);
+        return new(column, row);
     }
 
     private static readonly Action<ILogger, string, Exception?> LogInformation =

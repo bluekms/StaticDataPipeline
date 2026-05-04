@@ -51,14 +51,11 @@
   <data name="SheetNotFound" xml:space="preserve">
     <value>Sheet '{0}' not found.</value>
   </data>
-  <data name="UnexpectedEndOfSheet" xml:space="preserve">
-    <value>Unexpected end of sheet: {0}.</value>
-  </data>
-  <data name="CellAddressRequired" xml:space="preserve">
-    <value>A1 cell must contain the Cell Address of the first header. (e.g. B10)</value>
+  <data name="InvalidStartCellAddress" xml:space="preserve">
+    <value>Invalid start cell address: '{0}'. Expected format: e.g., A1, B10.</value>
   </data>
   <data name="UnexpectedEndOfSheetWithStartCell" xml:space="preserve">
-    <value>Unexpected end of sheet: {0}. A1: {1}</value>
+    <value>Unexpected end of sheet: {0}. Start cell: {1}</value>
   </data>
   <data name="FileOrDirectoryNotExist" xml:space="preserve">
     <value>The file or directory does not exist. {0}</value>
