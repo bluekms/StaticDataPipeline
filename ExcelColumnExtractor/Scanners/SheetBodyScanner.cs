@@ -11,7 +11,7 @@ public class SheetBodyScanner
     public sealed record RowData(IReadOnlyList<CellData> Data);
     public sealed record BodyData(IReadOnlyList<RowData> Rows);
 
-    public static BodyData Scan(ExcelSheetName excelSheetName, ILogger logger)
+    public static BodyData Scan(ExcelSheetName excelSheetName, string startCell, ILogger logger)
     {
         List<RowData> rows = [];
         void ProcessBody(SheetBodyRow row)
@@ -20,7 +20,7 @@ public class SheetBodyScanner
         }
 
         var processor = new ExcelSheetProcessor(ProcessBody);
-        processor.Process(excelSheetName, logger);
+        processor.Process(excelSheetName, startCell, logger);
 
         var msg = string.Format(
             CultureInfo.CurrentCulture,
