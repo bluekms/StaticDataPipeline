@@ -51,14 +51,11 @@
   <data name="SheetNotFound" xml:space="preserve">
     <value>'{0}' 시트를 찾을 수 없습니다.</value>
   </data>
-  <data name="UnexpectedEndOfSheet" xml:space="preserve">
-    <value>예상치 못한 시트 끝: {0}.</value>
-  </data>
-  <data name="CellAddressRequired" xml:space="preserve">
-    <value>A1 셀에는 반드시 첫 번째 헤더의 Cell Address가 있어야 합니다. ex) B10</value>
+  <data name="InvalidStartCellAddress" xml:space="preserve">
+    <value>잘못된 시작 셀 주소: '{0}'. 예: A1, B10</value>
   </data>
   <data name="UnexpectedEndOfSheetWithStartCell" xml:space="preserve">
-    <value>예상치 못한 시트 끝: {0}. A1: {1}</value>
+    <value>예상치 못한 시트 끝: {0}. 시작 셀: {1}</value>
   </data>
   <data name="FileOrDirectoryNotExist" xml:space="preserve">
     <value>파일 또는 디렉터리가 존재하지 않습니다. {0}</value>

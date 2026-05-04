@@ -69,11 +69,8 @@ internal static class Messages
     internal static string SheetNotFound
         => ResourceManager.GetString("SheetNotFound", Culture)!;
 
-    internal static string UnexpectedEndOfSheet
-        => ResourceManager.GetString("UnexpectedEndOfSheet", Culture)!;
-
-    internal static string CellAddressRequired
-        => ResourceManager.GetString("CellAddressRequired", Culture)!;
+    internal static string InvalidStartCellAddress
+        => ResourceManager.GetString("InvalidStartCellAddress", Culture)!;
 
     internal static string UnexpectedEndOfSheetWithStartCell
         => ResourceManager.GetString("UnexpectedEndOfSheetWithStartCell", Culture)!;
@@ -112,7 +109,7 @@ internal static class Messages
         internal static CompositeFormat RecordHeadersLine => CompositeFormat.Parse(Messages.RecordHeadersLine);
         internal static CompositeFormat HeaderCaseSensitivity => CompositeFormat.Parse(Messages.HeaderCaseSensitivity);
         internal static CompositeFormat SheetNotFound => CompositeFormat.Parse(Messages.SheetNotFound);
-        internal static CompositeFormat UnexpectedEndOfSheet => CompositeFormat.Parse(Messages.UnexpectedEndOfSheet);
+        internal static CompositeFormat InvalidStartCellAddress => CompositeFormat.Parse(Messages.InvalidStartCellAddress);
         internal static CompositeFormat UnexpectedEndOfSheetWithStartCell => CompositeFormat.Parse(Messages.UnexpectedEndOfSheetWithStartCell);
         internal static CompositeFormat FileOrDirectoryNotExist => CompositeFormat.Parse(Messages.FileOrDirectoryNotExist);
         internal static CompositeFormat DirectoryAlreadyHasFiles => CompositeFormat.Parse(Messages.DirectoryAlreadyHasFiles);
