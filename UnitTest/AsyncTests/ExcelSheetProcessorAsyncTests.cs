@@ -9,6 +9,8 @@ namespace UnitTest.AsyncTests;
 [Collection("ExcelFileTests")]
 public class ExcelSheetProcessorAsyncTests(ITestOutputHelper testOutputHelper)
 {
+    private const string TestStartCell = "C7";
+
     private static string GetTestExcelPath()
     {
         return Path.Combine(
@@ -45,7 +47,7 @@ public class ExcelSheetProcessorAsyncTests(ITestOutputHelper testOutputHelper)
         }
 
         var excelSheetName = new ExcelSheetName(excelPath, sheetName);
-        await processor.ProcessAsync(excelSheetName, logger);
+        await processor.ProcessAsync(excelSheetName, TestStartCell, logger);
 
         Assert.NotNull(capturedHeader);
         Assert.Empty(logger.Logs);
@@ -76,7 +78,7 @@ public class ExcelSheetProcessorAsyncTests(ITestOutputHelper testOutputHelper)
         var excelSheetName = new ExcelSheetName(excelPath, sheetName);
 
         await Assert.ThrowsAsync<OperationCanceledException>(() =>
-            processor.ProcessAsync(excelSheetName, logger, cts.Token));
+            processor.ProcessAsync(excelSheetName, TestStartCell, logger, cts.Token));
 
         Assert.Empty(logger.Logs);
     }
@@ -114,8 +116,8 @@ public class ExcelSheetProcessorAsyncTests(ITestOutputHelper testOutputHelper)
 
         var excelSheetName = new ExcelSheetName(excelPath, sheetName);
 
-        syncProcessor.Process(excelSheetName, logger);
-        await asyncProcessor.ProcessAsync(excelSheetName, logger);
+        syncProcessor.Process(excelSheetName, TestStartCell, logger);
+        await asyncProcessor.ProcessAsync(excelSheetName, TestStartCell, logger);
 
         Assert.NotNull(syncHeader);
         Assert.NotNull(asyncHeader);
