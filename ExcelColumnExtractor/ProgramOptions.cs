@@ -28,4 +28,7 @@ public sealed class ProgramOptions
 
     [Option('f', "force", Required = false, Default = false, HelpText = "출력 디렉터리에 파일이 있어도 강제로 덮어씀")]
     public bool Force { get; set; }
+
+    [Option('s', "start-cell", Required = false, Default = "A1", HelpText = "헤더 시작 셀 주소 (예: A1, C7)")]
+    public string StartCell { get; set; } = "A1";
 }

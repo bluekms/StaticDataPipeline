@@ -46,7 +46,7 @@ public class Program
         var sheetNameMap = SheetNameScanner.Scan(options.ExcelPath, logger);
         LogTrace(logger, sw.Elapsed.TotalMilliseconds, nameof(SheetNameScanner), null);
 
-        var requiredHeaderMap = RequiredHeadersChecker.Check(catalogs.RecordSchemaCatalog, sheetNameMap, logger);
+        var requiredHeaderMap = RequiredHeadersChecker.Check(catalogs.RecordSchemaCatalog, sheetNameMap, options.StartCell, logger);
         LogTrace(logger, sw.Elapsed.TotalMilliseconds, nameof(RequiredHeadersChecker), null);
 
         sw.Restart();
@@ -54,6 +54,7 @@ public class Program
             catalogs.RecordSchemaCatalog.StaticDataRecordSchemata,
             sheetNameMap,
             requiredHeaderMap,
+            options.StartCell,
             logger);
         LogTrace(logger, sw.Elapsed.TotalMilliseconds, nameof(BodyColumnAggregator), null);
 
