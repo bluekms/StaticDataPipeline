@@ -285,25 +285,4 @@
   <data name="InvalidFullName" xml:space="preserve">
     <value>fullName should not be null, empty, or end with '.'</value>
   </data>
-  <data name="ForeignKeyValidationFailed" xml:space="preserve">
-    <value>Foreign key validation failed.</value>
-  </data>
-  <data name="TableSetValidationFailed" xml:space="preserve">
-    <value>Table set validation failed.</value>
-  </data>
-  <data name="ForeignKeyColumnNotFound" xml:space="preserve">
-    <value>{0}: foreign key target column '{1}' is not declared in the target table set.</value>
-  </data>
-  <data name="SwitchForeignKeyConditionColumnNotFound" xml:space="preserve">
-    <value>{0}: switch foreign key condition column '{1}' is not declared in {2}.</value>
-  </data>
-  <data name="SwitchForeignKeyColumnNotFound" xml:space="preserve">
-    <value>{0}: switch foreign key target column '{1}' is not declared in the target table set.</value>
-  </data>
-  <data name="ForeignKeyTableSetNameNotFound" xml:space="preserve">
-    <value>{0}: foreign key target table set '{1}' is not found.</value>
-  </data>
-  <data name="SwitchForeignKeyTableSetNameNotFound" xml:space="preserve">
-    <value>{0}: switch foreign key target table set '{1}' is not found.</value>
-  </data>
 </root>
