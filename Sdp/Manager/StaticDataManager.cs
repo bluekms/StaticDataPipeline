@@ -18,6 +18,12 @@ public abstract class StaticDataManager<TTableSet>
 
     public async Task LoadAsync(string csvDir, List<string>? disabledTables = null)
     {
+        var fkTargetError = ForeignKeyTargetValidator.Validate<TTableSet>();
+        if (fkTargetError is not null)
+        {
+            throw fkTargetError;
+        }
+
         var tableSet = await BuildTablesAsync(csvDir, disabledTables);
 
         ReferenceValidator.Validate(tableSet);
