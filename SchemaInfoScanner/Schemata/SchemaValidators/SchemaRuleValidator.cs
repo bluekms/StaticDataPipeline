@@ -13,6 +13,7 @@ internal partial class SchemaRuleValidator : AbstractValidator<PropertySchemaBas
         // Attribute Validators
         RegisterCountRangeAttributeRule();
         RegisterDateTimeFormatAttributeRule();
+        RegisterFkSfkConflictRule();
         RegisterLengthAttributeRule();
         RegisterNullStringAttributeRule();
         RegisterRegularExpressionAttributeRule();
