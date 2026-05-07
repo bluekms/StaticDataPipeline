@@ -222,6 +222,9 @@ internal static class Messages
     internal static string SingleColumnCollectionNotForMap
         => ResourceManager.GetString("SingleColumnCollectionNotForMap", Culture)!;
 
+    internal static string FkSfkConflict
+        => ResourceManager.GetString("FkSfkConflict", Culture)!;
+
     internal static string TimeSpanFormatAttributeNotApplicable
         => ResourceManager.GetString("TimeSpanFormatAttributeNotApplicable", Culture)!;
 
@@ -357,6 +360,7 @@ internal static class Messages
         internal static CompositeFormat CountOutOfRange => CompositeFormat.Parse(Messages.CountOutOfRange);
         internal static CompositeFormat SingleColumnCollectionNotForUnsupportedCollection => CompositeFormat.Parse(Messages.SingleColumnCollectionNotForUnsupportedCollection);
         internal static CompositeFormat SingleColumnCollectionNotForMap => CompositeFormat.Parse(Messages.SingleColumnCollectionNotForMap);
+        internal static CompositeFormat FkSfkConflict => CompositeFormat.Parse(Messages.FkSfkConflict);
         internal static CompositeFormat TimeSpanFormatAttributeNotApplicable => CompositeFormat.Parse(Messages.TimeSpanFormatAttributeNotApplicable);
         internal static CompositeFormat TimeSpanFormatAttributeRequired => CompositeFormat.Parse(Messages.TimeSpanFormatAttributeRequired);
         internal static CompositeFormat InvalidCellValueForEnum => CompositeFormat.Parse(Messages.InvalidCellValueForEnum);
