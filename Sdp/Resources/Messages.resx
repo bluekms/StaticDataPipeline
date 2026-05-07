@@ -66,4 +66,10 @@
   <data name="KeyPropertyNotFound" xml:space="preserve">
     <value>Property '{0}' not found on type '{1}'.</value>
   </data>
+  <data name="LoadedTable" xml:space="preserve">
+    <value>Loaded table {Name} in {ElapsedMs} ms</value>
+  </data>
+  <data name="LoadAsyncCompleted" xml:space="preserve">
+    <value>LoadAsync completed in {ElapsedMs} ms</value>
+  </data>
 </root>
