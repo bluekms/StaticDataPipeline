@@ -29,15 +29,12 @@ internal static class ForeignKeyResolver
         return map;
     }
 
-    internal static bool TryResolveTarget(
+    internal static FkTarget? ResolveTarget(
         string tableSetName,
         string columnName,
         Dictionary<string, IStaticDataTable> tableMap,
-        List<Exception> errors,
-        out FkTarget? target)
+        List<Exception> errors)
     {
-        target = null;
-
         if (!tableMap.TryGetValue(tableSetName, out var targetTable))
         {
             errors.Add(new InvalidOperationException(string.Format(
@@ -45,7 +42,7 @@ internal static class ForeignKeyResolver
                 Messages.Composite.FkTargetNotFound,
                 tableSetName)));
 
-            return false;
+            return null;
         }
 
         if (targetTable.RecordType.GetProperty(columnName) is null)
@@ -56,19 +53,18 @@ internal static class ForeignKeyResolver
                 columnName,
                 targetTable.RecordType.Name)));
 
-            return false;
+            return null;
         }
 
-        target = new FkTarget(tableSetName, columnName, targetTable);
-        return true;
+        return new FkTarget(tableSetName, columnName, targetTable);
     }
 
     internal static bool ContainsFkValue(
         FkTarget target,
         object? fkValue,
-        Dictionary<(string TargetName, string ColumnName), HashSet<object?>> cache)
+        Dictionary<TargetColumn, HashSet<object?>> cache)
     {
-        var cacheKey = (target.TargetName, target.ColumnName);
+        var cacheKey = new TargetColumn(target.TargetName, target.ColumnName);
 
         if (!cache.TryGetValue(cacheKey, out var valueSet))
         {
@@ -85,17 +81,31 @@ internal static class ForeignKeyResolver
         return valueSet.Contains(fkValue);
     }
 
-    internal static IEnumerable<(ParameterInfo Param, List<TAttr> Attrs)> GetParamsWithAttribute<TAttr>(Type recordType)
+    internal static List<AttributedParameter<TAttr>> GetAttributedParameters<TAttr>(Type recordType)
         where TAttr : Attribute
     {
         return recordType.GetConstructors().Single()
             .GetParameters()
-            .Select(p => (Param: p, Attrs: p.GetCustomAttributes<TAttr>().ToList()))
-            .Where(x => x.Attrs.Count > 0);
+            .Select(p => new AttributedParameter<TAttr>(p, p.GetCustomAttributes<TAttr>().ToList()))
+            .Where(x => x.Attrs.Count > 0)
+            .ToList();
     }
 
     internal sealed record FkTarget(
         string TargetName,
         string ColumnName,
-        IStaticDataTable TargetTable);
+        IStaticDataTable TargetTable)
+    {
+        public string QualifiedName
+            => FormattableString.Invariant($"{TargetName}.{ColumnName}");
+    }
+
+    internal sealed record TargetColumn(
+        string TableName,
+        string ColumnName);
+
+    internal sealed record AttributedParameter<TAttr>(
+        ParameterInfo Param,
+        List<TAttr> Attrs)
+        where TAttr : Attribute;
 }
