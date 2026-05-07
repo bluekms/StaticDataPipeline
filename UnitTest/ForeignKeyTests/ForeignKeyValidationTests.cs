@@ -1,12 +1,14 @@
 using System.Collections.Immutable;
+using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
 using Sdp.Manager;
 using Sdp.Table;
 using UnitTest.Utility;
+using Xunit.Abstractions;
 
 namespace UnitTest.ForeignKeyTests;
 
-public class ForeignKeyValidationTests
+public class ForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
 {
     private const string SchoolCsv =
         """
@@ -111,7 +113,8 @@ public class ForeignKeyValidationTests
         public Student Get(int id) => byId.Get(id);
     }
 
-    private sealed class StaticData : StaticDataManager<StaticData.TableSet>
+    private sealed class StaticData(ILogger logger)
+        : StaticDataManager<StaticData.TableSet>(logger)
     {
         public sealed record TableSet(
             SchoolTable? School,
@@ -131,12 +134,19 @@ public class ForeignKeyValidationTests
         dir.Write("Teacher.Sheet1.csv", TeacherCsv);
         dir.Write("Student.Sheet1.csv", StudentCsv);
 
-        var staticData = new StaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<ForeignKeyValidationTests>() is not TestOutputLogger<ForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new StaticData(logger);
         await staticData.LoadAsync(dir.Path);
 
         Assert.Equal(5, staticData.SchoolTable.Records.Count);
         Assert.Equal(3, staticData.TeacherTable.Records.Count);
         Assert.Equal(5, staticData.StudentTable.Records.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -147,7 +157,13 @@ public class ForeignKeyValidationTests
         dir.Write("Teacher.Sheet1.csv", TeacherCsv);
         dir.Write("Student.Sheet1.csv", StudentCsv);
 
-        var staticData = new StaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<ForeignKeyValidationTests>() is not TestOutputLogger<ForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new StaticData(logger);
         await staticData.LoadAsync(dir.Path);
 
         var student = staticData.StudentTable.Get(4);
@@ -155,6 +171,7 @@ public class ForeignKeyValidationTests
 
         var school = staticData.SchoolTable.Get(student.SchoolId);
         Assert.Equal("고려대학교", school.Name);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -165,7 +182,13 @@ public class ForeignKeyValidationTests
         dir.Write("Teacher.Sheet1.csv", TeacherCsv);
         dir.Write("Student.Sheet1.csv", StudentCsv);
 
-        var staticData = new StaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<ForeignKeyValidationTests>() is not TestOutputLogger<ForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new StaticData(logger);
         await staticData.LoadAsync(dir.Path);
 
         var student = staticData.StudentTable.Get(3);
@@ -173,6 +196,7 @@ public class ForeignKeyValidationTests
 
         var teacher = staticData.TeacherTable.Get(student.TeacherId);
         Assert.Equal("이영희", teacher.Name);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -183,12 +207,19 @@ public class ForeignKeyValidationTests
         dir.Write("Teacher.Sheet1.csv", ErrorTeacherCsv);
         dir.Write("Student.Sheet1.csv", StudentCsv);
 
-        var staticData = new StaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<ForeignKeyValidationTests>() is not TestOutputLogger<ForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new StaticData(logger);
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("Error대학교", ex.InnerExceptions[0].Message);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -199,11 +230,18 @@ public class ForeignKeyValidationTests
         dir.Write("Teacher.Sheet1.csv", TeacherCsv);
         dir.Write("Student.Sheet1.csv", ErrorStudentCsv);
 
-        var staticData = new StaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<ForeignKeyValidationTests>() is not TestOutputLogger<ForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new StaticData(logger);
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("999", ex.InnerExceptions[0].Message);
+        Assert.Empty(logger.Logs);
     }
 }

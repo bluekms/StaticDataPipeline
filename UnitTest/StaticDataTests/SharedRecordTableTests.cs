@@ -1,11 +1,14 @@
 using System.Collections.Immutable;
+using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
 using Sdp.Manager;
 using Sdp.Table;
+using UnitTest.Utility;
+using Xunit.Abstractions;
 
 namespace UnitTest.StaticDataTests;
 
-public class SharedRecordTableTests
+public class SharedRecordTableTests(ITestOutputHelper testOutputHelper)
 {
     private const string ItemCsv =
         """
@@ -44,7 +47,8 @@ public class SharedRecordTableTests
         public Item Get(string name) => byName.Get(name);
     }
 
-    private sealed class StaticData : StaticDataManager<StaticData.TableSet>
+    private sealed class StaticData(ILogger logger)
+        : StaticDataManager<StaticData.TableSet>(logger)
     {
         public sealed record TableSet(
             PrimaryItemTable Primary,
@@ -62,11 +66,18 @@ public class SharedRecordTableTests
         {
             WriteCsv(dir, "Item.Main.csv", ItemCsv);
 
-            var staticData = new StaticData();
+            var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+            if (factory.CreateLogger<SharedRecordTableTests>() is not TestOutputLogger<SharedRecordTableTests> logger)
+            {
+                throw new InvalidOperationException("Logger creation failed.");
+            }
+
+            var staticData = new StaticData(logger);
             await staticData.LoadAsync(dir);
 
             Assert.Equal("Beta", staticData.PrimaryTable.Get(2).Name);
             Assert.Equal(3, staticData.SecondaryTable.Get("Gamma").Id);
+            Assert.Empty(logger.Logs);
         }
         finally
         {
