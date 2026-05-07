@@ -1,12 +1,14 @@
 using System.Collections.Immutable;
+using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
 using Sdp.Manager;
 using Sdp.Table;
 using UnitTest.Utility;
+using Xunit.Abstractions;
 
 namespace UnitTest.ForeignKeyTests;
 
-public class FkTargetSingleColumnCollectionValidationTests
+public class FkTargetSingleColumnCollectionValidationTests(ITestOutputHelper testOutputHelper)
 {
     private enum TagKind
     {
@@ -56,14 +58,16 @@ public class FkTargetSingleColumnCollectionValidationTests
     private sealed class SfkConsumerTable(ImmutableList<SfkConsumer> records)
         : StaticDataTable<SfkConsumerTable, SfkConsumer>(records);
 
-    private sealed class FkStaticData : StaticDataManager<FkStaticData.TableSet>
+    private sealed class FkStaticData(ILogger logger)
+        : StaticDataManager<FkStaticData.TableSet>(logger)
     {
         public sealed record TableSet(
             TagBundleTable? TagBundle,
             FkConsumerTable? FkConsumer);
     }
 
-    private sealed class SfkStaticData : StaticDataManager<SfkStaticData.TableSet>
+    private sealed class SfkStaticData(ILogger logger)
+        : StaticDataManager<SfkStaticData.TableSet>(logger)
     {
         public sealed record TableSet(
             TagBundleTable? TagBundle,
@@ -77,11 +81,18 @@ public class FkTargetSingleColumnCollectionValidationTests
         dir.Write("TagBundle.Sheet1.csv", TagBundleCsv);
         dir.Write("FkConsumer.Sheet1.csv", FkConsumerCsv);
 
-        var staticData = new FkStaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<FkTargetSingleColumnCollectionValidationTests>() is not TestOutputLogger<FkTargetSingleColumnCollectionValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new FkStaticData(logger);
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Contains(ex.InnerExceptions, e => e.Message.Contains("Tags") && e.Message.Contains("TagBundle"));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -91,10 +102,17 @@ public class FkTargetSingleColumnCollectionValidationTests
         dir.Write("TagBundle.Sheet1.csv", TagBundleCsv);
         dir.Write("SfkConsumer.Sheet1.csv", SfkConsumerCsv);
 
-        var staticData = new SfkStaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<FkTargetSingleColumnCollectionValidationTests>() is not TestOutputLogger<FkTargetSingleColumnCollectionValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new SfkStaticData(logger);
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Contains(ex.InnerExceptions, e => e.Message.Contains("Tags") && e.Message.Contains("TagBundle"));
+        Assert.Empty(logger.Logs);
     }
 }

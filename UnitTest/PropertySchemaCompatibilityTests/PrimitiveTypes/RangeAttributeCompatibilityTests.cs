@@ -24,12 +24,12 @@ public class RangeAttributeCompatibilityTests(ITestOutputHelper testOutputHelper
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Range(1, 100)]
-                         int Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Range(1, 100)]
+                       int Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
         var cells = new[] { new CellData("A1", value) };
@@ -61,12 +61,12 @@ public class RangeAttributeCompatibilityTests(ITestOutputHelper testOutputHelper
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Range(1, 100)]
-                         int Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Range(1, 100)]
+                       int Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
         var cells = new[] { new CellData("A1", value) };
@@ -98,12 +98,12 @@ public class RangeAttributeCompatibilityTests(ITestOutputHelper testOutputHelper
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Range(0.5, 10.5)]
-                         double Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Range(0.5, 10.5)]
+                       double Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
         var cells = new[] { new CellData("A1", value) };
@@ -133,12 +133,12 @@ public class RangeAttributeCompatibilityTests(ITestOutputHelper testOutputHelper
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Range(0.5, 10.5)]
-                         double Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Range(0.5, 10.5)]
+                       double Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
         var cells = new[] { new CellData("A1", value) };

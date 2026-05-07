@@ -22,6 +22,11 @@ public class TestOutputLogger<T>(
     {
         ArgumentNullException.ThrowIfNull(formatter);
 
+        if (!IsEnabled(logLevel))
+        {
+            return;
+        }
+
         var message = formatter(state, exception);
         if (!string.IsNullOrEmpty(message))
         {

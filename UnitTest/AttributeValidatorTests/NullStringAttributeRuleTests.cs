@@ -21,12 +21,12 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [NullString("-")]
-                         int? Property
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [NullString("-")]
+                       int? Property
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -47,13 +47,13 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [NullString("-")]
-                         [Length(3)]
-                         ImmutableArray<int?> Property
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [NullString("-")]
+                       [Length(3)]
+                       ImmutableArray<int?> Property
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -74,13 +74,13 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [NullString("-")]
-                         [Length(3)]
-                         FrozenSet<int?> Property
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [NullString("-")]
+                       [Length(3)]
+                       FrozenSet<int?> Property
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -101,11 +101,11 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         int? Property
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       int? Property
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -126,11 +126,11 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         ImmutableArray<int?> Property
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       ImmutableArray<int?> Property
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -151,11 +151,11 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         FrozenSet<int?> Property
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       FrozenSet<int?> Property
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -176,17 +176,17 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     public sealed record ValueRecord(
-                         [Key]
-                         int Id,
-                         string? Name
-                     );
+                   public sealed record ValueRecord(
+                       [Key]
+                       int Id,
+                       string? Name
+                   );
 
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         FrozenDictionary<int, ValueRecord> Property
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       FrozenDictionary<int, ValueRecord> Property
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -207,18 +207,18 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         FrozenDictionary<int, MyRecord.ValueRecord> Property
-                     )
-                     {
-                         public sealed record ValueRecord(
-                             [Key]
-                             int Id,
-                             string? Name
-                         );
-                     }
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       FrozenDictionary<int, MyRecord.ValueRecord> Property
+                   )
+                   {
+                       public sealed record ValueRecord(
+                           [Key]
+                           int Id,
+                           string? Name
+                       );
+                   }
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -239,12 +239,12 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [NullString("-")]
-                         int Property
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [NullString("-")]
+                       int Property
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -265,12 +265,12 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [NullString("-")]
-                         ImmutableArray<int> Property
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [NullString("-")]
+                       ImmutableArray<int> Property
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -291,12 +291,12 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [NullString("-")]
-                         FrozenSet<int> Property
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [NullString("-")]
+                       FrozenSet<int> Property
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -317,18 +317,18 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     public sealed record ValueRecord(
-                         [Key]
-                         int Id,
-                         string Name
-                     );
+                   public sealed record ValueRecord(
+                       [Key]
+                       int Id,
+                       string Name
+                   );
 
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [NullString("-")]
-                         FrozenDictionary<int, ValueRecord> Property
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [NullString("-")]
+                       FrozenDictionary<int, ValueRecord> Property
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -349,19 +349,19 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [NullString("-")]
-                         FrozenDictionary<int, MyRecord.ValueRecord> Property
-                     )
-                     {
-                         public sealed record ValueRecord(
-                             [Key]
-                             int Id,
-                             string Name
-                         );
-                     }
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [NullString("-")]
+                       FrozenDictionary<int, MyRecord.ValueRecord> Property
+                   )
+                   {
+                       public sealed record ValueRecord(
+                           [Key]
+                           int Id,
+                           string Name
+                       );
+                   }
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);

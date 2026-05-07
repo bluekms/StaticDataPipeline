@@ -21,12 +21,12 @@ public class LengthAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)]
-                         ImmutableArray<int> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)]
+                       ImmutableArray<int> Property,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -47,12 +47,12 @@ public class LengthAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)]
-                         FrozenSet<int> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)]
+                       FrozenSet<int> Property,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -73,11 +73,11 @@ public class LengthAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         ImmutableArray<int> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       ImmutableArray<int> Property,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);

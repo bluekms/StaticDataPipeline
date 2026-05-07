@@ -34,11 +34,11 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                   [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
-                       [Length(3)] ImmutableArray<{type}> Property,
-                   );
-                   """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        [Length(3)] ImmutableArray<{type}> Property,
+                    );
+                    """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -74,13 +74,13 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [NullString("")]
-                         [Length(3)]
-                         ImmutableArray<{type}> Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        [NullString("")]
+                        [Length(3)]
+                        ImmutableArray<{type}> Property,
+                    );
+                    """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -132,13 +132,13 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                   [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
-                       [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
-                       [Length(3)]
-                       ImmutableArray<{type}> Property,
-                   );
-                   """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
+                        [Length(3)]
+                        ImmutableArray<{type}> Property,
+                    );
+                    """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -161,14 +161,14 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
-                         [NullString("")]
-                         [Length(3)]
-                         ImmutableArray<{type}> Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
+                        [NullString("")]
+                        [Length(3)]
+                        ImmutableArray<{type}> Property,
+                    );
+                    """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -191,13 +191,13 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                   [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
-                       [TimeSpanFormat("c")]
-                       [Length(3)]
-                       ImmutableArray<{type}> Property,
-                   );
-                   """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        [TimeSpanFormat("c")]
+                        [Length(3)]
+                        ImmutableArray<{type}> Property,
+                    );
+                    """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -220,14 +220,14 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [TimeSpanFormat("c")]
-                         [NullString("")]
-                         [Length(3)]
-                         ImmutableArray<{type}> Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        [TimeSpanFormat("c")]
+                        [NullString("")]
+                        [Length(3)]
+                        ImmutableArray<{type}> Property,
+                    );
+                    """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -249,12 +249,12 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [SingleColumnCollection(", ")]
-                         ImmutableArray<int> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [SingleColumnCollection(", ")]
+                       ImmutableArray<int> Property,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -276,13 +276,13 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [SingleColumnCollection(", ")]
-                         [Length(3)]
-                         ImmutableArray<int> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [SingleColumnCollection(", ")]
+                       [Length(3)]
+                       ImmutableArray<int> Property,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 

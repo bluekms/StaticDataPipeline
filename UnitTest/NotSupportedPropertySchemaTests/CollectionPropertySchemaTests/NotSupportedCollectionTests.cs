@@ -34,11 +34,11 @@ public class NotSupportedCollectionTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         {collection}<int> Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        {collection}<int> Property,
+                    );
+                    """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         Assert.Throws<NotSupportedException>(() => new RecordSchemaSet(loadResult, logger));

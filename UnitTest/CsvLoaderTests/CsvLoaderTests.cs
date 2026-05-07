@@ -10,11 +10,11 @@ public class CsvLoaderTests
     public void Parse_WithValidCsv_ReturnsImmutableList()
     {
         var csv = """
-            Id,Name,Score
-            1,Alice,95.5
-            2,Bob,87.3
-            3,Charlie,92.1
-            """;
+                  Id,Name,Score
+                  1,Alice,95.5
+                  2,Bob,87.3
+                  3,Charlie,92.1
+                  """;
 
         var result = CsvLoader.Parse<SimpleRecord>(csv);
 
@@ -57,11 +57,11 @@ public class CsvLoaderTests
     public void Parse_WithBlankLines_SkipsBlankLines()
     {
         var csv = """
-            Id,Name,Score
-            1,Alice,95.5
+                  Id,Name,Score
+                  1,Alice,95.5
 
-            2,Bob,87.3
-            """;
+                  2,Bob,87.3
+                  """;
 
         var result = CsvLoader.Parse<SimpleRecord>(csv);
 
@@ -74,9 +74,9 @@ public class CsvLoaderTests
     public void Parse_ResultIsImmutable()
     {
         var csv = """
-            Id,Name,Score
-            1,Alice,95.5
-            """;
+                  Id,Name,Score
+                  1,Alice,95.5
+                  """;
 
         var result = CsvLoader.Parse<SimpleRecord>(csv);
 
@@ -90,10 +90,10 @@ public class CsvLoaderTests
         try
         {
             var csv = """
-                Id,Name,Score
-                1,Alice,95.5
-                2,Bob,87.3
-                """;
+                      Id,Name,Score
+                      1,Alice,95.5
+                      2,Bob,87.3
+                      """;
             await File.WriteAllTextAsync(tempFile, csv);
 
             var result = await CsvLoader.LoadAsync<SimpleRecord>(tempFile);
@@ -115,10 +115,10 @@ public class CsvLoaderTests
         try
         {
             var csv = """
-                Id,Name,Score
-                1,Alice,95.5
-                2,Bob,87.3
-                """;
+                      Id,Name,Score
+                      1,Alice,95.5
+                      2,Bob,87.3
+                      """;
             await File.WriteAllTextAsync(tempFile, csv);
 
             var result = await CsvLoader.LoadAsync<SimpleRecord>(tempFile);
@@ -137,10 +137,10 @@ public class CsvLoaderTests
     public void Parse_WithQuotedFieldContainingComma_ParsesCorrectly()
     {
         var csv = """
-            Id,Name,Score
-            1,"Smith, John",95.5
-            2,"Doe, Jane",87.3
-            """;
+                  Id,Name,Score
+                  1,"Smith, John",95.5
+                  2,"Doe, Jane",87.3
+                  """;
 
         var result = CsvLoader.Parse<SimpleRecord>(csv);
 

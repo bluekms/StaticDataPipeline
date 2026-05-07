@@ -20,14 +20,14 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         Identifier Id
-                     )
-                     {
-                        public record struct Identifier(int Value);
-                     }
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       Identifier Id
+                   )
+                   {
+                      public record struct Identifier(int Value);
+                   }
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -49,13 +49,13 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         MyData Data
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       MyData Data
+                   );
 
-                     public record struct MyData(int Value);
-                     """;
+                   public record struct MyData(int Value);
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -77,13 +77,13 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)] ImmutableArray<MyData> Data
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)] ImmutableArray<MyData> Data
+                   );
 
-                     public record struct MyData(int Value);
-                     """;
+                   public record struct MyData(int Value);
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -105,13 +105,13 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)] FrozenSet<MyData> Data
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)] FrozenSet<MyData> Data
+                   );
 
-                     public record struct MyData(int Value);
-                     """;
+                   public record struct MyData(int Value);
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -133,13 +133,13 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)] FrozenDictionary<int, MyData> Data
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)] FrozenDictionary<int, MyData> Data
+                   );
 
-                     public record struct MyData([Key] int Id, string Value);
-                     """;
+                   public record struct MyData([Key] int Id, string Value);
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -161,14 +161,14 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)] FrozenDictionary<KeyData, MyData> Data
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)] FrozenDictionary<KeyData, MyData> Data
+                   );
 
-                     public record struct KeyData(int Key1, string Key2);
-                     public record struct MyData([Key] KeyData Key, string Value);
-                     """;
+                   public record struct KeyData(int Key1, string Key2);
+                   public record struct MyData([Key] KeyData Key, string Value);
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -190,18 +190,18 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)] FrozenDictionary<KeyData, MyData> Data
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)] FrozenDictionary<KeyData, MyData> Data
+                   );
 
-                     public record struct KeyData(InnerKey Inner, int Key1)
-                     {
-                         public record struct InnerKey(int X, int Y);
-                     }
+                   public record struct KeyData(InnerKey Inner, int Key1)
+                   {
+                       public record struct InnerKey(int X, int Y);
+                   }
 
-                     public record struct MyData([Key] KeyData Key, string Value);
-                     """;
+                   public record struct MyData([Key] KeyData Key, string Value);
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 

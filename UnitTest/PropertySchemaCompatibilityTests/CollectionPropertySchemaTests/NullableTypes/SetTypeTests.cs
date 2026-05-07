@@ -21,13 +21,13 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [NullString("-")]
-                         [Length(4)]
-                         FrozenSet<int?> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [NullString("-")]
+                       [Length(4)]
+                       FrozenSet<int?> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -63,13 +63,13 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [NullString("-")]
-                         [Length(5)]
-                         FrozenSet<int?> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [NullString("-")]
+                       [Length(5)]
+                       FrozenSet<int?> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -107,15 +107,15 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     public enum MyEnum { A, B, C }
+                   public enum MyEnum { A, B, C }
 
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [NullString("-")]
-                         [Length(3)]
-                         FrozenSet<MyEnum?> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [NullString("-")]
+                       [Length(3)]
+                       FrozenSet<MyEnum?> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -150,14 +150,14 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
-                         [NullString("-")]
-                         [Length(3)]
-                         FrozenSet<DateTime?> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
+                       [NullString("-")]
+                       [Length(3)]
+                       FrozenSet<DateTime?> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -192,14 +192,14 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [TimeSpanFormat("c")]
-                         [NullString("-")]
-                         [Length(2)]
-                         FrozenSet<TimeSpan?> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [TimeSpanFormat("c")]
+                       [NullString("-")]
+                       [Length(2)]
+                       FrozenSet<TimeSpan?> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -233,13 +233,13 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [NullString("")]
-                         [SingleColumnCollection(", ")]
-                         FrozenSet<int?> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [NullString("")]
+                       [SingleColumnCollection(", ")]
+                       FrozenSet<int?> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -272,15 +272,15 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     public enum MyEnum { A, B, C }
+                   public enum MyEnum { A, B, C }
 
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [SingleColumnCollection(", ")]
-                         [NullString("")]
-                         FrozenSet<MyEnum?> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [SingleColumnCollection(", ")]
+                       [NullString("")]
+                       FrozenSet<MyEnum?> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -313,14 +313,14 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [SingleColumnCollection(", ")]
-                         [NullString("")]
-                         [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
-                         FrozenSet<DateTime?> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [SingleColumnCollection(", ")]
+                       [NullString("")]
+                       [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
+                       FrozenSet<DateTime?> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -353,14 +353,14 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [SingleColumnCollection(", ")]
-                         [TimeSpanFormat("c")]
-                         [NullString("")]
-                         FrozenSet<TimeSpan?> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [SingleColumnCollection(", ")]
+                       [TimeSpanFormat("c")]
+                       [NullString("")]
+                       FrozenSet<TimeSpan?> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
