@@ -18,33 +18,21 @@ public abstract class StaticDataManager<TTableSet>
 
     public async Task LoadAsync(string csvDir, List<string>? disabledTables = null)
     {
-        var tableSet = await BuildTablesAsync(csvDir, disabledTables);
-        FinalizeLoad(tableSet);
-    }
+        var fkTargetError = ForeignKeyTargetValidator.Validate<TTableSet>();
+        if (fkTargetError is not null)
+        {
+            throw fkTargetError;
+        }
 
-    internal void Load(TTableSet tableSet)
-    {
-        FinalizeLoad(tableSet);
+        var tableSet = await BuildTablesAsync(csvDir, disabledTables);
+
+        ReferenceValidator.Validate(tableSet);
+        Validate(tableSet);
+        current = tableSet;
     }
 
     protected virtual void Validate(TTableSet tableSet)
     {
-    }
-
-    private void FinalizeLoad(TTableSet tableSet)
-    {
-        var tableMap = ForeignKeyResolver.BuildTableMap(tableSet);
-
-        foreach (var table in tableMap.Values)
-        {
-            table.Validate();
-        }
-
-        ForeignKeyValidator.Validate(tableMap);
-        SwitchForeignKeyValidator.Validate(tableMap);
-
-        Validate(tableSet);
-        current = tableSet;
     }
 
     private static async Task<TTableSet> BuildTablesAsync(string csvDir, List<string>? disabledTables)
@@ -95,7 +83,7 @@ public abstract class StaticDataManager<TTableSet>
                 tableType.Name));
         }
 
-        if (disabledTables?.Contains(param.Name!) == true)
+        if (disabledTables?.Contains(param.Name!) is true)
         {
             return null;
         }
@@ -110,14 +98,18 @@ public abstract class StaticDataManager<TTableSet>
         var records = await lazyTask.Value;
 
         var ctor = FindTableConstructor(tableType, recordType);
+        IStaticDataTable table;
         try
         {
-            return ctor.Invoke([records]);
+            table = (IStaticDataTable)ctor.Invoke([records]);
         }
         catch (TargetInvocationException tie)
         {
             throw tie.InnerException ?? tie;
         }
+
+        table.Validate();
+        return table;
     }
 
     private static bool IsStaticDataTable(Type type)
@@ -156,8 +148,6 @@ public abstract class StaticDataManager<TTableSet>
         return Path.Combine(csvDir, fileName);
     }
 
-    private sealed record RecordCacheKey(string CsvPath, Type RecordType);
-
     private static ConstructorInfo FindTableConstructor(Type tableType, Type recordType)
     {
         var paramType = typeof(ImmutableList<>).MakeGenericType(recordType);
@@ -176,4 +166,6 @@ public abstract class StaticDataManager<TTableSet>
 
         return ctor;
     }
+
+    private sealed record RecordCacheKey(string CsvPath, Type RecordType);
 }

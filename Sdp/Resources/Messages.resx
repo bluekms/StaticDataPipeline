@@ -30,6 +30,9 @@
   <data name="SwitchFkConditionColumnNotFound" xml:space="preserve">
     <value>Switch FK condition column '{0}' not found on {1}.</value>
   </data>
+  <data name="FkTargetIsSingleColumnCollection" xml:space="preserve">
+    <value>FK target column '{0}' on {1} is a SingleColumnCollection; FK targets must be scalar columns.</value>
+  </data>
   <data name="StaticDataRecordAttributeRequired" xml:space="preserve">
     <value>{0} requires [StaticDataRecord] attribute.</value>
   </data>

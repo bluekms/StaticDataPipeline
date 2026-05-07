@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using Sdp.Attributes;
-using Sdp.Csv;
 using Sdp.Manager;
 using Sdp.Table;
+using UnitTest.Utility;
 
 namespace UnitTest.ForeignKeyTests;
 
@@ -67,6 +67,7 @@ public class SwitchForeignKeyValidationTests
         2,다이아
         """;
 
+    [StaticDataRecord("Quest", "Sheet1")]
     private record Quest(
         int QuestId,
         RewardType RewardType,
@@ -75,8 +76,13 @@ public class SwitchForeignKeyValidationTests
         [SwitchForeignKey("RewardType", "Gold",      "Currency",  "Id")]
         int RewardId);
 
+    [StaticDataRecord("Item", "Sheet1")]
     private record Item(int Id, string Name);
+
+    [StaticDataRecord("Character", "Sheet1")]
     private record Character(int Id, string Name);
+
+    [StaticDataRecord("Currency", "Sheet1")]
     private record Currency(int Id, string Name);
 
     private sealed class QuestTable(ImmutableList<Quest> records)
@@ -100,76 +106,69 @@ public class SwitchForeignKeyValidationTests
             CurrencyTable? Currency);
 
         public QuestTable QuestTable => Current.Quest!;
+    }
 
-        public void Load()
-            => Load(new TableSet(
-                new(CsvLoader.Parse<Quest>(ValidQuestCsv)),
-                new(CsvLoader.Parse<Item>(ItemCsv)),
-                new(CsvLoader.Parse<Character>(CharacterCsv)),
-                new(CsvLoader.Parse<Currency>(CurrencyCsv))));
-
-        public void LoadWithErrorQuest()
-            => Load(new TableSet(
-                new(CsvLoader.Parse<Quest>(ErrorQuestCsv)),
-                new(CsvLoader.Parse<Item>(ItemCsv)),
-                new(CsvLoader.Parse<Character>(CharacterCsv)),
-                new(CsvLoader.Parse<Currency>(CurrencyCsv))));
-
-        public void LoadWithNoConditionQuest()
-            => Load(new TableSet(
-                new(CsvLoader.Parse<Quest>(NoConditionQuestCsv)),
-                new(CsvLoader.Parse<Item>(ItemCsv)),
-                new(CsvLoader.Parse<Character>(CharacterCsv)),
-                new(CsvLoader.Parse<Currency>(CurrencyCsv))));
-
-        public void LoadWithCrossTableQuest()
-            => Load(new TableSet(
-                new(CsvLoader.Parse<Quest>(CrossTableQuestCsv)),
-                new(CsvLoader.Parse<Item>(ItemCsv)),
-                new(CsvLoader.Parse<Character>(CharacterCsv)),
-                new(CsvLoader.Parse<Currency>(CurrencyCsv))));
+    private static void WriteFixedCsvs(CsvTestDirectory dir)
+    {
+        dir.Write("Item.Sheet1.csv", ItemCsv);
+        dir.Write("Character.Sheet1.csv", CharacterCsv);
+        dir.Write("Currency.Sheet1.csv", CurrencyCsv);
     }
 
     [Fact]
-    public void Load_ValidData_SucceedsWithoutException()
+    public async Task Load_ValidData_SucceedsWithoutException()
     {
-        var staticData = new StaticData();
+        using var dir = new CsvTestDirectory();
+        dir.Write("Quest.Sheet1.csv", ValidQuestCsv);
+        WriteFixedCsvs(dir);
 
-        staticData.Load();
+        var staticData = new StaticData();
+        await staticData.LoadAsync(dir.Path);
 
         Assert.Equal(3, staticData.QuestTable.Records.Count);
     }
 
     [Fact]
-    public void Load_SwitchFkViolation_ThrowsWhenConditionMatchesButValueMissing()
+    public async Task Load_SwitchFkViolation_ThrowsWhenConditionMatchesButValueMissing()
     {
+        using var dir = new CsvTestDirectory();
+        dir.Write("Quest.Sheet1.csv", ErrorQuestCsv);
+        WriteFixedCsvs(dir);
+
         var staticData = new StaticData();
 
-        var ex = Assert.Throws<AggregateException>(staticData.LoadWithErrorQuest);
+        var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("999", ex.InnerExceptions[0].Message);
     }
 
     [Fact]
-    public void Load_SwitchFk_UnmatchedCondition_SkipsValidation()
+    public async Task Load_SwitchFk_UnmatchedCondition_SkipsValidation()
     {
-        var staticData = new StaticData();
+        using var dir = new CsvTestDirectory();
+        dir.Write("Quest.Sheet1.csv", NoConditionQuestCsv);
+        WriteFixedCsvs(dir);
 
-        staticData.LoadWithNoConditionQuest();
+        var staticData = new StaticData();
+        await staticData.LoadAsync(dir.Path);
 
         var quest = Assert.Single(staticData.QuestTable.Records);
         Assert.Equal(RewardType.None, quest.RewardType);
     }
 
     [Fact]
-    public void Load_SwitchFk_OnlyChecksMatchedTable_ThrowsWhenValueExistsOnlyInOtherConditionTable()
+    public async Task Load_SwitchFk_OnlyChecksMatchedTable_ThrowsWhenValueExistsOnlyInOtherConditionTable()
     {
         // RewardId=5는 CharacterTable에 있지만 ItemTable에는 없음
         // RewardType=Item이므로 ItemTable만 검사 → 실패해야 함 (OR 검사가 아님을 증명)
+        using var dir = new CsvTestDirectory();
+        dir.Write("Quest.Sheet1.csv", CrossTableQuestCsv);
+        WriteFixedCsvs(dir);
+
         var staticData = new StaticData();
 
-        var ex = Assert.Throws<AggregateException>(staticData.LoadWithCrossTableQuest);
+        var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("5", ex.InnerExceptions[0].Message);
@@ -192,11 +191,13 @@ public class SwitchForeignKeyConfigurationErrorTests
         10
         """;
 
+    [StaticDataRecord("BadConditionQuest", "Sheet1")]
     private record BadConditionQuest(
         int Id,
         [SwitchForeignKey("NonExistentColumn", "Item", "Target", "Id")]
         int RewardId);
 
+    [StaticDataRecord("Target", "Sheet1")]
     private record Target(int Id);
 
     private sealed class BadConditionQuestTable(ImmutableList<BadConditionQuest> records)
@@ -208,11 +209,6 @@ public class SwitchForeignKeyConfigurationErrorTests
     private sealed class ConditionColumnStaticData : StaticDataManager<ConditionColumnStaticData.TableSet>
     {
         public sealed record TableSet(BadConditionQuestTable? Quest, TargetTable? Target);
-
-        public void Load()
-            => Load(new TableSet(
-                new(CsvLoader.Parse<BadConditionQuest>(BadConditionQuestCsv)),
-                new(CsvLoader.Parse<Target>(TargetCsv))));
     }
 
     // tableSetName이 TableSet에 없는 경우
@@ -227,6 +223,7 @@ public class SwitchForeignKeyConfigurationErrorTests
         1,Item,1
         """;
 
+    [StaticDataRecord("BadTargetQuest", "Sheet1")]
     private record BadTargetQuest(
         int Id,
         RewardType RewardType,
@@ -239,28 +236,32 @@ public class SwitchForeignKeyConfigurationErrorTests
     private sealed class TargetTableStaticData : StaticDataManager<TargetTableStaticData.TableSet>
     {
         public sealed record TableSet(BadTargetQuestTable? Quest);
-
-        public void Load()
-            => Load(new TableSet(new(CsvLoader.Parse<BadTargetQuest>(BadTargetQuestCsv))));
     }
 
     [Fact]
-    public void Load_ConditionColumnNotFound_ThrowsAggregateException()
+    public async Task Load_ConditionColumnNotFound_ThrowsAggregateException()
     {
+        using var dir = new CsvTestDirectory();
+        dir.Write("BadConditionQuest.Sheet1.csv", BadConditionQuestCsv);
+        dir.Write("Target.Sheet1.csv", TargetCsv);
+
         var staticData = new ConditionColumnStaticData();
 
-        var ex = Assert.Throws<AggregateException>(staticData.Load);
+        var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("NonExistentColumn", ex.InnerExceptions[0].Message);
     }
 
     [Fact]
-    public void Load_TargetTableNotFound_ThrowsAggregateException()
+    public async Task Load_TargetTableNotFound_ThrowsAggregateException()
     {
+        using var dir = new CsvTestDirectory();
+        dir.Write("BadTargetQuest.Sheet1.csv", BadTargetQuestCsv);
+
         var staticData = new TargetTableStaticData();
 
-        var ex = Assert.Throws<AggregateException>(staticData.Load);
+        var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("NonExistentTable", ex.InnerExceptions[0].Message);

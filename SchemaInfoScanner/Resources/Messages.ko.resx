@@ -204,6 +204,9 @@
   <data name="SingleColumnCollectionNotForMap" xml:space="preserve">
     <value>{0}({1}): Map 컬렉션에서는 SingleColumnCollectionAttribute를 사용할 수 없습니다.</value>
   </data>
+  <data name="FkSfkConflict" xml:space="preserve">
+    <value>{0}: 같은 파라미터에 ForeignKeyAttribute와 SwitchForeignKeyAttribute를 함께 사용할 수 없습니다.</value>
+  </data>
   <data name="TimeSpanFormatAttributeNotApplicable" xml:space="preserve">
     <value>{0}({1}): TimeSpan이 아니므로 TimeSpanFormatAttribute를 사용할 수 없습니다.</value>
   </data>
@@ -284,26 +287,5 @@
   </data>
   <data name="InvalidFullName" xml:space="preserve">
     <value>fullName은 null이거나 비어있거나 '.'으로 끝날 수 없습니다.</value>
-  </data>
-  <data name="ForeignKeyValidationFailed" xml:space="preserve">
-    <value>외래 키 검증에 실패했습니다.</value>
-  </data>
-  <data name="TableSetValidationFailed" xml:space="preserve">
-    <value>TableSet 검증에 실패했습니다.</value>
-  </data>
-  <data name="ForeignKeyColumnNotFound" xml:space="preserve">
-    <value>{0}: 외래 키 대상 컬럼 '{1}'이(가) 대상 TableSet에 선언되어 있지 않습니다.</value>
-  </data>
-  <data name="SwitchForeignKeyConditionColumnNotFound" xml:space="preserve">
-    <value>{0}: 스위치 외래 키 조건 컬럼 '{1}'이(가) {2}에 선언되어 있지 않습니다.</value>
-  </data>
-  <data name="SwitchForeignKeyColumnNotFound" xml:space="preserve">
-    <value>{0}: 스위치 외래 키 대상 컬럼 '{1}'이(가) 대상 TableSet에 선언되어 있지 않습니다.</value>
-  </data>
-  <data name="ForeignKeyTableSetNameNotFound" xml:space="preserve">
-    <value>{0}: 외래 키 대상 TableSet '{1}'을(를) 찾을 수 없습니다.</value>
-  </data>
-  <data name="SwitchForeignKeyTableSetNameNotFound" xml:space="preserve">
-    <value>{0}: 스위치 외래 키 대상 TableSet '{1}'을(를) 찾을 수 없습니다.</value>
   </data>
 </root>

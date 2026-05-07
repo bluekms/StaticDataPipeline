@@ -8,46 +8,16 @@ namespace Sdp.Manager;
 
 internal static class SwitchForeignKeyValidator
 {
-    internal static void Validate(Dictionary<string, IStaticDataTable> tableMap)
-    {
-        var errors = new List<Exception>();
-        var cache = new Dictionary<(string TableName, string ColumnName), HashSet<object?>>();
-
-        foreach (var (_, table) in tableMap)
-        {
-            var recordType = table.RecordType;
-            var checks = BuildSwitchFkChecks(recordType, tableMap, errors);
-
-            if (checks.Count == 0)
-            {
-                continue;
-            }
-
-            foreach (var record in table.GetAllRecords())
-            {
-                foreach (var check in checks)
-                {
-                    ValidateSwitchFkRecord(record, check, recordType, errors, cache);
-                }
-            }
-        }
-
-        if (errors.Count > 0)
-        {
-            throw new AggregateException(Messages.FkValidationFailed, errors);
-        }
-    }
-
-    private static List<SwitchFkCheck> BuildSwitchFkChecks(
+    internal static List<SwitchFkCheck> BuildChecks(
         Type recordType,
         Dictionary<string, IStaticDataTable> tableMap,
         List<Exception> errors)
     {
         var checks = new List<SwitchFkCheck>();
 
-        foreach (var (param, sFkAttrs) in ForeignKeyResolver.GetParamsWithAttribute<SwitchForeignKeyAttribute>(recordType))
+        foreach (var attributed in ForeignKeyResolver.GetAttributedParameters<SwitchForeignKeyAttribute>(recordType))
         {
-            foreach (var conditionGroup in sFkAttrs.GroupBy(sFkAttr => sFkAttr.ConditionColumnName))
+            foreach (var conditionGroup in attributed.Attrs.GroupBy(sFkAttr => sFkAttr.ConditionColumnName))
             {
                 var conditionProp = recordType.GetProperty(conditionGroup.Key);
                 if (conditionProp is null)
@@ -64,20 +34,21 @@ internal static class SwitchForeignKeyValidator
                 var branches = new List<SwitchFkBranch>();
                 foreach (var sFkAttr in conditionGroup)
                 {
-                    if (ForeignKeyResolver.TryResolveTarget(
-                            sFkAttr.TableSetName,
-                            sFkAttr.RecordColumnName,
-                            tableMap,
-                            errors,
-                            out var target))
+                    var target = ForeignKeyResolver.ResolveTarget(
+                        sFkAttr.TableSetName,
+                        sFkAttr.RecordColumnName,
+                        tableMap,
+                        errors);
+
+                    if (target is not null)
                     {
-                        branches.Add(new SwitchFkBranch(sFkAttr.ConditionValue, target!));
+                        branches.Add(new SwitchFkBranch(sFkAttr.ConditionValue, target));
                     }
                 }
 
                 if (branches.Count > 0)
                 {
-                    checks.Add(new SwitchFkCheck(conditionProp, recordType.GetProperty(param.Name!)!, branches));
+                    checks.Add(new SwitchFkCheck(conditionProp, recordType.GetProperty(attributed.Param.Name!)!, branches));
                 }
             }
         }
@@ -85,12 +56,12 @@ internal static class SwitchForeignKeyValidator
         return checks;
     }
 
-    private static void ValidateSwitchFkRecord(
+    internal static void ValidateRecord(
         object record,
         SwitchFkCheck check,
         Type recordType,
         List<Exception> errors,
-        Dictionary<(string TableName, string ColumnName), HashSet<object?>> cache)
+        Dictionary<ForeignKeyResolver.TargetColumn, HashSet<object?>> cache)
     {
         var conditionValue = check.ConditionProperty.GetValue(record)?.ToString();
         var matchingBranch = check.Branches.Find(sFkBranch => sFkBranch.ConditionValue == conditionValue);
@@ -113,14 +84,14 @@ internal static class SwitchForeignKeyValidator
             check.FkProperty.Name,
             fkValue,
             FormattableString.Invariant(
-                $"{matchingBranch.Target.TargetName}.{matchingBranch.Target.ColumnName} (when {check.ConditionProperty.Name}={conditionValue})"))));
+                $"{matchingBranch.Target.QualifiedName} (when {check.ConditionProperty.Name}={conditionValue})"))));
     }
 
-    private sealed record SwitchFkBranch(
+    internal sealed record SwitchFkBranch(
         string ConditionValue,
         ForeignKeyResolver.FkTarget Target);
 
-    private sealed record SwitchFkCheck(
+    internal sealed record SwitchFkCheck(
         PropertyInfo ConditionProperty,
         PropertyInfo FkProperty,
         List<SwitchFkBranch> Branches);
