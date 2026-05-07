@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using Sdp.Attributes;
-using Sdp.Csv;
 using Sdp.Manager;
 using Sdp.Table;
+using UnitTest.Utility;
 
 namespace UnitTest.ForeignKeyTests;
 
@@ -54,15 +54,18 @@ public class ForeignKeyValidationTests
         5,최수진,1,1
         """;
 
+    [StaticDataRecord("School", "Sheet1")]
     private record School(
         int Id,
         string Name);
 
+    [StaticDataRecord("Teacher", "Sheet1")]
     private record Teacher(
         int Id,
         string Name,
         [ForeignKey("School", "Name")] string SchoolName);
 
+    [StaticDataRecord("Student", "Sheet1")]
     private record Student(
         int Id,
         string Name,
@@ -118,32 +121,18 @@ public class ForeignKeyValidationTests
         public SchoolTable SchoolTable => Current.School!;
         public TeacherTable TeacherTable => Current.Teacher!;
         public StudentTable StudentTable => Current.Student!;
-
-        public void Load()
-            => Load(new TableSet(
-                new(CsvLoader.Parse<School>(SchoolCsv)),
-                new(CsvLoader.Parse<Teacher>(TeacherCsv)),
-                new(CsvLoader.Parse<Student>(StudentCsv))));
-
-        public void LoadWithErrorTeacher()
-            => Load(new TableSet(
-                new(CsvLoader.Parse<School>(SchoolCsv)),
-                new(CsvLoader.Parse<Teacher>(ErrorTeacherCsv)),
-                new(CsvLoader.Parse<Student>(StudentCsv))));
-
-        public void LoadWithErrorStudent()
-            => Load(new TableSet(
-                new(CsvLoader.Parse<School>(SchoolCsv)),
-                new(CsvLoader.Parse<Teacher>(TeacherCsv)),
-                new(CsvLoader.Parse<Student>(ErrorStudentCsv))));
     }
 
     [Fact]
-    public void Load_ValidData_SucceedsWithoutException()
+    public async Task Load_ValidData_SucceedsWithoutException()
     {
-        var staticData = new StaticData();
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
+        dir.Write("Student.Sheet1.csv", StudentCsv);
 
-        staticData.Load();
+        var staticData = new StaticData();
+        await staticData.LoadAsync(dir.Path);
 
         Assert.Equal(5, staticData.SchoolTable.Records.Count);
         Assert.Equal(3, staticData.TeacherTable.Records.Count);
@@ -151,10 +140,15 @@ public class ForeignKeyValidationTests
     }
 
     [Fact]
-    public void Load_KeyFk_StudentSchoolIdResolvesToSchool()
+    public async Task Load_KeyFk_StudentSchoolIdResolvesToSchool()
     {
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
+        dir.Write("Student.Sheet1.csv", StudentCsv);
+
         var staticData = new StaticData();
-        staticData.Load();
+        await staticData.LoadAsync(dir.Path);
 
         var student = staticData.StudentTable.Get(4);
         Assert.Equal(3, student.SchoolId);
@@ -164,10 +158,15 @@ public class ForeignKeyValidationTests
     }
 
     [Fact]
-    public void Load_KeyFk_StudentTeacherIdResolvesToTeacher()
+    public async Task Load_KeyFk_StudentTeacherIdResolvesToTeacher()
     {
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
+        dir.Write("Student.Sheet1.csv", StudentCsv);
+
         var staticData = new StaticData();
-        staticData.Load();
+        await staticData.LoadAsync(dir.Path);
 
         var student = staticData.StudentTable.Get(3);
         Assert.Equal(2, student.TeacherId);
@@ -177,22 +176,32 @@ public class ForeignKeyValidationTests
     }
 
     [Fact]
-    public void Load_NonKeyFkViolation_ThrowsAggregateException()
+    public async Task Load_NonKeyFkViolation_ThrowsAggregateException()
     {
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Teacher.Sheet1.csv", ErrorTeacherCsv);
+        dir.Write("Student.Sheet1.csv", StudentCsv);
+
         var staticData = new StaticData();
 
-        var ex = Assert.Throws<AggregateException>(staticData.LoadWithErrorTeacher);
+        var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("Error대학교", ex.InnerExceptions[0].Message);
     }
 
     [Fact]
-    public void Load_KeyFkViolation_ThrowsAggregateException()
+    public async Task Load_KeyFkViolation_ThrowsAggregateException()
     {
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
+        dir.Write("Student.Sheet1.csv", ErrorStudentCsv);
+
         var staticData = new StaticData();
 
-        var ex = Assert.Throws<AggregateException>(staticData.LoadWithErrorStudent);
+        var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("999", ex.InnerExceptions[0].Message);

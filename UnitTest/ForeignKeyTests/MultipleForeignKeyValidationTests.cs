@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using Sdp.Attributes;
-using Sdp.Csv;
 using Sdp.Manager;
 using Sdp.Table;
+using UnitTest.Utility;
 
 namespace UnitTest.ForeignKeyTests;
 
@@ -40,15 +40,18 @@ public class MultipleForeignKeyValidationTests
         2,오류 장학금,99
         """;
 
+    [StaticDataRecord("School", "Sheet1")]
     private record School(
         int Id,
         string Name);
 
+    [StaticDataRecord("Teacher", "Sheet1")]
     private record Teacher(
         int Id,
         string Name,
         [ForeignKey("School", "Name")] string SchoolName);
 
+    [StaticDataRecord("Scholarship", "Sheet1")]
     private record Scholarship(
         int Id,
         string Title,
@@ -75,36 +78,33 @@ public class MultipleForeignKeyValidationTests
         public SchoolTable SchoolTable => Current.School!;
         public TeacherTable TeacherTable => Current.Teacher!;
         public ScholarshipTable ScholarshipTable => Current.Scholarship!;
-
-        public void Load()
-            => Load(new TableSet(
-                new(CsvLoader.Parse<School>(SchoolCsv)),
-                new(CsvLoader.Parse<Teacher>(TeacherCsv)),
-                new(CsvLoader.Parse<Scholarship>(ScholarshipCsv))));
-
-        public void LoadWithErrorScholarship()
-            => Load(new TableSet(
-                new(CsvLoader.Parse<School>(SchoolCsv)),
-                new(CsvLoader.Parse<Teacher>(TeacherCsv)),
-                new(CsvLoader.Parse<Scholarship>(ErrorScholarshipCsv))));
     }
 
     [Fact]
-    public void Load_MultipleFkColumn_ValidWhenRecipientIdExistsInOnlyOneTarget()
+    public async Task Load_MultipleFkColumn_ValidWhenRecipientIdExistsInOnlyOneTarget()
     {
-        var staticData = new StaticData();
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
+        dir.Write("Scholarship.Sheet1.csv", ScholarshipCsv);
 
-        staticData.Load();
+        var staticData = new StaticData();
+        await staticData.LoadAsync(dir.Path);
 
         Assert.Equal(2, staticData.ScholarshipTable.Records.Count);
     }
 
     [Fact]
-    public void Load_MultipleFkViolation_ThrowsWhenRecipientIdExistsInNeitherTarget()
+    public async Task Load_MultipleFkViolation_ThrowsWhenRecipientIdExistsInNeitherTarget()
     {
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
+        dir.Write("Scholarship.Sheet1.csv", ErrorScholarshipCsv);
+
         var staticData = new StaticData();
 
-        var ex = Assert.Throws<AggregateException>(staticData.LoadWithErrorScholarship);
+        var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("99", ex.InnerExceptions[0].Message);

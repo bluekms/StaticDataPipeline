@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using Sdp.Attributes;
-using Sdp.Csv;
 using Sdp.Manager;
 using Sdp.Table;
+using UnitTest.Utility;
 
 namespace UnitTest.ForeignKeyTests;
 
@@ -42,6 +42,7 @@ public class SwitchForeignKeyNonKeyValidationTests
         2,Diana
         """;
 
+    [StaticDataRecord("Staff", "Sheet1")]
     private record Staff(
         int Id,
         Department Department,
@@ -49,7 +50,10 @@ public class SwitchForeignKeyNonKeyValidationTests
         [SwitchForeignKey("Department", "Design",      "Designer", "Name")]
         string LeadName);
 
+    [StaticDataRecord("Engineer", "Sheet1")]
     private record Engineer(int Id, string Name);
+
+    [StaticDataRecord("Designer", "Sheet1")]
     private record Designer(int Id, string Name);
 
     private sealed class StaffTable(ImmutableList<Staff> records)
@@ -69,36 +73,33 @@ public class SwitchForeignKeyNonKeyValidationTests
             DesignerTable? Designer);
 
         public StaffTable StaffTable => Current.Staff!;
-
-        public void Load()
-            => Load(new TableSet(
-                new(CsvLoader.Parse<Staff>(StaffCsv)),
-                new(CsvLoader.Parse<Engineer>(EngineerCsv)),
-                new(CsvLoader.Parse<Designer>(DesignerCsv))));
-
-        public void LoadWithErrorStaff()
-            => Load(new TableSet(
-                new(CsvLoader.Parse<Staff>(ErrorStaffCsv)),
-                new(CsvLoader.Parse<Engineer>(EngineerCsv)),
-                new(CsvLoader.Parse<Designer>(DesignerCsv))));
     }
 
     [Fact]
-    public void Load_NonKeySwitchFk_ValidData_SucceedsWithoutException()
+    public async Task Load_NonKeySwitchFk_ValidData_SucceedsWithoutException()
     {
-        var staticData = new StaticData();
+        using var dir = new CsvTestDirectory();
+        dir.Write("Staff.Sheet1.csv", StaffCsv);
+        dir.Write("Engineer.Sheet1.csv", EngineerCsv);
+        dir.Write("Designer.Sheet1.csv", DesignerCsv);
 
-        staticData.Load();
+        var staticData = new StaticData();
+        await staticData.LoadAsync(dir.Path);
 
         Assert.Equal(2, staticData.StaffTable.Records.Count);
     }
 
     [Fact]
-    public void Load_NonKeySwitchFkViolation_ThrowsAggregateException()
+    public async Task Load_NonKeySwitchFkViolation_ThrowsAggregateException()
     {
+        using var dir = new CsvTestDirectory();
+        dir.Write("Staff.Sheet1.csv", ErrorStaffCsv);
+        dir.Write("Engineer.Sheet1.csv", EngineerCsv);
+        dir.Write("Designer.Sheet1.csv", DesignerCsv);
+
         var staticData = new StaticData();
 
-        var ex = Assert.Throws<AggregateException>(staticData.LoadWithErrorStaff);
+        var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("UnknownDesigner", ex.InnerExceptions[0].Message);
