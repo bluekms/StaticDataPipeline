@@ -1,12 +1,14 @@
 using System.Collections.Immutable;
+using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
 using Sdp.Manager;
 using Sdp.Table;
 using UnitTest.Utility;
+using Xunit.Abstractions;
 
 namespace UnitTest.ForeignKeyTests;
 
-public class SwitchForeignKeyNonKeyValidationTests
+public class SwitchForeignKeyNonKeyValidationTests(ITestOutputHelper testOutputHelper)
 {
     private enum Department
     {
@@ -65,7 +67,8 @@ public class SwitchForeignKeyNonKeyValidationTests
     private sealed class DesignerTable(ImmutableList<Designer> records)
         : StaticDataTable<DesignerTable, Designer>(records);
 
-    private sealed class StaticData : StaticDataManager<StaticData.TableSet>
+    private sealed class StaticData(ILogger logger)
+        : StaticDataManager<StaticData.TableSet>(logger)
     {
         public sealed record TableSet(
             StaffTable? Staff,
@@ -83,10 +86,17 @@ public class SwitchForeignKeyNonKeyValidationTests
         dir.Write("Engineer.Sheet1.csv", EngineerCsv);
         dir.Write("Designer.Sheet1.csv", DesignerCsv);
 
-        var staticData = new StaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<SwitchForeignKeyNonKeyValidationTests>() is not TestOutputLogger<SwitchForeignKeyNonKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new StaticData(logger);
         await staticData.LoadAsync(dir.Path);
 
         Assert.Equal(2, staticData.StaffTable.Records.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -97,11 +107,18 @@ public class SwitchForeignKeyNonKeyValidationTests
         dir.Write("Engineer.Sheet1.csv", EngineerCsv);
         dir.Write("Designer.Sheet1.csv", DesignerCsv);
 
-        var staticData = new StaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<SwitchForeignKeyNonKeyValidationTests>() is not TestOutputLogger<SwitchForeignKeyNonKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new StaticData(logger);
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("UnknownDesigner", ex.InnerExceptions[0].Message);
+        Assert.Empty(logger.Logs);
     }
 }

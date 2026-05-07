@@ -1,11 +1,14 @@
 using System.Collections.Immutable;
+using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
 using Sdp.Manager;
 using Sdp.Table;
+using UnitTest.Utility;
+using Xunit.Abstractions;
 
 namespace UnitTest.StaticDataTests;
 
-public class FilteredRecordTableTests
+public class FilteredRecordTableTests(ITestOutputHelper testOutputHelper)
 {
     private const string BuffCsv =
         """
@@ -25,7 +28,8 @@ public class FilteredRecordTableTests
     private sealed class AbnormalBuffTable(ImmutableList<Buff> records)
         : StaticDataTable<AbnormalBuffTable, Buff>(records.Where(x => !x.IsNormal).ToImmutableList());
 
-    private sealed class StaticData : StaticDataManager<StaticData.TableSet>
+    private sealed class StaticData(ILogger logger)
+        : StaticDataManager<StaticData.TableSet>(logger)
     {
         public sealed record TableSet(
             NormalBuffTable Normal,
@@ -43,7 +47,13 @@ public class FilteredRecordTableTests
         {
             WriteCsv(dir, "Buff.Main.csv", BuffCsv);
 
-            var staticData = new StaticData();
+            var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+            if (factory.CreateLogger<FilteredRecordTableTests>() is not TestOutputLogger<FilteredRecordTableTests> logger)
+            {
+                throw new InvalidOperationException("Logger creation failed.");
+            }
+
+            var staticData = new StaticData(logger);
             await staticData.LoadAsync(dir);
 
             Assert.Equal(2, staticData.NormalTable.Records.Count);
@@ -51,6 +61,7 @@ public class FilteredRecordTableTests
 
             Assert.Equal(2, staticData.AbnormalTable.Records.Count);
             Assert.All(staticData.AbnormalTable.Records, x => Assert.False(x.IsNormal));
+            Assert.Empty(logger.Logs);
         }
         finally
         {

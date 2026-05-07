@@ -1,12 +1,14 @@
 using System.Collections.Immutable;
+using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
 using Sdp.Manager;
 using Sdp.Table;
 using UnitTest.Utility;
+using Xunit.Abstractions;
 
 namespace UnitTest.ForeignKeyTests;
 
-public class MultipleForeignKeyValidationTests
+public class MultipleForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
 {
     private const string SchoolCsv =
         """
@@ -68,7 +70,8 @@ public class MultipleForeignKeyValidationTests
     private sealed class ScholarshipTable(ImmutableList<Scholarship> records)
         : StaticDataTable<ScholarshipTable, Scholarship>(records);
 
-    private sealed class StaticData : StaticDataManager<StaticData.TableSet>
+    private sealed class StaticData(ILogger logger)
+        : StaticDataManager<StaticData.TableSet>(logger)
     {
         public sealed record TableSet(
             SchoolTable? School,
@@ -88,10 +91,17 @@ public class MultipleForeignKeyValidationTests
         dir.Write("Teacher.Sheet1.csv", TeacherCsv);
         dir.Write("Scholarship.Sheet1.csv", ScholarshipCsv);
 
-        var staticData = new StaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<MultipleForeignKeyValidationTests>() is not TestOutputLogger<MultipleForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new StaticData(logger);
         await staticData.LoadAsync(dir.Path);
 
         Assert.Equal(2, staticData.ScholarshipTable.Records.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -102,11 +112,18 @@ public class MultipleForeignKeyValidationTests
         dir.Write("Teacher.Sheet1.csv", TeacherCsv);
         dir.Write("Scholarship.Sheet1.csv", ErrorScholarshipCsv);
 
-        var staticData = new StaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<MultipleForeignKeyValidationTests>() is not TestOutputLogger<MultipleForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new StaticData(logger);
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("99", ex.InnerExceptions[0].Message);
+        Assert.Empty(logger.Logs);
     }
 }

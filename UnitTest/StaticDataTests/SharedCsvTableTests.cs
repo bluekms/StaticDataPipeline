@@ -1,11 +1,14 @@
 using System.Collections.Immutable;
+using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
 using Sdp.Manager;
 using Sdp.Table;
+using UnitTest.Utility;
+using Xunit.Abstractions;
 
 namespace UnitTest.StaticDataTests;
 
-public class SharedCsvTableTests
+public class SharedCsvTableTests(ITestOutputHelper testOutputHelper)
 {
     private const string UnitCsv =
         """
@@ -26,7 +29,8 @@ public class SharedCsvTableTests
     private sealed class UnitProfileTable(ImmutableList<UnitProfile> records)
         : StaticDataTable<UnitProfileTable, UnitProfile>(records);
 
-    private sealed class StaticData : StaticDataManager<StaticData.TableSet>
+    private sealed class StaticData(ILogger logger)
+        : StaticDataManager<StaticData.TableSet>(logger)
     {
         public sealed record TableSet(
             UnitStatTable Stats,
@@ -44,7 +48,13 @@ public class SharedCsvTableTests
         {
             WriteCsv(dir, "Unit.Main.csv", UnitCsv);
 
-            var staticData = new StaticData();
+            var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+            if (factory.CreateLogger<SharedCsvTableTests>() is not TestOutputLogger<SharedCsvTableTests> logger)
+            {
+                throw new InvalidOperationException("Logger creation failed.");
+            }
+
+            var staticData = new StaticData(logger);
             await staticData.LoadAsync(dir);
 
             Assert.Equal(2, staticData.StatTable.Records.Count);
@@ -54,6 +64,7 @@ public class SharedCsvTableTests
             Assert.Equal(2, staticData.ProfileTable.Records.Count);
             Assert.Equal("Goblin", staticData.ProfileTable.Records[0].Name);
             Assert.Equal("Small green creature", staticData.ProfileTable.Records[0].Description);
+            Assert.Empty(logger.Logs);
         }
         finally
         {
