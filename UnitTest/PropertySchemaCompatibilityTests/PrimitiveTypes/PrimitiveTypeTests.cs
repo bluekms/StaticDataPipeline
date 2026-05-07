@@ -72,11 +72,11 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         {type} Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        {type} Property,
+                    );
+                    """;
 
         var catalogs = CreateCatalogs(code, logger);
         var cells = new[]
@@ -159,11 +159,11 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         {type} Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        {type} Property,
+                    );
+                    """;
 
         var catalogs = CreateCatalogs(code, logger);
         var context = CompatibilityContext.CreateNoCollect(catalogs, [new CellData("A1", argument)]);
@@ -231,12 +231,12 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
-                         {type} Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
+                        {type} Property,
+                    );
+                    """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -270,12 +270,12 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [TimeSpanFormat("c")]
-                         {type} Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        [TimeSpanFormat("c")]
+                        {type} Property,
+                    );
+                    """;
 
         var catalogs = CreateCatalogs(code, logger);
 

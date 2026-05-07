@@ -84,6 +84,12 @@ internal static class Messages
     internal static string KeyPropertyNotFound
         => ResourceManager.GetString("KeyPropertyNotFound", Culture)!;
 
+    internal static string LoadedTable
+        => ResourceManager.GetString("LoadedTable", Culture)!;
+
+    internal static string LoadAsyncCompleted
+        => ResourceManager.GetString("LoadAsyncCompleted", Culture)!;
+
     internal static class Composite
     {
         internal static CompositeFormat InvalidTableParameter => CompositeFormat.Parse(Messages.InvalidTableParameter);

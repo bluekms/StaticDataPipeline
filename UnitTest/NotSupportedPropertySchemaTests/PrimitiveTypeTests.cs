@@ -21,11 +21,11 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         {type} Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        {type} Property,
+                    );
+                    """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         Assert.Throws<NotSupportedException>(() => new RecordSchemaSet(loadResult, logger));

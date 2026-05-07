@@ -21,12 +21,12 @@ public class RegularExpressionAttributeRuleTests(ITestOutputHelper testOutputHel
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [RegularExpression(@"^[\w\.-]+@[\w\.-]+\.\w+$")]
-                         string EmailAddress,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [RegularExpression(@"^[\w\.-]+@[\w\.-]+\.\w+$")]
+                       string EmailAddress,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -47,12 +47,12 @@ public class RegularExpressionAttributeRuleTests(ITestOutputHelper testOutputHel
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [RegularExpression(@"^[\w\.-]+@[\w\.-]+\.\w+$")]
-                         int Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [RegularExpression(@"^[\w\.-]+@[\w\.-]+\.\w+$")]
+                       int Property,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);

@@ -1,7 +1,9 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
+using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
 using Sdp.Csv;
 using Sdp.Resources;
@@ -9,7 +11,7 @@ using Sdp.Table;
 
 namespace Sdp.Manager;
 
-public abstract class StaticDataManager<TTableSet>
+public abstract class StaticDataManager<TTableSet>(ILogger logger)
     where TTableSet : class
 {
     private volatile TTableSet current = null!;
@@ -18,31 +20,41 @@ public abstract class StaticDataManager<TTableSet>
 
     public async Task LoadAsync(string csvDir, List<string>? disabledTables = null)
     {
+        var stopwatch = Stopwatch.StartNew();
+
         var fkTargetError = ForeignKeyTargetValidator.Validate<TTableSet>();
         if (fkTargetError is not null)
         {
             throw fkTargetError;
         }
 
-        var tableSet = await BuildTablesAsync(csvDir, disabledTables);
+        var tableSet = await BuildTablesAsync(csvDir, disabledTables, logger);
 
         ReferenceValidator.Validate(tableSet);
         Validate(tableSet);
         current = tableSet;
+
+        stopwatch.Stop();
+        logger.LogInformation(
+            Messages.LoadAsyncCompleted,
+            stopwatch.ElapsedMilliseconds);
     }
 
     protected virtual void Validate(TTableSet tableSet)
     {
     }
 
-    private static async Task<TTableSet> BuildTablesAsync(string csvDir, List<string>? disabledTables)
+    private static async Task<TTableSet> BuildTablesAsync(
+        string csvDir,
+        List<string>? disabledTables,
+        ILogger logger)
     {
         var ctor = typeof(TTableSet).GetConstructors().Single();
         var parameters = ctor.GetParameters();
         var recordCache = new ConcurrentDictionary<RecordCacheKey, Lazy<Task<object>>>();
 
         var tasks = parameters
-            .Select(p => CreateTableAsync(p, csvDir, disabledTables, recordCache))
+            .Select(p => CreateTableAsync(p, csvDir, disabledTables, recordCache, logger))
             .ToArray();
 
         try
@@ -71,7 +83,8 @@ public abstract class StaticDataManager<TTableSet>
         ParameterInfo param,
         string csvDir,
         List<string>? disabledTables,
-        ConcurrentDictionary<RecordCacheKey, Lazy<Task<object>>> recordCache)
+        ConcurrentDictionary<RecordCacheKey, Lazy<Task<object>>> recordCache,
+        ILogger logger)
     {
         var tableType = param.ParameterType;
         if (!IsStaticDataTable(tableType))
@@ -87,6 +100,8 @@ public abstract class StaticDataManager<TTableSet>
         {
             return null;
         }
+
+        var stopwatch = Stopwatch.StartNew();
 
         var recordType = ExtractRecordType(tableType);
         var csvPath = ResolveCsvPath(csvDir, recordType);
@@ -109,6 +124,13 @@ public abstract class StaticDataManager<TTableSet>
         }
 
         table.Validate();
+
+        stopwatch.Stop();
+        logger.LogTrace(
+            Messages.LoadedTable,
+            param.Name,
+            stopwatch.ElapsedMilliseconds);
+
         return table;
     }
 

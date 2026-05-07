@@ -21,13 +21,13 @@ public class NullableEmptySpaceCompatibilityTests(ITestOutputHelper testOutputHe
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [NullString("-")]
-                         [Length(5)]
-                         FrozenSet<int?> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [NullString("-")]
+                       [Length(5)]
+                       FrozenSet<int?> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 

@@ -25,11 +25,11 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         {type} Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        {type} Property,
+                    );
+                    """;
 
         var catalogs = CreateCatalogs(code, logger);
         foreach (var recordSchema in catalogs.RecordSchemaCatalog.StaticDataRecordSchemata)
@@ -66,11 +66,11 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         {type} Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        {type} Property,
+                    );
+                    """;
 
         var catalogs = CreateCatalogs(code, logger);
         foreach (var recordSchema in catalogs.RecordSchemaCatalog.StaticDataRecordSchemata)

@@ -21,13 +21,13 @@ public class FkSfkConflictAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         int Id,
-                         [ForeignKey("Other", "Id")]
-                         int Reference,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       int Id,
+                       [ForeignKey("Other", "Id")]
+                       int Reference,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -48,13 +48,13 @@ public class FkSfkConflictAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         int Id,
-                         [SwitchForeignKey("Id", "1", "Other", "Id")]
-                         int Reference,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       int Id,
+                       [SwitchForeignKey("Id", "1", "Other", "Id")]
+                       int Reference,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -75,14 +75,14 @@ public class FkSfkConflictAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         int Id,
-                         [ForeignKey("Other", "Id")]
-                         [SwitchForeignKey("Id", "1", "Other", "Id")]
-                         int Reference,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       int Id,
+                       [ForeignKey("Other", "Id")]
+                       [SwitchForeignKey("Id", "1", "Other", "Id")]
+                       int Reference,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);

@@ -1,12 +1,14 @@
 using System.Collections.Immutable;
+using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
 using Sdp.Manager;
 using Sdp.Table;
 using UnitTest.Utility;
+using Xunit.Abstractions;
 
 namespace UnitTest.ForeignKeyTests;
 
-public class SwitchForeignKeyValidationTests
+public class SwitchForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
 {
     private enum RewardType
     {
@@ -97,7 +99,8 @@ public class SwitchForeignKeyValidationTests
     private sealed class CurrencyTable(ImmutableList<Currency> records)
         : StaticDataTable<CurrencyTable, Currency>(records);
 
-    private sealed class StaticData : StaticDataManager<StaticData.TableSet>
+    private sealed class StaticData(ILogger logger)
+        : StaticDataManager<StaticData.TableSet>(logger)
     {
         public sealed record TableSet(
             QuestTable? Quest,
@@ -122,10 +125,17 @@ public class SwitchForeignKeyValidationTests
         dir.Write("Quest.Sheet1.csv", ValidQuestCsv);
         WriteFixedCsvs(dir);
 
-        var staticData = new StaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<SwitchForeignKeyValidationTests>() is not TestOutputLogger<SwitchForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new StaticData(logger);
         await staticData.LoadAsync(dir.Path);
 
         Assert.Equal(3, staticData.QuestTable.Records.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -135,12 +145,19 @@ public class SwitchForeignKeyValidationTests
         dir.Write("Quest.Sheet1.csv", ErrorQuestCsv);
         WriteFixedCsvs(dir);
 
-        var staticData = new StaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<SwitchForeignKeyValidationTests>() is not TestOutputLogger<SwitchForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new StaticData(logger);
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("999", ex.InnerExceptions[0].Message);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -150,11 +167,18 @@ public class SwitchForeignKeyValidationTests
         dir.Write("Quest.Sheet1.csv", NoConditionQuestCsv);
         WriteFixedCsvs(dir);
 
-        var staticData = new StaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<SwitchForeignKeyValidationTests>() is not TestOutputLogger<SwitchForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new StaticData(logger);
         await staticData.LoadAsync(dir.Path);
 
         var quest = Assert.Single(staticData.QuestTable.Records);
         Assert.Equal(RewardType.None, quest.RewardType);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -166,17 +190,24 @@ public class SwitchForeignKeyValidationTests
         dir.Write("Quest.Sheet1.csv", CrossTableQuestCsv);
         WriteFixedCsvs(dir);
 
-        var staticData = new StaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<SwitchForeignKeyValidationTests>() is not TestOutputLogger<SwitchForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new StaticData(logger);
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("5", ex.InnerExceptions[0].Message);
         Assert.Contains("when RewardType=Item", ex.InnerExceptions[0].Message);
+        Assert.Empty(logger.Logs);
     }
 }
 
-public class SwitchForeignKeyConfigurationErrorTests
+public class SwitchForeignKeyConfigurationErrorTests(ITestOutputHelper testOutputHelper)
 {
     // conditionColumnName이 Record에 없는 경우
     private const string BadConditionQuestCsv =
@@ -206,7 +237,8 @@ public class SwitchForeignKeyConfigurationErrorTests
     private sealed class TargetTable(ImmutableList<Target> records)
         : StaticDataTable<TargetTable, Target>(records);
 
-    private sealed class ConditionColumnStaticData : StaticDataManager<ConditionColumnStaticData.TableSet>
+    private sealed class ConditionColumnStaticData(ILogger logger)
+        : StaticDataManager<ConditionColumnStaticData.TableSet>(logger)
     {
         public sealed record TableSet(BadConditionQuestTable? Quest, TargetTable? Target);
     }
@@ -233,7 +265,8 @@ public class SwitchForeignKeyConfigurationErrorTests
     private sealed class BadTargetQuestTable(ImmutableList<BadTargetQuest> records)
         : StaticDataTable<BadTargetQuestTable, BadTargetQuest>(records);
 
-    private sealed class TargetTableStaticData : StaticDataManager<TargetTableStaticData.TableSet>
+    private sealed class TargetTableStaticData(ILogger logger)
+        : StaticDataManager<TargetTableStaticData.TableSet>(logger)
     {
         public sealed record TableSet(BadTargetQuestTable? Quest);
     }
@@ -245,12 +278,19 @@ public class SwitchForeignKeyConfigurationErrorTests
         dir.Write("BadConditionQuest.Sheet1.csv", BadConditionQuestCsv);
         dir.Write("Target.Sheet1.csv", TargetCsv);
 
-        var staticData = new ConditionColumnStaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<SwitchForeignKeyConfigurationErrorTests>() is not TestOutputLogger<SwitchForeignKeyConfigurationErrorTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new ConditionColumnStaticData(logger);
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("NonExistentColumn", ex.InnerExceptions[0].Message);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -259,11 +299,18 @@ public class SwitchForeignKeyConfigurationErrorTests
         using var dir = new CsvTestDirectory();
         dir.Write("BadTargetQuest.Sheet1.csv", BadTargetQuestCsv);
 
-        var staticData = new TargetTableStaticData();
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<SwitchForeignKeyConfigurationErrorTests>() is not TestOutputLogger<SwitchForeignKeyConfigurationErrorTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var staticData = new TargetTableStaticData(logger);
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("NonExistentTable", ex.InnerExceptions[0].Message);
+        Assert.Empty(logger.Logs);
     }
 }
