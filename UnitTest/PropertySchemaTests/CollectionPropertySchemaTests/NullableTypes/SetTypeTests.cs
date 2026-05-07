@@ -34,11 +34,11 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)][NullString("")] FrozenSet<{type}> Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        [Length(3)][NullString("")] FrozenSet<{type}> Property,
+                    );
+                    """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -90,14 +90,14 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                   [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
-                       [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
-                       [NullString("")]
-                       [Length(3)]
-                       FrozenSet<{type}> Property,
-                   );
-                   """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
+                        [NullString("")]
+                        [Length(3)]
+                        FrozenSet<{type}> Property,
+                    );
+                    """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -120,14 +120,14 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                   [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
-                       [TimeSpanFormat("c")]
-                       [NullString("")]
-                       [Length(3)]
-                       FrozenSet<{type}> Property,
-                   );
-                   """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        [TimeSpanFormat("c")]
+                        [NullString("")]
+                        [Length(3)]
+                        FrozenSet<{type}> Property,
+                    );
+                    """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -149,13 +149,13 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [SingleColumnCollection(", ")]
-                         [NullString("")]
-                         FrozenSet<int?> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [SingleColumnCollection(", ")]
+                       [NullString("")]
+                       FrozenSet<int?> Property,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 
@@ -177,14 +177,14 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [SingleColumnCollection(", ")]
-                         [Length(3)]
-                         [NullString("")]
-                         FrozenSet<int?> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [SingleColumnCollection(", ")]
+                       [Length(3)]
+                       [NullString("")]
+                       FrozenSet<int?> Property,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
 

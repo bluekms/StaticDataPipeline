@@ -21,12 +21,12 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)]
-                         ImmutableArray<int> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)]
+                       ImmutableArray<int> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -62,14 +62,14 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     public enum MyEnum { A, B, C }
+                   public enum MyEnum { A, B, C }
 
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(2)]
-                         ImmutableArray<MyEnum> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(2)]
+                       ImmutableArray<MyEnum> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -103,13 +103,13 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
-                         [Length(2)]
-                         ImmutableArray<DateTime> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
+                       [Length(2)]
+                       ImmutableArray<DateTime> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -143,13 +143,13 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [TimeSpanFormat("c")]
-                         [Length(2)]
-                         ImmutableArray<TimeSpan> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [TimeSpanFormat("c")]
+                       [Length(2)]
+                       ImmutableArray<TimeSpan> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -183,12 +183,12 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [SingleColumnCollection(", ")]
-                         ImmutableArray<int> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [SingleColumnCollection(", ")]
+                       ImmutableArray<int> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -221,13 +221,13 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [SingleColumnCollection(", ")]
-                         [Length(4)]
-                         ImmutableArray<int> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [SingleColumnCollection(", ")]
+                       [Length(4)]
+                       ImmutableArray<int> Property,
+                   );
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
