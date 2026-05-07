@@ -8,74 +8,45 @@ namespace Sdp.Manager;
 
 internal static class ForeignKeyValidator
 {
-    internal static void Validate(Dictionary<string, IStaticDataTable> tableMap)
-    {
-        var errors = new List<Exception>();
-        var cache = new Dictionary<(string TableName, string ColumnName), HashSet<object?>>();
-
-        foreach (var (_, table) in tableMap)
-        {
-            var recordType = table.RecordType;
-            var checks = BuildFkChecks(recordType, tableMap, errors);
-
-            if (checks.Count == 0)
-            {
-                continue;
-            }
-
-            foreach (var record in table.GetAllRecords())
-            {
-                foreach (var check in checks)
-                {
-                    ValidateFkRecord(record, check, recordType, errors, cache);
-                }
-            }
-        }
-
-        if (errors.Count > 0)
-        {
-            throw new AggregateException(Messages.FkValidationFailed, errors);
-        }
-    }
-
-    private static List<FkCheck> BuildFkChecks(
+    internal static List<FkCheck> BuildChecks(
         Type recordType,
         Dictionary<string, IStaticDataTable> tableMap,
         List<Exception> errors)
     {
         var checks = new List<FkCheck>();
 
-        foreach (var (param, fkAttrs) in ForeignKeyResolver.GetParamsWithAttribute<ForeignKeyAttribute>(recordType))
+        foreach (var attributed in ForeignKeyResolver.GetAttributedParameters<ForeignKeyAttribute>(recordType))
         {
             var targets = new List<ForeignKeyResolver.FkTarget>();
-            foreach (var fkAttr in fkAttrs)
+            foreach (var fkAttr in attributed.Attrs)
             {
-                if (ForeignKeyResolver.TryResolveTarget(
-                        fkAttr.TableSetName,
-                        fkAttr.RecordColumnName,
-                        tableMap,
-                        errors,
-                        out var target))
+                var target = ForeignKeyResolver.ResolveTarget(
+                    fkAttr.TableSetName,
+                    fkAttr.RecordColumnName,
+                    tableMap,
+                    errors);
+
+                if (target is not null)
                 {
-                    targets.Add(target!);
+                    targets.Add(target);
                 }
             }
 
             if (targets.Count > 0)
             {
-                checks.Add(new FkCheck(recordType.GetProperty(param.Name!)!, targets));
+                checks.Add(new FkCheck(recordType.GetProperty(attributed.Param.Name!)!, targets));
             }
         }
 
         return checks;
     }
 
-    private static void ValidateFkRecord(
+    internal static void ValidateRecord(
         object record,
         FkCheck check,
         Type recordType,
         List<Exception> errors,
-        Dictionary<(string TableName, string ColumnName), HashSet<object?>> cache)
+        Dictionary<ForeignKeyResolver.TargetColumn, HashSet<object?>> cache)
     {
         var fkValue = check.FkProperty.GetValue(record);
         if (check.Targets.Any(t => ForeignKeyResolver.ContainsFkValue(t, fkValue, cache)))
@@ -83,8 +54,7 @@ internal static class ForeignKeyValidator
             return;
         }
 
-        var targetList = string.Join(", ", check.Targets.Select(t =>
-            FormattableString.Invariant($"{t.TargetName}.{t.ColumnName}")));
+        var targetList = string.Join(", ", check.Targets.Select(t => t.QualifiedName));
 
         errors.Add(new InvalidOperationException(string.Format(
             CultureInfo.CurrentCulture,
@@ -95,7 +65,7 @@ internal static class ForeignKeyValidator
             targetList)));
     }
 
-    private sealed record FkCheck(
+    internal sealed record FkCheck(
         PropertyInfo FkProperty,
         List<ForeignKeyResolver.FkTarget> Targets);
 }

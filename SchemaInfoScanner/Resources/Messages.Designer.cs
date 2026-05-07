@@ -222,6 +222,9 @@ internal static class Messages
     internal static string SingleColumnCollectionNotForMap
         => ResourceManager.GetString("SingleColumnCollectionNotForMap", Culture)!;
 
+    internal static string FkSfkConflict
+        => ResourceManager.GetString("FkSfkConflict", Culture)!;
+
     internal static string TimeSpanFormatAttributeNotApplicable
         => ResourceManager.GetString("TimeSpanFormatAttributeNotApplicable", Culture)!;
 
@@ -300,27 +303,6 @@ internal static class Messages
     internal static string InvalidFullName
         => ResourceManager.GetString("InvalidFullName", Culture)!;
 
-    internal static string ForeignKeyValidationFailed
-        => ResourceManager.GetString("ForeignKeyValidationFailed", Culture)!;
-
-    internal static string TableSetValidationFailed
-        => ResourceManager.GetString("TableSetValidationFailed", Culture)!;
-
-    internal static string ForeignKeyColumnNotFound
-        => ResourceManager.GetString("ForeignKeyColumnNotFound", Culture)!;
-
-    internal static string SwitchForeignKeyConditionColumnNotFound
-        => ResourceManager.GetString("SwitchForeignKeyConditionColumnNotFound", Culture)!;
-
-    internal static string SwitchForeignKeyColumnNotFound
-        => ResourceManager.GetString("SwitchForeignKeyColumnNotFound", Culture)!;
-
-    internal static string ForeignKeyTableSetNameNotFound
-        => ResourceManager.GetString("ForeignKeyTableSetNameNotFound", Culture)!;
-
-    internal static string SwitchForeignKeyTableSetNameNotFound
-        => ResourceManager.GetString("SwitchForeignKeyTableSetNameNotFound", Culture)!;
-
     internal static class Composite
     {
         internal static CompositeFormat AlreadyVisited => CompositeFormat.Parse(Messages.AlreadyVisited);
@@ -378,6 +360,7 @@ internal static class Messages
         internal static CompositeFormat CountOutOfRange => CompositeFormat.Parse(Messages.CountOutOfRange);
         internal static CompositeFormat SingleColumnCollectionNotForUnsupportedCollection => CompositeFormat.Parse(Messages.SingleColumnCollectionNotForUnsupportedCollection);
         internal static CompositeFormat SingleColumnCollectionNotForMap => CompositeFormat.Parse(Messages.SingleColumnCollectionNotForMap);
+        internal static CompositeFormat FkSfkConflict => CompositeFormat.Parse(Messages.FkSfkConflict);
         internal static CompositeFormat TimeSpanFormatAttributeNotApplicable => CompositeFormat.Parse(Messages.TimeSpanFormatAttributeNotApplicable);
         internal static CompositeFormat TimeSpanFormatAttributeRequired => CompositeFormat.Parse(Messages.TimeSpanFormatAttributeRequired);
         internal static CompositeFormat InvalidCellValueForEnum => CompositeFormat.Parse(Messages.InvalidCellValueForEnum);
@@ -403,10 +386,5 @@ internal static class Messages
         internal static CompositeFormat FactoryDictionaryKeyMustBePrimitiveType => CompositeFormat.Parse(Messages.FactoryDictionaryKeyMustBePrimitiveType);
         internal static CompositeFormat FactoryNotSupportedRecordType => CompositeFormat.Parse(Messages.FactoryNotSupportedRecordType);
         internal static CompositeFormat IsRecordHashSetType => CompositeFormat.Parse(Messages.IsRecordHashSetType);
-        internal static CompositeFormat ForeignKeyColumnNotFound => CompositeFormat.Parse(Messages.ForeignKeyColumnNotFound);
-        internal static CompositeFormat SwitchForeignKeyConditionColumnNotFound => CompositeFormat.Parse(Messages.SwitchForeignKeyConditionColumnNotFound);
-        internal static CompositeFormat SwitchForeignKeyColumnNotFound => CompositeFormat.Parse(Messages.SwitchForeignKeyColumnNotFound);
-        internal static CompositeFormat ForeignKeyTableSetNameNotFound => CompositeFormat.Parse(Messages.ForeignKeyTableSetNameNotFound);
-        internal static CompositeFormat SwitchForeignKeyTableSetNameNotFound => CompositeFormat.Parse(Messages.SwitchForeignKeyTableSetNameNotFound);
     }
 }
