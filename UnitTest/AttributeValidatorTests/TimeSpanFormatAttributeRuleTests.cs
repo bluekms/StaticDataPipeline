@@ -21,12 +21,12 @@ public class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [TimeSpanFormat("c")]
-                         TimeSpan Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [TimeSpanFormat("c")]
+                       TimeSpan Property,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -47,11 +47,11 @@ public class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         TimeSpan Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       TimeSpan Property,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -72,12 +72,12 @@ public class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [TimeSpanFormat("c")]
-                         int Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [TimeSpanFormat("c")]
+                       int Property,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);

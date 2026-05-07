@@ -35,11 +35,11 @@ public class ErrorMessageTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         {type} Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        {type} Property,
+                    );
+                    """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -78,12 +78,12 @@ public class ErrorMessageTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [RegularExpression("^[A-Z]{3}$")]
-                         {type} Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        [RegularExpression("^[A-Z]{3}$")]
+                        {type} Property,
+                    );
+                    """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -167,12 +167,12 @@ public class ErrorMessageTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
-                         {type} Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
+                        {type} Property,
+                    );
+                    """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -211,12 +211,12 @@ public class ErrorMessageTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [TimeSpanFormat("c")]
-                         {type} Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        [TimeSpanFormat("c")]
+                        {type} Property,
+                    );
+                    """;
 
         var catalogs = CreateCatalogs(code, logger);
 

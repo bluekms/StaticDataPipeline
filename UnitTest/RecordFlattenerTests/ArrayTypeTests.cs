@@ -18,11 +18,11 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-            [StaticDataRecord("Test", "TestSheet")]
-            public sealed record MyRecord(
-                [Length(3)] ImmutableArray<int> Scores
-            );
-            """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)] ImmutableArray<int> Scores
+                   );
+                   """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -49,11 +49,11 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-            [StaticDataRecord("Test", "TestSheet")]
-            public sealed record MyRecord(
-                [ColumnName("Score")][Length(3)] ImmutableArray<int> Scores
-            );
-            """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [ColumnName("Score")][Length(3)] ImmutableArray<int> Scores
+                   );
+                   """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -80,11 +80,11 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-            [StaticDataRecord("Test", "TestSheet")]
-            public sealed record MyRecord(
-                [SingleColumnCollection(",")][Length(3)] ImmutableArray<int> Scores
-            );
-            """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [SingleColumnCollection(",")][Length(3)] ImmutableArray<int> Scores
+                   );
+                   """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -109,13 +109,13 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-            [StaticDataRecord("Test", "TestSheet")]
-            public sealed record MyRecord(
-                string Name,
-                [Length(2)] ImmutableArray<int> Scores,
-                [Length(3)] ImmutableArray<string> Tags
-            );
-            """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       string Name,
+                       [Length(2)] ImmutableArray<int> Scores,
+                       [Length(3)] ImmutableArray<string> Tags
+                   );
+                   """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -145,19 +145,19 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-            public sealed record Character(
-                [ColumnName("Name")] string Nickname,
-                Character.Stat Info
-            )
-            {
-                public sealed record Stat(int Hp, int Mp);
-            }
+                   public sealed record Character(
+                       [ColumnName("Name")] string Nickname,
+                       Character.Stat Info
+                   )
+                   {
+                       public sealed record Stat(int Hp, int Mp);
+                   }
 
-            [StaticDataRecord("Test", "TestSheet")]
-            public sealed record MyRecord(
-                [Length(2), ColumnName("Hero")] ImmutableArray<Character> Party
-            );
-            """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(2), ColumnName("Hero")] ImmutableArray<Character> Party
+                   );
+                   """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 

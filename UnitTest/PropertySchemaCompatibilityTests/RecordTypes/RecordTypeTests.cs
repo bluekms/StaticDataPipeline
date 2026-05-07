@@ -21,14 +21,14 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         Identifier Id
-                     )
-                     {
-                        public record struct Identifier(int Value);
-                     }
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       Identifier Id
+                   )
+                   {
+                      public record struct Identifier(int Value);
+                   }
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -61,13 +61,13 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         MyData Data
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       MyData Data
+                   );
 
-                     public record struct MyData(int Key, string Value);
-                     """;
+                   public record struct MyData(int Key, string Value);
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -101,13 +101,13 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)] ImmutableArray<MyData> Data
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)] ImmutableArray<MyData> Data
+                   );
 
-                     public record struct MyData(int Key, string Value);
-                     """;
+                   public record struct MyData(int Key, string Value);
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -145,13 +145,13 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)] FrozenSet<MyData> Data
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)] FrozenSet<MyData> Data
+                   );
 
-                     public record struct MyData(int Key, string Value);
-                     """;
+                   public record struct MyData(int Key, string Value);
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -189,13 +189,13 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)] FrozenDictionary<int, MyData> Data
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)] FrozenDictionary<int, MyData> Data
+                   );
 
-                     public record struct MyData([Key] int Id, string Value);
-                     """;
+                   public record struct MyData([Key] int Id, string Value);
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -233,18 +233,18 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)] FrozenDictionary<KeyData, MyData> Data
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)] FrozenDictionary<KeyData, MyData> Data
+                   );
 
-                     public record struct KeyData(InnerKey Inner, int Key1)
-                     {
-                         public record struct InnerKey(int X, int Y);
-                     }
+                   public record struct KeyData(InnerKey Inner, int Key1)
+                   {
+                       public record struct InnerKey(int X, int Y);
+                   }
 
-                     public record struct MyData([Key] KeyData Key, string Value);
-                     """;
+                   public record struct MyData([Key] KeyData Key, string Value);
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -299,22 +299,22 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     public enum Grades
-                     {
-                         A,
-                         B,
-                         C,
-                         D,
-                         F,
-                     }
+                   public enum Grades
+                   {
+                       A,
+                       B,
+                       C,
+                       D,
+                       F,
+                   }
 
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)] ImmutableArray<NameScore> Data
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)] ImmutableArray<NameScore> Data
+                   );
 
-                     public record struct NameScore(string Name, [Length(2)] ImmutableArray<Grades> Grade);
-                     """;
+                   public record struct NameScore(string Name, [Length(2)] ImmutableArray<Grades> Grade);
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -358,22 +358,22 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     public enum Grades
-                     {
-                         A,
-                         B,
-                         C,
-                         D,
-                         F,
-                     }
+                   public enum Grades
+                   {
+                       A,
+                       B,
+                       C,
+                       D,
+                       F,
+                   }
 
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)] FrozenSet<NameScore> Data
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)] FrozenSet<NameScore> Data
+                   );
 
-                     public record struct NameScore(string Name, [Length(2)] ImmutableArray<Grades> Grade);
-                     """;
+                   public record struct NameScore(string Name, [Length(2)] ImmutableArray<Grades> Grade);
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 
@@ -416,22 +416,22 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     public enum Grades
-                     {
-                         A,
-                         B,
-                         C,
-                         D,
-                         F,
-                     }
+                   public enum Grades
+                   {
+                       A,
+                       B,
+                       C,
+                       D,
+                       F,
+                   }
 
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         [Length(3)] FrozenDictionary<string, NameScore> Data
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [Length(3)] FrozenDictionary<string, NameScore> Data
+                   );
 
-                     public record struct NameScore([Key] string Name, [Length(2)] ImmutableArray<Grades> Grade);
-                     """;
+                   public record struct NameScore([Key] string Name, [Length(2)] ImmutableArray<Grades> Grade);
+                   """;
 
         var catalogs = CreateCatalogs(code, logger);
 

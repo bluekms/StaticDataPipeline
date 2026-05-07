@@ -18,11 +18,11 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-            [StaticDataRecord("Test", "TestSheet")]
-            public sealed record MyRecord(
-                int Id
-            );
-            """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       int Id
+                   );
+                   """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -47,14 +47,14 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-            [StaticDataRecord("Test", "TestSheet")]
-            public sealed record MyRecord(
-                int Id,
-                string Name,
-                double Score,
-                bool IsActive
-            );
-            """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       int Id,
+                       string Name,
+                       double Score,
+                       bool IsActive
+                   );
+                   """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -82,12 +82,12 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-            [StaticDataRecord("Test", "TestSheet")]
-            public sealed record MyRecord(
-                [ColumnName("UserId")] int Id,
-                [ColumnName("UserName")] string Name
-            );
-            """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [ColumnName("UserId")] int Id,
+                       [ColumnName("UserName")] string Name
+                   );
+                   """;
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 

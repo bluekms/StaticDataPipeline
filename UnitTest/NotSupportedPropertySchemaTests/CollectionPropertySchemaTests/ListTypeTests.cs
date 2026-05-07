@@ -21,11 +21,11 @@ public class ListTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = $"""
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         ImmutableArray<{collection}<int>> Property,
-                     );
-                     """;
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed record MyRecord(
+                        ImmutableArray<{collection}<int>> Property,
+                    );
+                    """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         Assert.Throws<NotSupportedException>(() => new RecordSchemaSet(loadResult, logger));
@@ -43,11 +43,11 @@ public class ListTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         List<Dictionary<int, string>> Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       List<Dictionary<int, string>> Property,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         Assert.Throws<NotSupportedException>(() => new RecordSchemaSet(loadResult, logger));

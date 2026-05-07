@@ -17,10 +17,10 @@ public class RecordNameTests(ITestOutputHelper testOutputHelper)
     {
         // language=C#
         var code = """
-            namespace Docs.TestRecord;
+                   namespace Docs.TestRecord;
 
-            public sealed record SimpleRecord(int Id, string Name);
-            """;
+                   public sealed record SimpleRecord(int Id, string Name);
+                   """;
 
         var syntaxTree = CSharpSyntaxTree.ParseText(code);
         var compilation = CSharpCompilation.Create("Test", [syntaxTree]);
@@ -48,13 +48,13 @@ public class RecordNameTests(ITestOutputHelper testOutputHelper)
     {
         // language=C#
         var code = """
-            namespace Docs.TestRecord;
+                   namespace Docs.TestRecord;
 
-            public sealed record ParentRecord(int Id, ParentRecord.ChildRecord Child)
-            {
-                public sealed record ChildRecord(string Name);
-            }
-            """;
+                   public sealed record ParentRecord(int Id, ParentRecord.ChildRecord Child)
+                   {
+                       public sealed record ChildRecord(string Name);
+                   }
+                   """;
 
         var syntaxTree = CSharpSyntaxTree.ParseText(code);
         var compilation = CSharpCompilation.Create("Test", [syntaxTree]);
@@ -87,18 +87,18 @@ public class RecordNameTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-            using System.Collections.Frozen;
-            using Sdp.Attributes;
+                   using System.Collections.Frozen;
+                   using Sdp.Attributes;
 
-            namespace Docs.TestRecord;
+                   namespace Docs.TestRecord;
 
-            public sealed record ItemData([Key] int ItemId, string ItemName);
+                   public sealed record ItemData([Key] int ItemId, string ItemName);
 
-            [StaticDataRecord("Excel2", "DictionarySheet")]
-            public sealed record DictionarySheet(
-                int Id,
-                [Length(2)] FrozenDictionary<int, ItemData> Items);
-            """;
+                   [StaticDataRecord("Excel2", "DictionarySheet")]
+                   public sealed record DictionarySheet(
+                       int Id,
+                       [Length(2)] FrozenDictionary<int, ItemData> Items);
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -122,19 +122,19 @@ public class RecordNameTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-            using System.Collections.Frozen;
-            using Sdp.Attributes;
+                   using System.Collections.Frozen;
+                   using Sdp.Attributes;
 
-            namespace Docs.TestRecord;
+                   namespace Docs.TestRecord;
 
-            [StaticDataRecord("Excel2", "DictionarySheet")]
-            public sealed record DictionarySheet(
-                int Id,
-                [Length(2)] FrozenDictionary<int, DictionarySheet.ItemData> Items)
-            {
-                public sealed record ItemData([Key] int ItemId, string ItemName);
-            }
-            """;
+                   [StaticDataRecord("Excel2", "DictionarySheet")]
+                   public sealed record DictionarySheet(
+                       int Id,
+                       [Length(2)] FrozenDictionary<int, DictionarySheet.ItemData> Items)
+                   {
+                       public sealed record ItemData([Key] int ItemId, string ItemName);
+                   }
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);

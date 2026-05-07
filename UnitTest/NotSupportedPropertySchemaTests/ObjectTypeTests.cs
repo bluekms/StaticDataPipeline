@@ -19,11 +19,11 @@ public class ObjectTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         object Property,
-                     );
-                     """;
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       object Property,
+                   );
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         Assert.Throws<NotSupportedException>(() => new RecordSchemaSet(loadResult, logger));
@@ -41,16 +41,16 @@ public class ObjectTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                     [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
-                         MyData Property,
-                     );
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       MyData Property,
+                   );
 
-                     public sealed class MyData
-                     {
-                         public int Value { get; set; }
-                     }
-                     """;
+                   public sealed class MyData
+                   {
+                       public int Value { get; set; }
+                   }
+                   """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         Assert.Throws<NotSupportedException>(() => new RecordSchemaSet(loadResult, logger));
