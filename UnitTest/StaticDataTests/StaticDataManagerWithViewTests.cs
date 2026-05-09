@@ -54,7 +54,7 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
 
     private sealed record EventBundle(
         EventRecord Event,
-        IReadOnlyList<Equipment> Equipments);
+        IReadOnlyList<Equipment> Equipment);
 
     private sealed class EventBundleView(GameStaticData.TableSet tables)
         : StaticDataView<EventBundleView, GameStaticData.TableSet>(tables)
@@ -72,11 +72,11 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
             var bundles = new List<EventBundle>();
             foreach (var ev in t.Events!.Records)
             {
-                var equipments = new List<Equipment>();
+                var equipment = new List<Equipment>();
 
                 foreach (var weapon in weaponsByEvent.Get(ev.Id))
                 {
-                    equipments.Add(new Equipment(
+                    equipment.Add(new Equipment(
                         weapon.Id,
                         EquipmentType.Weapon,
                         weapon.Name,
@@ -86,7 +86,7 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
 
                 foreach (var armor in armorsByEvent.Get(ev.Id))
                 {
-                    equipments.Add(new Equipment(
+                    equipment.Add(new Equipment(
                         armor.Id,
                         EquipmentType.Armor,
                         armor.Name,
@@ -94,7 +94,7 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
                         armor.DefensePower));
                 }
 
-                bundles.Add(new EventBundle(ev, equipments));
+                bundles.Add(new EventBundle(ev, equipment));
             }
 
             return new UniqueIndex<EventBundle, int>(bundles, b => b.Event.Id);
@@ -226,12 +226,12 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
 
         var bundle = manager.EventBundles.Get(1);
         Assert.Equal("WinterFest", bundle.Event.Name);
-        Assert.Equal(3, bundle.Equipments.Count);
-        Assert.Equal(2, bundle.Equipments.Count(e => e.Type == EquipmentType.Weapon));
-        Assert.Single(bundle.Equipments, e => e.Type == EquipmentType.Armor);
+        Assert.Equal(3, bundle.Equipment.Count);
+        Assert.Equal(2, bundle.Equipment.Count(e => e.Type == EquipmentType.Weapon));
+        Assert.Single(bundle.Equipment, e => e.Type == EquipmentType.Armor);
 
         var bundle2 = manager.EventBundles.Get(2);
-        var only = Assert.Single(bundle2.Equipments);
+        var only = Assert.Single(bundle2.Equipment);
         Assert.Equal(EquipmentType.Weapon, only.Type);
 
         Assert.Empty(logger.Logs);
