@@ -34,29 +34,29 @@ public class FkTargetSingleColumnCollectionValidationTests(ITestOutputHelper tes
         """;
 
     [StaticDataRecord("TagBundle", "Sheet1")]
-    private record TagBundle(
+    private record TagBundleRecord(
         int Id,
         [SingleColumnCollection(", ")] ImmutableArray<string> Tags);
 
     [StaticDataRecord("FkConsumer", "Sheet1")]
-    private record FkConsumer(
+    private record FkConsumerRecord(
         int Id,
         [ForeignKey("TagBundle", "Tags")] string Tag);
 
     [StaticDataRecord("SfkConsumer", "Sheet1")]
-    private record SfkConsumer(
+    private record SfkConsumerRecord(
         int Id,
         TagKind Kind,
         [SwitchForeignKey("Kind", "Alpha", "TagBundle", "Tags")] string Tag);
 
-    private sealed class TagBundleTable(ImmutableList<TagBundle> records)
-        : StaticDataTable<TagBundleTable, TagBundle>(records);
+    private sealed class TagBundleTable(ImmutableList<TagBundleRecord> records)
+        : StaticDataTable<TagBundleTable, TagBundleRecord>(records);
 
-    private sealed class FkConsumerTable(ImmutableList<FkConsumer> records)
-        : StaticDataTable<FkConsumerTable, FkConsumer>(records);
+    private sealed class FkConsumerTable(ImmutableList<FkConsumerRecord> records)
+        : StaticDataTable<FkConsumerTable, FkConsumerRecord>(records);
 
-    private sealed class SfkConsumerTable(ImmutableList<SfkConsumer> records)
-        : StaticDataTable<SfkConsumerTable, SfkConsumer>(records);
+    private sealed class SfkConsumerTable(ImmutableList<SfkConsumerRecord> records)
+        : StaticDataTable<SfkConsumerTable, SfkConsumerRecord>(records);
 
     private sealed class FkStaticData(ILogger logger)
         : StaticDataManager<FkStaticData.TableSet>(logger)
@@ -77,15 +77,15 @@ public class FkTargetSingleColumnCollectionValidationTests(ITestOutputHelper tes
     [Fact]
     public async Task Load_FkTargetingSingleColumnCollection_ThrowsAggregateException()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("TagBundle.Sheet1.csv", TagBundleCsv);
-        dir.Write("FkConsumer.Sheet1.csv", FkConsumerCsv);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<FkTargetSingleColumnCollectionValidationTests>() is not TestOutputLogger<FkTargetSingleColumnCollectionValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("TagBundle.Sheet1.csv", TagBundleCsv);
+        dir.Write("FkConsumer.Sheet1.csv", FkConsumerCsv);
 
         var staticData = new FkStaticData(logger);
 
@@ -98,15 +98,15 @@ public class FkTargetSingleColumnCollectionValidationTests(ITestOutputHelper tes
     [Fact]
     public async Task Load_SfkTargetingSingleColumnCollection_ThrowsAggregateException()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("TagBundle.Sheet1.csv", TagBundleCsv);
-        dir.Write("SfkConsumer.Sheet1.csv", SfkConsumerCsv);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<FkTargetSingleColumnCollectionValidationTests>() is not TestOutputLogger<FkTargetSingleColumnCollectionValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("TagBundle.Sheet1.csv", TagBundleCsv);
+        dir.Write("SfkConsumer.Sheet1.csv", SfkConsumerCsv);
 
         var staticData = new SfkStaticData(logger);
 

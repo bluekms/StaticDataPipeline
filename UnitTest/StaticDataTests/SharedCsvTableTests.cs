@@ -18,16 +18,16 @@ public class SharedCsvTableTests(ITestOutputHelper testOutputHelper)
         """;
 
     [StaticDataRecord("Unit", "Main")]
-    private record UnitStat(int Id, int Hp, int Attack);
+    private record UnitStatRecord(int Id, int Hp, int Attack);
 
     [StaticDataRecord("Unit", "Main")]
-    private record UnitProfile(int Id, string Name, string Description);
+    private record UnitProfileRecord(int Id, string Name, string Description);
 
-    private sealed class UnitStatTable(ImmutableList<UnitStat> records)
-        : StaticDataTable<UnitStatTable, UnitStat>(records);
+    private sealed class UnitStatTable(ImmutableList<UnitStatRecord> records)
+        : StaticDataTable<UnitStatTable, UnitStatRecord>(records);
 
-    private sealed class UnitProfileTable(ImmutableList<UnitProfile> records)
-        : StaticDataTable<UnitProfileTable, UnitProfile>(records);
+    private sealed class UnitProfileTable(ImmutableList<UnitProfileRecord> records)
+        : StaticDataTable<UnitProfileTable, UnitProfileRecord>(records);
 
     private sealed class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)
@@ -43,16 +43,16 @@ public class SharedCsvTableTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public async Task DifferentRecords_SameCsv_PickDifferentColumns()
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<SharedCsvTableTests>() is not TestOutputLogger<SharedCsvTableTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         var dir = CreateTempDir();
         try
         {
             WriteCsv(dir, "Unit.Main.csv", UnitCsv);
-
-            var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-            if (factory.CreateLogger<SharedCsvTableTests>() is not TestOutputLogger<SharedCsvTableTests> logger)
-            {
-                throw new InvalidOperationException("Logger creation failed.");
-            }
 
             var staticData = new StaticData(logger);
             await staticData.LoadAsync(dir);

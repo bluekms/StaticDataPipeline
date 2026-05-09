@@ -43,32 +43,32 @@ public class MultipleForeignKeyValidationTests(ITestOutputHelper testOutputHelpe
         """;
 
     [StaticDataRecord("School", "Sheet1")]
-    private record School(
+    private record SchoolRecord(
         int Id,
         string Name);
 
     [StaticDataRecord("Teacher", "Sheet1")]
-    private record Teacher(
+    private record TeacherRecord(
         int Id,
         string Name,
         [ForeignKey("School", "Name")] string SchoolName);
 
     [StaticDataRecord("Scholarship", "Sheet1")]
-    private record Scholarship(
+    private record ScholarshipRecord(
         int Id,
         string Title,
         [ForeignKey("School", "Id")]
         [ForeignKey("Teacher", "Id")]
         int RecipientId);
 
-    private sealed class SchoolTable(ImmutableList<School> records)
-        : StaticDataTable<SchoolTable, School>(records);
+    private sealed class SchoolTable(ImmutableList<SchoolRecord> records)
+        : StaticDataTable<SchoolTable, SchoolRecord>(records);
 
-    private sealed class TeacherTable(ImmutableList<Teacher> records)
-        : StaticDataTable<TeacherTable, Teacher>(records);
+    private sealed class TeacherTable(ImmutableList<TeacherRecord> records)
+        : StaticDataTable<TeacherTable, TeacherRecord>(records);
 
-    private sealed class ScholarshipTable(ImmutableList<Scholarship> records)
-        : StaticDataTable<ScholarshipTable, Scholarship>(records);
+    private sealed class ScholarshipTable(ImmutableList<ScholarshipRecord> records)
+        : StaticDataTable<ScholarshipTable, ScholarshipRecord>(records);
 
     private sealed class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)
@@ -86,16 +86,16 @@ public class MultipleForeignKeyValidationTests(ITestOutputHelper testOutputHelpe
     [Fact]
     public async Task Load_MultipleFkColumn_ValidWhenRecipientIdExistsInOnlyOneTarget()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("School.Sheet1.csv", SchoolCsv);
-        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
-        dir.Write("Scholarship.Sheet1.csv", ScholarshipCsv);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<MultipleForeignKeyValidationTests>() is not TestOutputLogger<MultipleForeignKeyValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
+        dir.Write("Scholarship.Sheet1.csv", ScholarshipCsv);
 
         var staticData = new StaticData(logger);
         await staticData.LoadAsync(dir.Path);
@@ -107,16 +107,16 @@ public class MultipleForeignKeyValidationTests(ITestOutputHelper testOutputHelpe
     [Fact]
     public async Task Load_MultipleFkViolation_ThrowsWhenRecipientIdExistsInNeitherTarget()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("School.Sheet1.csv", SchoolCsv);
-        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
-        dir.Write("Scholarship.Sheet1.csv", ErrorScholarshipCsv);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<MultipleForeignKeyValidationTests>() is not TestOutputLogger<MultipleForeignKeyValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
+        dir.Write("Scholarship.Sheet1.csv", ErrorScholarshipCsv);
 
         var staticData = new StaticData(logger);
 
