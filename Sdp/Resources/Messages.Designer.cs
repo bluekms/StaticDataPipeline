@@ -90,8 +90,23 @@ internal static class Messages
     internal static string LoadAsyncCompleted
         => ResourceManager.GetString("LoadAsyncCompleted", Culture)!;
 
+    internal static string BuiltView
+        => ResourceManager.GetString("BuiltView", Culture)!;
+
     internal static string TableSetMustHaveSingleConstructor
         => ResourceManager.GetString("TableSetMustHaveSingleConstructor", Culture)!;
+
+    internal static string InvalidViewParameter
+        => ResourceManager.GetString("InvalidViewParameter", Culture)!;
+
+    internal static string ViewConstructorNotFound
+        => ResourceManager.GetString("ViewConstructorNotFound", Culture)!;
+
+    internal static string ViewsFailedToBuild
+        => ResourceManager.GetString("ViewsFailedToBuild", Culture)!;
+
+    internal static string ViewSetMustHaveSingleConstructor
+        => ResourceManager.GetString("ViewSetMustHaveSingleConstructor", Culture)!;
 
     internal static class Composite
     {
@@ -114,5 +129,8 @@ internal static class Messages
         internal static CompositeFormat KeyAttributeRequired => CompositeFormat.Parse(Messages.KeyAttributeRequired);
         internal static CompositeFormat KeyPropertyNotFound => CompositeFormat.Parse(Messages.KeyPropertyNotFound);
         internal static CompositeFormat TableSetMustHaveSingleConstructor => CompositeFormat.Parse(Messages.TableSetMustHaveSingleConstructor);
+        internal static CompositeFormat InvalidViewParameter => CompositeFormat.Parse(Messages.InvalidViewParameter);
+        internal static CompositeFormat ViewConstructorNotFound => CompositeFormat.Parse(Messages.ViewConstructorNotFound);
+        internal static CompositeFormat ViewSetMustHaveSingleConstructor => CompositeFormat.Parse(Messages.ViewSetMustHaveSingleConstructor);
     }
 }
