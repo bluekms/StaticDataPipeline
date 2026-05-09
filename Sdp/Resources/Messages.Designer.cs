@@ -90,6 +90,9 @@ internal static class Messages
     internal static string LoadAsyncCompleted
         => ResourceManager.GetString("LoadAsyncCompleted", Culture)!;
 
+    internal static string TableSetMustHaveSingleConstructor
+        => ResourceManager.GetString("TableSetMustHaveSingleConstructor", Culture)!;
+
     internal static class Composite
     {
         internal static CompositeFormat InvalidTableParameter => CompositeFormat.Parse(Messages.InvalidTableParameter);
@@ -110,5 +113,6 @@ internal static class Messages
         internal static CompositeFormat UnknownCollectionType => CompositeFormat.Parse(Messages.UnknownCollectionType);
         internal static CompositeFormat KeyAttributeRequired => CompositeFormat.Parse(Messages.KeyAttributeRequired);
         internal static CompositeFormat KeyPropertyNotFound => CompositeFormat.Parse(Messages.KeyPropertyNotFound);
+        internal static CompositeFormat TableSetMustHaveSingleConstructor => CompositeFormat.Parse(Messages.TableSetMustHaveSingleConstructor);
     }
 }
