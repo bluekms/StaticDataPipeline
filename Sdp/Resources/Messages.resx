@@ -72,4 +72,7 @@
   <data name="LoadAsyncCompleted" xml:space="preserve">
     <value>LoadAsync completed in {ElapsedMs} ms</value>
   </data>
+  <data name="TableSetMustHaveSingleConstructor" xml:space="preserve">
+    <value>{0} must have exactly one constructor. Use a record to keep members init-only and preserve atomic-swap safety.</value>
+  </data>
 </root>
