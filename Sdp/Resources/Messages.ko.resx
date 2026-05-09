@@ -72,4 +72,22 @@
   <data name="LoadAsyncCompleted" xml:space="preserve">
     <value>LoadAsync 완료 ({ElapsedMs}ms)</value>
   </data>
+  <data name="BuiltView" xml:space="preserve">
+    <value>뷰 {Name} 빌드 완료 ({ElapsedMs}ms)</value>
+  </data>
+  <data name="InvalidViewParameter" xml:space="preserve">
+    <value>'{0}' 파라미터의 타입 '{1}'이(가) StaticDataView&lt;,&gt; 서브타입이 아닙니다.</value>
+  </data>
+  <data name="ViewConstructorNotFound" xml:space="preserve">
+    <value>{0}에는 {1}을(를) 받는 생성자가 필요합니다.</value>
+  </data>
+  <data name="ViewsFailedToBuild" xml:space="preserve">
+    <value>하나 이상의 뷰 빌드에 실패했습니다.</value>
+  </data>
+  <data name="TableSetMustHaveSingleConstructor" xml:space="preserve">
+    <value>{0}에는 정확히 하나의 생성자가 필요합니다. atomic-swap 안전성을 위해 init-only 멤버를 보장하는 record 사용을 권장합니다.</value>
+  </data>
+  <data name="ViewSetMustHaveSingleConstructor" xml:space="preserve">
+    <value>{0}에는 정확히 하나의 생성자가 필요합니다. atomic-swap 안전성을 위해 init-only 멤버를 보장하는 record 사용을 권장합니다.</value>
+  </data>
 </root>

@@ -19,32 +19,32 @@ public class SharedRecordTableTests(ITestOutputHelper testOutputHelper)
         """;
 
     [StaticDataRecord("Item", "Main")]
-    private record Item(int Id, string Name);
+    private record ItemRecord(int Id, string Name);
 
-    private sealed class PrimaryItemTable : StaticDataTable<PrimaryItemTable, Item>
+    private sealed class PrimaryItemTable : StaticDataTable<PrimaryItemTable, ItemRecord>
     {
-        private readonly UniqueIndex<Item, int> byId;
+        private readonly UniqueIndex<ItemRecord, int> byId;
 
-        public PrimaryItemTable(ImmutableList<Item> records)
+        public PrimaryItemTable(ImmutableList<ItemRecord> records)
             : base(records)
         {
             byId = new(records, x => x.Id);
         }
 
-        public Item Get(int id) => byId.Get(id);
+        public ItemRecord Get(int id) => byId.Get(id);
     }
 
-    private sealed class SecondaryItemTable : StaticDataTable<SecondaryItemTable, Item>
+    private sealed class SecondaryItemTable : StaticDataTable<SecondaryItemTable, ItemRecord>
     {
-        private readonly UniqueIndex<Item, string> byName;
+        private readonly UniqueIndex<ItemRecord, string> byName;
 
-        public SecondaryItemTable(ImmutableList<Item> records)
+        public SecondaryItemTable(ImmutableList<ItemRecord> records)
             : base(records)
         {
             byName = new(records, x => x.Name);
         }
 
-        public Item Get(string name) => byName.Get(name);
+        public ItemRecord Get(string name) => byName.Get(name);
     }
 
     private sealed class StaticData(ILogger logger)
@@ -61,16 +61,16 @@ public class SharedRecordTableTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public async Task SameRecordType_DifferentTables_CoexistInTableSet()
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<SharedRecordTableTests>() is not TestOutputLogger<SharedRecordTableTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         var dir = CreateTempDir();
         try
         {
             WriteCsv(dir, "Item.Main.csv", ItemCsv);
-
-            var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-            if (factory.CreateLogger<SharedRecordTableTests>() is not TestOutputLogger<SharedRecordTableTests> logger)
-            {
-                throw new InvalidOperationException("Logger creation failed.");
-            }
 
             var staticData = new StaticData(logger);
             await staticData.LoadAsync(dir);

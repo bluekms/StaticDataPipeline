@@ -1,15 +1,19 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Sdp.Resources;
+using Sdp.View;
 
 namespace Sdp.Manager;
 
-public abstract class StaticDataManager<TTableSet>(ILogger logger)
+public abstract class StaticDataManager<TTableSet, TViewSet>(ILogger logger)
     where TTableSet : class
+    where TViewSet : class
 {
-    private volatile TTableSet current = null!;
+    private volatile State current = null!;
 
-    protected TTableSet Current => current;
+    protected TTableSet CurrentTables => current.Tables;
+
+    protected TViewSet CurrentViews => current.Views;
 
     public async Task LoadAsync(string csvDir, List<string>? disabledTables = null)
     {
@@ -25,7 +29,9 @@ public abstract class StaticDataManager<TTableSet>(ILogger logger)
 
         ReferenceValidator.Validate(tableSet);
         Validate(tableSet);
-        current = tableSet;
+
+        var viewSet = ViewSetBuilder.Build<TTableSet, TViewSet>(tableSet, logger);
+        current = new State(tableSet, viewSet);
 
         stopwatch.Stop();
         logger.LogInformation(
@@ -36,4 +42,6 @@ public abstract class StaticDataManager<TTableSet>(ILogger logger)
     protected virtual void Validate(TTableSet tableSet)
     {
     }
+
+    private sealed record State(TTableSet Tables, TViewSet Views);
 }

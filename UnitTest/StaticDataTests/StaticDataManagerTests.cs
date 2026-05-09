@@ -28,6 +28,12 @@ public class StaticDataManagerTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public async Task ConcurrentLoadAndRead_AlwaysSeesCompleteDataset()
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<StaticDataManagerTests>() is not TestOutputLogger<StaticDataManagerTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         const int CountA = 3;
         const int CountB = 7;
 
@@ -35,12 +41,6 @@ public class StaticDataManagerTests(ITestOutputHelper testOutputHelper)
         using var dirB = new CsvTestDirectory();
         dirA.Write("Fake.Sheet1.csv", BuildCsv(CountA));
         dirB.Write("Fake.Sheet1.csv", BuildCsv(CountB));
-
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<StaticDataManagerTests>() is not TestOutputLogger<StaticDataManagerTests> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
-        }
 
         var manager = new FakeManager(logger);
         await manager.LoadAsync(dirA.Path);

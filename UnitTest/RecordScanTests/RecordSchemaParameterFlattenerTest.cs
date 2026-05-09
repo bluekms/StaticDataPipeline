@@ -10,6 +10,12 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void MyClassTest()
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         // language=C#
         var code = """
                    public sealed record Subject(
@@ -25,12 +31,6 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
                        [Length(4)] ImmutableArray<Subject> SubjectB
                    );
                    """;
-
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
-        }
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -51,6 +51,12 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void MyClassWithSingleColumnTest()
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         // language=C#
         var code = """
                    public sealed record Subject(
@@ -66,12 +72,6 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
                        [Length(4)] ImmutableArray<Subject> SubjectB
                    );
                    """;
-
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
-        }
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -92,6 +92,12 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void MyClassWithSingleColumnAndColumnNameTest()
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         // language=C#
         var code = """
                    public sealed record Subject(
@@ -107,12 +113,6 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
                        [Length(4)] ImmutableArray<Subject> SubjectB
                    );
                    """;
-
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
-        }
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -133,6 +133,12 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void MyClassWithNameAttributesTest()
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         // language=C#
         var code = """
                    public sealed record Subject(
@@ -148,12 +154,6 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
                        [Length(4)]ImmutableArray<Subject> SubjectB,
                    );
                    """;
-
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
-        }
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -174,6 +174,12 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void DictionaryWithPrimitiveKeyTest()
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         // language=C#
         var code = """
                    public sealed record MyRecord([Key] int Id, int Value);
@@ -184,12 +190,6 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
                        [Length(3)] FrozenDictionary<int, MyRecord> MyDictionary,
                    );
                    """;
-
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
-        }
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -210,6 +210,12 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void DictionaryWithRecordKeyTest()
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         // language=C#
         var code = """
                    public sealed record Human(string Name, int Age);
@@ -220,12 +226,6 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
                        [Length(3)] FrozenDictionary<Human, MyRecord> MyDictionary,
                    );
                    """;
-
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
-        }
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -246,6 +246,12 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void CompanyTest()
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         // language=C#
         var code = """
                    public sealed record Address(string Street, string City);
@@ -271,12 +277,6 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
                    );
                    """;
 
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
-        }
-
         var parseResult = SimpleCordParser.Parse(code, logger);
 
         var results = RecordFlattener.Flatten(
@@ -296,6 +296,12 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void SingleParameterRecordTest()
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         // language=C#
         var code = """
                    public sealed record SchoolId(int Value);
@@ -308,12 +314,6 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
                        TeacherId MainTeacher
                    );
                    """;
-
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
-        }
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 
@@ -338,6 +338,12 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
     [Fact]
     public void MixedSingleAndMultiParameterRecordTest()
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         // language=C#
         var code = """
                    public sealed record EntityId(int Value);
@@ -350,12 +356,6 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
                        Address Location
                    );
                    """;
-
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<RecordSchemaParameterFlattenerTest>() is not TestOutputLogger<RecordSchemaParameterFlattenerTest> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
-        }
 
         var parseResult = SimpleCordParser.Parse(code, logger);
 

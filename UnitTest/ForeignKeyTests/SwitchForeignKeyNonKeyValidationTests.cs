@@ -45,7 +45,7 @@ public class SwitchForeignKeyNonKeyValidationTests(ITestOutputHelper testOutputH
         """;
 
     [StaticDataRecord("Staff", "Sheet1")]
-    private record Staff(
+    private record StaffRecord(
         int Id,
         Department Department,
         [SwitchForeignKey("Department", "Engineering", "Engineer", "Name")]
@@ -53,19 +53,19 @@ public class SwitchForeignKeyNonKeyValidationTests(ITestOutputHelper testOutputH
         string LeadName);
 
     [StaticDataRecord("Engineer", "Sheet1")]
-    private record Engineer(int Id, string Name);
+    private record EngineerRecord(int Id, string Name);
 
     [StaticDataRecord("Designer", "Sheet1")]
-    private record Designer(int Id, string Name);
+    private record DesignerRecord(int Id, string Name);
 
-    private sealed class StaffTable(ImmutableList<Staff> records)
-        : StaticDataTable<StaffTable, Staff>(records);
+    private sealed class StaffTable(ImmutableList<StaffRecord> records)
+        : StaticDataTable<StaffTable, StaffRecord>(records);
 
-    private sealed class EngineerTable(ImmutableList<Engineer> records)
-        : StaticDataTable<EngineerTable, Engineer>(records);
+    private sealed class EngineerTable(ImmutableList<EngineerRecord> records)
+        : StaticDataTable<EngineerTable, EngineerRecord>(records);
 
-    private sealed class DesignerTable(ImmutableList<Designer> records)
-        : StaticDataTable<DesignerTable, Designer>(records);
+    private sealed class DesignerTable(ImmutableList<DesignerRecord> records)
+        : StaticDataTable<DesignerTable, DesignerRecord>(records);
 
     private sealed class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)
@@ -81,16 +81,16 @@ public class SwitchForeignKeyNonKeyValidationTests(ITestOutputHelper testOutputH
     [Fact]
     public async Task Load_NonKeySwitchFk_ValidData_SucceedsWithoutException()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("Staff.Sheet1.csv", StaffCsv);
-        dir.Write("Engineer.Sheet1.csv", EngineerCsv);
-        dir.Write("Designer.Sheet1.csv", DesignerCsv);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<SwitchForeignKeyNonKeyValidationTests>() is not TestOutputLogger<SwitchForeignKeyNonKeyValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("Staff.Sheet1.csv", StaffCsv);
+        dir.Write("Engineer.Sheet1.csv", EngineerCsv);
+        dir.Write("Designer.Sheet1.csv", DesignerCsv);
 
         var staticData = new StaticData(logger);
         await staticData.LoadAsync(dir.Path);
@@ -102,16 +102,16 @@ public class SwitchForeignKeyNonKeyValidationTests(ITestOutputHelper testOutputH
     [Fact]
     public async Task Load_NonKeySwitchFkViolation_ThrowsAggregateException()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("Staff.Sheet1.csv", ErrorStaffCsv);
-        dir.Write("Engineer.Sheet1.csv", EngineerCsv);
-        dir.Write("Designer.Sheet1.csv", DesignerCsv);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<SwitchForeignKeyNonKeyValidationTests>() is not TestOutputLogger<SwitchForeignKeyNonKeyValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("Staff.Sheet1.csv", ErrorStaffCsv);
+        dir.Write("Engineer.Sheet1.csv", EngineerCsv);
+        dir.Write("Designer.Sheet1.csv", DesignerCsv);
 
         var staticData = new StaticData(logger);
 
