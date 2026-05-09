@@ -57,60 +57,60 @@ public class ForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
         """;
 
     [StaticDataRecord("School", "Sheet1")]
-    private record School(
+    private record SchoolRecord(
         int Id,
         string Name);
 
     [StaticDataRecord("Teacher", "Sheet1")]
-    private record Teacher(
+    private record TeacherRecord(
         int Id,
         string Name,
         [ForeignKey("School", "Name")] string SchoolName);
 
     [StaticDataRecord("Student", "Sheet1")]
-    private record Student(
+    private record StudentRecord(
         int Id,
         string Name,
         [ForeignKey("School", "Id")] int SchoolId,
         [ForeignKey("Teacher", "Id")] int TeacherId);
 
-    private sealed class SchoolTable : StaticDataTable<SchoolTable, School>
+    private sealed class SchoolTable : StaticDataTable<SchoolTable, SchoolRecord>
     {
-        private readonly UniqueIndex<School, int> byId;
+        private readonly UniqueIndex<SchoolRecord, int> byId;
 
-        public SchoolTable(ImmutableList<School> records)
+        public SchoolTable(ImmutableList<SchoolRecord> records)
             : base(records)
         {
             byId = new(records, x => x.Id);
         }
 
-        public School Get(int id) => byId.Get(id);
+        public SchoolRecord Get(int id) => byId.Get(id);
     }
 
-    private sealed class TeacherTable : StaticDataTable<TeacherTable, Teacher>
+    private sealed class TeacherTable : StaticDataTable<TeacherTable, TeacherRecord>
     {
-        private readonly UniqueIndex<Teacher, int> byId;
+        private readonly UniqueIndex<TeacherRecord, int> byId;
 
-        public TeacherTable(ImmutableList<Teacher> records)
+        public TeacherTable(ImmutableList<TeacherRecord> records)
             : base(records)
         {
             byId = new(records, x => x.Id);
         }
 
-        public Teacher Get(int id) => byId.Get(id);
+        public TeacherRecord Get(int id) => byId.Get(id);
     }
 
-    private sealed class StudentTable : StaticDataTable<StudentTable, Student>
+    private sealed class StudentTable : StaticDataTable<StudentTable, StudentRecord>
     {
-        private readonly UniqueIndex<Student, int> byId;
+        private readonly UniqueIndex<StudentRecord, int> byId;
 
-        public StudentTable(ImmutableList<Student> records)
+        public StudentTable(ImmutableList<StudentRecord> records)
             : base(records)
         {
             byId = new(records, x => x.Id);
         }
 
-        public Student Get(int id) => byId.Get(id);
+        public StudentRecord Get(int id) => byId.Get(id);
     }
 
     private sealed class StaticData(ILogger logger)
@@ -129,16 +129,16 @@ public class ForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public async Task Load_ValidData_SucceedsWithoutException()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("School.Sheet1.csv", SchoolCsv);
-        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
-        dir.Write("Student.Sheet1.csv", StudentCsv);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<ForeignKeyValidationTests>() is not TestOutputLogger<ForeignKeyValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
+        dir.Write("Student.Sheet1.csv", StudentCsv);
 
         var staticData = new StaticData(logger);
         await staticData.LoadAsync(dir.Path);
@@ -152,16 +152,16 @@ public class ForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public async Task Load_KeyFk_StudentSchoolIdResolvesToSchool()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("School.Sheet1.csv", SchoolCsv);
-        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
-        dir.Write("Student.Sheet1.csv", StudentCsv);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<ForeignKeyValidationTests>() is not TestOutputLogger<ForeignKeyValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
+        dir.Write("Student.Sheet1.csv", StudentCsv);
 
         var staticData = new StaticData(logger);
         await staticData.LoadAsync(dir.Path);
@@ -177,16 +177,16 @@ public class ForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public async Task Load_KeyFk_StudentTeacherIdResolvesToTeacher()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("School.Sheet1.csv", SchoolCsv);
-        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
-        dir.Write("Student.Sheet1.csv", StudentCsv);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<ForeignKeyValidationTests>() is not TestOutputLogger<ForeignKeyValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
+        dir.Write("Student.Sheet1.csv", StudentCsv);
 
         var staticData = new StaticData(logger);
         await staticData.LoadAsync(dir.Path);
@@ -202,16 +202,16 @@ public class ForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public async Task Load_NonKeyFkViolation_ThrowsAggregateException()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("School.Sheet1.csv", SchoolCsv);
-        dir.Write("Teacher.Sheet1.csv", ErrorTeacherCsv);
-        dir.Write("Student.Sheet1.csv", StudentCsv);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<ForeignKeyValidationTests>() is not TestOutputLogger<ForeignKeyValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Teacher.Sheet1.csv", ErrorTeacherCsv);
+        dir.Write("Student.Sheet1.csv", StudentCsv);
 
         var staticData = new StaticData(logger);
 
@@ -225,16 +225,16 @@ public class ForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public async Task Load_KeyFkViolation_ThrowsAggregateException()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("School.Sheet1.csv", SchoolCsv);
-        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
-        dir.Write("Student.Sheet1.csv", ErrorStudentCsv);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<ForeignKeyValidationTests>() is not TestOutputLogger<ForeignKeyValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Teacher.Sheet1.csv", TeacherCsv);
+        dir.Write("Student.Sheet1.csv", ErrorStudentCsv);
 
         var staticData = new StaticData(logger);
 

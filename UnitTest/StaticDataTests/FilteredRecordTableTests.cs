@@ -20,13 +20,13 @@ public class FilteredRecordTableTests(ITestOutputHelper testOutputHelper)
         """;
 
     [StaticDataRecord("Buff", "Main")]
-    private record Buff(int Id, string Name, bool IsNormal);
+    private record BuffRecord(int Id, string Name, bool IsNormal);
 
-    private sealed class NormalBuffTable(ImmutableList<Buff> records)
-        : StaticDataTable<NormalBuffTable, Buff>(records.Where(x => x.IsNormal).ToImmutableList());
+    private sealed class NormalBuffTable(ImmutableList<BuffRecord> records)
+        : StaticDataTable<NormalBuffTable, BuffRecord>(records.Where(x => x.IsNormal).ToImmutableList());
 
-    private sealed class AbnormalBuffTable(ImmutableList<Buff> records)
-        : StaticDataTable<AbnormalBuffTable, Buff>(records.Where(x => !x.IsNormal).ToImmutableList());
+    private sealed class AbnormalBuffTable(ImmutableList<BuffRecord> records)
+        : StaticDataTable<AbnormalBuffTable, BuffRecord>(records.Where(x => !x.IsNormal).ToImmutableList());
 
     private sealed class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)
@@ -42,16 +42,16 @@ public class FilteredRecordTableTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public async Task SameRecord_TwoTables_FilterIntoSubsets()
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<FilteredRecordTableTests>() is not TestOutputLogger<FilteredRecordTableTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         var dir = CreateTempDir();
         try
         {
             WriteCsv(dir, "Buff.Main.csv", BuffCsv);
-
-            var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-            if (factory.CreateLogger<FilteredRecordTableTests>() is not TestOutputLogger<FilteredRecordTableTests> logger)
-            {
-                throw new InvalidOperationException("Logger creation failed.");
-            }
 
             var staticData = new StaticData(logger);
             await staticData.LoadAsync(dir);

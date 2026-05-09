@@ -70,7 +70,7 @@ public class SwitchForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
         """;
 
     [StaticDataRecord("Quest", "Sheet1")]
-    private record Quest(
+    private record QuestRecord(
         int QuestId,
         RewardType RewardType,
         [SwitchForeignKey("RewardType", "Item",      "Item",      "Id")]
@@ -79,25 +79,25 @@ public class SwitchForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
         int RewardId);
 
     [StaticDataRecord("Item", "Sheet1")]
-    private record Item(int Id, string Name);
+    private record ItemRecord(int Id, string Name);
 
     [StaticDataRecord("Character", "Sheet1")]
-    private record Character(int Id, string Name);
+    private record CharacterRecord(int Id, string Name);
 
     [StaticDataRecord("Currency", "Sheet1")]
-    private record Currency(int Id, string Name);
+    private record CurrencyRecord(int Id, string Name);
 
-    private sealed class QuestTable(ImmutableList<Quest> records)
-        : StaticDataTable<QuestTable, Quest>(records);
+    private sealed class QuestTable(ImmutableList<QuestRecord> records)
+        : StaticDataTable<QuestTable, QuestRecord>(records);
 
-    private sealed class ItemTable(ImmutableList<Item> records)
-        : StaticDataTable<ItemTable, Item>(records);
+    private sealed class ItemTable(ImmutableList<ItemRecord> records)
+        : StaticDataTable<ItemTable, ItemRecord>(records);
 
-    private sealed class CharacterTable(ImmutableList<Character> records)
-        : StaticDataTable<CharacterTable, Character>(records);
+    private sealed class CharacterTable(ImmutableList<CharacterRecord> records)
+        : StaticDataTable<CharacterTable, CharacterRecord>(records);
 
-    private sealed class CurrencyTable(ImmutableList<Currency> records)
-        : StaticDataTable<CurrencyTable, Currency>(records);
+    private sealed class CurrencyTable(ImmutableList<CurrencyRecord> records)
+        : StaticDataTable<CurrencyTable, CurrencyRecord>(records);
 
     private sealed class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)
@@ -121,15 +121,15 @@ public class SwitchForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public async Task Load_ValidData_SucceedsWithoutException()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("Quest.Sheet1.csv", ValidQuestCsv);
-        WriteFixedCsvs(dir);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<SwitchForeignKeyValidationTests>() is not TestOutputLogger<SwitchForeignKeyValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("Quest.Sheet1.csv", ValidQuestCsv);
+        WriteFixedCsvs(dir);
 
         var staticData = new StaticData(logger);
         await staticData.LoadAsync(dir.Path);
@@ -141,15 +141,15 @@ public class SwitchForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public async Task Load_SwitchFkViolation_ThrowsWhenConditionMatchesButValueMissing()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("Quest.Sheet1.csv", ErrorQuestCsv);
-        WriteFixedCsvs(dir);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<SwitchForeignKeyValidationTests>() is not TestOutputLogger<SwitchForeignKeyValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("Quest.Sheet1.csv", ErrorQuestCsv);
+        WriteFixedCsvs(dir);
 
         var staticData = new StaticData(logger);
 
@@ -163,15 +163,15 @@ public class SwitchForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public async Task Load_SwitchFk_UnmatchedCondition_SkipsValidation()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("Quest.Sheet1.csv", NoConditionQuestCsv);
-        WriteFixedCsvs(dir);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<SwitchForeignKeyValidationTests>() is not TestOutputLogger<SwitchForeignKeyValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("Quest.Sheet1.csv", NoConditionQuestCsv);
+        WriteFixedCsvs(dir);
 
         var staticData = new StaticData(logger);
         await staticData.LoadAsync(dir.Path);
@@ -184,17 +184,17 @@ public class SwitchForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public async Task Load_SwitchFk_OnlyChecksMatchedTable_ThrowsWhenValueExistsOnlyInOtherConditionTable()
     {
-        // RewardId=5는 CharacterTable에 있지만 ItemTable에는 없음
-        // RewardType=Item이므로 ItemTable만 검사 → 실패해야 함 (OR 검사가 아님을 증명)
-        using var dir = new CsvTestDirectory();
-        dir.Write("Quest.Sheet1.csv", CrossTableQuestCsv);
-        WriteFixedCsvs(dir);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<SwitchForeignKeyValidationTests>() is not TestOutputLogger<SwitchForeignKeyValidationTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        // RewardId=5는 CharacterTable에 있지만 ItemTable에는 없음
+        // RewardType=Item이므로 ItemTable만 검사 → 실패해야 함 (OR 검사가 아님을 증명)
+        using var dir = new CsvTestDirectory();
+        dir.Write("Quest.Sheet1.csv", CrossTableQuestCsv);
+        WriteFixedCsvs(dir);
 
         var staticData = new StaticData(logger);
 
@@ -223,19 +223,19 @@ public class SwitchForeignKeyConfigurationErrorTests(ITestOutputHelper testOutpu
         """;
 
     [StaticDataRecord("BadConditionQuest", "Sheet1")]
-    private record BadConditionQuest(
+    private record BadConditionQuestRecord(
         int Id,
         [SwitchForeignKey("NonExistentColumn", "Item", "Target", "Id")]
         int RewardId);
 
     [StaticDataRecord("Target", "Sheet1")]
-    private record Target(int Id);
+    private record TargetRecord(int Id);
 
-    private sealed class BadConditionQuestTable(ImmutableList<BadConditionQuest> records)
-        : StaticDataTable<BadConditionQuestTable, BadConditionQuest>(records);
+    private sealed class BadConditionQuestTable(ImmutableList<BadConditionQuestRecord> records)
+        : StaticDataTable<BadConditionQuestTable, BadConditionQuestRecord>(records);
 
-    private sealed class TargetTable(ImmutableList<Target> records)
-        : StaticDataTable<TargetTable, Target>(records);
+    private sealed class TargetTable(ImmutableList<TargetRecord> records)
+        : StaticDataTable<TargetTable, TargetRecord>(records);
 
     private sealed class ConditionColumnStaticData(ILogger logger)
         : StaticDataManager<ConditionColumnStaticData.TableSet>(logger)
@@ -256,14 +256,14 @@ public class SwitchForeignKeyConfigurationErrorTests(ITestOutputHelper testOutpu
         """;
 
     [StaticDataRecord("BadTargetQuest", "Sheet1")]
-    private record BadTargetQuest(
+    private record BadTargetQuestRecord(
         int Id,
         RewardType RewardType,
         [SwitchForeignKey("RewardType", "Item", "NonExistentTable", "Id")]
         int RewardId);
 
-    private sealed class BadTargetQuestTable(ImmutableList<BadTargetQuest> records)
-        : StaticDataTable<BadTargetQuestTable, BadTargetQuest>(records);
+    private sealed class BadTargetQuestTable(ImmutableList<BadTargetQuestRecord> records)
+        : StaticDataTable<BadTargetQuestTable, BadTargetQuestRecord>(records);
 
     private sealed class TargetTableStaticData(ILogger logger)
         : StaticDataManager<TargetTableStaticData.TableSet>(logger)
@@ -274,15 +274,15 @@ public class SwitchForeignKeyConfigurationErrorTests(ITestOutputHelper testOutpu
     [Fact]
     public async Task Load_ConditionColumnNotFound_ThrowsAggregateException()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("BadConditionQuest.Sheet1.csv", BadConditionQuestCsv);
-        dir.Write("Target.Sheet1.csv", TargetCsv);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<SwitchForeignKeyConfigurationErrorTests>() is not TestOutputLogger<SwitchForeignKeyConfigurationErrorTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("BadConditionQuest.Sheet1.csv", BadConditionQuestCsv);
+        dir.Write("Target.Sheet1.csv", TargetCsv);
 
         var staticData = new ConditionColumnStaticData(logger);
 
@@ -296,14 +296,14 @@ public class SwitchForeignKeyConfigurationErrorTests(ITestOutputHelper testOutpu
     [Fact]
     public async Task Load_TargetTableNotFound_ThrowsAggregateException()
     {
-        using var dir = new CsvTestDirectory();
-        dir.Write("BadTargetQuest.Sheet1.csv", BadTargetQuestCsv);
-
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<SwitchForeignKeyConfigurationErrorTests>() is not TestOutputLogger<SwitchForeignKeyConfigurationErrorTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("BadTargetQuest.Sheet1.csv", BadTargetQuestCsv);
 
         var staticData = new TargetTableStaticData(logger);
 

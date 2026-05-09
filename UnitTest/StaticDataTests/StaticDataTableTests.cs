@@ -5,29 +5,29 @@ namespace UnitTest.StaticDataTests;
 
 public class StaticDataTableTests
 {
-    private sealed record Item(int Id, string Name);
+    private sealed record ItemRecord(int Id, string Name);
 
-    private sealed class ItemTable(ImmutableList<Item> records)
-        : StaticDataTable<ItemTable, Item>(records);
+    private sealed class ItemTable(ImmutableList<ItemRecord> records)
+        : StaticDataTable<ItemTable, ItemRecord>(records);
 
-    private sealed class IndexedItemTable : StaticDataTable<IndexedItemTable, Item>
+    private sealed class IndexedItemTable : StaticDataTable<IndexedItemTable, ItemRecord>
     {
-        private readonly UniqueIndex<Item, int> byId;
+        private readonly UniqueIndex<ItemRecord, int> byId;
 
-        public IndexedItemTable(ImmutableList<Item> records)
+        public IndexedItemTable(ImmutableList<ItemRecord> records)
             : base(records)
         {
             byId = new(records, x => x.Id);
         }
 
-        public Item Get(int id) => byId.Get(id);
+        public ItemRecord Get(int id) => byId.Get(id);
     }
 
-    private static ImmutableList<Item> SampleRecords()
+    private static ImmutableList<ItemRecord> SampleRecords()
         => ImmutableList.Create(
-            new Item(1, "Alpha"),
-            new Item(2, "Beta"),
-            new Item(3, "Gamma"));
+            new ItemRecord(1, "Alpha"),
+            new ItemRecord(2, "Beta"),
+            new ItemRecord(3, "Gamma"));
 
     [Fact]
     public void Records_ReturnsAllRecordsInInsertionOrder()
@@ -44,8 +44,8 @@ public class StaticDataTableTests
     public void BaseTable_DoesNotEnforcePrimaryKeyIndex()
     {
         var duplicated = ImmutableList.Create(
-            new Item(1, "Alpha"),
-            new Item(1, "Duplicate"));
+            new ItemRecord(1, "Alpha"),
+            new ItemRecord(1, "Duplicate"));
 
         var table = new ItemTable(duplicated);
 
@@ -66,8 +66,8 @@ public class StaticDataTableTests
     public void Subclass_WithUniqueIndex_DuplicateKey_ThrowsInvalidOperationException()
     {
         var duplicated = ImmutableList.Create(
-            new Item(1, "Alpha"),
-            new Item(1, "Duplicate"));
+            new ItemRecord(1, "Alpha"),
+            new ItemRecord(1, "Duplicate"));
 
         Assert.Throws<InvalidOperationException>(() => new IndexedItemTable(duplicated));
     }
