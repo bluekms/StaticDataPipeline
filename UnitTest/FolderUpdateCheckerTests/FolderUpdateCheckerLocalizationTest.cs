@@ -14,6 +14,12 @@ public class FolderUpdateCheckerLocalizationTest(ITestOutputHelper testOutputHel
     [InlineData("ko", "파일이 추가되었습니다: Foo")]
     public void AddedMessage_ByLocale(string locale, string expected)
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Trace);
+        if (factory.CreateLogger<FolderUpdateCheckerLocalizationTest>() is not TestOutputLogger<FolderUpdateCheckerLocalizationTest> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         var savedCulture = CultureInfo.CurrentUICulture;
         CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(locale);
         try
@@ -28,12 +34,6 @@ public class FolderUpdateCheckerLocalizationTest(ITestOutputHelper testOutputHel
 
             var before = new FolderState("DummyPath", dummy);
             var after = new FolderState("DummyPath", added);
-
-            var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Trace);
-            if (factory.CreateLogger<FolderUpdateCheckerLocalizationTest>() is not TestOutputLogger<FolderUpdateCheckerLocalizationTest> logger)
-            {
-                throw new InvalidOperationException("Logger creation failed.");
-            }
 
             FolderUpdateChecker.Check(before, after, logger);
 
@@ -51,6 +51,12 @@ public class FolderUpdateCheckerLocalizationTest(ITestOutputHelper testOutputHel
     [InlineData("ko", "파일이 삭제되었습니다: Foo")]
     public void RemovedMessage_ByLocale(string locale, string expected)
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Trace);
+        if (factory.CreateLogger<FolderUpdateCheckerLocalizationTest>() is not TestOutputLogger<FolderUpdateCheckerLocalizationTest> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         var savedCulture = CultureInfo.CurrentUICulture;
         CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(locale);
         try
@@ -65,12 +71,6 @@ public class FolderUpdateCheckerLocalizationTest(ITestOutputHelper testOutputHel
 
             var before = new FolderState("DummyPath", dummy);
             var after = new FolderState("DummyPath", removed);
-
-            var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Trace);
-            if (factory.CreateLogger<FolderUpdateCheckerLocalizationTest>() is not TestOutputLogger<FolderUpdateCheckerLocalizationTest> logger)
-            {
-                throw new InvalidOperationException("Logger creation failed.");
-            }
 
             FolderUpdateChecker.Check(before, after, logger);
 
@@ -88,6 +88,12 @@ public class FolderUpdateCheckerLocalizationTest(ITestOutputHelper testOutputHel
     [InlineData("ko", "마지막 스캔 이후 변경된 파일: dummy")]
     public void UpdatedMessage_ByLocale(string locale, string expected)
     {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Trace);
+        if (factory.CreateLogger<FolderUpdateCheckerLocalizationTest>() is not TestOutputLogger<FolderUpdateCheckerLocalizationTest> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
         var savedCulture = CultureInfo.CurrentUICulture;
         CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(locale);
         try
@@ -98,12 +104,6 @@ public class FolderUpdateCheckerLocalizationTest(ITestOutputHelper testOutputHel
 
             var before = new FolderState("DummyPath", beforeState);
             var after = new FolderState("DummyPath", afterState);
-
-            var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Trace);
-            if (factory.CreateLogger<FolderUpdateCheckerLocalizationTest>() is not TestOutputLogger<FolderUpdateCheckerLocalizationTest> logger)
-            {
-                throw new InvalidOperationException("Logger creation failed.");
-            }
 
             FolderUpdateChecker.Check(before, after, logger);
 

@@ -72,4 +72,22 @@
   <data name="LoadAsyncCompleted" xml:space="preserve">
     <value>LoadAsync completed in {ElapsedMs} ms</value>
   </data>
+  <data name="BuiltView" xml:space="preserve">
+    <value>Built view {Name} in {ElapsedMs} ms</value>
+  </data>
+  <data name="InvalidViewParameter" xml:space="preserve">
+    <value>Parameter '{0}' of type '{1}' is not a StaticDataView&lt;,&gt; subtype.</value>
+  </data>
+  <data name="ViewConstructorNotFound" xml:space="preserve">
+    <value>{0} must have a constructor accepting {1}.</value>
+  </data>
+  <data name="ViewsFailedToBuild" xml:space="preserve">
+    <value>One or more views failed to build.</value>
+  </data>
+  <data name="TableSetMustHaveSingleConstructor" xml:space="preserve">
+    <value>{0} must have exactly one constructor. Use a record to keep members init-only and preserve atomic-swap safety.</value>
+  </data>
+  <data name="ViewSetMustHaveSingleConstructor" xml:space="preserve">
+    <value>{0} must have exactly one constructor. Use a record to keep members init-only and preserve atomic-swap safety.</value>
+  </data>
 </root>
