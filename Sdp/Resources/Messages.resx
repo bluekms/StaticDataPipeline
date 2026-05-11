@@ -90,4 +90,10 @@
   <data name="ViewSetMustHaveSingleConstructor" xml:space="preserve">
     <value>{0} must have exactly one constructor. Use a record to keep members init-only and preserve atomic-swap safety.</value>
   </data>
+  <data name="ViewSetMemberMustBeNonNullable" xml:space="preserve">
+    <value>Parameter '{0}' of type '{1}' must be non-nullable; ViewSet members are always populated.</value>
+  </data>
+  <data name="LoadAsyncAlreadyInProgress" xml:space="preserve">
+    <value>LoadAsync is already in progress; concurrent loads are not supported.</value>
+  </data>
 </root>
