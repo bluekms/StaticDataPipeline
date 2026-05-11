@@ -90,4 +90,10 @@
   <data name="ViewSetMustHaveSingleConstructor" xml:space="preserve">
     <value>{0}에는 정확히 하나의 생성자가 필요합니다. atomic-swap 안전성을 위해 init-only 멤버를 보장하는 record 사용을 권장합니다.</value>
   </data>
+  <data name="ViewSetMemberMustBeNonNullable" xml:space="preserve">
+    <value>'{0}' 파라미터의 타입 '{1}'은(는) non-nullable이어야 합니다. ViewSet 멤버는 항상 빌더가 채웁니다.</value>
+  </data>
+  <data name="LoadAsyncAlreadyInProgress" xml:space="preserve">
+    <value>LoadAsync가 이미 실행 중입니다. 동시 로드는 지원하지 않습니다.</value>
+  </data>
 </root>
