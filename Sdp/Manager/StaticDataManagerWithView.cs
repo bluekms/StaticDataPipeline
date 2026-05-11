@@ -9,39 +9,50 @@ public abstract class StaticDataManager<TTableSet, TViewSet>(ILogger logger)
     where TTableSet : class
     where TViewSet : class
 {
-    private volatile State current = null!;
+    private volatile TableAndViewSet current = null!;
+    private int loading;
 
-    protected TTableSet CurrentTables => current.Tables;
-
-    protected TViewSet CurrentViews => current.Views;
+    public TableAndViewSet Current => current;
 
     public async Task LoadAsync(string csvDir, List<string>? disabledTables = null)
     {
-        var stopwatch = Stopwatch.StartNew();
-
-        var fkTargetError = ForeignKeyTargetValidator.Validate<TTableSet>();
-        if (fkTargetError is not null)
+        if (Interlocked.CompareExchange(ref loading, 1, 0) != 0)
         {
-            throw fkTargetError;
+            throw new InvalidOperationException(Messages.LoadAsyncAlreadyInProgress);
         }
 
-        var tableSet = await TableSetLoader.LoadAsync<TTableSet>(csvDir, disabledTables, logger);
+        try
+        {
+            var stopwatch = Stopwatch.StartNew();
 
-        ReferenceValidator.Validate(tableSet);
-        Validate(tableSet);
+            var fkTargetError = ForeignKeyTargetValidator.Validate<TTableSet>();
+            if (fkTargetError is not null)
+            {
+                throw fkTargetError;
+            }
 
-        var viewSet = ViewSetBuilder.Build<TTableSet, TViewSet>(tableSet, logger);
-        current = new State(tableSet, viewSet);
+            var tableSet = await TableSetLoader.LoadAsync<TTableSet>(csvDir, disabledTables, logger);
 
-        stopwatch.Stop();
-        logger.LogInformation(
-            Messages.LoadAsyncCompleted,
-            stopwatch.ElapsedMilliseconds);
+            ReferenceValidator.Validate(tableSet);
+            Validate(tableSet);
+
+            var viewSet = ViewSetBuilder.Build<TTableSet, TViewSet>(tableSet, logger);
+            current = new TableAndViewSet(tableSet, viewSet);
+
+            stopwatch.Stop();
+            logger.LogInformation(
+                Messages.LoadAsyncCompleted,
+                stopwatch.ElapsedMilliseconds);
+        }
+        finally
+        {
+            Interlocked.Exchange(ref loading, 0);
+        }
     }
 
     protected virtual void Validate(TTableSet tableSet)
     {
     }
 
-    private sealed record State(TTableSet Tables, TViewSet Views);
+    public sealed record TableAndViewSet(TTableSet Tables, TViewSet Views);
 }
