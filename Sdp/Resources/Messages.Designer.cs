@@ -108,6 +108,12 @@ internal static class Messages
     internal static string ViewSetMustHaveSingleConstructor
         => ResourceManager.GetString("ViewSetMustHaveSingleConstructor", Culture)!;
 
+    internal static string ViewSetMemberMustBeNonNullable
+        => ResourceManager.GetString("ViewSetMemberMustBeNonNullable", Culture)!;
+
+    internal static string LoadAsyncAlreadyInProgress
+        => ResourceManager.GetString("LoadAsyncAlreadyInProgress", Culture)!;
+
     internal static class Composite
     {
         internal static CompositeFormat InvalidTableParameter => CompositeFormat.Parse(Messages.InvalidTableParameter);
@@ -132,5 +138,6 @@ internal static class Messages
         internal static CompositeFormat InvalidViewParameter => CompositeFormat.Parse(Messages.InvalidViewParameter);
         internal static CompositeFormat ViewConstructorNotFound => CompositeFormat.Parse(Messages.ViewConstructorNotFound);
         internal static CompositeFormat ViewSetMustHaveSingleConstructor => CompositeFormat.Parse(Messages.ViewSetMustHaveSingleConstructor);
+        internal static CompositeFormat ViewSetMemberMustBeNonNullable => CompositeFormat.Parse(Messages.ViewSetMemberMustBeNonNullable);
     }
 }

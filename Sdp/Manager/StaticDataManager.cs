@@ -8,29 +8,42 @@ public abstract class StaticDataManager<TTableSet>(ILogger logger)
     where TTableSet : class
 {
     private volatile TTableSet current = null!;
+    private int loading;
 
-    protected TTableSet Current => current;
+    public TTableSet Current => current;
 
     public async Task LoadAsync(string csvDir, List<string>? disabledTables = null)
     {
-        var stopwatch = Stopwatch.StartNew();
-
-        var fkTargetError = ForeignKeyTargetValidator.Validate<TTableSet>();
-        if (fkTargetError is not null)
+        if (Interlocked.CompareExchange(ref loading, 1, 0) != 0)
         {
-            throw fkTargetError;
+            throw new InvalidOperationException(Messages.LoadAsyncAlreadyInProgress);
         }
 
-        var tableSet = await TableSetLoader.LoadAsync<TTableSet>(csvDir, disabledTables, logger);
+        try
+        {
+            var stopwatch = Stopwatch.StartNew();
 
-        ReferenceValidator.Validate(tableSet);
-        Validate(tableSet);
-        current = tableSet;
+            var fkTargetError = ForeignKeyTargetValidator.Validate<TTableSet>();
+            if (fkTargetError is not null)
+            {
+                throw fkTargetError;
+            }
 
-        stopwatch.Stop();
-        logger.LogInformation(
-            Messages.LoadAsyncCompleted,
-            stopwatch.ElapsedMilliseconds);
+            var tableSet = await TableSetLoader.LoadAsync<TTableSet>(csvDir, disabledTables, logger);
+
+            ReferenceValidator.Validate(tableSet);
+            Validate(tableSet);
+            current = tableSet;
+
+            stopwatch.Stop();
+            logger.LogInformation(
+                Messages.LoadAsyncCompleted,
+                stopwatch.ElapsedMilliseconds);
+        }
+        finally
+        {
+            Interlocked.Exchange(ref loading, 0);
+        }
     }
 
     protected virtual void Validate(TTableSet tableSet)

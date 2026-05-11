@@ -25,12 +25,13 @@ internal static class ViewSetBuilder
         var parameters = ctor.GetParameters();
         var args = new object?[parameters.Length];
         var errors = new List<Exception>();
+        var nullabilityContext = new NullabilityInfoContext();
 
         for (var i = 0; i < parameters.Length; i++)
         {
             try
             {
-                args[i] = CreateView<TTableSet>(parameters[i], tableSet, logger);
+                args[i] = CreateView(parameters[i], tableSet, nullabilityContext, logger);
             }
             catch (Exception ex)
             {
@@ -46,10 +47,24 @@ internal static class ViewSetBuilder
         return (TViewSet)ctor.Invoke(args);
     }
 
-    private static object CreateView<TTableSet>(ParameterInfo param, TTableSet tableSet, ILogger logger)
+    private static object CreateView<TTableSet>(
+        ParameterInfo param,
+        TTableSet tableSet,
+        NullabilityInfoContext nullabilityContext,
+        ILogger logger)
         where TTableSet : class
     {
         var viewType = param.ParameterType;
+
+        var nullability = nullabilityContext.Create(param);
+        if (nullability.WriteState != NullabilityState.NotNull)
+        {
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ViewSetMemberMustBeNonNullable,
+                param.Name!,
+                viewType.Name));
+        }
 
         if (!typeof(IStaticDataView).IsAssignableFrom(viewType))
         {
