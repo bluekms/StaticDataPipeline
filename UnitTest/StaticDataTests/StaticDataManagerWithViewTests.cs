@@ -140,12 +140,21 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
             ArmorTable? Armors);
 
         public sealed record ViewSet(
-            EventBundleView? EventBundles,
-            EventAttackTotalView? EventAttackTotals);
+            EventBundleView EventBundles,
+            EventAttackTotalView EventAttackTotals);
+    }
 
-        public EventBundleView EventBundles => CurrentViews.EventBundles!;
-
-        public EventAttackTotalView EventAttackTotals => CurrentViews.EventAttackTotals!;
+    private sealed class BlockingGameStaticData(
+        ILogger logger,
+        ManualResetEventSlim started,
+        ManualResetEventSlim gate)
+        : StaticDataManager<GameStaticData.TableSet, GameStaticData.ViewSet>(logger)
+    {
+        protected override void Validate(GameStaticData.TableSet tableSet)
+        {
+            started.Set();
+            gate.Wait(TimeSpan.FromSeconds(10));
+        }
     }
 
     private sealed class FailingViewA : StaticDataView<FailingViewA, FailingViewManager.TableSet>
@@ -175,8 +184,8 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
             ArmorTable? Armors);
 
         public sealed record ViewSet(
-            FailingViewA? A,
-            FailingViewB? B);
+            FailingViewA A,
+            FailingViewB B);
     }
 
     private sealed class InvalidParameterManager(ILogger logger)
@@ -187,7 +196,7 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
             WeaponTable? Weapons,
             ArmorTable? Armors);
 
-        public sealed record ViewSet(string? NotAView);
+        public sealed record ViewSet(string NotAView);
     }
 
     private sealed class BadCtorView : StaticDataView<BadCtorView, BadCtorViewManager.TableSet>
@@ -206,7 +215,21 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
             WeaponTable? Weapons,
             ArmorTable? Armors);
 
-        public sealed record ViewSet(BadCtorView? Bad);
+        public sealed record ViewSet(BadCtorView Bad);
+    }
+
+    private sealed class NullableMemberView(NullableViewMemberStaticData.TableSet tables)
+        : StaticDataView<NullableMemberView, NullableViewMemberStaticData.TableSet>(tables);
+
+    private sealed class NullableViewMemberStaticData(ILogger logger)
+        : StaticDataManager<NullableViewMemberStaticData.TableSet, NullableViewMemberStaticData.ViewSet>(logger)
+    {
+        public sealed record TableSet(
+            EventTable? Events,
+            WeaponTable? Weapons,
+            ArmorTable? Armors);
+
+        public sealed record ViewSet(NullableMemberView? Member);
     }
 
     [Fact]
@@ -224,13 +247,15 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
         var manager = new GameStaticData(logger);
         await manager.LoadAsync(dir.Path);
 
-        var bundle = manager.EventBundles.Get(1);
+        var currentStaticData = manager.Current;
+
+        var bundle = currentStaticData.Views.EventBundles.Get(1);
         Assert.Equal("WinterFest", bundle.Event.Name);
         Assert.Equal(3, bundle.Equipment.Count);
         Assert.Equal(2, bundle.Equipment.Count(e => e.Type == EquipmentType.Weapon));
         Assert.Single(bundle.Equipment, e => e.Type == EquipmentType.Armor);
 
-        var bundle2 = manager.EventBundles.Get(2);
+        var bundle2 = currentStaticData.Views.EventBundles.Get(2);
         var only = Assert.Single(bundle2.Equipment);
         Assert.Equal(EquipmentType.Weapon, only.Type);
 
@@ -252,15 +277,17 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
         var manager = new GameStaticData(logger);
         await manager.LoadAsync(dir.Path);
 
-        Assert.Equal("WinterFest", manager.EventBundles.Get(1).Event.Name);
+        var currentStaticData = manager.Current;
 
-        var total1 = manager.EventAttackTotals.Get(1);
+        Assert.Equal("WinterFest", currentStaticData.Views.EventBundles.Get(1).Event.Name);
+
+        var total1 = currentStaticData.Views.EventAttackTotals.Get(1);
         Assert.Equal(55, total1.TotalAttackPower);
 
-        var total2 = manager.EventAttackTotals.Get(2);
+        var total2 = currentStaticData.Views.EventAttackTotals.Get(2);
         Assert.Equal(40, total2.TotalAttackPower);
 
-        Assert.Throws<KeyNotFoundException>(() => manager.EventAttackTotals.Get(99));
+        Assert.Throws<KeyNotFoundException>(() => currentStaticData.Views.EventAttackTotals.Get(99));
 
         Assert.Empty(logger.Logs);
     }
@@ -351,6 +378,77 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
         }
     }
 
+    [Theory]
+    [InlineData("en", "Parameter 'Member' of type 'NullableMemberView' must be non-nullable; ViewSet members are always populated.")]
+    [InlineData("ko", "'Member' 파라미터의 타입 'NullableMemberView'은(는) non-nullable이어야 합니다. ViewSet 멤버는 항상 빌더가 채웁니다.")]
+    public async Task LoadAsync_NullableViewMember_ThrowsLocalizedMessage(string locale, string expected)
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<StaticDataManagerWithViewTests>() is not TestOutputLogger<StaticDataManagerWithViewTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var savedCulture = CultureInfo.CurrentUICulture;
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(locale);
+        try
+        {
+            using var dir = new CsvTestDirectory();
+            WriteSampleCsvs(dir);
+
+            var manager = new NullableViewMemberStaticData(logger);
+
+            var ex = await Assert.ThrowsAsync<AggregateException>(
+                () => manager.LoadAsync(dir.Path));
+            var inner = Assert.Single(ex.InnerExceptions);
+            Assert.Equal(expected, inner.Message);
+            Assert.Empty(logger.Logs);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = savedCulture;
+        }
+    }
+
+    [Theory]
+    [InlineData("en", "LoadAsync is already in progress; concurrent loads are not supported.")]
+    [InlineData("ko", "LoadAsync가 이미 실행 중입니다. 동시 로드는 지원하지 않습니다.")]
+    public async Task LoadAsync_Reentrant_ThrowsLocalizedMessage(string locale, string expected)
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<StaticDataManagerWithViewTests>() is not TestOutputLogger<StaticDataManagerWithViewTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var savedCulture = CultureInfo.CurrentUICulture;
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(locale);
+        try
+        {
+            using var dir = new CsvTestDirectory();
+            WriteSampleCsvs(dir);
+
+            using var started = new ManualResetEventSlim();
+            using var gate = new ManualResetEventSlim();
+            var manager = new BlockingGameStaticData(logger, started, gate);
+
+            var first = Task.Run(() => manager.LoadAsync(dir.Path));
+            Assert.True(started.Wait(TimeSpan.FromSeconds(5)));
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => manager.LoadAsync(dir.Path));
+            Assert.Equal(expected, ex.Message);
+
+            gate.Set();
+            await first;
+            Assert.Empty(logger.Logs);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = savedCulture;
+        }
+    }
+
     [Fact]
     public async Task ConcurrentLoadAndRead_AlwaysSeesCompleteView()
     {
@@ -384,7 +482,8 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
 
         for (var i = 0; i < 5000; i++)
         {
-            var name = manager.EventBundles.Get(1).Event.Name;
+            var currentStaticData = manager.Current;
+            var name = currentStaticData.Views.EventBundles.Get(1).Event.Name;
             Assert.True(
                 name == "WinterFest" || name == "WinterFest_B",
                 FormattableString.Invariant($"Unexpected: {name}"));

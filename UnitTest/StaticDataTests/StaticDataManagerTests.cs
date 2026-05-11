@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
@@ -21,8 +22,19 @@ public class StaticDataManagerTests(ITestOutputHelper testOutputHelper)
         : StaticDataManager<FakeManager.TableSet>(logger)
     {
         public sealed record TableSet(FakeTable? Items);
+    }
 
-        public TableSet Tables => Current;
+    private sealed class BlockingFakeStaticData(
+        ILogger logger,
+        ManualResetEventSlim started,
+        ManualResetEventSlim gate)
+        : StaticDataManager<FakeManager.TableSet>(logger)
+    {
+        protected override void Validate(FakeManager.TableSet tableSet)
+        {
+            started.Set();
+            gate.Wait(TimeSpan.FromSeconds(10));
+        }
     }
 
     [Fact]
@@ -61,7 +73,8 @@ public class StaticDataManagerTests(ITestOutputHelper testOutputHelper)
 
         for (var i = 0; i < 10000; i++)
         {
-            var count = manager.Tables.Items?.Records.Count;
+            var currentStaticData = manager.Current;
+            var count = currentStaticData.Items?.Records.Count;
             Assert.True(
                 count == CountA || count == CountB,
                 FormattableString.Invariant($"예상: {CountA} 또는 {CountB}, 실제: {count}"));
@@ -71,6 +84,45 @@ public class StaticDataManagerTests(ITestOutputHelper testOutputHelper)
         loaderThread.Join();
 
         Assert.Empty(logger.Logs);
+    }
+
+    [Theory]
+    [InlineData("en", "LoadAsync is already in progress; concurrent loads are not supported.")]
+    [InlineData("ko", "LoadAsync가 이미 실행 중입니다. 동시 로드는 지원하지 않습니다.")]
+    public async Task LoadAsync_Reentrant_ThrowsLocalizedMessage(string locale, string expected)
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<StaticDataManagerTests>() is not TestOutputLogger<StaticDataManagerTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        var savedCulture = CultureInfo.CurrentUICulture;
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(locale);
+        try
+        {
+            using var dir = new CsvTestDirectory();
+            dir.Write("Fake.Sheet1.csv", BuildCsv(3));
+
+            using var started = new ManualResetEventSlim();
+            using var gate = new ManualResetEventSlim();
+            var manager = new BlockingFakeStaticData(logger, started, gate);
+
+            var first = Task.Run(() => manager.LoadAsync(dir.Path));
+            Assert.True(started.Wait(TimeSpan.FromSeconds(5)));
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => manager.LoadAsync(dir.Path));
+            Assert.Equal(expected, ex.Message);
+
+            gate.Set();
+            await first;
+            Assert.Empty(logger.Logs);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = savedCulture;
+        }
     }
 
     private static string BuildCsv(int count)
