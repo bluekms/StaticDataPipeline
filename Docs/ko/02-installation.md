@@ -20,4 +20,4 @@ dotnet build -c Release
 
 ---
 
-[← 이전: 1. 소개](./01-introduction.md) | [목차](./README.md) | [다음: 3.1 첫 Record 정의하기 →](./03-usage/01-first-record.md)
+[← 이전: 1. 소개](./01-introduction.md) | [목차](./README.md) | [다음: 3.1 Record 를 먼저 쓰고 Excel 작업하기 →](./03-usage/01-record-to-excel.md)

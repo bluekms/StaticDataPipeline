@@ -1,6 +1,6 @@
-# 3.2 StaticDataTable 구현
+# 3.4 StaticDataTable 구현
 
-Record 는 "한 행의 모양" 이고, `StaticDataTable` 은 "그 Record 들을 담는 테이블" 입니다. 이번 장에서는 [3.1](./01-first-record.md) 의 `Item` 에 대응하는 `ItemTable` 을 만들고, `UniqueIndex` 로 단건 조회까지 붙여 봅니다.
+Record 는 "한 행의 모양" 이고, `StaticDataTable` 은 "그 Record 들을 담는 테이블" 입니다. 이번 장에서는 [3.3](./03-first-record.md) 의 `Item` 에 대응하는 `ItemTable` 을 만들고, `UniqueIndex` 로 단건 조회까지 붙여 봅니다.
 
 ## 가장 단순한 테이블 정의
 
@@ -66,19 +66,19 @@ if (table.TryGet(2, out var sword))
 }
 ```
 
-다른 컬럼으로도 단건 조회가 필요하면 `UniqueIndex<Item, string> byName` 처럼 인덱스를 추가하면 됩니다. 키가 유일하지 않은 그룹 조회는 `MultiIndex` 를 씁니다 — 자세한 사용은 [4.2](../04-advanced/02-attributes.md) 와 함께 활용하면 자연스럽습니다.
+다른 컬럼으로도 단건 조회가 필요하면 `UniqueIndex<Item, string> byName` 처럼 인덱스를 추가하면 됩니다. 키가 유일하지 않은 그룹 조회는 `MultiIndex` 를 씁니다.
 
 ## CSV 로드는 어떻게?
 
-`ItemTable` 자체에는 CSV 로더가 들어 있지 않습니다. 단일 테이블도, 여러 테이블 묶음도, 모두 `StaticDataManager` 를 통해 로드합니다 ([3.6](./06-static-data-manager.md)). 이 장에서는 "테이블 클래스의 모양" 까지만 다룹니다.
+`ItemTable` 자체에는 CSV 로더가 들어 있지 않습니다. 단일 테이블도, 여러 테이블 묶음도, 모두 `StaticDataManager` 를 통해 로드합니다 ([3.5](./05-static-data-manager.md)). 이 장에서는 "테이블 클래스의 모양" 까지만 다룹니다.
 
 ## 요약
 
 - `StaticDataTable<TSelf, TRecord>` 를 상속하고 `ImmutableList<TRecord>` 생성자를 제공한다.
 - `Records` 는 CSV 의 행 순서를 유지한다.
-- 단건/그룹 조회는 `UniqueIndex` / `MultiIndex` 를 멤버로 두고 Getter 로 노출한다.
+- 단건 조회나 그룹 조회는 `UniqueIndex` / `MultiIndex` 를 멤버로 두고 Getter 로 노출한다.
 - 실제 CSV 로드는 `StaticDataManager` 가 담당한다.
 
 ---
 
-[← 이전: 3.1 첫 Record 정의하기](./01-first-record.md) | [목차](../README.md) | [다음: 3.3 Record를 먼저 쓰고 Excel 작업하기 →](./03-record-to-excel.md)
+[← 이전: 3.3 첫 Record 정의하기](./03-first-record.md) | [목차](../README.md) | [다음: 3.5 StaticDataManager 로 여러 테이블 관리 →](./05-static-data-manager.md)
