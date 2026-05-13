@@ -73,7 +73,8 @@ internal static class CsvRecordMapper
                     baseName,
                     paramInfo.SingleColumnSeparator!,
                     headerIndexMap,
-                    values),
+                    values,
+                    paramInfo.NullString),
                 _ => throw new InvalidOperationException(string.Format(
                     CultureInfo.CurrentCulture,
                     Messages.Composite.UnknownCollectionType,
@@ -188,7 +189,8 @@ internal static class CsvRecordMapper
         string baseName,
         string separator,
         Dictionary<string, int> headerIndexMap,
-        string[] values)
+        string[] values,
+        string? nullString)
     {
         if (!headerIndexMap.TryGetValue(baseName, out var index))
         {
@@ -205,7 +207,7 @@ internal static class CsvRecordMapper
         for (var i = 0; i < parts.Length; i++)
         {
             var trimmedValue = parts[i].Trim();
-            var convertedValue = ConvertStringValue(elementType, trimmedValue, null);
+            var convertedValue = ConvertStringValue(elementType, trimmedValue, nullString);
             array.SetValue(convertedValue, i);
         }
 
