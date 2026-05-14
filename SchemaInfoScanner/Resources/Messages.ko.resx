@@ -207,8 +207,11 @@
   <data name="SingleColumnCollectionNotForMap" xml:space="preserve">
     <value>{0}({1}): Map 컬렉션에서는 SingleColumnCollectionAttribute를 사용할 수 없습니다.</value>
   </data>
-  <data name="FkSfkConflict" xml:space="preserve">
+  <data name="FkSwitchFkConflict" xml:space="preserve">
     <value>{0}: 같은 파라미터에 ForeignKeyAttribute와 SwitchForeignKeyAttribute를 함께 사용할 수 없습니다.</value>
+  </data>
+  <data name="SwitchForeignKeyDuplicateCondition" xml:space="preserve">
+    <value>{0}: SwitchForeignKeyAttribute에 중복된 조건이 있습니다 (Column={1}, Value={2}). 각 조건 값은 단일 타겟에만 매핑되어야 합니다.</value>
   </data>
   <data name="TimeSpanFormatAttributeNotApplicable" xml:space="preserve">
     <value>{0}({1}): TimeSpan이 아니므로 TimeSpanFormatAttribute를 사용할 수 없습니다.</value>
