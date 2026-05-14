@@ -18,6 +18,16 @@ internal partial class SchemaRuleValidator
             RuleFor(x => x)
                 .Must(x => !x.HasAttribute<LengthAttribute>())
                 .WithMessage(_ => Messages.CountRangeAndLengthMutuallyExclusive);
+
+            RuleFor(x => x)
+                .Must(HasPositiveMinCount)
+                .WithMessage(_ => Messages.CountRangeMinMustBePositive);
         });
+    }
+
+    private static bool HasPositiveMinCount(PropertySchemaBase property)
+    {
+        var minCount = property.GetAttributeValue<CountRangeAttribute, int>(0);
+        return minCount > 0;
     }
 }

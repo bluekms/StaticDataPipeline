@@ -213,6 +213,9 @@ internal static class Messages
     internal static string CountRangeAndLengthMutuallyExclusive
         => ResourceManager.GetString("CountRangeAndLengthMutuallyExclusive", Culture)!;
 
+    internal static string CountRangeMinMustBePositive
+        => ResourceManager.GetString("CountRangeMinMustBePositive", Culture)!;
+
     internal static string CountOutOfRange
         => ResourceManager.GetString("CountOutOfRange", Culture)!;
 

@@ -92,6 +92,33 @@ public class CountRangeAttributeRuleTests(ITestOutputHelper testOutputHelper)
     }
 
     [Fact]
+    public void DisallowMinCountZeroTest()
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<CountRangeAttributeRuleTests>() is not TestOutputLogger<CountRangeAttributeRuleTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = """
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed record MyRecord(
+                       [SingleColumnCollection(",")]
+                       [CountRange(0, 5)]
+                       ImmutableArray<int> Property,
+                   );
+                   """;
+
+        var loadResult = RecordSchemaLoader.OnLoad(code, logger);
+        var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
+        var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
+
+        Assert.Throws<InvalidAttributeUsageException>(() => RecordComplianceChecker.Check(recordSchemaCatalog, logger));
+        Assert.Single(logger.Logs);
+    }
+
+    [Fact]
     public void DisallowWithLengthAttributeTest()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
