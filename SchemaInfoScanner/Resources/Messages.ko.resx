@@ -195,6 +195,9 @@
   <data name="CountRangeAndLengthMutuallyExclusive" xml:space="preserve">
     <value>CountRangeAttribute와 LengthAttribute는 함께 사용할 수 없습니다.</value>
   </data>
+  <data name="CountRangeMinMustBePositive" xml:space="preserve">
+    <value>CountRangeAttribute의 MinCount는 0보다 커야 합니다. MinCount가 0이면 하한 제약이 적용되지 않습니다.</value>
+  </data>
   <data name="CountOutOfRange" xml:space="preserve">
     <value>셀 {0}에는 {1}개의 값이 있지만, {2}는 {3}~{4}개를 기대합니다.</value>
   </data>
