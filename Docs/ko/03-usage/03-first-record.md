@@ -27,7 +27,7 @@ public enum ItemCategory
 }
 
 [StaticDataRecord("GameItems", "Items")]
-public sealed record Item(
+public sealed record ItemRecord(
     int Id,
     string Name,
     [Range(0, 1_000_000)] int Price,
@@ -55,7 +55,7 @@ public sealed record Item(
 
 ### `ItemCategory Category`
 
-`enum` 은 **문자열로 매칭** 됩니다. CSV 셀에 `Consumable` 이라고 적혀 있어야 `ItemCategory.Consumable` 로 파싱됩니다. 정수 값이 아닙니다. 정의되지 않은 이름이면 로드가 실패합니다.
+`enum` 은 **문자열로 매칭** 됩니다. CSV 셀에 `Consumable` 이라고 적혀 있어야 `ItemCategory.Consumable` 로 파싱됩니다. 정수 값이 아니며, 대소문자도 정확히 일치해야 합니다 (`consumable`, `CONSUMABLE` 은 실패). 정의되지 않은 이름도 마찬가지로 로드 실패입니다.
 
 ## 추출된 CSV
 

@@ -11,28 +11,28 @@ Sdp 는 두 종류의 외래 키 Attribute 를 제공합니다.
 
 ## ForeignKey — 한 컬럼이 한 대상을 가리킨다
 
-[3.5](./05-static-data-manager.md) 예제의 `Item.CategoryId` 가 `Categories.Id` 를 가리키도록 선언합니다.
+[3.5](./05-static-data-manager.md) 예제의 `ItemRecord.CategoryId` 가 `CategoryTable` 의 `Id` 를 가리키도록 선언합니다.
 
 ```csharp
 using Sdp.Attributes;
 
 [StaticDataRecord("GameItems", "Categories")]
-public sealed record ItemCategoryRecord(
+public sealed record CategoryRecord(
     int Id,
     string Name,
     bool IsConsumable);
 
 [StaticDataRecord("GameItems", "Items")]
-public sealed record Item(
+public sealed record ItemRecord(
     int Id,
     string Name,
-    [ForeignKey("Categories", "Id")] int CategoryId,
+    [ForeignKey("CategoryTable", "Id")] int CategoryId,
     int Price);
 ```
 
 두 인자의 의미는 다음과 같습니다.
 
-- 첫 번째 인자 `"Categories"` — **TableSet 의 속성 이름** (= TableSet record 의 파라미터 이름).
+- 첫 번째 인자 `"CategoryTable"` — **TableSet 의 속성 이름** (= TableSet record 의 파라미터 이름).
 - 두 번째 인자 `"Id"` — **그 테이블 Record 의 파라미터 이름**.
 
 검증 시 대상 테이블의 해당 컬럼 값을 모두 모아 `HashSet` 으로 한 번 만들어 두고, `CategoryId` 가 그 안에 있는지 확인합니다. 같은 (TableSet, Column) 조합은 이후 호출에서 캐시를 재사용합니다.
@@ -41,11 +41,11 @@ public sealed record Item(
 
 `LoadAsync` 의 FK 검증은 두 단계로 나뉘어 진행됩니다.
 
-1. **스키마 단계 — `ForeignKeyTargetValidator`**
+1. **스키마 단계 — 타겟 존재 여부**
    - `tableSetName` 이 실제 TableSet 파라미터에 존재하는가? (`FkTargetNotFound`)
    - `recordColumnName` 이 대상 Record 의 파라미터에 존재하는가? (`IndexNotRegistered`)
    - 대상이 `[SingleColumnCollection]` 으로 묶인 컬럼은 아닌가? (`FkTargetIsSingleColumnCollection`)
-2. **값 단계 — `ReferenceValidator`**
+2. **값 단계 — 실제 참조 존재 여부**
    - 실제 CSV 값이 대상 테이블의 해당 컬럼 값 집합 안에 있는가? (`FkValueNotFound`)
 
 어느 단계든 실패하면 `AggregateException(Messages.FkValidationFailed, ...)` 에 모든 실패가 담겨 throw 됩니다.
@@ -56,43 +56,43 @@ public sealed record Item(
 
 ```
 AggregateException: FK 검증에 실패했습니다.
-  - Item.CategoryId(99) 이(가) [Categories.Id] 중 어디에도 존재하지 않습니다.
+  - ItemRecord.CategoryId(99) 이(가) [CategoryTable.Id] 중 어디에도 존재하지 않습니다.
 ```
 
 여러 행이 어긋나 있으면 `InnerExceptions` 에 하나씩 담깁니다.
 
 ## 여러 ForeignKey — "한 곳에라도 있으면 유효"
 
-같은 ID 체계를 여러 테이블이 나눠 갖는 경우가 있습니다. 예를 들어 `Reward.TargetId` 가 `Items` 또는 `Currencies` 어느 한쪽에 들어 있기만 하면 되는 상황입니다. `[ForeignKey]` 는 `AllowMultiple = true` 라서 같은 파라미터에 여러 번 붙일 수 있고, **둘 중 하나라도 일치하면 통과** 시킵니다.
+같은 ID 체계를 여러 테이블이 나눠 갖는 경우가 있습니다. 예를 들어 `RewardRecord.TargetId` 가 `ItemTable` 또는 `CurrencyTable` 어느 한쪽에 들어 있기만 하면 되는 상황입니다. `[ForeignKey]` 는 `AllowMultiple = true` 라서 같은 파라미터에 여러 번 붙일 수 있고, **둘 중 하나라도 일치하면 통과** 시킵니다.
 
 ```csharp
 [StaticDataRecord("GameItems", "Currencies")]
-public sealed record Currency(
+public sealed record CurrencyRecord(
     int Id,
     string Name);
 
 [StaticDataRecord("GameItems", "Rewards")]
-public sealed record Reward(
+public sealed record RewardRecord(
     int Id,
-    [ForeignKey("Items", "Id")]
-    [ForeignKey("Currencies", "Id")]
+    [ForeignKey("ItemTable", "Id")]
+    [ForeignKey("CurrencyTable", "Id")]
     int TargetId);
 ```
 
-`Reward.TargetId` 가 `1` 이면, `Items.Id == 1` 또는 `Currencies.Id == 1` 어느 한쪽에 존재하면 됩니다. 두 테이블의 ID 체계가 완전히 분리되어 있어 겹치지 않는다는 보장이 있을 때만 깔끔하게 동작하는 패턴입니다.
+`RewardRecord.TargetId` 가 `1` 이면, `ItemTable.Id == 1` 또는 `CurrencyTable.Id == 1` 어느 한쪽에 존재하면 됩니다. 두 테이블의 ID 체계가 완전히 분리되어 있어 겹치지 않는다는 보장이 있을 때만 깔끔하게 동작하는 패턴입니다.
 
 ## SwitchForeignKey — 조건에 따라 가리키는 대상이 달라진다
 
-같은 컬럼 값이 **다른 컬럼의 값에 따라** 다른 테이블을 참조해야 할 때 `[SwitchForeignKey]` 를 씁니다. 예를 들어 보상 종류가 `"Item"` 일 때는 `Items.Id` 를 가리키고, `"Currency"` 일 때는 `Currencies.Id` 를 가리키도록 합니다.
+같은 컬럼 값이 **다른 컬럼의 값에 따라** 다른 테이블을 참조해야 할 때 `[SwitchForeignKey]` 를 씁니다. 예를 들어 보상 종류가 `"Item"` 일 때는 `ItemTable.Id` 를 가리키고, `"Currency"` 일 때는 `CurrencyTable.Id` 를 가리키도록 합니다.
 
 ```csharp
 [StaticDataRecord("GameItems", "Rewards")]
-public sealed record Reward(
+public sealed record RewardRecord(
     int Id,
     string Kind, // "Item" | "Currency"
 
-    [SwitchForeignKey(nameof(Kind), "Item",     "Items",      "Id")]
-    [SwitchForeignKey(nameof(Kind), "Currency", "Currencies", "Id")]
+    [SwitchForeignKey(nameof(Kind), "Item",     "ItemTable",     "Id")]
+    [SwitchForeignKey(nameof(Kind), "Currency", "CurrencyTable", "Id")]
     int TargetId);
 ```
 
@@ -107,8 +107,8 @@ public sealed record Reward(
 
 |Kind|TargetId|검사 대상|
 |-|-|-|
-|Item|10|Items.Id 에 10 이 있어야 함|
-|Currency|5|Currencies.Id 에 5 가 있어야 함|
+|Item|10|ItemTable.Id 에 10 이 있어야 함|
+|Currency|5|CurrencyTable.Id 에 5 가 있어야 함|
 
 조건에 매칭되는 `SwitchForeignKey` 가 하나도 없으면 (`Kind` 가 `"Item"`, `"Currency"` 가 아닌 값이라면) 해당 행의 검증이 실패합니다.
 
@@ -118,43 +118,43 @@ public sealed record Reward(
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record Item(
+public sealed record ItemRecord(
     int Id,
     string Name,
     int Price);
 
 [StaticDataRecord("GameItems", "Currencies")]
-public sealed record Currency(
+public sealed record CurrencyRecord(
     int Id,
     string Name);
 
 [StaticDataRecord("GameItems", "Rewards")]
-public sealed record Reward(
+public sealed record RewardRecord(
     int Id,
     string Kind,
 
-    [SwitchForeignKey(nameof(Kind), "Item",     "Items",      "Id")]
-    [SwitchForeignKey(nameof(Kind), "Currency", "Currencies", "Id")]
+    [SwitchForeignKey(nameof(Kind), "Item",     "ItemTable",     "Id")]
+    [SwitchForeignKey(nameof(Kind), "Currency", "CurrencyTable", "Id")]
     int TargetId,
 
     int Amount);
 
-public sealed class ItemTable(ImmutableList<Item> records)
-    : StaticDataTable<ItemTable, Item>(records);
+public sealed class ItemTable(ImmutableList<ItemRecord> records)
+    : StaticDataTable<ItemTable, ItemRecord>(records);
 
-public sealed class CurrencyTable(ImmutableList<Currency> records)
-    : StaticDataTable<CurrencyTable, Currency>(records);
+public sealed class CurrencyTable(ImmutableList<CurrencyRecord> records)
+    : StaticDataTable<CurrencyTable, CurrencyRecord>(records);
 
-public sealed class RewardTable(ImmutableList<Reward> records)
-    : StaticDataTable<RewardTable, Reward>(records);
+public sealed class RewardTable(ImmutableList<RewardRecord> records)
+    : StaticDataTable<RewardTable, RewardRecord>(records);
 
 public sealed class GameStaticData(ILogger<GameStaticData> logger)
     : StaticDataManager<GameStaticData.TableSet>(logger)
 {
     public sealed record TableSet(
-        ItemTable? Items,
-        CurrencyTable? Currencies,
-        RewardTable? Rewards);
+        ItemTable? ItemTable,
+        CurrencyTable? CurrencyTable,
+        RewardTable? RewardTable);
 }
 ```
 
@@ -183,7 +183,7 @@ Id,Kind,TargetId,Amount
 4,Currency,9,100
 ```
 
-`Rewards` 의 4번 행 `Currency / TargetId=9` 는 `Currencies.Id` 에 없으므로 검증이 실패합니다. 다른 세 행은 통과합니다.
+`Rewards` 의 4번 행 `Currency / TargetId=9` 는 `CurrencyTable.Id` 에 없으므로 검증이 실패합니다. 다른 세 행은 통과합니다.
 
 ## 정리
 

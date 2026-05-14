@@ -4,7 +4,7 @@ Sdp 의 가장 기본적인 흐름 — **Record 정의 → Table 정의 → Mana
 
 이 문서를 따라 끝내고 나면 다음을 갖추게 됩니다.
 
-- 한 시트짜리 정적 데이터를 메모리에 적재한 매니저 인스턴스
+- 여러 시트를 한 번에 적재한 매니저 인스턴스
 - ID 로 한 행을 조회할 수 있는 인덱스
 - 추가 시트가 생기면 늘려 갈 수 있는 골격
 
@@ -15,11 +15,11 @@ Sdp 의 가장 기본적인 흐름 — **Record 정의 → Table 정의 → Mana
 ```mermaid
 flowchart LR
     Excel["Excel<br/>GameItems.xlsx"]
-    Record["Record 정의<br/>Item.cs"]
-    Csv["CSV<br/>GameItems.Items.csv"]
-    Table["Table 클래스<br/>ItemTable"]
-    Manager["Manager<br/>GameStaticData"]
-    App["조회<br/>game.Current.Items"]
+    Record["Record 정의<br/>*Record.cs"]
+    Csv["CSV<br/>GameItems.*.csv"]
+    Table["Table 클래스<br/>*Table"]
+    Manager["StaticData<br/>GameStaticData"]
+    App["조회<br/>tables.*Table"]
 
     Excel --> |ExcelColumnExtractor| Csv
     Record --> |ExcelColumnExtractor| Csv
@@ -46,14 +46,26 @@ public enum ItemCategory
 }
 
 [StaticDataRecord("GameItems", "Items")]
-public sealed record Item(
+public sealed record ItemRecord(
     int Id,
     string Name,
     int Price,
     ItemCategory Category);
+
+[StaticDataRecord("GameItems", "Heroes")]
+public sealed record HeroRecord(
+    int Id,
+    string Name,
+    int Level);
+
+[StaticDataRecord("GameItems", "Quests")]
+public sealed record QuestRecord(
+    int Id,
+    string Title,
+    int RewardItemId);
 ```
 
-- `[StaticDataRecord("GameItems", "Items")]` — 첫 인자는 Excel 파일 이름 (확장자 제외), 두 번째 인자는 시트 이름. 파일과 시트 이름은 달라도 됩니다. 추출된 CSV 는 `{파일}.{시트}.csv` 규칙을 따라 `GameItems.Items.csv` 가 됩니다.
+- `[StaticDataRecord("파일", "시트")]` — 첫 인자는 Excel 파일 이름 (확장자 제외), 두 번째 인자는 시트 이름. 파일과 시트 이름은 달라도 됩니다. 추출된 CSV 는 `{파일}.{시트}.csv` 규칙을 따라 `GameItems.Items.csv` 가 됩니다.
 - 파라미터 이름이 곧 헤더 이름. enum 은 문자열로 매칭됩니다.
 
 ## 2. Table 정의
@@ -64,27 +76,33 @@ public sealed record Item(
 using System.Collections.Immutable;
 using Sdp.Table;
 
-public sealed class ItemTable : StaticDataTable<ItemTable, Item>
+public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
 {
-    private readonly UniqueIndex<Item, int> byId;
+    private readonly UniqueIndex<ItemRecord, int> byId;
 
-    public ItemTable(ImmutableList<Item> records)
+    public ItemTable(ImmutableList<ItemRecord> records)
         : base(records)
     {
-        byId = new UniqueIndex<Item, int>(records, x => x.Id);
+        byId = new UniqueIndex<ItemRecord, int>(records, x => x.Id);
     }
 
-    public Item Get(int id) => byId.Get(id);
+    public ItemRecord Get(int id) => byId.Get(id);
 
-    public bool TryGet(int id, out Item? record) => byId.TryGet(id, out record);
+    public bool TryGet(int id, out ItemRecord? record) => byId.TryGet(id, out record);
 }
+
+public sealed class HeroTable(ImmutableList<HeroRecord> records)
+    : StaticDataTable<HeroTable, HeroRecord>(records);
+
+public sealed class QuestTable(ImmutableList<QuestRecord> records)
+    : StaticDataTable<QuestTable, QuestRecord>(records);
 ```
 
-`Records` 속성으로 전체 목록도 그대로 노출되며, **CSV 의 행 순서를 그대로 유지** 합니다. 정렬이 필요하면 Excel/CSV 측에서 의도한 순서로 정렬해 두면 됩니다.
+`Records` 속성으로 전체 목록도 그대로 노출되며, CSV 의 행 순서를 유지합니다.
 
 ## 3. Manager 와 TableSet
 
-Manager 는 "어떤 테이블들을 다루는지" 를 TableSet record 로 받습니다. TableSet 은 Manager 안쪽에 같이 두는 것을 권장합니다.
+Manager 는 "어떤 테이블들을 다루는지" 를 TableSet record 로 받습니다. TableSet 의 각 파라미터는 테이블 클래스의 인스턴스입니다.
 
 ```csharp
 using Microsoft.Extensions.Logging;
@@ -93,16 +111,19 @@ using Sdp.Manager;
 public sealed class GameStaticData(ILogger<GameStaticData> logger)
     : StaticDataManager<GameStaticData.TableSet>(logger)
 {
-    public sealed record TableSet(ItemTable? Items);
+    public sealed record TableSet(
+        ItemTable? ItemTable,
+        HeroTable? HeroTable,
+        QuestTable? QuestTable);
 }
 ```
 
 - TableSet 의 각 테이블은 nullable. 로드 옵션으로 일부를 건너뛸 수 있기 때문입니다 ([3.5](./03-usage/05-static-data-manager.md)).
-- **외부 노출은 `Current` 한 곳만 한다.** 호출부에서는 `game.Current` 로 한 번 받아 두고 그 안에서 각 테이블을 꺼내 씁니다. 매니저에서 `Items => Current.Items!` 처럼 테이블을 풀어 두지 않는 이유는, 같은 작업 안에서 두 번의 `Current.X` 가 서로 다른 스냅샷을 보게 될 수 있기 때문입니다. 한 번에 받아 두면 그 스냅샷이 작업 끝까지 고정됩니다.
+- **외부 노출은 `Current` 한 곳만 한다.** 호출부에서는 `staticData.Current` 로 한 번 받아 두고 그 안에서 각 테이블을 꺼내 씁니다. 매니저에서 `ItemTable => Current.ItemTable!` 처럼 테이블을 풀어 두지 않는 이유는, 같은 작업 안에서 두 번의 `Current.X` 가 서로 다른 스냅샷을 보게 될 수 있기 때문입니다. 한 번에 받아 두면 그 스냅샷이 작업 끝까지 고정됩니다.
 
 ## 4. CSV 준비
 
-`GameItems.Items.csv` 를 만들어 CSV 디렉터리에 둡니다 (실제로는 [3.1](./03-usage/01-record-to-excel.md), [3.2](./03-usage/02-header-generator.md) 흐름으로 Excel → CSV 가 자동화됩니다).
+`GameItems.Items.csv` 등 시트별 CSV 를 CSV 디렉터리에 둡니다 (실제로는 [3.1](./03-usage/01-record-to-excel.md), [3.2](./03-usage/02-header-generator.md) 흐름으로 Excel → CSV 가 자동화됩니다).
 
 ```
 Id,Name,Price,Category
@@ -114,11 +135,11 @@ Id,Name,Price,Category
 ## 5. 로드와 조회
 
 ```csharp
-var game = new GameStaticData(logger);
-await game.LoadAsync("./csv");
+var staticData = new GameStaticData(logger);
+await staticData.LoadAsync("./csv");
 
-var snapshot = game.Current;
-var sword = snapshot.Items!.Get(2);
+var tables = staticData.Current;
+var sword = tables.ItemTable!.Get(2);
 Console.WriteLine($"{sword.Name}: {sword.Price}");
 ```
 
@@ -126,8 +147,8 @@ Console.WriteLine($"{sword.Name}: {sword.Price}");
 
 ```csharp
 // 두 테이블을 같은 스냅샷에서 꺼내 쓰고 싶다면 — 한 번만 받는다
-var snapshot = game.Current;
-foreach (var item in snapshot.Items!.Records)
+var tables = staticData.Current;
+foreach (var item in tables.ItemTable!.Records)
 {
     Console.WriteLine($"{item.Id} {item.Name}");
 }
@@ -135,14 +156,10 @@ foreach (var item in snapshot.Items!.Records)
 
 ## 다음 단계
 
-여기서 익힌 5단계가 Sdp 사용의 80 % 입니다. 나머지는 필요할 때 골라 보면 됩니다.
+여기서 익힌 5단계가 Sdp 사용의 80 % 입니다. 다음 두 챕터 중 한쪽으로 이어 가면 자연스럽습니다.
 
-- 한 컬럼에 여러 값, 날짜, 객체 배열 — [4.1 지원 타입](./04-advanced/01-schemata.md)
-- 여러 테이블 묶어 로드 — [3.5 StaticDataManager](./03-usage/05-static-data-manager.md)
-- 테이블 사이의 외래 키 검증 — [3.6 외래 키](./03-usage/06-foreign-keys.md)
-- 테이블 위에서 사전 생성되는 read-only 합성 결과 — [3.7 StaticDataView](./03-usage/07-static-data-view.md)
-- Excel 을 코드 없이 시작하려면 — [3.1 Record 를 먼저 쓰고 Excel 작업하기](./03-usage/01-record-to-excel.md), [3.2 표준 헤더 생성기](./03-usage/02-header-generator.md)
-- 사용 가능한 타입과 Attribute 의 전체 목록 — [4.1 지원 타입](./04-advanced/01-schemata.md), [4.2 Attribute 카탈로그](./04-advanced/02-attributes.md)
+- 이미 Excel 시트가 있고 거기에 맞춰 Record 를 짜야 한다면 — [3.1 Excel 작업하기](./03-usage/01-record-to-excel.md)
+- 빈 상태에서 Record 부터 시작해 Excel 까지 짜야 한다면 — [3.3 첫 Record 정의하기](./03-usage/03-first-record.md)
 
 ---
 

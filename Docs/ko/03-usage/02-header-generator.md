@@ -19,7 +19,7 @@ Id  Name  Subjects[0].Subject  Subjects[0].Score  Subjects[1].Subject  Subjects[
 ```bash
 StaticDataHeaderGenerator.exe ^
   --record-path ./Records ^
-  --record-name Student ^
+  --record-name StudentRecord ^
   --output-file ./Headers/Student.tsv
 ```
 
@@ -30,20 +30,6 @@ Id	Name	Subjects[0].Subject	Subjects[0].Score	Subjects[1].Subject	Subjects[1].Sc
 ```
 
 `--record-name` 을 생략하면 `--record-path` 폴더의 모든 `[StaticDataRecord]` Record 가 한꺼번에 처리됩니다.
-
-## bat 한 번에 모든 시트 정리하기
-
-기획자가 매번 옵션을 외워 입력하지 않도록 **bat 파일 하나** 를 폴더에 같이 두는 방식을 권장합니다. 예를 들어 다음 내용을 `Generate-Headers.bat` 로 저장해 두면 더블 클릭으로 헤더 전체를 새로 뽑을 수 있습니다.
-
-```bat
-@echo off
-StaticDataHeaderGenerator.exe ^
-  --record-path .\Records ^
-  --output-file .\Headers\AllHeaders.tsv
-pause
-```
-
-`pause` 가 있으면 결과 메시지를 확인한 뒤 창이 닫히므로 안심하고 닫을 수 있습니다. 결과 파일은 시트마다 한 줄씩 들어 있는 형태로 만들어집니다.
 
 ## Excel 에 붙여넣기
 
@@ -83,8 +69,8 @@ pause
 | **3** |             | 표준 헤더    | 표준 헤더    | 표준 헤더    |
 | **4** |             | 데이터       | 데이터       | 데이터       |
 
-- `A1` ~ `A2` 영역은 메모, 시트 설명을 적어 두는 자유 영역입니다. 추출기는 읽지 않습니다.
-- `B2` 행에는 데이터 작업자가 알아보기 쉬운 임시 이름을 적어 둡니다 (예: "ID", "이름", "수학 점수"). 추출기는 이 행을 보지 않습니다.
+- `A` 열과 `1`, `2` 행은 추출기가 읽지 않는 자유 영역입니다. **이 테이블에 대한 일러두기, 변경 이력, 담당자 메모** 같은 시트 안에서만 의미 있는 정보를 적어 두기에 좋은 자리입니다.
+- `B2` 행에는 데이터 작업자가 알아보기 쉬운 임시 이름을 적어 둡니다 (예: "ID", "이름", "수학 점수").
 - `B3` 행은 표준 헤더 자리입니다. Record 정의가 끝나기 전에는 비워 두고, `StaticDataHeaderGenerator` 출력이 나오면 그대로 붙여넣습니다.
 - `B4` 부터 데이터를 채웁니다.
 
@@ -107,6 +93,20 @@ pause
 |`-l`, `--log-path`|로그 파일 경로|없음|
 |`-v`|최소 로그 레벨|Information|
 
+## bat 한 번에 모든 시트 정리하기
+
+기획자가 매번 옵션을 외워 입력하지 않도록 **bat 파일 하나** 를 폴더에 같이 두는 방식을 권장합니다. 예를 들어 다음 내용을 `Generate-Headers.bat` 로 저장해 두면 더블 클릭으로 헤더 전체를 새로 뽑을 수 있습니다.
+
+```bat
+@echo off
+StaticDataHeaderGenerator.exe ^
+  --record-path .\Records ^
+  --output-file .\Headers\AllHeaders.tsv
+pause
+```
+
+`pause` 가 있으면 결과 메시지를 확인한 뒤 창이 닫히므로 안심하고 닫을 수 있습니다. 결과 파일은 시트마다 한 줄씩 들어 있는 형태로 만들어집니다.
+
 ---
 
-[← 이전: 3.1 Record 를 먼저 쓰고 Excel 작업하기](./01-record-to-excel.md) | [목차](../README.md) | [다음: 3.3 첫 Record 정의하기 →](./03-first-record.md)
+[← 이전: 3.1 Excel 작업하기](./01-record-to-excel.md) | [목차](../README.md) | [다음: 3.3 첫 Record 정의하기 →](./03-first-record.md)

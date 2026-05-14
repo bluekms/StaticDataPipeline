@@ -16,7 +16,7 @@ Sdp가 해결하는 문제, 설계 철학, 데이터 흐름.
 
 ### 3. 사용법
 예제로 익히는 파이프라인. 앞쪽 두 챕터는 **데이터 작업자** 가 Excel 을 채워 나갈 때, 뒤쪽 챕터는 **프로그래머** 가 Record/Table/Manager 를 구성할 때 펼쳐 보는 흐름입니다.
-- [3.1 Record 를 먼저 쓰고 Excel 작업하기](./03-usage/01-record-to-excel.md) — 데이터 작업자 관점
+- [3.1 Excel 작업하기](./03-usage/01-record-to-excel.md) — 데이터 작업자 관점
 - [3.2 표준 헤더 생성기](./03-usage/02-header-generator.md) — 데이터 작업자 관점
 - [3.3 첫 Record 정의하기](./03-usage/03-first-record.md) — 프로그래머 관점
 - [3.4 StaticDataTable 구현](./03-usage/04-static-data-table.md)
