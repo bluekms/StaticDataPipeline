@@ -8,13 +8,13 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class FkSfkConflictAttributeRuleTests(ITestOutputHelper testOutputHelper)
+public class FkSwitchFkConflictAttributeRuleTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void CanUseForeignKeyOnlyTest()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<FkSfkConflictAttributeRuleTests>() is not TestOutputLogger<FkSfkConflictAttributeRuleTests> logger)
+        if (factory.CreateLogger<FkSwitchFkConflictAttributeRuleTests>() is not TestOutputLogger<FkSwitchFkConflictAttributeRuleTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
@@ -41,7 +41,7 @@ public class FkSfkConflictAttributeRuleTests(ITestOutputHelper testOutputHelper)
     public void CanUseSwitchForeignKeyOnlyTest()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<FkSfkConflictAttributeRuleTests>() is not TestOutputLogger<FkSfkConflictAttributeRuleTests> logger)
+        if (factory.CreateLogger<FkSwitchFkConflictAttributeRuleTests>() is not TestOutputLogger<FkSwitchFkConflictAttributeRuleTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
@@ -68,7 +68,7 @@ public class FkSfkConflictAttributeRuleTests(ITestOutputHelper testOutputHelper)
     public void DisallowTest()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<FkSfkConflictAttributeRuleTests>() is not TestOutputLogger<FkSfkConflictAttributeRuleTests> logger)
+        if (factory.CreateLogger<FkSwitchFkConflictAttributeRuleTests>() is not TestOutputLogger<FkSwitchFkConflictAttributeRuleTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
         }
