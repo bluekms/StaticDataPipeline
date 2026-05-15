@@ -22,7 +22,7 @@ public static class RangeAttributeChecker
         var min = ParseRangeBound<T>(propertySchema, minRaw);
         var max = ParseRangeBound<T>(propertySchema, maxRaw);
 
-        if (value.CompareTo(min) < 0 || value.CompareTo(max) > 0)
+        if (CompareValues(value, min) < 0 || CompareValues(value, max) > 0)
         {
             throw new ArgumentOutOfRangeException(propertySchema.PropertyName.FullName, value, string.Format(
                 CultureInfo.CurrentCulture,
@@ -74,6 +74,17 @@ public static class RangeAttributeChecker
         }
 
         throw new InvalidOperationException(Messages.RangeAttributeMustHaveTwoValues);
+    }
+
+    private static int CompareValues<T>(T value, T bound)
+        where T : IComparable<T>
+    {
+        if (typeof(T) == typeof(string))
+        {
+            return string.CompareOrdinal((string)(object)value!, (string)(object)bound!);
+        }
+
+        return value.CompareTo(bound);
     }
 
     private static T ParseRangeBound<T>(PropertySchemaBase propertySchema, string raw)

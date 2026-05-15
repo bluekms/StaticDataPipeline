@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
@@ -6,6 +5,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
+using SchemaInfoScanner.Schemata.AttributeCheckers;
+using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes;
 
@@ -30,6 +31,11 @@ public sealed record StringPropertySchema(
                     cell.Address,
                     pattern));
             }
+        }
+
+        if (this.HasAttribute<RangeAttribute>())
+        {
+            RangeAttributeChecker.Check(this, cell.Value);
         }
 
         context.Collect(cell.Value);
