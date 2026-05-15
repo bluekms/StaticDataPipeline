@@ -75,11 +75,11 @@ internal static class Messages
     internal static string NullStringAttributeNotFound
         => ResourceManager.GetString("NullStringAttributeNotFound", Culture)!;
 
-    internal static string RangeAttributeCannotBeUsedInEnum
-        => ResourceManager.GetString("RangeAttributeCannotBeUsedInEnum", Culture)!;
-
     internal static string RangeAttributeMustHaveTwoValues
         => ResourceManager.GetString("RangeAttributeMustHaveTwoValues", Culture)!;
+
+    internal static string EnumMemberNotFound
+        => ResourceManager.GetString("EnumMemberNotFound", Culture)!;
 
     internal static string ValueOutOfRange
         => ResourceManager.GetString("ValueOutOfRange", Culture)!;
@@ -326,6 +326,7 @@ internal static class Messages
         internal static CompositeFormat RecordSchemaTypeArgNotFound => CompositeFormat.Parse(Messages.RecordSchemaTypeArgNotFound);
         internal static CompositeFormat NullStringAttributeNotFound => CompositeFormat.Parse(Messages.NullStringAttributeNotFound);
         internal static CompositeFormat ValueOutOfRange => CompositeFormat.Parse(Messages.ValueOutOfRange);
+        internal static CompositeFormat EnumMemberNotFound => CompositeFormat.Parse(Messages.EnumMemberNotFound);
         internal static CompositeFormat ParameterCannotHaveLengthAttribute => CompositeFormat.Parse(Messages.ParameterCannotHaveLengthAttribute);
         internal static CompositeFormat ParameterCannotHaveLengthAttributeWithContext => CompositeFormat.Parse(Messages.ParameterCannotHaveLengthAttributeWithContext);
         internal static CompositeFormat DuplicateKeyInContext => CompositeFormat.Parse(Messages.DuplicateKeyInContext);

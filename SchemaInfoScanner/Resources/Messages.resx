@@ -57,11 +57,11 @@
   <data name="NullStringAttributeNotFound" xml:space="preserve">
     <value>Property {0} does not have a NullStringAttribute.</value>
   </data>
-  <data name="RangeAttributeCannotBeUsedInEnum" xml:space="preserve">
-    <value>RangeAttribute cannot be used in enum.</value>
-  </data>
   <data name="RangeAttributeMustHaveTwoValues" xml:space="preserve">
     <value>RangeAttribute must have two values.</value>
+  </data>
+  <data name="EnumMemberNotFound" xml:space="preserve">
+    <value>Enum member '{0}' not found on {1}.</value>
   </data>
   <data name="ValueOutOfRange" xml:space="preserve">
     <value>Value({0}) must be between {1} and {2}.</value>

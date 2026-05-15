@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
+using SchemaInfoScanner.Schemata.AttributeCheckers;
 using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes;
@@ -33,6 +34,11 @@ public sealed record EnumPropertySchema(
                     cell.Address,
                     enumName.FullName));
             }
+        }
+
+        if (this.HasAttribute<RangeAttribute>())
+        {
+            RangeAttributeChecker.CheckEnum(this, value, NamedTypeSymbol);
         }
 
         context.Collect(value);

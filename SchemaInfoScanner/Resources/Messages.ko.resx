@@ -57,11 +57,11 @@
   <data name="NullStringAttributeNotFound" xml:space="preserve">
     <value>{0} 프로퍼티에 NullStringAttribute가 없습니다.</value>
   </data>
-  <data name="RangeAttributeCannotBeUsedInEnum" xml:space="preserve">
-    <value>RangeAttribute는 열거형에 사용할 수 없습니다.</value>
-  </data>
   <data name="RangeAttributeMustHaveTwoValues" xml:space="preserve">
     <value>RangeAttribute는 두 개의 값을 가져야 합니다.</value>
+  </data>
+  <data name="EnumMemberNotFound" xml:space="preserve">
+    <value>'{0}' 열거형 멤버를 {1}에서 찾을 수 없습니다.</value>
   </data>
   <data name="ValueOutOfRange" xml:space="preserve">
     <value>값({0})은 {1}과(와) {2} 사이여야 합니다.</value>

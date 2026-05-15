@@ -1,4 +1,5 @@
 using System.Globalization;
+using Microsoft.CodeAnalysis;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.Resources;
 using Sdp.Attributes;
@@ -10,11 +11,6 @@ public static class RangeAttributeChecker
     public static void Check<T>(PropertySchemaBase propertySchema, T value)
         where T : IComparable<T>
     {
-        if (typeof(T).IsEnum)
-        {
-            throw new InvalidOperationException(Messages.RangeAttributeCannotBeUsedInEnum);
-        }
-
         var attributeValues = propertySchema.GetAttributeValueList<RangeAttribute>();
         if (attributeValues.Count is 0)
         {
@@ -34,6 +30,34 @@ public static class RangeAttributeChecker
                 value,
                 min,
                 max));
+        }
+    }
+
+    public static void CheckEnum(
+        PropertySchemaBase propertySchema,
+        string memberName,
+        INamedTypeSymbol enumType)
+    {
+        var attributeValues = propertySchema.GetAttributeValueList<RangeAttribute>();
+        if (attributeValues.Count is 0)
+        {
+            return;
+        }
+
+        var (minName, maxName) = ExtractMinMax(attributeValues);
+
+        var valueUnderlying = ParseEnumValueOrName(enumType, memberName);
+        var minUnderlying = ParseEnumValueOrName(enumType, minName);
+        var maxUnderlying = ParseEnumValueOrName(enumType, maxName);
+
+        if (valueUnderlying < minUnderlying || valueUnderlying > maxUnderlying)
+        {
+            throw new ArgumentOutOfRangeException(propertySchema.PropertyName.FullName, memberName, string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.ValueOutOfRange,
+                memberName,
+                minName,
+                maxName));
         }
     }
 
@@ -67,5 +91,28 @@ public static class RangeAttributeChecker
         }
 
         return (T)Convert.ChangeType(raw, typeof(T), CultureInfo.InvariantCulture);
+    }
+
+    private static long ParseEnumValueOrName(INamedTypeSymbol enumType, string raw)
+    {
+        if (long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var asLong))
+        {
+            return asLong;
+        }
+
+        var member = enumType.GetMembers()
+            .OfType<IFieldSymbol>()
+            .FirstOrDefault(f => f.Name == raw && f.HasConstantValue);
+
+        if (member?.ConstantValue is null)
+        {
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.EnumMemberNotFound,
+                raw,
+                enumType.Name));
+        }
+
+        return Convert.ToInt64(member.ConstantValue, CultureInfo.InvariantCulture);
     }
 }
