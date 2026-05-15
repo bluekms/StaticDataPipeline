@@ -5,4 +5,10 @@ public abstract class StaticDataView<TSelf, TTableSet>(TTableSet tables) : IStat
     where TTableSet : class
 {
     protected TTableSet Tables => tables;
+
+    protected virtual void Validate()
+    {
+    }
+
+    void IStaticDataView.Validate() => Validate();
 }

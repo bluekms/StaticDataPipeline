@@ -218,6 +218,37 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
         public sealed record ViewSet(BadCtorView Bad);
     }
 
+    private sealed class ValidateThrowingViewA(ValidateThrowingViewManager.TableSet tables)
+        : StaticDataView<ValidateThrowingViewA, ValidateThrowingViewManager.TableSet>(tables)
+    {
+        protected override void Validate()
+        {
+            throw new InvalidOperationException("validate failure A");
+        }
+    }
+
+    private sealed class ValidateThrowingViewB(ValidateThrowingViewManager.TableSet tables)
+        : StaticDataView<ValidateThrowingViewB, ValidateThrowingViewManager.TableSet>(tables)
+    {
+        protected override void Validate()
+        {
+            throw new InvalidOperationException("validate failure B");
+        }
+    }
+
+    private sealed class ValidateThrowingViewManager(ILogger logger)
+        : StaticDataManager<ValidateThrowingViewManager.TableSet, ValidateThrowingViewManager.ViewSet>(logger)
+    {
+        public sealed record TableSet(
+            EventTable? Events,
+            WeaponTable? Weapons,
+            ArmorTable? Armors);
+
+        public sealed record ViewSet(
+            ValidateThrowingViewA A,
+            ValidateThrowingViewB B);
+    }
+
     private sealed class NullableMemberView(NullableViewMemberStaticData.TableSet tables)
         : StaticDataView<NullableMemberView, NullableViewMemberStaticData.TableSet>(tables);
 
@@ -311,6 +342,28 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
         Assert.Equal(2, ex.InnerExceptions.Count);
         Assert.Contains(ex.InnerExceptions, e => e.Message == "failure A");
         Assert.Contains(ex.InnerExceptions, e => e.Message == "failure B");
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public async Task LoadAsync_AggregatesViewValidateFailures()
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<StaticDataManagerWithViewTests>() is not TestOutputLogger<StaticDataManagerWithViewTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        using var dir = new CsvTestDirectory();
+        WriteSampleCsvs(dir);
+
+        var manager = new ValidateThrowingViewManager(logger);
+
+        var ex = await Assert.ThrowsAsync<AggregateException>(
+            () => manager.LoadAsync(dir.Path));
+        Assert.Equal(2, ex.InnerExceptions.Count);
+        Assert.Contains(ex.InnerExceptions, e => e.Message == "validate failure A");
+        Assert.Contains(ex.InnerExceptions, e => e.Message == "validate failure B");
         Assert.Empty(logger.Logs);
     }
 

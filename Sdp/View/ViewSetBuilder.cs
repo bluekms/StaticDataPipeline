@@ -100,6 +100,8 @@ internal static class ViewSetBuilder
             throw tie.InnerException ?? tie;
         }
 
+        ((IStaticDataView)view).Validate();
+
         stopwatch.Stop();
         logger.LogTrace(
             Messages.BuiltView,
