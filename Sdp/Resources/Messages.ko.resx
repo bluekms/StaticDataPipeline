@@ -33,6 +33,9 @@
   <data name="FkTargetIsSingleColumnCollection" xml:space="preserve">
     <value>FK 타겟 컬럼 '{0}'({1})은(는) SingleColumnCollection입니다. FK 타겟은 스칼라 컬럼이어야 합니다.</value>
   </data>
+  <data name="SwitchFkDuplicateConditionValue" xml:space="preserve">
+    <value>'{0}.{1}'의 Switch FK에 중복된 조건이 있습니다 (Column={2}, Value={3}). 각 조건 값은 단일 타겟에만 매핑되어야 합니다.</value>
+  </data>
   <data name="StaticDataRecordAttributeRequired" xml:space="preserve">
     <value>{0}에 [StaticDataRecord] 어트리뷰트가 필요합니다.</value>
   </data>

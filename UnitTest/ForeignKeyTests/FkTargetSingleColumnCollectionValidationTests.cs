@@ -27,7 +27,7 @@ public class FkTargetSingleColumnCollectionValidationTests(ITestOutputHelper tes
         1,a
         """;
 
-    private const string SfkConsumerCsv =
+    private const string SwitchFkConsumerCsv =
         """
         Id,Kind,Tag
         1,Alpha,a
@@ -43,8 +43,8 @@ public class FkTargetSingleColumnCollectionValidationTests(ITestOutputHelper tes
         int Id,
         [ForeignKey("TagBundle", "Tags")] string Tag);
 
-    [StaticDataRecord("SfkConsumer", "Sheet1")]
-    private record SfkConsumerRecord(
+    [StaticDataRecord("SwitchFkConsumer", "Sheet1")]
+    private record SwitchFkConsumerRecord(
         int Id,
         TagKind Kind,
         [SwitchForeignKey("Kind", "Alpha", "TagBundle", "Tags")] string Tag);
@@ -55,8 +55,8 @@ public class FkTargetSingleColumnCollectionValidationTests(ITestOutputHelper tes
     private sealed class FkConsumerTable(ImmutableList<FkConsumerRecord> records)
         : StaticDataTable<FkConsumerTable, FkConsumerRecord>(records);
 
-    private sealed class SfkConsumerTable(ImmutableList<SfkConsumerRecord> records)
-        : StaticDataTable<SfkConsumerTable, SfkConsumerRecord>(records);
+    private sealed class SwitchFkConsumerTable(ImmutableList<SwitchFkConsumerRecord> records)
+        : StaticDataTable<SwitchFkConsumerTable, SwitchFkConsumerRecord>(records);
 
     private sealed class FkStaticData(ILogger logger)
         : StaticDataManager<FkStaticData.TableSet>(logger)
@@ -66,12 +66,12 @@ public class FkTargetSingleColumnCollectionValidationTests(ITestOutputHelper tes
             FkConsumerTable? FkConsumer);
     }
 
-    private sealed class SfkStaticData(ILogger logger)
-        : StaticDataManager<SfkStaticData.TableSet>(logger)
+    private sealed class SwitchFkStaticData(ILogger logger)
+        : StaticDataManager<SwitchFkStaticData.TableSet>(logger)
     {
         public sealed record TableSet(
             TagBundleTable? TagBundle,
-            SfkConsumerTable? SfkConsumer);
+            SwitchFkConsumerTable? SwitchFkConsumer);
     }
 
     [Fact]
@@ -96,7 +96,7 @@ public class FkTargetSingleColumnCollectionValidationTests(ITestOutputHelper tes
     }
 
     [Fact]
-    public async Task Load_SfkTargetingSingleColumnCollection_ThrowsAggregateException()
+    public async Task Load_SwitchFkTargetingSingleColumnCollection_ThrowsAggregateException()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<FkTargetSingleColumnCollectionValidationTests>() is not TestOutputLogger<FkTargetSingleColumnCollectionValidationTests> logger)
@@ -106,9 +106,9 @@ public class FkTargetSingleColumnCollectionValidationTests(ITestOutputHelper tes
 
         using var dir = new CsvTestDirectory();
         dir.Write("TagBundle.Sheet1.csv", TagBundleCsv);
-        dir.Write("SfkConsumer.Sheet1.csv", SfkConsumerCsv);
+        dir.Write("SwitchFkConsumer.Sheet1.csv", SwitchFkConsumerCsv);
 
-        var staticData = new SfkStaticData(logger);
+        var staticData = new SwitchFkStaticData(logger);
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 

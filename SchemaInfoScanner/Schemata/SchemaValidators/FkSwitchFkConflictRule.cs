@@ -8,7 +8,7 @@ namespace SchemaInfoScanner.Schemata.SchemaValidators;
 
 internal partial class SchemaRuleValidator
 {
-    private void RegisterFkSfkConflictRule()
+    private void RegisterFkSwitchFkConflictRule()
     {
         When(x => x.HasAttribute<ForeignKeyAttribute>() && x.HasAttribute<SwitchForeignKeyAttribute>(), () =>
         {
@@ -17,7 +17,7 @@ internal partial class SchemaRuleValidator
                 .WithMessage(x =>
                     string.Format(
                         CultureInfo.CurrentCulture,
-                        Messages.Composite.FkSfkConflict,
+                        Messages.Composite.FkSwitchFkConflict,
                         x.PropertyName.FullName));
         });
     }

@@ -10,7 +10,7 @@ internal static class ReferenceValidator
         var tableMap = ForeignKeyResolver.BuildTableMap(tableSet);
         var schemaErrors = new List<Exception>();
         var fkChecksByType = new Dictionary<Type, List<ForeignKeyValidator.FkCheck>>();
-        var sfkChecksByType = new Dictionary<Type, List<SwitchForeignKeyValidator.SwitchFkCheck>>();
+        var switchFkChecksByType = new Dictionary<Type, List<SwitchForeignKeyValidator.SwitchFkCheck>>();
 
         foreach (var table in tableMap.Values)
         {
@@ -21,7 +21,7 @@ internal static class ReferenceValidator
             }
 
             fkChecksByType[recordType] = ForeignKeyValidator.BuildChecks(recordType, tableMap, schemaErrors);
-            sfkChecksByType[recordType] = SwitchForeignKeyValidator.BuildChecks(recordType, tableMap, schemaErrors);
+            switchFkChecksByType[recordType] = SwitchForeignKeyValidator.BuildChecks(recordType, tableMap, schemaErrors);
         }
 
         if (schemaErrors.Count > 0)
@@ -36,9 +36,9 @@ internal static class ReferenceValidator
         {
             var recordType = table.RecordType;
             var fkChecks = fkChecksByType[recordType];
-            var sfkChecks = sfkChecksByType[recordType];
+            var switchFkChecks = switchFkChecksByType[recordType];
 
-            if (fkChecks.Count is 0 && sfkChecks.Count is 0)
+            if (fkChecks.Count is 0 && switchFkChecks.Count is 0)
             {
                 continue;
             }
@@ -50,9 +50,9 @@ internal static class ReferenceValidator
                     ForeignKeyValidator.ValidateRecord(record, fkCheck, recordType, dataErrors, cache);
                 }
 
-                foreach (var sfkCheck in sfkChecks)
+                foreach (var switchFkCheck in switchFkChecks)
                 {
-                    SwitchForeignKeyValidator.ValidateRecord(record, sfkCheck, recordType, dataErrors, cache);
+                    SwitchForeignKeyValidator.ValidateRecord(record, switchFkCheck, recordType, dataErrors, cache);
                 }
             }
         }

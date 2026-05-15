@@ -22,7 +22,7 @@ internal static class ForeignKeyTargetValidator
                 continue;
             }
 
-            ValidateFkAndSfkTargets(recordType, recordTypeMap, errors);
+            ValidateFkAndSwitchFkTargets(recordType, recordTypeMap, errors);
         }
 
         return errors.Count > 0
@@ -63,7 +63,7 @@ internal static class ForeignKeyTargetValidator
         return null;
     }
 
-    private static void ValidateFkAndSfkTargets(
+    private static void ValidateFkAndSwitchFkTargets(
         Type recordType,
         Dictionary<string, Type> recordTypeMap,
         List<Exception> errors)
@@ -75,10 +75,36 @@ internal static class ForeignKeyTargetValidator
                 ValidateTarget(attr.TableSetName, attr.RecordColumnName, recordTypeMap, errors);
             }
 
-            foreach (var attr in param.GetCustomAttributes<SwitchForeignKeyAttribute>())
+            var switchAttrs = param.GetCustomAttributes<SwitchForeignKeyAttribute>().ToList();
+            foreach (var attr in switchAttrs)
             {
                 ValidateTarget(attr.TableSetName, attr.RecordColumnName, recordTypeMap, errors);
             }
+
+            ValidateSwitchFkConditionUniqueness(recordType, param, switchAttrs, errors);
+        }
+    }
+
+    private static void ValidateSwitchFkConditionUniqueness(
+        Type recordType,
+        ParameterInfo param,
+        List<SwitchForeignKeyAttribute> switchAttrs,
+        List<Exception> errors)
+    {
+        var duplicates = switchAttrs
+            .Select(switchFkAttr => (Column: switchFkAttr.ConditionColumnName, Value: switchFkAttr.ConditionValue))
+            .GroupBy(c => c)
+            .Where(g => g.Count() > 1);
+
+        foreach (var dup in duplicates)
+        {
+            errors.Add(new InvalidOperationException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.SwitchFkDuplicateConditionValue,
+                recordType.Name,
+                param.Name,
+                dup.Key.Column,
+                dup.Key.Value)));
         }
     }
 
