@@ -74,6 +74,7 @@ public static class ParameterSchemaBaseAttributeAccessors
             {
                 LiteralExpressionSyntax literal => literal.Token.ValueText,
                 MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.Text, // for enum
+                TypeOfExpressionSyntax typeOf => typeOf.Type.ToString(), // for [Range(typeof(T), "min", "max")]
                 _ => throw new InvalidOperationException(Messages.UnsupportedExpressionType),
             }).ToList();
     }
