@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.StaticDataTests;
 
-public class FilteredRecordTableTests(ITestOutputHelper testOutputHelper)
+public partial class FilteredRecordTableTests(ITestOutputHelper testOutputHelper)
 {
     private const string BuffCsv =
         """
@@ -20,18 +20,18 @@ public class FilteredRecordTableTests(ITestOutputHelper testOutputHelper)
         """;
 
     [StaticDataRecord("Buff", "Main")]
-    private record BuffRecord(int Id, string Name, bool IsNormal);
+    private partial record BuffRecord(int Id, string Name, bool IsNormal);
 
-    private sealed class NormalBuffTable(ImmutableArray<BuffRecord> records)
+    private sealed partial class NormalBuffTable(ImmutableArray<BuffRecord> records)
         : StaticDataTable<NormalBuffTable, BuffRecord>(records.Where(x => x.IsNormal).ToImmutableArray());
 
-    private sealed class AbnormalBuffTable(ImmutableArray<BuffRecord> records)
+    private sealed partial class AbnormalBuffTable(ImmutableArray<BuffRecord> records)
         : StaticDataTable<AbnormalBuffTable, BuffRecord>(records.Where(x => !x.IsNormal).ToImmutableArray());
 
-    private sealed class StaticData(ILogger logger)
+    private sealed partial class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)
     {
-        public sealed record TableSet(
+        public sealed partial record TableSet(
             NormalBuffTable Normal,
             AbnormalBuffTable Abnormal);
 

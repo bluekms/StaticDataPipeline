@@ -4,10 +4,10 @@ using Sdp.Csv;
 
 namespace UnitTest.CsvLoaderTests;
 
-public class ArraySheet2CsvLoaderTests
+public partial class ArraySheet2CsvLoaderTests
 {
     [StaticDataRecord("Excel1", "ArraySheet")]
-    private sealed record ArraySheet(
+    private sealed partial record ArraySheet(
         int Id,
         string Name,
         [ColumnName("Score")]
@@ -27,7 +27,7 @@ public class ArraySheet2CsvLoaderTests
     [Fact]
     public void Load_ArraySheet2Csv_AllRecordsHaveThreeScores()
     {
-        var records = CsvLoader.Parse<ArraySheet>(ArraySheetCsv);
+        var records = CsvLoader.Parse(ArraySheetCsv, ArraySheet.MapFromCsvRow);
 
         foreach (var record in records)
         {

@@ -6,7 +6,7 @@ using Sdp.Table;
 namespace UnitTest.DocSampleTests;
 
 // Docs/ko/03-usage/02-static-data-table.md 의 ItemTable + UniqueIndex 예제를 검증한다.
-public class StaticDataTableSampleTests
+public partial class StaticDataTableSampleTests
 {
     private enum ItemCategory
     {
@@ -16,13 +16,13 @@ public class StaticDataTableSampleTests
     }
 
     [StaticDataRecord("Items", "Items")]
-    private sealed record ItemRecord(
+    private sealed partial record ItemRecord(
         [Key] int Id,
         string Name,
         int Price,
         ItemCategory Category);
 
-    private sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
+    private sealed partial class ItemTable : StaticDataTable<ItemTable, ItemRecord>
     {
         private readonly UniqueIndex<ItemRecord, int> byId;
 
@@ -50,7 +50,7 @@ public class StaticDataTableSampleTests
     private static readonly int[] ExpectedIds = [1, 2, 3];
 
     private static ItemTable LoadTable()
-        => new(CsvLoader.Parse<ItemRecord>(ItemsCsv));
+        => new(CsvLoader.Parse(ItemsCsv, ItemRecord.MapFromCsvRow));
 
     [Fact]
     public void Records_PreservesCsvOrder()
@@ -104,7 +104,7 @@ public class StaticDataTableSampleTests
             1,Sword,5000,Weapon
             """;
 
-        var records = CsvLoader.Parse<ItemRecord>(DuplicateCsv);
+        var records = CsvLoader.Parse(DuplicateCsv, ItemRecord.MapFromCsvRow);
 
         Assert.Throws<InvalidOperationException>(() => new ItemTable(records));
     }

@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.ForeignKeyTests;
 
-public class SwitchForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
+public partial class SwitchForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
 {
     private enum RewardType
     {
@@ -86,7 +86,7 @@ public class SwitchForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
         """;
 
     [StaticDataRecord("Quest", "Sheet1")]
-    private record QuestRecord(
+    private partial record QuestRecord(
         int QuestId,
         RewardType RewardType,
         [SwitchForeignKey("RewardType", "Item",      "Item",      "Id")]
@@ -95,30 +95,30 @@ public class SwitchForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
         int RewardId);
 
     [StaticDataRecord("Item", "Sheet1")]
-    private record ItemRecord(int Id, string Name);
+    private partial record ItemRecord(int Id, string Name);
 
     [StaticDataRecord("Character", "Sheet1")]
-    private record CharacterRecord(int Id, string Name);
+    private partial record CharacterRecord(int Id, string Name);
 
     [StaticDataRecord("Currency", "Sheet1")]
-    private record CurrencyRecord(int Id, string Name);
+    private partial record CurrencyRecord(int Id, string Name);
 
-    private sealed class QuestTable(ImmutableArray<QuestRecord> records)
+    private sealed partial class QuestTable(ImmutableArray<QuestRecord> records)
         : StaticDataTable<QuestTable, QuestRecord>(records);
 
-    private sealed class ItemTable(ImmutableArray<ItemRecord> records)
+    private sealed partial class ItemTable(ImmutableArray<ItemRecord> records)
         : StaticDataTable<ItemTable, ItemRecord>(records);
 
-    private sealed class CharacterTable(ImmutableArray<CharacterRecord> records)
+    private sealed partial class CharacterTable(ImmutableArray<CharacterRecord> records)
         : StaticDataTable<CharacterTable, CharacterRecord>(records);
 
-    private sealed class CurrencyTable(ImmutableArray<CurrencyRecord> records)
+    private sealed partial class CurrencyTable(ImmutableArray<CurrencyRecord> records)
         : StaticDataTable<CurrencyTable, CurrencyRecord>(records);
 
-    private sealed class StaticData(ILogger logger)
+    private sealed partial class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)
     {
-        public sealed record TableSet(
+        public sealed partial record TableSet(
             QuestTable? Quest,
             ItemTable? Item,
             CharacterTable? Character,
@@ -272,7 +272,7 @@ public class SwitchForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
     }
 }
 
-public class SwitchForeignKeyConfigurationErrorTests(ITestOutputHelper testOutputHelper)
+public partial class SwitchForeignKeyConfigurationErrorTests(ITestOutputHelper testOutputHelper)
 {
     // conditionColumnName이 Record에 없는 경우
     private const string BadConditionQuestCsv =
@@ -287,25 +287,29 @@ public class SwitchForeignKeyConfigurationErrorTests(ITestOutputHelper testOutpu
         10
         """;
 
+#pragma warning disable SDP0209 // SwitchForeignKey condition column not found — 의도된 invalid 구조. 런타임 거부 검증.
     [StaticDataRecord("BadConditionQuest", "Sheet1")]
-    private record BadConditionQuestRecord(
+    private partial record BadConditionQuestRecord(
         int Id,
         [SwitchForeignKey("NonExistentColumn", "Item", "Target", "Id")]
         int RewardId);
+#pragma warning restore SDP0209
 
     [StaticDataRecord("Target", "Sheet1")]
-    private record TargetRecord(int Id);
+    private partial record TargetRecord(int Id);
 
-    private sealed class BadConditionQuestTable(ImmutableArray<BadConditionQuestRecord> records)
+    private sealed partial class BadConditionQuestTable(ImmutableArray<BadConditionQuestRecord> records)
         : StaticDataTable<BadConditionQuestTable, BadConditionQuestRecord>(records);
 
-    private sealed class TargetTable(ImmutableArray<TargetRecord> records)
+    private sealed partial class TargetTable(ImmutableArray<TargetRecord> records)
         : StaticDataTable<TargetTable, TargetRecord>(records);
 
-    private sealed class ConditionColumnStaticData(ILogger logger)
+    private sealed partial class ConditionColumnStaticData(ILogger logger)
         : StaticDataManager<ConditionColumnStaticData.TableSet>(logger)
     {
-        public sealed record TableSet(BadConditionQuestTable? Quest, TargetTable? Target);
+        public sealed partial record TableSet(BadConditionQuestTable? Quest, TargetTable? Target);
+
+        public BadConditionQuestTable QuestTable => Current.Quest!;
     }
 
     // tableSetName이 TableSet에 없는 경우
@@ -320,24 +324,32 @@ public class SwitchForeignKeyConfigurationErrorTests(ITestOutputHelper testOutpu
         1,Item,1
         """;
 
+#pragma warning disable SDP0205 // FK target TableSet member not found — 의도된 invalid 구조. 런타임 거부 검증.
     [StaticDataRecord("BadTargetQuest", "Sheet1")]
-    private record BadTargetQuestRecord(
+    private partial record BadTargetQuestRecord(
         int Id,
         RewardType RewardType,
         [SwitchForeignKey("RewardType", "Item", "NonExistentTable", "Id")]
         int RewardId);
+#pragma warning restore SDP0205
 
-    private sealed class BadTargetQuestTable(ImmutableArray<BadTargetQuestRecord> records)
+    private sealed partial class BadTargetQuestTable(ImmutableArray<BadTargetQuestRecord> records)
         : StaticDataTable<BadTargetQuestTable, BadTargetQuestRecord>(records);
 
-    private sealed class TargetTableStaticData(ILogger logger)
+    private sealed partial class TargetTableStaticData(ILogger logger)
         : StaticDataManager<TargetTableStaticData.TableSet>(logger)
     {
-        public sealed record TableSet(BadTargetQuestTable? Quest);
+        public sealed partial record TableSet(BadTargetQuestTable? Quest);
+
+        public BadTargetQuestTable QuestTable => Current.Quest!;
     }
 
+    // 이 클래스의 invalid 구조(NonExistentColumn, NonExistentTable) 거부는
+    // SG 컴파일타임 진단(SDP0205/SDP0209)으로 검증된다. record 정의는 #pragma disable 로 남긴다.
+    // 런타임에서는 SG-emit ValidateForeignKeys 가 해당 SwitchForeignKey 분기를 만들지 않으므로
+    // FK 검사가 일어나지 않는다. 아래 테스트가 그 동작을 검증한다.
     [Fact]
-    public async Task Load_ConditionColumnNotFound_ThrowsAggregateException()
+    public async Task Load_SwitchFkConditionColumnNotFound_SkipsFkValidation()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<SwitchForeignKeyConfigurationErrorTests>() is not TestOutputLogger<SwitchForeignKeyConfigurationErrorTests> logger)
@@ -350,16 +362,14 @@ public class SwitchForeignKeyConfigurationErrorTests(ITestOutputHelper testOutpu
         dir.Write("Target.Sheet1.csv", TargetCsv);
 
         var staticData = new ConditionColumnStaticData(logger);
+        await staticData.LoadAsync(dir.Path);
 
-        var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
-
-        Assert.Single(ex.InnerExceptions);
-        Assert.Contains("NonExistentColumn", ex.InnerExceptions[0].Message);
+        Assert.Single(staticData.QuestTable.Records);
         Assert.Empty(logger.Logs);
     }
 
     [Fact]
-    public async Task Load_TargetTableNotFound_ThrowsAggregateException()
+    public async Task Load_SwitchFkTargetTableNotFound_SkipsFkValidation()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<SwitchForeignKeyConfigurationErrorTests>() is not TestOutputLogger<SwitchForeignKeyConfigurationErrorTests> logger)
@@ -371,11 +381,9 @@ public class SwitchForeignKeyConfigurationErrorTests(ITestOutputHelper testOutpu
         dir.Write("BadTargetQuest.Sheet1.csv", BadTargetQuestCsv);
 
         var staticData = new TargetTableStaticData(logger);
+        await staticData.LoadAsync(dir.Path);
 
-        var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
-
-        Assert.Single(ex.InnerExceptions);
-        Assert.Contains("NonExistentTable", ex.InnerExceptions[0].Message);
+        Assert.Single(staticData.QuestTable.Records);
         Assert.Empty(logger.Logs);
     }
 }

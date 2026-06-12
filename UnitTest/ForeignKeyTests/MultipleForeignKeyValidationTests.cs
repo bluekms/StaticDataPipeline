@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.ForeignKeyTests;
 
-public class MultipleForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
+public partial class MultipleForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
 {
     private const string SchoolCsv =
         """
@@ -43,37 +43,37 @@ public class MultipleForeignKeyValidationTests(ITestOutputHelper testOutputHelpe
         """;
 
     [StaticDataRecord("School", "Sheet1")]
-    private record SchoolRecord(
+    private partial record SchoolRecord(
         int Id,
         string Name);
 
     [StaticDataRecord("Teacher", "Sheet1")]
-    private record TeacherRecord(
+    private partial record TeacherRecord(
         int Id,
         string Name,
         [ForeignKey("School", "Name")] string SchoolName);
 
     [StaticDataRecord("Scholarship", "Sheet1")]
-    private record ScholarshipRecord(
+    private partial record ScholarshipRecord(
         int Id,
         string Title,
         [ForeignKey("School", "Id")]
         [ForeignKey("Teacher", "Id")]
         int RecipientId);
 
-    private sealed class SchoolTable(ImmutableArray<SchoolRecord> records)
+    private sealed partial class SchoolTable(ImmutableArray<SchoolRecord> records)
         : StaticDataTable<SchoolTable, SchoolRecord>(records);
 
-    private sealed class TeacherTable(ImmutableArray<TeacherRecord> records)
+    private sealed partial class TeacherTable(ImmutableArray<TeacherRecord> records)
         : StaticDataTable<TeacherTable, TeacherRecord>(records);
 
-    private sealed class ScholarshipTable(ImmutableArray<ScholarshipRecord> records)
+    private sealed partial class ScholarshipTable(ImmutableArray<ScholarshipRecord> records)
         : StaticDataTable<ScholarshipTable, ScholarshipRecord>(records);
 
-    private sealed class StaticData(ILogger logger)
+    private sealed partial class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)
     {
-        public sealed record TableSet(
+        public sealed partial record TableSet(
             SchoolTable? School,
             TeacherTable? Teacher,
             ScholarshipTable? Scholarship);

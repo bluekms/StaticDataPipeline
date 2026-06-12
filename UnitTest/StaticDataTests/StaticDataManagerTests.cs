@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
 using Microsoft.Extensions.Logging;
@@ -10,21 +9,20 @@ using Xunit.Abstractions;
 
 namespace UnitTest.StaticDataTests;
 
-public class StaticDataManagerTests(ITestOutputHelper testOutputHelper)
+public partial class StaticDataManagerTests(ITestOutputHelper testOutputHelper)
 {
     [StaticDataRecord("Fake", "Sheet1")]
-    private sealed record FakeRecord(int Id);
+    private sealed partial record FakeRecord(int Id);
 
-    private sealed class FakeTable(ImmutableArray<FakeRecord> records)
-        : StaticDataTable<FakeTable, FakeRecord>(records);
+    private sealed partial class FakeTable : StaticDataTable<FakeTable, FakeRecord>;
 
-    private sealed class FakeManager(ILogger logger)
+    private sealed partial class FakeManager(ILogger logger)
         : StaticDataManager<FakeManager.TableSet>(logger)
     {
-        public sealed record TableSet(FakeTable? Items);
+        public sealed partial record TableSet(FakeTable? Items);
     }
 
-    private sealed class BlockingFakeStaticData(
+    private sealed partial class BlockingFakeStaticData(
         ILogger logger,
         ManualResetEventSlim started,
         ManualResetEventSlim gate)

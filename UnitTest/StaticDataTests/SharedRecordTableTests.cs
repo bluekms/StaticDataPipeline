@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.StaticDataTests;
 
-public class SharedRecordTableTests(ITestOutputHelper testOutputHelper)
+public partial class SharedRecordTableTests(ITestOutputHelper testOutputHelper)
 {
     private const string ItemCsv =
         """
@@ -19,9 +19,9 @@ public class SharedRecordTableTests(ITestOutputHelper testOutputHelper)
         """;
 
     [StaticDataRecord("Item", "Main")]
-    private record ItemRecord(int Id, string Name);
+    private partial record ItemRecord(int Id, string Name);
 
-    private sealed class PrimaryItemTable : StaticDataTable<PrimaryItemTable, ItemRecord>
+    private sealed partial class PrimaryItemTable : StaticDataTable<PrimaryItemTable, ItemRecord>
     {
         private readonly UniqueIndex<ItemRecord, int> byId;
 
@@ -34,7 +34,7 @@ public class SharedRecordTableTests(ITestOutputHelper testOutputHelper)
         public ItemRecord Get(int id) => byId.Get(id);
     }
 
-    private sealed class SecondaryItemTable : StaticDataTable<SecondaryItemTable, ItemRecord>
+    private sealed partial class SecondaryItemTable : StaticDataTable<SecondaryItemTable, ItemRecord>
     {
         private readonly UniqueIndex<ItemRecord, string> byName;
 
@@ -47,10 +47,10 @@ public class SharedRecordTableTests(ITestOutputHelper testOutputHelper)
         public ItemRecord Get(string name) => byName.Get(name);
     }
 
-    private sealed class StaticData(ILogger logger)
+    private sealed partial class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)
     {
-        public sealed record TableSet(
+        public sealed partial record TableSet(
             PrimaryItemTable Primary,
             SecondaryItemTable Secondary);
 

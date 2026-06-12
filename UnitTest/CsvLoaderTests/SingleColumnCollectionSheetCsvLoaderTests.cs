@@ -4,10 +4,10 @@ using Sdp.Csv;
 
 namespace UnitTest.CsvLoaderTests;
 
-public class SingleColumnCollectionSheetCsvLoaderTests
+public partial class SingleColumnCollectionSheetCsvLoaderTests
 {
     [StaticDataRecord("Excel1", "SingleColumnCollectionSheet")]
-    private sealed record SingleColumnCollectionSheet(
+    private sealed partial record SingleColumnCollectionSheet(
         int Id,
         [SingleColumnCollection(", ")] ImmutableArray<float> Values);
 
@@ -28,7 +28,7 @@ public class SingleColumnCollectionSheetCsvLoaderTests
     [Fact]
     public void Load_SingleColumnCollectionSheetCsv_ReturnsValidRecords()
     {
-        var records = CsvLoader.Parse<SingleColumnCollectionSheet>(SingleColumnCollectionSheetCsv);
+        var records = CsvLoader.Parse(SingleColumnCollectionSheetCsv, SingleColumnCollectionSheet.MapFromCsvRow);
 
         Assert.NotEmpty(records);
         Assert.Equal(9, records.Length);
@@ -55,7 +55,7 @@ public class SingleColumnCollectionSheetCsvLoaderTests
     [Fact]
     public void Load_SingleColumnCollectionSheetCsv_ParsesAllFloatValues()
     {
-        var records = CsvLoader.Parse<SingleColumnCollectionSheet>(SingleColumnCollectionSheetCsv);
+        var records = CsvLoader.Parse(SingleColumnCollectionSheetCsv, SingleColumnCollectionSheet.MapFromCsvRow);
 
         foreach (var record in records)
         {

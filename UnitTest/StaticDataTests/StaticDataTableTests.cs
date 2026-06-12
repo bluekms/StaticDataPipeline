@@ -1,16 +1,18 @@
 using System.Collections.Immutable;
+using Sdp.Attributes;
 using Sdp.Table;
 
 namespace UnitTest.StaticDataTests;
 
-public class StaticDataTableTests
+public partial class StaticDataTableTests
 {
-    private sealed record ItemRecord(int Id, string Name);
+    [StaticDataRecord("Item", "Main")]
+    private sealed partial record ItemRecord(int Id, string Name);
 
-    private sealed class ItemTable(ImmutableArray<ItemRecord> records)
+    private sealed partial class ItemTable(ImmutableArray<ItemRecord> records)
         : StaticDataTable<ItemTable, ItemRecord>(records);
 
-    private sealed class IndexedItemTable : StaticDataTable<IndexedItemTable, ItemRecord>
+    private sealed partial class IndexedItemTable : StaticDataTable<IndexedItemTable, ItemRecord>
     {
         private readonly UniqueIndex<ItemRecord, int> byId;
 

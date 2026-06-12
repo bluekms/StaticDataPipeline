@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.ForeignKeyTests;
 
-public class ForeignKeyTypeBrandingValidationTests(ITestOutputHelper testOutputHelper)
+public partial class ForeignKeyTypeBrandingValidationTests(ITestOutputHelper testOutputHelper)
 {
     private TestOutputLogger<ForeignKeyTypeBrandingValidationTests> CreateLogger()
     {
@@ -32,23 +32,23 @@ public class ForeignKeyTypeBrandingValidationTests(ITestOutputHelper testOutputH
     }
 
     [StaticDataRecord("Hero", "Sheet1")]
-    private record HeroRecord([Key] HeroId Id, string Name);
+    private partial record HeroRecord([Key] HeroId Id, string Name);
 
     [StaticDataRecord("HeroQuest", "Sheet1")]
-    private record HeroQuestRecord(
+    private partial record HeroQuestRecord(
         int QuestId,
         [ForeignKey("Hero", "Id")] HeroId AssignedTo);
 
-    private sealed class HeroTable(ImmutableArray<HeroRecord> records)
+    private sealed partial class HeroTable(ImmutableArray<HeroRecord> records)
         : StaticDataTable<HeroTable, HeroRecord>(records);
 
-    private sealed class HeroQuestTable(ImmutableArray<HeroQuestRecord> records)
+    private sealed partial class HeroQuestTable(ImmutableArray<HeroQuestRecord> records)
         : StaticDataTable<HeroQuestTable, HeroQuestRecord>(records);
 
-    private sealed class EnumBrandedStaticData(ILogger logger)
+    private sealed partial class EnumBrandedStaticData(ILogger logger)
         : StaticDataManager<EnumBrandedStaticData.TableSet>(logger)
     {
-        public sealed record TableSet(HeroTable? Hero, HeroQuestTable? HeroQuest);
+        public sealed partial record TableSet(HeroTable? Hero, HeroQuestTable? HeroQuest);
 
         public HeroTable HeroTable => Current.Hero!;
 
@@ -118,26 +118,26 @@ public class ForeignKeyTypeBrandingValidationTests(ITestOutputHelper testOutputH
     }
 
     // 2) single-parameter record 브랜딩 — FK 가 같은 record 타입을 양쪽에서 인식하는가
-    private sealed record CharId(int Value);
+    private sealed partial record CharId(int Value);
 
     [StaticDataRecord("Character", "Sheet1")]
-    private record CharacterRecord([Key] CharId Id, string Name);
+    private partial record CharacterRecord([Key] CharId Id, string Name);
 
     [StaticDataRecord("CharacterQuest", "Sheet1")]
-    private record CharacterQuestRecord(
+    private partial record CharacterQuestRecord(
         int QuestId,
         [ForeignKey("Character", "Id")] CharId AssignedTo);
 
-    private sealed class CharacterTable(ImmutableArray<CharacterRecord> records)
+    private sealed partial class CharacterTable(ImmutableArray<CharacterRecord> records)
         : StaticDataTable<CharacterTable, CharacterRecord>(records);
 
-    private sealed class CharacterQuestTable(ImmutableArray<CharacterQuestRecord> records)
+    private sealed partial class CharacterQuestTable(ImmutableArray<CharacterQuestRecord> records)
         : StaticDataTable<CharacterQuestTable, CharacterQuestRecord>(records);
 
-    private sealed class RecordBrandedStaticData(ILogger logger)
+    private sealed partial class RecordBrandedStaticData(ILogger logger)
         : StaticDataManager<RecordBrandedStaticData.TableSet>(logger)
     {
-        public sealed record TableSet(CharacterTable? Character, CharacterQuestTable? CharacterQuest);
+        public sealed partial record TableSet(CharacterTable? Character, CharacterQuestTable? CharacterQuest);
 
         public CharacterTable CharacterTable => Current.Character!;
 
@@ -222,32 +222,32 @@ public class ForeignKeyTypeBrandingValidationTests(ITestOutputHelper testOutputH
     }
 
     [StaticDataRecord("NpcFace", "Sheet1")]
-    private record NpcFaceRecord([Key] FaceId Id, string Description);
+    private partial record NpcFaceRecord([Key] FaceId Id, string Description);
 
     [StaticDataRecord("PcFace", "Sheet1")]
-    private record PcFaceRecord([Key] FaceId Id, string Description);
+    private partial record PcFaceRecord([Key] FaceId Id, string Description);
 
     [StaticDataRecord("FaceLookup", "Sheet1")]
-    private record FaceLookupRecord(
+    private partial record FaceLookupRecord(
         int LookupId,
         FaceCategory Category,
         [SwitchForeignKey("Category", "Npc", "NpcFace", "Id")]
         [SwitchForeignKey("Category", "Pc", "PcFace", "Id")]
         FaceId FaceId);
 
-    private sealed class NpcFaceTable(ImmutableArray<NpcFaceRecord> records)
+    private sealed partial class NpcFaceTable(ImmutableArray<NpcFaceRecord> records)
         : StaticDataTable<NpcFaceTable, NpcFaceRecord>(records);
 
-    private sealed class PcFaceTable(ImmutableArray<PcFaceRecord> records)
+    private sealed partial class PcFaceTable(ImmutableArray<PcFaceRecord> records)
         : StaticDataTable<PcFaceTable, PcFaceRecord>(records);
 
-    private sealed class FaceLookupTable(ImmutableArray<FaceLookupRecord> records)
+    private sealed partial class FaceLookupTable(ImmutableArray<FaceLookupRecord> records)
         : StaticDataTable<FaceLookupTable, FaceLookupRecord>(records);
 
-    private sealed class EnumBrandedSfkStaticData(ILogger logger)
+    private sealed partial class EnumBrandedSfkStaticData(ILogger logger)
         : StaticDataManager<EnumBrandedSfkStaticData.TableSet>(logger)
     {
-        public sealed record TableSet(
+        public sealed partial record TableSet(
             NpcFaceTable? NpcFace,
             PcFaceTable? PcFace,
             FaceLookupTable? FaceLookup);
@@ -328,7 +328,7 @@ public class ForeignKeyTypeBrandingValidationTests(ITestOutputHelper testOutputH
     }
 
     // 4) SFK + single-parameter record 브랜딩 — 분기마다 다른 테이블, 같은 record 키 타입
-    private sealed record PartId(int Value);
+    private sealed partial record PartId(int Value);
 
     private enum PartKind
     {
@@ -337,32 +337,32 @@ public class ForeignKeyTypeBrandingValidationTests(ITestOutputHelper testOutputH
     }
 
     [StaticDataRecord("MetalPart", "Sheet1")]
-    private record MetalPartRecord([Key] PartId Id, string Name);
+    private partial record MetalPartRecord([Key] PartId Id, string Name);
 
     [StaticDataRecord("WoodPart", "Sheet1")]
-    private record WoodPartRecord([Key] PartId Id, string Name);
+    private partial record WoodPartRecord([Key] PartId Id, string Name);
 
     [StaticDataRecord("PartLookup", "Sheet1")]
-    private record PartLookupRecord(
+    private partial record PartLookupRecord(
         int LookupId,
         PartKind Kind,
         [SwitchForeignKey("Kind", "Metal", "MetalPart", "Id")]
         [SwitchForeignKey("Kind", "Wood", "WoodPart", "Id")]
         PartId PartId);
 
-    private sealed class MetalPartTable(ImmutableArray<MetalPartRecord> records)
+    private sealed partial class MetalPartTable(ImmutableArray<MetalPartRecord> records)
         : StaticDataTable<MetalPartTable, MetalPartRecord>(records);
 
-    private sealed class WoodPartTable(ImmutableArray<WoodPartRecord> records)
+    private sealed partial class WoodPartTable(ImmutableArray<WoodPartRecord> records)
         : StaticDataTable<WoodPartTable, WoodPartRecord>(records);
 
-    private sealed class PartLookupTable(ImmutableArray<PartLookupRecord> records)
+    private sealed partial class PartLookupTable(ImmutableArray<PartLookupRecord> records)
         : StaticDataTable<PartLookupTable, PartLookupRecord>(records);
 
-    private sealed class RecordBrandedSfkStaticData(ILogger logger)
+    private sealed partial class RecordBrandedSfkStaticData(ILogger logger)
         : StaticDataManager<RecordBrandedSfkStaticData.TableSet>(logger)
     {
-        public sealed record TableSet(
+        public sealed partial record TableSet(
             MetalPartTable? MetalPart,
             WoodPartTable? WoodPart,
             PartLookupTable? PartLookup);

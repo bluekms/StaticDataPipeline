@@ -2,7 +2,7 @@ using System.Reflection;
 
 namespace UnitTest.Utility;
 
-internal sealed class TestDataDirectory : IDisposable
+internal sealed partial class TestDataDirectory : IDisposable
 {
     private const string ResourceNamespace = "UnitTest.TestData";
 

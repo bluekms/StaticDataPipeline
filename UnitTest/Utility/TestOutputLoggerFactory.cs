@@ -3,7 +3,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.Utility;
 
-public class TestOutputLoggerFactory(
+public partial class TestOutputLoggerFactory(
     ITestOutputHelper output,
     LogLevel minLogLevel)
     : ILoggerFactory

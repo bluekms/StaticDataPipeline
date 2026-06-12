@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.ForeignKeyTests;
 
-public class SwitchForeignKeyNonKeyValidationTests(ITestOutputHelper testOutputHelper)
+public partial class SwitchForeignKeyNonKeyValidationTests(ITestOutputHelper testOutputHelper)
 {
     private enum Department
     {
@@ -45,7 +45,7 @@ public class SwitchForeignKeyNonKeyValidationTests(ITestOutputHelper testOutputH
         """;
 
     [StaticDataRecord("Staff", "Sheet1")]
-    private record StaffRecord(
+    private partial record StaffRecord(
         int Id,
         Department Department,
         [SwitchForeignKey("Department", "Engineering", "Engineer", "Name")]
@@ -53,24 +53,24 @@ public class SwitchForeignKeyNonKeyValidationTests(ITestOutputHelper testOutputH
         string LeadName);
 
     [StaticDataRecord("Engineer", "Sheet1")]
-    private record EngineerRecord(int Id, string Name);
+    private partial record EngineerRecord(int Id, string Name);
 
     [StaticDataRecord("Designer", "Sheet1")]
-    private record DesignerRecord(int Id, string Name);
+    private partial record DesignerRecord(int Id, string Name);
 
-    private sealed class StaffTable(ImmutableArray<StaffRecord> records)
+    private sealed partial class StaffTable(ImmutableArray<StaffRecord> records)
         : StaticDataTable<StaffTable, StaffRecord>(records);
 
-    private sealed class EngineerTable(ImmutableArray<EngineerRecord> records)
+    private sealed partial class EngineerTable(ImmutableArray<EngineerRecord> records)
         : StaticDataTable<EngineerTable, EngineerRecord>(records);
 
-    private sealed class DesignerTable(ImmutableArray<DesignerRecord> records)
+    private sealed partial class DesignerTable(ImmutableArray<DesignerRecord> records)
         : StaticDataTable<DesignerTable, DesignerRecord>(records);
 
-    private sealed class StaticData(ILogger logger)
+    private sealed partial class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)
     {
-        public sealed record TableSet(
+        public sealed partial record TableSet(
             StaffTable? Staff,
             EngineerTable? Engineer,
             DesignerTable? Designer);

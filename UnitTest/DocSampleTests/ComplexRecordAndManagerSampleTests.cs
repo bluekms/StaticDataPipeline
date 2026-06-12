@@ -11,16 +11,16 @@ namespace UnitTest.DocSampleTests;
 // Docs/ko/03-usage/05-complex-record.md 와 06-static-data-manager.md 의 예제를 검증한다.
 // 도큐먼트 예제의 Cooldown(TimeSpan) 필드는 현재 런타임 CsvRecordMapper 가 지원하지 않으므로
 // 본 테스트에서는 제외한다 (Convert.ChangeType 이 TimeSpan IConvertible 미지원).
-public class ComplexRecordAndManagerSampleTests(ITestOutputHelper testOutputHelper)
+public partial class ComplexRecordAndManagerSampleTests(ITestOutputHelper testOutputHelper)
 {
     [StaticDataRecord("ItemCatalog", "Categories")]
-    private sealed record ItemCategoryRecord(
+    private sealed partial record ItemCategoryRecord(
         [Key] int Id,
         string Name,
         bool IsConsumable);
 
     [StaticDataRecord("ItemCatalog", "Items")]
-    private sealed record ItemRecord(
+    private sealed partial record ItemRecord(
         [Key] int Id,
         string Name,
         [ForeignKey("Categories", "Id")] int CategoryId,
@@ -30,16 +30,16 @@ public class ComplexRecordAndManagerSampleTests(ITestOutputHelper testOutputHelp
         [RegularExpression(@"^icons/[a-z]+\.png$")] string IconPath,
         [NullString("NULL")] string? Description);
 
-    private sealed class ItemCategoryTable(ImmutableArray<ItemCategoryRecord> records)
+    private sealed partial class ItemCategoryTable(ImmutableArray<ItemCategoryRecord> records)
         : StaticDataTable<ItemCategoryTable, ItemCategoryRecord>(records);
 
-    private sealed class ItemTable(ImmutableArray<ItemRecord> records)
+    private sealed partial class ItemTable(ImmutableArray<ItemRecord> records)
         : StaticDataTable<ItemTable, ItemRecord>(records);
 
-    private sealed class GameStaticData(ILogger logger)
+    private sealed partial class GameStaticData(ILogger logger)
         : StaticDataManager<GameStaticData.TableSet>(logger)
     {
-        public sealed record TableSet(
+        public sealed partial record TableSet(
             ItemCategoryTable? Categories,
             ItemTable? Items);
 

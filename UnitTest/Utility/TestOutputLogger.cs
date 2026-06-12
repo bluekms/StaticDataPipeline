@@ -3,12 +3,12 @@ using Xunit.Abstractions;
 
 namespace UnitTest.Utility;
 
-public class TestOutputLogger<T>(
+public partial class TestOutputLogger<T>(
     ITestOutputHelper output,
     LogLevel minLogLevel)
     : ILogger<T>
 {
-    public sealed record LogMessage(LogLevel LogLevel, string Message)
+    public sealed partial record LogMessage(LogLevel LogLevel, string Message)
     {
         public override string ToString()
         {

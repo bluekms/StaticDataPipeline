@@ -11,20 +11,20 @@ using Xunit.Abstractions;
 
 namespace UnitTest.StaticDataTests;
 
-public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
+public partial class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
 {
     [StaticDataRecord("Catalog", "Events")]
-    private sealed record EventRecord([Key] int Id, string Name);
+    private sealed partial record EventRecord([Key] int Id, string Name);
 
     [StaticDataRecord("Catalog", "Weapons")]
-    private sealed record WeaponRecord(
+    private sealed partial record WeaponRecord(
         [Key] int Id,
         [ForeignKey("Events", "Id")] int EventId,
         string Name,
         int AttackPower);
 
     [StaticDataRecord("Catalog", "Armors")]
-    private sealed record ArmorRecord(
+    private sealed partial record ArmorRecord(
         [Key] int Id,
         [ForeignKey("Events", "Id")] int EventId,
         string Name,
@@ -36,27 +36,27 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
         Armor,
     }
 
-    private sealed record Equipment(
+    private sealed partial record Equipment(
         int Id,
         EquipmentType Type,
         string Name,
         int AttackPower,
         int DefensePower);
 
-    private sealed class EventTable(ImmutableArray<EventRecord> records)
+    private sealed partial class EventTable(ImmutableArray<EventRecord> records)
         : StaticDataTable<EventTable, EventRecord>(records);
 
-    private sealed class WeaponTable(ImmutableArray<WeaponRecord> records)
+    private sealed partial class WeaponTable(ImmutableArray<WeaponRecord> records)
         : StaticDataTable<WeaponTable, WeaponRecord>(records);
 
-    private sealed class ArmorTable(ImmutableArray<ArmorRecord> records)
+    private sealed partial class ArmorTable(ImmutableArray<ArmorRecord> records)
         : StaticDataTable<ArmorTable, ArmorRecord>(records);
 
-    private sealed record EventBundle(
+    private sealed partial record EventBundle(
         EventRecord Event,
         IReadOnlyList<Equipment> Equipment);
 
-    private sealed class EventBundleView(GameStaticData.TableSet tables)
+    private sealed partial class EventBundleView(GameStaticData.TableSet tables)
         : StaticDataView<EventBundleView, GameStaticData.TableSet>(tables)
     {
         private readonly UniqueIndex<EventBundle, int> byEventId = Build(tables);
@@ -101,9 +101,9 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    private sealed record EventAttackTotal(int EventId, int TotalAttackPower);
+    private sealed partial record EventAttackTotal(int EventId, int TotalAttackPower);
 
-    private sealed class EventAttackTotalView(GameStaticData.TableSet tables)
+    private sealed partial class EventAttackTotalView(GameStaticData.TableSet tables)
         : StaticDataView<EventAttackTotalView, GameStaticData.TableSet>(tables)
     {
         private readonly UniqueIndex<EventAttackTotal, int> byEventId = Build(tables);
@@ -131,20 +131,20 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    private sealed class GameStaticData(ILogger logger)
+    private sealed partial class GameStaticData(ILogger logger)
         : StaticDataManager<GameStaticData.TableSet, GameStaticData.ViewSet>(logger)
     {
-        public sealed record TableSet(
+        public sealed partial record TableSet(
             EventTable? Events,
             WeaponTable? Weapons,
             ArmorTable? Armors);
 
-        public sealed record ViewSet(
+        public sealed partial record ViewSet(
             EventBundleView EventBundles,
             EventAttackTotalView EventAttackTotals);
     }
 
-    private sealed class BlockingGameStaticData(
+    private sealed partial class BlockingGameStaticData(
         ILogger logger,
         ManualResetEventSlim started,
         ManualResetEventSlim gate)
@@ -157,7 +157,7 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    private sealed class FailingViewA : StaticDataView<FailingViewA, FailingViewManager.TableSet>
+    private sealed partial class FailingViewA : StaticDataView<FailingViewA, FailingViewManager.TableSet>
     {
         public FailingViewA(FailingViewManager.TableSet tables)
             : base(tables)
@@ -166,7 +166,7 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    private sealed class FailingViewB : StaticDataView<FailingViewB, FailingViewManager.TableSet>
+    private sealed partial class FailingViewB : StaticDataView<FailingViewB, FailingViewManager.TableSet>
     {
         public FailingViewB(FailingViewManager.TableSet tables)
             : base(tables)
@@ -175,50 +175,20 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    private sealed class FailingViewManager(ILogger logger)
+    private sealed partial class FailingViewManager(ILogger logger)
         : StaticDataManager<FailingViewManager.TableSet, FailingViewManager.ViewSet>(logger)
     {
-        public sealed record TableSet(
+        public sealed partial record TableSet(
             EventTable? Events,
             WeaponTable? Weapons,
             ArmorTable? Armors);
 
-        public sealed record ViewSet(
+        public sealed partial record ViewSet(
             FailingViewA A,
             FailingViewB B);
     }
 
-    private sealed class InvalidParameterManager(ILogger logger)
-        : StaticDataManager<InvalidParameterManager.TableSet, InvalidParameterManager.ViewSet>(logger)
-    {
-        public sealed record TableSet(
-            EventTable? Events,
-            WeaponTable? Weapons,
-            ArmorTable? Armors);
-
-        public sealed record ViewSet(string NotAView);
-    }
-
-    private sealed class BadCtorView : StaticDataView<BadCtorView, BadCtorViewManager.TableSet>
-    {
-        public BadCtorView(BadCtorViewManager.TableSet tables, int unused)
-            : base(tables)
-        {
-        }
-    }
-
-    private sealed class BadCtorViewManager(ILogger logger)
-        : StaticDataManager<BadCtorViewManager.TableSet, BadCtorViewManager.ViewSet>(logger)
-    {
-        public sealed record TableSet(
-            EventTable? Events,
-            WeaponTable? Weapons,
-            ArmorTable? Armors);
-
-        public sealed record ViewSet(BadCtorView Bad);
-    }
-
-    private sealed class ValidateThrowingViewA(ValidateThrowingViewManager.TableSet tables)
+    private sealed partial class ValidateThrowingViewA(ValidateThrowingViewManager.TableSet tables)
         : StaticDataView<ValidateThrowingViewA, ValidateThrowingViewManager.TableSet>(tables)
     {
         protected override void Validate()
@@ -227,7 +197,7 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    private sealed class ValidateThrowingViewB(ValidateThrowingViewManager.TableSet tables)
+    private sealed partial class ValidateThrowingViewB(ValidateThrowingViewManager.TableSet tables)
         : StaticDataView<ValidateThrowingViewB, ValidateThrowingViewManager.TableSet>(tables)
     {
         protected override void Validate()
@@ -236,31 +206,17 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    private sealed class ValidateThrowingViewManager(ILogger logger)
+    private sealed partial class ValidateThrowingViewManager(ILogger logger)
         : StaticDataManager<ValidateThrowingViewManager.TableSet, ValidateThrowingViewManager.ViewSet>(logger)
     {
-        public sealed record TableSet(
+        public sealed partial record TableSet(
             EventTable? Events,
             WeaponTable? Weapons,
             ArmorTable? Armors);
 
-        public sealed record ViewSet(
+        public sealed partial record ViewSet(
             ValidateThrowingViewA A,
             ValidateThrowingViewB B);
-    }
-
-    private sealed class NullableMemberView(NullableViewMemberStaticData.TableSet tables)
-        : StaticDataView<NullableMemberView, NullableViewMemberStaticData.TableSet>(tables);
-
-    private sealed class NullableViewMemberStaticData(ILogger logger)
-        : StaticDataManager<NullableViewMemberStaticData.TableSet, NullableViewMemberStaticData.ViewSet>(logger)
-    {
-        public sealed record TableSet(
-            EventTable? Events,
-            WeaponTable? Weapons,
-            ArmorTable? Armors);
-
-        public sealed record ViewSet(NullableMemberView? Member);
     }
 
     [Fact]
@@ -368,102 +324,6 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
-    [InlineData("en", "Parameter 'NotAView' of type 'String' is not a StaticDataView<,> subtype.")]
-    [InlineData("ko", "'NotAView' 파라미터의 타입 'String'이(가) StaticDataView<,> 서브타입이 아닙니다.")]
-    public async Task LoadAsync_NonViewParameter_ThrowsLocalizedMessage(string locale, string expected)
-    {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<StaticDataManagerWithViewTests>() is not TestOutputLogger<StaticDataManagerWithViewTests> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
-        }
-
-        var savedCulture = CultureInfo.CurrentUICulture;
-        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(locale);
-        try
-        {
-            using var dir = new CsvTestDirectory();
-            WriteSampleCsvs(dir);
-
-            var manager = new InvalidParameterManager(logger);
-
-            var ex = await Assert.ThrowsAsync<AggregateException>(
-                () => manager.LoadAsync(dir.Path));
-            var inner = Assert.Single(ex.InnerExceptions);
-            Assert.Equal(expected, inner.Message);
-            Assert.Empty(logger.Logs);
-        }
-        finally
-        {
-            CultureInfo.CurrentUICulture = savedCulture;
-        }
-    }
-
-    [Theory]
-    [InlineData("en", "BadCtorView must have a constructor accepting TableSet.")]
-    [InlineData("ko", "BadCtorView에는 TableSet을(를) 받는 생성자가 필요합니다.")]
-    public async Task LoadAsync_ViewMissingTableSetConstructor_ThrowsLocalizedMessage(string locale, string expected)
-    {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<StaticDataManagerWithViewTests>() is not TestOutputLogger<StaticDataManagerWithViewTests> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
-        }
-
-        var savedCulture = CultureInfo.CurrentUICulture;
-        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(locale);
-        try
-        {
-            using var dir = new CsvTestDirectory();
-            WriteSampleCsvs(dir);
-
-            var manager = new BadCtorViewManager(logger);
-
-            var ex = await Assert.ThrowsAsync<AggregateException>(
-                () => manager.LoadAsync(dir.Path));
-            var inner = Assert.Single(ex.InnerExceptions);
-            Assert.Equal(expected, inner.Message);
-            Assert.Empty(logger.Logs);
-        }
-        finally
-        {
-            CultureInfo.CurrentUICulture = savedCulture;
-        }
-    }
-
-    [Theory]
-    [InlineData("en", "Parameter 'Member' of type 'NullableMemberView' must be non-nullable; ViewSet members are always populated.")]
-    [InlineData("ko", "'Member' 파라미터의 타입 'NullableMemberView'은(는) non-nullable이어야 합니다. ViewSet 멤버는 항상 빌더가 채웁니다.")]
-    public async Task LoadAsync_NullableViewMember_ThrowsLocalizedMessage(string locale, string expected)
-    {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
-        if (factory.CreateLogger<StaticDataManagerWithViewTests>() is not TestOutputLogger<StaticDataManagerWithViewTests> logger)
-        {
-            throw new InvalidOperationException("Logger creation failed.");
-        }
-
-        var savedCulture = CultureInfo.CurrentUICulture;
-        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(locale);
-        try
-        {
-            using var dir = new CsvTestDirectory();
-            WriteSampleCsvs(dir);
-
-            var manager = new NullableViewMemberStaticData(logger);
-
-            var ex = await Assert.ThrowsAsync<AggregateException>(
-                () => manager.LoadAsync(dir.Path));
-            var inner = Assert.Single(ex.InnerExceptions);
-            Assert.Equal(expected, inner.Message);
-            Assert.Empty(logger.Logs);
-        }
-        finally
-        {
-            CultureInfo.CurrentUICulture = savedCulture;
-        }
-    }
-
-    [Theory]
     [InlineData("en", "LoadAsync is already in progress; concurrent loads are not supported.")]
     [InlineData("ko", "LoadAsync가 이미 실행 중입니다. 동시 로드는 지원하지 않습니다.")]
     public async Task LoadAsync_Reentrant_ThrowsLocalizedMessage(string locale, string expected)
@@ -488,12 +348,20 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
             var first = Task.Run(() => manager.LoadAsync(dir.Path));
             Assert.True(started.Wait(TimeSpan.FromSeconds(5)));
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(
-                () => manager.LoadAsync(dir.Path));
-            Assert.Equal(expected, ex.Message);
+            // 단언이 실패해도 gate 해제와 첫 로드 수습을 보장한다. 그렇지 않으면 using 해제로
+            // dispose 된 gate 를 배경 태스크가 계속 대기하고 first 가 unobserved 로 남는다.
+            try
+            {
+                var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => manager.LoadAsync(dir.Path));
+                Assert.Equal(expected, ex.Message);
+            }
+            finally
+            {
+                gate.Set();
+                await first;
+            }
 
-            gate.Set();
-            await first;
             Assert.Empty(logger.Logs);
         }
         finally
@@ -519,12 +387,15 @@ public class StaticDataManagerWithViewTests(ITestOutputHelper testOutputHelper)
         var manager = new GameStaticData(logger);
         await manager.LoadAsync(dirA.Path);
 
-        var cts = new CancellationTokenSource();
+        // 단언 실패로 Cancel/Join 없이 unwind 되어 cts 가 dispose 되어도 배경 스레드가
+        // ObjectDisposedException 으로 죽지 않도록, dispose 와 무관한 토큰을 미리 캡처한다.
+        using var cts = new CancellationTokenSource();
+        var token = cts.Token;
 
         var loaderThread = new Thread(() =>
         {
             var toggle = false;
-            while (!cts.Token.IsCancellationRequested)
+            while (!token.IsCancellationRequested)
             {
                 manager.LoadAsync(toggle ? dirB.Path : dirA.Path).GetAwaiter().GetResult();
                 toggle = !toggle;

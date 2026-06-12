@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.StaticDataTests;
 
-public class SharedCsvTableTests(ITestOutputHelper testOutputHelper)
+public partial class SharedCsvTableTests(ITestOutputHelper testOutputHelper)
 {
     private const string UnitCsv =
         """
@@ -18,21 +18,21 @@ public class SharedCsvTableTests(ITestOutputHelper testOutputHelper)
         """;
 
     [StaticDataRecord("Unit", "Main")]
-    private record UnitStatRecord(int Id, int Hp, int Attack);
+    private partial record UnitStatRecord(int Id, int Hp, int Attack);
 
     [StaticDataRecord("Unit", "Main")]
-    private record UnitProfileRecord(int Id, string Name, string Description);
+    private partial record UnitProfileRecord(int Id, string Name, string Description);
 
-    private sealed class UnitStatTable(ImmutableArray<UnitStatRecord> records)
+    private sealed partial class UnitStatTable(ImmutableArray<UnitStatRecord> records)
         : StaticDataTable<UnitStatTable, UnitStatRecord>(records);
 
-    private sealed class UnitProfileTable(ImmutableArray<UnitProfileRecord> records)
+    private sealed partial class UnitProfileTable(ImmutableArray<UnitProfileRecord> records)
         : StaticDataTable<UnitProfileTable, UnitProfileRecord>(records);
 
-    private sealed class StaticData(ILogger logger)
+    private sealed partial class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)
     {
-        public sealed record TableSet(
+        public sealed partial record TableSet(
             UnitStatTable Stats,
             UnitProfileTable Profiles);
 

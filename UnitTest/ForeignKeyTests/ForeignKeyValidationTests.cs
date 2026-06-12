@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.ForeignKeyTests;
 
-public class ForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
+public partial class ForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
 {
     private const string SchoolCsv =
         """
@@ -57,24 +57,24 @@ public class ForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
         """;
 
     [StaticDataRecord("School", "Sheet1")]
-    private record SchoolRecord(
+    private partial record SchoolRecord(
         int Id,
         string Name);
 
     [StaticDataRecord("Teacher", "Sheet1")]
-    private record TeacherRecord(
+    private partial record TeacherRecord(
         int Id,
         string Name,
         [ForeignKey("School", "Name")] string SchoolName);
 
     [StaticDataRecord("Student", "Sheet1")]
-    private record StudentRecord(
+    private partial record StudentRecord(
         int Id,
         string Name,
         [ForeignKey("School", "Id")] int SchoolId,
         [ForeignKey("Teacher", "Id")] int TeacherId);
 
-    private sealed class SchoolTable : StaticDataTable<SchoolTable, SchoolRecord>
+    private sealed partial class SchoolTable : StaticDataTable<SchoolTable, SchoolRecord>
     {
         private readonly UniqueIndex<SchoolRecord, int> byId;
 
@@ -87,7 +87,7 @@ public class ForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
         public SchoolRecord Get(int id) => byId.Get(id);
     }
 
-    private sealed class TeacherTable : StaticDataTable<TeacherTable, TeacherRecord>
+    private sealed partial class TeacherTable : StaticDataTable<TeacherTable, TeacherRecord>
     {
         private readonly UniqueIndex<TeacherRecord, int> byId;
 
@@ -100,7 +100,7 @@ public class ForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
         public TeacherRecord Get(int id) => byId.Get(id);
     }
 
-    private sealed class StudentTable : StaticDataTable<StudentTable, StudentRecord>
+    private sealed partial class StudentTable : StaticDataTable<StudentTable, StudentRecord>
     {
         private readonly UniqueIndex<StudentRecord, int> byId;
 
@@ -113,10 +113,10 @@ public class ForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
         public StudentRecord Get(int id) => byId.Get(id);
     }
 
-    private sealed class StaticData(ILogger logger)
+    private sealed partial class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)
     {
-        public sealed record TableSet(
+        public sealed partial record TableSet(
             SchoolTable? School,
             TeacherTable? Teacher,
             StudentTable? Student);
