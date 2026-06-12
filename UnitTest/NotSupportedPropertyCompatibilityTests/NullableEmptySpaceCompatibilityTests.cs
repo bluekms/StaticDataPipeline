@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.NotSupportedPropertyCompatibilityTests;
 
-public class NullableEmptySpaceCompatibilityTests(ITestOutputHelper testOutputHelper)
+public partial class NullableEmptySpaceCompatibilityTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void PrimitiveSetDuplicationFailTest()
@@ -22,7 +22,7 @@ public class NullableEmptySpaceCompatibilityTests(ITestOutputHelper testOutputHe
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        [Length(5)]
                        FrozenSet<int?> Property,

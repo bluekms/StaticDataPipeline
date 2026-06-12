@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaCompatibilityTests.PrimitiveTypes;
 
-public class RangeAttributeKeyEnumTests(ITestOutputHelper testOutputHelper)
+public partial class RangeAttributeKeyEnumTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("100")]
@@ -26,7 +26,7 @@ public class RangeAttributeKeyEnumTests(ITestOutputHelper testOutputHelper)
                    public enum ItemId { MinId = 100, MaxId = 1000 }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Key]
                        [Range(typeof(ItemId), "100", "1000")]
                        ItemId Property,
@@ -64,7 +64,7 @@ public class RangeAttributeKeyEnumTests(ITestOutputHelper testOutputHelper)
                    public enum ItemId { MinId = 100, MaxId = 1000 }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Key]
                        [Range(typeof(ItemId), "100", "1000")]
                        ItemId Property,

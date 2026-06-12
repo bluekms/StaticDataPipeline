@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaCompatibilityTests.PrimitiveTypes;
 
-public class RangeAttributeCompatibilityTests(ITestOutputHelper testOutputHelper)
+public partial class RangeAttributeCompatibilityTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("1")] // 경계 최솟값
@@ -25,7 +25,7 @@ public class RangeAttributeCompatibilityTests(ITestOutputHelper testOutputHelper
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Range(1, 100)]
                        int Property,
                    );
@@ -62,7 +62,7 @@ public class RangeAttributeCompatibilityTests(ITestOutputHelper testOutputHelper
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Range(1, 100)]
                        int Property,
                    );
@@ -99,7 +99,7 @@ public class RangeAttributeCompatibilityTests(ITestOutputHelper testOutputHelper
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Range(0.5, 10.5)]
                        double Property,
                    );
@@ -134,7 +134,7 @@ public class RangeAttributeCompatibilityTests(ITestOutputHelper testOutputHelper
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Range(0.5, 10.5)]
                        double Property,
                    );

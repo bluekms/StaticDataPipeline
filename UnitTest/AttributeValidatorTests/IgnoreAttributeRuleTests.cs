@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class IgnoreAttributeRuleTests(ITestOutputHelper testOutputHelper)
+public partial class IgnoreAttributeRuleTests(ITestOutputHelper testOutputHelper)
 {
     // ImmutableArray<int>은 [Length] 없이 사용하면 InvalidAttributeUsageException 발생
     // [Ignore]가 붙은 파라미터는 컴플라이언스 검사를 건너뜀
@@ -23,7 +23,7 @@ public class IgnoreAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Ignore]
                        ImmutableArray<int> IgnoredProperty,
                        int Id,
@@ -52,7 +52,7 @@ public class IgnoreAttributeRuleTests(ITestOutputHelper testOutputHelper)
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
                    [Ignore]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                    );
                    """;

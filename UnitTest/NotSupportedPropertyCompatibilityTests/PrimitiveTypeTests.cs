@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.NotSupportedPropertyCompatibilityTests;
 
-public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
+public partial class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("bool", "0")]
@@ -26,7 +26,7 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         {type} Property,
                     );
                     """;
@@ -67,7 +67,7 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         {type} Property,
                     );
                     """;

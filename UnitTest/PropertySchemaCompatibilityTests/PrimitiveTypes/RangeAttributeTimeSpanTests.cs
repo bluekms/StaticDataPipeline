@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaCompatibilityTests.PrimitiveTypes;
 
-public class RangeAttributeTimeSpanTests(ITestOutputHelper testOutputHelper)
+public partial class RangeAttributeTimeSpanTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("00:00:00")]
@@ -23,7 +23,7 @@ public class RangeAttributeTimeSpanTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        [Range(typeof(TimeSpan), "00:00:00", "01:00:00")]
                        TimeSpan Property,
@@ -60,7 +60,7 @@ public class RangeAttributeTimeSpanTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        [Range(typeof(TimeSpan), "00:00:00", "01:00:00")]
                        TimeSpan Property,
@@ -100,7 +100,7 @@ public class RangeAttributeTimeSpanTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        [Range(typeof(TimeSpan), "00:00:00", "01:00:00")]
                        TimeSpan Property,
@@ -155,7 +155,7 @@ public class RangeAttributeTimeSpanTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        [NullString("-")]
                        [Range(typeof(TimeSpan), "00:00:00", "01:00:00")]
@@ -190,7 +190,7 @@ public class RangeAttributeTimeSpanTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        [NullString("-")]
                        [Range(typeof(TimeSpan), "00:00:00", "01:00:00")]

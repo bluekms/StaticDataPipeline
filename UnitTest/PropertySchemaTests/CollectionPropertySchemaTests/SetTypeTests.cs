@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaTests.CollectionPropertySchemaTests;
 
-public class SetTypeTests(ITestOutputHelper testOutputHelper)
+public partial class SetTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("bool")]
@@ -35,7 +35,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         [Length(3)] FrozenSet<{type}> Property,
                     );
                     """;
@@ -64,7 +64,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
                      public enum MyEnum { A, B, C }
 
                      [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
+                     public sealed partial record MyRecord(
                          [Length(3)] FrozenSet<{{type}}> Property,
                      );
                      """;
@@ -91,7 +91,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
                         [Length(3)]
                         FrozenSet<{type}> Property,
@@ -120,7 +120,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         [TimeSpanFormat("c")]
                         [Length(3)]
                         FrozenSet<{type}> Property,
@@ -148,7 +148,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        FrozenSet<int> Property,
                    );
@@ -175,7 +175,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        [Length(3)]
                        FrozenSet<int> Property,

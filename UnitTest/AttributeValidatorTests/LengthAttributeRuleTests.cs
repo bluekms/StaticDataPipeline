@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class LengthAttributeRuleTests(ITestOutputHelper testOutputHelper)
+public partial class LengthAttributeRuleTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void CanUseArrayTest()
@@ -22,7 +22,7 @@ public class LengthAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)]
                        ImmutableArray<int> Property,
                    );
@@ -48,7 +48,7 @@ public class LengthAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)]
                        FrozenSet<int> Property,
                    );
@@ -74,7 +74,7 @@ public class LengthAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        ImmutableArray<int> Property,
                    );
                    """;

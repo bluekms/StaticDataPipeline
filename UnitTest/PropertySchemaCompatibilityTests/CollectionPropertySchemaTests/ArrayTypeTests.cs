@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaCompatibilityTests.CollectionPropertySchemaTests;
 
-public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
+public partial class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void PrimitiveArrayTest()
@@ -22,7 +22,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)]
                        ImmutableArray<int> Property,
                    );
@@ -65,7 +65,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
                    public enum MyEnum { A, B, C }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2)]
                        ImmutableArray<MyEnum> Property,
                    );
@@ -104,7 +104,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
                        [Length(2)]
                        ImmutableArray<DateTime> Property,
@@ -144,7 +144,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        [Length(2)]
                        ImmutableArray<TimeSpan> Property,
@@ -184,7 +184,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        ImmutableArray<int> Property,
                    );
@@ -222,7 +222,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        [Length(4)]
                        ImmutableArray<int> Property,

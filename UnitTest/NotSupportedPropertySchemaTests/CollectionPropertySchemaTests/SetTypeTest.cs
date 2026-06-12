@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.NotSupportedPropertySchemaTests.CollectionPropertySchemaTests;
 
-public class SetTypeTest(ITestOutputHelper testOutputHelper)
+public partial class SetTypeTest(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("List")]
@@ -22,7 +22,7 @@ public class SetTypeTest(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         HashSet<{collection}<int>> Property,
                     );
                     """;
@@ -44,7 +44,7 @@ public class SetTypeTest(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        HashSet<Dictionary<int, string>> Property,
                    );
                    """;

@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.StartCellResolverTests;
 
-public class StartCellResolverTests(ITestOutputHelper testOutputHelper)
+public partial class StartCellResolverTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void NoStartCellInAttribute_ReturnsFallback()
@@ -22,7 +22,7 @@ public class StartCellResolverTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                    );
                    """;
@@ -50,7 +50,7 @@ public class StartCellResolverTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet", "C7")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                    );
                    """;
@@ -78,7 +78,7 @@ public class StartCellResolverTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet", "")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                    );
                    """;

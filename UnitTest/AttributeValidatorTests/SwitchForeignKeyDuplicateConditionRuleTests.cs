@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class SwitchForeignKeyDuplicateConditionRuleTests(ITestOutputHelper testOutputHelper)
+public partial class SwitchForeignKeyDuplicateConditionRuleTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void DisjointConditionValuesAllowedTest()
@@ -23,7 +23,7 @@ public class SwitchForeignKeyDuplicateConditionRuleTests(ITestOutputHelper testO
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                        [SwitchForeignKey("Id", "1", "Other", "Id")]
                        [SwitchForeignKey("Id", "2", "Foo",   "Id")]
@@ -52,7 +52,7 @@ public class SwitchForeignKeyDuplicateConditionRuleTests(ITestOutputHelper testO
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                        [SwitchForeignKey("Id", "1", "Other", "Id")]
                        [SwitchForeignKey("Id", "1", "Foo",   "Id")]
@@ -83,7 +83,7 @@ public class SwitchForeignKeyDuplicateConditionRuleTests(ITestOutputHelper testO
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                        [SwitchForeignKey("Id", "1", "Other", "Id")]
                        [SwitchForeignKey("Id", "1", "Foo",   "Id")]
@@ -114,7 +114,7 @@ public class SwitchForeignKeyDuplicateConditionRuleTests(ITestOutputHelper testO
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                        [SwitchForeignKey("Id", "1", "OtherA", "Id")]
                        [SwitchForeignKey("Id", "1", "FooA",   "Id")]

@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.RecordFlattenerTests;
 
-public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
+public partial class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void MapRecordToRecordTest()
@@ -18,19 +18,19 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record ItemKey(
+                   public sealed partial record ItemKey(
                        int Id,
                        string Type
                    );
 
-                   public sealed record ItemStatus(
+                   public sealed partial record ItemStatus(
                        [Key] ItemKey Key,
                        int Level,
                        int Power
                    );
 
                    [StaticDataRecord("GameData", "Items")]
-                   public sealed record ItemCollection(
+                   public sealed partial record ItemCollection(
                        [Length(2)] FrozenDictionary<ItemKey, ItemStatus> Inventory
                    );
                    """;
@@ -65,24 +65,24 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record ItemKey(
+                   public sealed partial record ItemKey(
                        int Id,
                        string Type
                    );
 
-                   public sealed record StatInfo(
+                   public sealed partial record StatInfo(
                        int Attack,
                        int Defense
                    );
 
-                   public sealed record ItemStatus(
+                   public sealed partial record ItemStatus(
                        [Key] ItemKey Key,
                        int Level,
                        StatInfo Stats
                    );
 
                    [StaticDataRecord("GameData", "Items")]
-                   public sealed record ItemCollection(
+                   public sealed partial record ItemCollection(
                        [Length(2)] FrozenDictionary<ItemKey, ItemStatus> Inventory
                    );
                    """;
@@ -119,22 +119,22 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record ItemKey(
+                   public sealed partial record ItemKey(
                        int Id,
                        string Type
                    );
 
-                   public sealed record ItemStatus(
+                   public sealed partial record ItemStatus(
                        [Key] ItemKey Key,
                        int Level,
                        ItemStatus.StatInfo Stats
                    )
                    {
-                       public sealed record StatInfo(int Attack, int Defense);
+                       public sealed partial record StatInfo(int Attack, int Defense);
                    }
 
                    [StaticDataRecord("GameData", "Items")]
-                   public sealed record ItemCollection(
+                   public sealed partial record ItemCollection(
                        [Length(2)] FrozenDictionary<ItemKey, ItemStatus> Inventory
                    );
                    """;
@@ -171,18 +171,18 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record KeyRecord(
+                   public sealed partial record KeyRecord(
                        int Id,
                        [Length(3)] ImmutableArray<string> Tags
                    );
 
-                   public sealed record ValueRecord(
+                   public sealed partial record ValueRecord(
                        [Key] KeyRecord Name,
                        int Score
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2)] FrozenDictionary<KeyRecord, ValueRecord> Data
                    );
                    """;
@@ -219,18 +219,18 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record KeyRecord(
+                   public sealed partial record KeyRecord(
                        [ColumnName("ID")] int Id,
                        [Length(3), ColumnName("Tag")] ImmutableArray<string> Tags
                    );
 
-                   public sealed record ValueRecord(
+                   public sealed partial record ValueRecord(
                        [Key] KeyRecord Name,
                        [ColumnName("Point")] int Score
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2), ColumnName("Inven")] FrozenDictionary<KeyRecord, ValueRecord> Data
                    );
                    """;
@@ -267,25 +267,25 @@ public class MapRecordTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record UserKey(
+                   public sealed partial record UserKey(
                        [ColumnName("UID")] int UserId,
                        [Length(2), ColumnName("TR")] ImmutableArray<UserKey.TraitInfo> Traits
                    )
                    {
-                       public sealed record TraitInfo([ColumnName("Tid")] int TraitId, int Level);
+                       public sealed partial record TraitInfo([ColumnName("Tid")] int TraitId, int Level);
                    }
 
-                   public sealed record UserProfile(
+                   public sealed partial record UserProfile(
                        [Key] UserKey Key,
                        [Length(2), ColumnName("SK")] FrozenSet<UserProfile.SkillInfo> Skills,
                        int Rank
                    )
                    {
-                       public sealed record SkillInfo([ColumnName("Sid")] string SkillId, bool IsActive);
+                       public sealed partial record SkillInfo([ColumnName("Sid")] string SkillId, bool IsActive);
                    }
 
                    [StaticDataRecord("GameData", "Users")]
-                   public sealed record UserDataCatalog(
+                   public sealed partial record UserDataCatalog(
                        [Length(2), ColumnName("Player")] FrozenDictionary<UserKey, UserProfile> Data
                    );
                    """;

@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.RecordScanTests;
 
-public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelper)
+public partial class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void MyClassTest()
@@ -18,13 +18,13 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
 
         // language=C#
         var code = """
-                   public sealed record Subject(
+                   public sealed partial record Subject(
                        string Name,
                        [Length(2)] ImmutableArray<int> QuarterScore
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyClass(
+                   public sealed partial record MyClass(
                        string Name,
                        [Length(3)] ImmutableArray<Subject> SubjectA,
                        int Age,
@@ -59,13 +59,13 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
 
         // language=C#
         var code = """
-                   public sealed record Subject(
+                   public sealed partial record Subject(
                        string Name,
                        [SingleColumnCollection(", ")][Length(4)] ImmutableArray<int> QuarterScore
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyClass(
+                   public sealed partial record MyClass(
                        string Name,
                        [Length(3)] ImmutableArray<Subject> SubjectA,
                        int Age,
@@ -100,13 +100,13 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
 
         // language=C#
         var code = """
-                   public sealed record Subject(
+                   public sealed partial record Subject(
                        string Name,
                        [SingleColumnCollection(", ")][ColumnName("QuarterScores")][Length(4)] ImmutableArray<int> QuarterScore
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyClass(
+                   public sealed partial record MyClass(
                        string Name,
                        [Length(3)] ImmutableArray<Subject> SubjectA,
                        int Age,
@@ -141,13 +141,13 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
 
         // language=C#
         var code = """
-                   public sealed record Subject(
+                   public sealed partial record Subject(
                        [ColumnName("Bar")] string Name,
                        [ColumnName("Scores")][Length(2)] ImmutableArray<int> QuarterScore
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyClass(
+                   public sealed partial record MyClass(
                        string Name,
                        [Length(3)][ColumnName("SubjectF")] ImmutableArray<Subject> SubjectA,
                        int Age,
@@ -182,10 +182,10 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
 
         // language=C#
         var code = """
-                   public sealed record MyRecord([Key] int Id, int Value);
+                   public sealed partial record MyRecord([Key] int Id, int Value);
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyStaticData(
+                   public sealed partial record MyStaticData(
                        string Name,
                        [Length(3)] FrozenDictionary<int, MyRecord> MyDictionary,
                    );
@@ -218,11 +218,11 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
 
         // language=C#
         var code = """
-                   public sealed record Human(string Name, int Age);
-                   public sealed record MyRecord([Key] Human Human, int Value);
+                   public sealed partial record Human(string Name, int Age);
+                   public sealed partial record MyRecord([Key] Human Human, int Value);
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyStaticData(
+                   public sealed partial record MyStaticData(
                        [Length(3)] FrozenDictionary<Human, MyRecord> MyDictionary,
                    );
                    """;
@@ -254,12 +254,12 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
 
         // language=C#
         var code = """
-                   public sealed record Address(string Street, string City);
-                   public sealed record ContactInfo(string PhoneNumber, string Email);
-                   public sealed record Project(string ProjectName, [Length(6)] ImmutableArray<string> TeamMembers, double Budget);
-                   public sealed record Department(string DepartmentName, [Length(2)] ImmutableArray<Project> Projects);
+                   public sealed partial record Address(string Street, string City);
+                   public sealed partial record ContactInfo(string PhoneNumber, string Email);
+                   public sealed partial record Project(string ProjectName, [Length(6)] ImmutableArray<string> TeamMembers, double Budget);
+                   public sealed partial record Department(string DepartmentName, [Length(2)] ImmutableArray<Project> Projects);
 
-                   public sealed record Employee(
+                   public sealed partial record Employee(
                        string FullName,
                        int Age,
                        Address HomeAddress,
@@ -269,7 +269,7 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record Company(
+                   public sealed partial record Company(
                        string CompanyName,
                        Address HeadquartersAddress,
                        [Length(5)] FrozenSet<Employee> Employees,
@@ -304,11 +304,11 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
 
         // language=C#
         var code = """
-                   public sealed record SchoolId(int Value);
-                   public sealed record TeacherId(int Value);
+                   public sealed partial record SchoolId(int Value);
+                   public sealed partial record TeacherId(int Value);
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record School(
+                   public sealed partial record School(
                        SchoolId Id,
                        string Name,
                        TeacherId MainTeacher
@@ -346,11 +346,11 @@ public class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOutputHelp
 
         // language=C#
         var code = """
-                   public sealed record EntityId(int Value);
-                   public sealed record Address(string City, string Street);
+                   public sealed partial record EntityId(int Value);
+                   public sealed partial record Address(string City, string Street);
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record Entity(
+                   public sealed partial record Entity(
                        EntityId Id,
                        string Name,
                        Address Location

@@ -2,7 +2,7 @@ using StaticDataHeaderGenerator;
 
 namespace UnitTest.HeaderSeparatorValidatorTests;
 
-public class HeaderSeparatorValidatorTest
+public partial class HeaderSeparatorValidatorTest
 {
     [Fact]
     public void NoConflict_DoesNotThrow()

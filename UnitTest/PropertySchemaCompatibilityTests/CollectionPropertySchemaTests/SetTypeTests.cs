@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaCompatibilityTests.CollectionPropertySchemaTests;
 
-public class SetTypeTests(ITestOutputHelper testOutputHelper)
+public partial class SetTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void PrimitiveSetTest()
@@ -22,7 +22,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(4)]
                        FrozenSet<int> Property,
                    );
@@ -63,7 +63,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(4)]
                        FrozenSet<int> Property,
                    );
@@ -107,7 +107,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
                    public enum MyEnum { A, a, C }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2)]
                        FrozenSet<MyEnum> Property,
                    );
@@ -148,7 +148,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
                    public enum MyEnum { A, B, C }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)]
                        FrozenSet<MyEnum> Property,
                    );
@@ -189,7 +189,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
                        [Length(2)]
                        FrozenSet<DateTime> Property,
@@ -229,7 +229,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        [Length(2)]
                        FrozenSet<TimeSpan> Property,
@@ -269,7 +269,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        FrozenSet<int> Property,
                    );
@@ -307,7 +307,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        [Length(4)]
                        FrozenSet<int> Property,
@@ -346,7 +346,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        FrozenSet<int> Property,
                    );

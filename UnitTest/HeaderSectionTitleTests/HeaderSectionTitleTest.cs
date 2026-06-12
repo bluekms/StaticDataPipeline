@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.HeaderSectionTitleTests;
 
-public class HeaderSectionTitleTest(ITestOutputHelper testOutputHelper)
+public partial class HeaderSectionTitleTest(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void TabSeparator_ReturnsTsvLabel()

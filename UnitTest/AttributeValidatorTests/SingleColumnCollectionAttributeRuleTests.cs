@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class SingleColumnCollectionAttributeRuleTests(ITestOutputHelper testOutputHelper)
+public partial class SingleColumnCollectionAttributeRuleTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void CanUseArrayTest()
@@ -22,7 +22,7 @@ public class SingleColumnCollectionAttributeRuleTests(ITestOutputHelper testOutp
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(",")]
                        ImmutableArray<int> Property,
                    );
@@ -48,7 +48,7 @@ public class SingleColumnCollectionAttributeRuleTests(ITestOutputHelper testOutp
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(",")]
                        FrozenSet<int> Property,
                    );
@@ -74,7 +74,7 @@ public class SingleColumnCollectionAttributeRuleTests(ITestOutputHelper testOutp
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(",")]
                        int Property,
                    );
@@ -99,10 +99,10 @@ public class SingleColumnCollectionAttributeRuleTests(ITestOutputHelper testOutp
 
         // language=C#
         var code = """
-                   public sealed record InnerRecord(int Value);
+                   public sealed partial record InnerRecord(int Value);
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(",")]
                        ImmutableArray<InnerRecord> Property,
                    );
@@ -127,10 +127,10 @@ public class SingleColumnCollectionAttributeRuleTests(ITestOutputHelper testOutp
 
         // language=C#
         var code = """
-                   public sealed record InnerRecord(int Value);
+                   public sealed partial record InnerRecord(int Value);
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(",")]
                        FrozenSet<InnerRecord> Property,
                    );

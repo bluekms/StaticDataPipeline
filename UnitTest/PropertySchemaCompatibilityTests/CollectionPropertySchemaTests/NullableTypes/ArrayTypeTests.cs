@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaCompatibilityTests.CollectionPropertySchemaTests.NullableTypes;
 
-public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
+public partial class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void PrimitiveArrayTest()
@@ -22,7 +22,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)][NullString("-")] ImmutableArray<int?> Property,
                    );
                    """;
@@ -64,7 +64,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
                    public enum MyEnum { A, B, C }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)][NullString("-")] ImmutableArray<MyEnum?> Property,
                    );
                    """;
@@ -103,7 +103,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
                        [NullString("-")]
                        [Length(3)]
@@ -145,7 +145,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        [NullString("-")]
                        [Length(2)]
@@ -186,7 +186,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("")]
                        [SingleColumnCollection(", ")]
                        ImmutableArray<int?> Property,
@@ -227,7 +227,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
                    public enum MyEnum { A, B, C }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        [NullString("")]
                        ImmutableArray<MyEnum?> Property,
@@ -266,7 +266,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        [NullString("")]
                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
@@ -306,7 +306,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        [TimeSpanFormat("c")]
                        [NullString("")]

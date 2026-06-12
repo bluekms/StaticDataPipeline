@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class CountRangeAttributeRuleTests(ITestOutputHelper testOutputHelper)
+public partial class CountRangeAttributeRuleTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void CanUseOnSingleColumnArrayTest()
@@ -23,7 +23,7 @@ public class CountRangeAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(",")]
                        [CountRange(1, 3)]
                        ImmutableArray<int> Property,
@@ -50,7 +50,7 @@ public class CountRangeAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(",")]
                        [CountRange(1, 3)]
                        FrozenSet<int> Property,
@@ -77,7 +77,7 @@ public class CountRangeAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [CountRange(1, 5)]
                        ImmutableArray<int> Property,
                    );
@@ -103,7 +103,7 @@ public class CountRangeAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(",")]
                        [CountRange(0, 5)]
                        ImmutableArray<int> Property,
@@ -130,7 +130,7 @@ public class CountRangeAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(",")]
                        [CountRange(1, 5)]
                        [Length(3)]
@@ -161,7 +161,7 @@ public class CountRangeAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(",")]
                        [CountRange(2, 5)]
                        ImmutableArray<int> Property,
@@ -197,7 +197,7 @@ public class CountRangeAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(",")]
                        [CountRange(2, 5)]
                        ImmutableArray<int> Property,

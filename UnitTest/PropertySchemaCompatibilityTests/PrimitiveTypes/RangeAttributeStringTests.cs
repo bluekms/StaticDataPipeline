@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaCompatibilityTests.PrimitiveTypes;
 
-public class RangeAttributeStringTests(ITestOutputHelper testOutputHelper)
+public partial class RangeAttributeStringTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("apple")]
@@ -23,7 +23,7 @@ public class RangeAttributeStringTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Range(typeof(string), "apple", "zebra")]
                        string Property,
                    );
@@ -58,7 +58,7 @@ public class RangeAttributeStringTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Range(typeof(string), "apple", "zebra")]
                        string Property,
                    );
@@ -97,7 +97,7 @@ public class RangeAttributeStringTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Range(typeof(string), "apple", "zebra")]
                        string Property,
                    );
@@ -151,7 +151,7 @@ public class RangeAttributeStringTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        [Range(typeof(string), "apple", "zebra")]
                        string? Property,

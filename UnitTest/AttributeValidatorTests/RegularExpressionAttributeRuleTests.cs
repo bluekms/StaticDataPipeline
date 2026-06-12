@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class RegularExpressionAttributeRuleTests(ITestOutputHelper testOutputHelper)
+public partial class RegularExpressionAttributeRuleTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void CanUseTest()
@@ -22,7 +22,7 @@ public class RegularExpressionAttributeRuleTests(ITestOutputHelper testOutputHel
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [RegularExpression(@"^[\w\.-]+@[\w\.-]+\.\w+$")]
                        string EmailAddress,
                    );
@@ -48,7 +48,7 @@ public class RegularExpressionAttributeRuleTests(ITestOutputHelper testOutputHel
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [RegularExpression(@"^[\w\.-]+@[\w\.-]+\.\w+$")]
                        int Property,
                    );

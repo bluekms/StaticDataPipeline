@@ -13,7 +13,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PrimaryKeyDuplicateCheckerTests;
 
-public class PrimaryKeyDuplicateCheckerTest(ITestOutputHelper testOutputHelper)
+public partial class PrimaryKeyDuplicateCheckerTest(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void UniqueKeys_Passes()
@@ -114,7 +114,7 @@ public class PrimaryKeyDuplicateCheckerTest(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Item", "ItemSheet")]
-                   public sealed record ItemRecord(
+                   public sealed partial record ItemRecord(
                        [Key] int Id,
                        string Name,
                    );
@@ -128,7 +128,7 @@ public class PrimaryKeyDuplicateCheckerTest(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Item", "ItemSheet")]
-                   public sealed record ItemRecord(
+                   public sealed partial record ItemRecord(
                        int Id,
                        string Name,
                    );

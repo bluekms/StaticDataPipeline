@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.RecordFlattenerTests;
 
-public class MapPrimitiveTypeTests(ITestOutputHelper testOutputHelper)
+public partial class MapPrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void MapStringToRecordTest()
@@ -18,14 +18,14 @@ public class MapPrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record UserInfo(
+                   public sealed partial record UserInfo(
                        [Key] string Name,
                        int Age,
                        string Email
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2)] FrozenDictionary<string, UserInfo> Users
                    );
                    """;
@@ -58,19 +58,19 @@ public class MapPrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record AddressInfo(
+                   public sealed partial record AddressInfo(
                        string City,
                        string ZipCode
                    );
 
-                   public sealed record UserInfo(
+                   public sealed partial record UserInfo(
                        [Key] string Name,
                        int Age,
                        AddressInfo Address
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2)] FrozenDictionary<string, UserInfo> Users
                    );
                    """;
@@ -106,13 +106,13 @@ public class MapPrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record UserInfo(
+                   public sealed partial record UserInfo(
                        [Key][ColumnName("UserName")] string Name,
                        [ColumnName("UserAge")] int Age
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [ColumnName("UserData")][Length(2)] FrozenDictionary<string, UserInfo> Users
                    );
                    """;

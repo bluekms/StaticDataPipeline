@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class KeyAttributeRuleTests(ITestOutputHelper testOutputHelper)
+public partial class KeyAttributeRuleTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void FrozenDictionary_ValueWithKeyAttribute_Succeeds()
@@ -21,13 +21,13 @@ public class KeyAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record ValueRecord(
+                   public sealed partial record ValueRecord(
                        [Key] int Id,
                        string Name,
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2)] FrozenDictionary<int, ValueRecord> Properties,
                    );
                    """;
@@ -51,13 +51,13 @@ public class KeyAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record ValueRecord(
+                   public sealed partial record ValueRecord(
                        int Id,
                        string Name,
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2)] FrozenDictionary<int, ValueRecord> Properties,
                    );
                    """;
@@ -81,13 +81,13 @@ public class KeyAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record ValueRecord(
+                   public sealed partial record ValueRecord(
                        [Key] int Id,
                        [Key] string Name,
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2)] FrozenDictionary<int, ValueRecord> Properties,
                    );
                    """;
@@ -112,7 +112,7 @@ public class KeyAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Key] int? Id,
                        string Name,
                    );
@@ -140,7 +140,7 @@ public class KeyAttributeRuleTests(ITestOutputHelper testOutputHelper)
                    public enum ItemId { None = 0 }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Key] ItemId? Id,
                        string Name,
                    );
@@ -165,13 +165,13 @@ public class KeyAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record ValueRecord(
+                   public sealed partial record ValueRecord(
                        [Key] int? Id,
                        string Name,
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2)] FrozenDictionary<int, ValueRecord> Properties,
                    );
                    """;
@@ -196,7 +196,7 @@ public class KeyAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Key] int ChapterId,
                        [Key] int StageId,
                        string Name,

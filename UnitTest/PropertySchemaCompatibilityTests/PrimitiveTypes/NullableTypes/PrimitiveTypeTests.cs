@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaCompatibilityTests.PrimitiveTypes.NullableTypes;
 
-public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
+public partial class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("bool?", "true")]
@@ -73,7 +73,7 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         [NullString("")] {type} Property,
                     );
                     """;
@@ -161,7 +161,7 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         [NullString("")] {type} Property,
                     );
                     """;
@@ -201,7 +201,7 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
                      public enum MyEnum { A, B, C }
 
                      [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
+                     public sealed partial record MyRecord(
                         [NullString("")] {{type}} Property,
                      );
                      """;
@@ -239,7 +239,7 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
                         [NullString("")]
                         {type} Property,
@@ -279,7 +279,7 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         [TimeSpanFormat("c")]
                         [NullString("")]
                         {type} Property,

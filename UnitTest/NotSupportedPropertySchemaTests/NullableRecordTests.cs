@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.NotSupportedPropertySchemaTests;
 
-public class NullableRecordTests(ITestOutputHelper testOutputHelper)
+public partial class NullableRecordTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void RejectsTopLevelNullableRecordTest()
@@ -20,10 +20,10 @@ public class NullableRecordTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record Position(int X, int Y);
+                   public sealed partial record Position(int X, int Y);
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                        Position? Point
                    );
@@ -48,10 +48,10 @@ public class NullableRecordTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record Position(int X, int Y);
+                   public sealed partial record Position(int X, int Y);
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                        Position Point
                    );

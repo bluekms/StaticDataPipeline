@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaCompatibilityTests.PrimitiveTypes;
 
-public class RangeAttributeEnumTests(ITestOutputHelper testOutputHelper)
+public partial class RangeAttributeEnumTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("Low")]
@@ -24,7 +24,7 @@ public class RangeAttributeEnumTests(ITestOutputHelper testOutputHelper)
                    public enum Tier { Lowest, Low, Mid, High, Highest }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Range(typeof(Tier), "Low", "High")]
                        Tier Property,
                    );
@@ -61,7 +61,7 @@ public class RangeAttributeEnumTests(ITestOutputHelper testOutputHelper)
                    public enum Tier { Lowest, Low, Mid, High, Highest }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Range(typeof(Tier), "Low", "High")]
                        Tier Property,
                    );
@@ -97,7 +97,7 @@ public class RangeAttributeEnumTests(ITestOutputHelper testOutputHelper)
                    public enum Tier { Lowest, Low, Mid, High, Highest }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        [Range(typeof(Tier), "Low", "High")]
                        Tier? Property,
@@ -133,7 +133,7 @@ public class RangeAttributeEnumTests(ITestOutputHelper testOutputHelper)
                    public enum Tier { Lowest, Low, Mid, High, Highest }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        [Range(typeof(Tier), "Low", "High")]
                        Tier? Property,
