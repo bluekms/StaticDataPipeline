@@ -80,6 +80,14 @@ public static class ViewSetBuildHelper
             viewTypeName));
     }
 
+    public static Exception CannotEmitError(string typeName)
+    {
+        return new NotSupportedException(string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.CannotEmitDueToDiagnostics,
+            typeName));
+    }
+
     public static string ViewsFailedToBuildMessage
         => Messages.ViewsFailedToBuild;
 }

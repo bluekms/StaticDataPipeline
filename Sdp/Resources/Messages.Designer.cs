@@ -105,6 +105,9 @@ internal static class Messages
     internal static string ViewContainingTypeMustBePartial
         => ResourceManager.GetString("ViewContainingTypeMustBePartial", Culture)!;
 
+    internal static string CannotEmitDueToDiagnostics
+        => ResourceManager.GetString("CannotEmitDueToDiagnostics", Culture)!;
+
     internal static class Composite
     {
 #if NET8_0_OR_GREATER
@@ -127,6 +130,7 @@ internal static class Messages
         internal static CompositeFormat ViewTargetsDifferentTableSet => CompositeFormat.Parse(Messages.ViewTargetsDifferentTableSet);
         internal static CompositeFormat ViewMustBePartial => CompositeFormat.Parse(Messages.ViewMustBePartial);
         internal static CompositeFormat ViewContainingTypeMustBePartial => CompositeFormat.Parse(Messages.ViewContainingTypeMustBePartial);
+        internal static CompositeFormat CannotEmitDueToDiagnostics => CompositeFormat.Parse(Messages.CannotEmitDueToDiagnostics);
 #else
         // netstandard2.1 에는 CompositeFormat 이 없어 원본 포맷 문자열을 그대로 노출한다.
         // 호출부의 string.Format 은 string 오버로드로 동일하게 동작한다.
@@ -149,6 +153,7 @@ internal static class Messages
         internal static string ViewTargetsDifferentTableSet => Messages.ViewTargetsDifferentTableSet;
         internal static string ViewMustBePartial => Messages.ViewMustBePartial;
         internal static string ViewContainingTypeMustBePartial => Messages.ViewContainingTypeMustBePartial;
+        internal static string CannotEmitDueToDiagnostics => Messages.CannotEmitDueToDiagnostics;
 #endif
     }
 }

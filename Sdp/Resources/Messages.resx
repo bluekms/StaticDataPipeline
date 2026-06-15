@@ -87,4 +87,7 @@
   <data name="ViewContainingTypeMustBePartial" xml:space="preserve">
     <value>All containing types of view '{0}' must be declared partial.</value>
   </data>
+  <data name="CannotEmitDueToDiagnostics" xml:space="preserve">
+    <value>Sdp.SourceGenerator: '{0}' cannot be built due to SDP diagnostics. Check the SDP diagnostics in the build output.</value>
+  </data>
 </root>

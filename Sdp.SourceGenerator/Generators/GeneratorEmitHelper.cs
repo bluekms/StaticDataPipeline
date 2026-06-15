@@ -6,11 +6,6 @@ namespace Sdp.SourceGenerator.Generators;
 
 internal static class GeneratorEmitHelper
 {
-    // 진단에 의해 emit 이 불가능한 타입의 팩토리에 방출하는 예외 메시지 꼬리말.
-    // 닫는 작은따옴표(')부터 시작하므로 호출부는 이름 리터럴까지만 Append 하고 이 상수를 잇는다.
-    public const string CannotEmitDiagnosticSuffix =
-        "'은 SDP 진단에 의해 빌드할 수 없습니다. 빌드 출력의 SDP 진단을 확인하세요.";
-
     public static string GetTypeKeyword(INamedTypeSymbol type)
     {
         if (type.TypeKind == TypeKind.Interface)

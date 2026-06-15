@@ -87,4 +87,7 @@
   <data name="ViewContainingTypeMustBePartial" xml:space="preserve">
     <value>'{0}' 뷰 타입을 감싸는 모든 타입은 partial로 선언되어야 합니다.</value>
   </data>
+  <data name="CannotEmitDueToDiagnostics" xml:space="preserve">
+    <value>Sdp.SourceGenerator: '{0}'은(는) SDP 진단에 의해 빌드할 수 없습니다. 빌드 출력의 SDP 진단을 확인하세요.</value>
+  </data>
 </root>

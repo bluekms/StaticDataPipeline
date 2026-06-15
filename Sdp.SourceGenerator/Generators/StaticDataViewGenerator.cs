@@ -136,8 +136,8 @@ internal static class StaticDataViewGenerator
         }
         else
         {
-            sb.Append(indent).Append("        => throw new global::System.NotSupportedException(\"Sdp.SourceGenerator: '")
-                .Append(viewFullyQualifiedName).Append(GeneratorEmitHelper.CannotEmitDiagnosticSuffix).AppendLine("\");");
+            sb.Append(indent).Append("        => throw global::Sdp.View.ViewSetBuildHelper.CannotEmitError(\"")
+                .Append(viewFullyQualifiedName).AppendLine("\");");
         }
 
         sb.Append(indent).AppendLine("}");

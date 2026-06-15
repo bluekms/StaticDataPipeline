@@ -134,8 +134,8 @@ internal static class ViewSetEmitter
         sb.Append(indent).Append("    ").Append(tableSetFullyQualifiedName).AppendLine(" tableSet,");
         sb.Append(indent).AppendLine("    global::Microsoft.Extensions.Logging.ILogger logger)");
         sb.Append(indent).AppendLine("{");
-        sb.Append(indent).Append("    throw new global::System.NotSupportedException(\"Sdp.SourceGenerator: ViewSet '")
-            .Append(viewSetFullyQualifiedName).Append(GeneratorEmitHelper.CannotEmitDiagnosticSuffix).AppendLine("\");");
+        sb.Append(indent).Append("    throw global::Sdp.View.ViewSetBuildHelper.CannotEmitError(\"")
+            .Append(viewSetFullyQualifiedName).AppendLine("\");");
         sb.Append(indent).AppendLine("}");
     }
 
