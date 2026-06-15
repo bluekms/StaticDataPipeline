@@ -10,10 +10,10 @@ public static class CsvWriter
 {
     private const int FlushThreshold = 1024 * 1024;
     private static readonly char[] SpecialChars = [',', '"', '\n', '\r'];
+    private static readonly UTF8Encoding Utf8NoBom = new(false);
 
     public static void Write(
         string path,
-        Encoding encoding,
         ExtractedTableMap extractedTableMap)
     {
         foreach (var (recordSchema, table) in extractedTableMap.SortedTables)
@@ -27,7 +27,7 @@ public static class CsvWriter
             // 들어가면 escape 없는 헤더 행이 CSV 구조를 깨뜨린다.
             sb.AppendLine(string.Join(",", table.Headers.Select(EscapeCell)));
 
-            using var writer = new StreamWriter(fileName, false, encoding);
+            using var writer = new StreamWriter(fileName, false, Utf8NoBom);
             foreach (var row in table.Rows)
             {
                 if (sb.Length > FlushThreshold)

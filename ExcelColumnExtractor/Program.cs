@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Globalization;
-using System.Text;
 using CLICommonLibrary;
 using CommandLine;
 using ExcelColumnExtractor.Aggregator;
@@ -76,7 +75,6 @@ public class Program
         sw.Restart();
         CsvWriter.Write(
             EnsureOutputDirectory(options, logger),
-            GetEncoding(options.Encoding),
             extractedTableMap);
         LogTrace(logger, sw.Elapsed.TotalMilliseconds, nameof(CsvWriter), null);
 
@@ -89,21 +87,6 @@ public class Program
 
         LogTrace(logger, sw.Elapsed.TotalMilliseconds, nameof(FolderStateScanner), null);
         LogInformation(logger, totalSw.Elapsed.TotalMilliseconds, nameof(ExcelColumnExtractor), null);
-    }
-
-    private static Encoding GetEncoding(string? encoding)
-    {
-        var encodingName = (string.IsNullOrEmpty(encoding) ? "UTF-8" : encoding)
-            .ToUpper(CultureInfo.InvariantCulture);
-
-        return encodingName switch
-        {
-            "UTF-8" => new UTF8Encoding(false),
-            "UTF-16" => Encoding.Unicode,
-            "UTF-32" => Encoding.UTF32,
-            "ASCII" => Encoding.ASCII,
-            _ => Encoding.GetEncoding(encodingName),
-        };
     }
 
     private static string EnsureOutputDirectory(ProgramOptions options, ILogger<Program> logger)
