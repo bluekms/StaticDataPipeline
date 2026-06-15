@@ -192,6 +192,9 @@
   <data name="NullStringAttributeNotAllowed" xml:space="preserve">
     <value>{0}({1}): nullable이거나 nullable을 갖는 컬렉션이 아니므로 NullStringAttribute를 사용할 수 없습니다.</value>
   </data>
+  <data name="ColumnNameContainsForbiddenCharacter" xml:space="preserve">
+    <value>{0}: ColumnName "{1}"에 사용할 수 없는 문자가 있습니다. 컬럼명에는 , " . [ ] 와 줄바꿈을 사용할 수 없습니다.</value>
+  </data>
   <data name="RegularExpressionAttributeOnlyForString" xml:space="preserve">
     <value>{0}({1}): string이 아니므로 RegularExpressionAttribute를 사용할 수 없습니다.</value>
   </data>

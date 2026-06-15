@@ -210,6 +210,9 @@ internal static class Messages
     internal static string NullStringAttributeNotAllowed
         => ResourceManager.GetString("NullStringAttributeNotAllowed", Culture)!;
 
+    internal static string ColumnNameContainsForbiddenCharacter
+        => ResourceManager.GetString("ColumnNameContainsForbiddenCharacter", Culture)!;
+
     internal static string RegularExpressionAttributeOnlyForString
         => ResourceManager.GetString("RegularExpressionAttributeOnlyForString", Culture)!;
 
@@ -373,6 +376,7 @@ internal static class Messages
         internal static CompositeFormat NullStringAttributeRequiredForNullableSet => CompositeFormat.Parse(Messages.NullStringAttributeRequiredForNullableSet);
         internal static CompositeFormat NullStringAttributeRequiredForNullableMap => CompositeFormat.Parse(Messages.NullStringAttributeRequiredForNullableMap);
         internal static CompositeFormat NullStringAttributeNotAllowed => CompositeFormat.Parse(Messages.NullStringAttributeNotAllowed);
+        internal static CompositeFormat ColumnNameContainsForbiddenCharacter => CompositeFormat.Parse(Messages.ColumnNameContainsForbiddenCharacter);
         internal static CompositeFormat RegularExpressionAttributeOnlyForString => CompositeFormat.Parse(Messages.RegularExpressionAttributeOnlyForString);
         internal static CompositeFormat RangeAttributeNotApplicable => CompositeFormat.Parse(Messages.RangeAttributeNotApplicable);
         internal static CompositeFormat CountRangeAttributeOnlyForSingleColumnCollection => CompositeFormat.Parse(Messages.CountRangeAttributeOnlyForSingleColumnCollection);

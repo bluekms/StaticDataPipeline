@@ -192,6 +192,9 @@
   <data name="NullStringAttributeNotAllowed" xml:space="preserve">
     <value>{0}({1}): not a nullable or nullable-containing collection, so NullStringAttribute cannot be used.</value>
   </data>
+  <data name="ColumnNameContainsForbiddenCharacter" xml:space="preserve">
+    <value>{0}: ColumnName "{1}" contains a forbidden character. The characters , " . [ ] and line breaks are not allowed in a column name.</value>
+  </data>
   <data name="RegularExpressionAttributeOnlyForString" xml:space="preserve">
     <value>{0}({1}): not a string, so RegularExpressionAttribute cannot be used.</value>
   </data>
