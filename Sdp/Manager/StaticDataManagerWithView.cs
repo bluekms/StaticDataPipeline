@@ -43,8 +43,6 @@ public abstract class StaticDataManager<TTableSet, TViewSet>(ILogger logger)
         }
     }
 
-    // 생성 TableSet/ViewSet 코드의 정적 진입점은 인터페이스 계약 대신 SG 가 emit 한 매니저 partial 의
-    // override 로 연결된다. 매니저 쪽에 별도 계약 타입이 필요 없다.
     protected abstract Task<TTableSet> LoadTableSetAsync(
         string csvDir,
         List<string>? disabledTables,

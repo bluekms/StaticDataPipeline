@@ -165,8 +165,8 @@ internal static class ViewSetEmitter
             sb.Append(indent).Append("        __v").Append(i)
                 .Append(" = global::Sdp.View.ViewSetBuildHelper.Build<")
                 .Append(viewFullyQualifiedName).Append(", ").Append(tableSetFullyQualifiedName).Append(">(tableSet, ")
-                .Append(Literal(view.ParameterName)).Append(", logger, ")
-                .Append(viewFullyQualifiedName).AppendLine(".BuildView);");
+                .Append(Literal(view.ParameterName)).Append(", ")
+                .Append(viewFullyQualifiedName).AppendLine(".BuildView, logger);");
             sb.Append(indent).AppendLine("    }");
             sb.Append(indent).AppendLine("    catch (global::System.Exception ex)");
             sb.Append(indent).AppendLine("    {");

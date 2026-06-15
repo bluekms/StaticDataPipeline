@@ -57,9 +57,9 @@ internal static class TableSetEmitter
             var nameLiteral = SymbolDisplay.FormatLiteral(table.ParameterName, quote: true);
             sb.Append(indent).Append("    var __t").Append(i)
                 .Append(" = global::Sdp.Manager.TableSetLoaderHelper.LoadTableOrSkipAsync<")
-                .Append(fullyQualifiedName).Append(">(csvDir, disabledTables, ")
-                .Append(nameLiteral).Append(", logger, ")
-                .Append(fullyQualifiedName).AppendLine(".LoadAsync);");
+                .Append(fullyQualifiedName).Append(">(csvDir, ")
+                .Append(nameLiteral).Append(", disabledTables, ")
+                .Append(fullyQualifiedName).AppendLine(".LoadAsync, logger);");
         }
 
         sb.AppendLine();

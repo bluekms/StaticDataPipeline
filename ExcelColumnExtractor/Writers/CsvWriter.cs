@@ -23,8 +23,6 @@ public static class CsvWriter
             var fileName = Path.Combine(path, $"{excelFileName}.{sheetName}.csv");
             var sb = new StringBuilder();
 
-            // 헤더에도 데이터 행과 같은 escape를 적용한다. 헤더명에 특수문자(쉼표 등)가
-            // 들어가면 escape 없는 헤더 행이 CSV 구조를 깨뜨린다.
             sb.AppendLine(string.Join(",", table.Headers.Select(EscapeCell)));
 
             using var writer = new StreamWriter(fileName, false, Utf8NoBom);
@@ -52,7 +50,7 @@ public static class CsvWriter
 
         foreach (var cell in row.Data)
         {
-            sb.Append(EscapeCell(cell.Value ?? string.Empty));
+            sb.Append(EscapeCell(cell.Value));
             sb.Append(',');
         }
 
