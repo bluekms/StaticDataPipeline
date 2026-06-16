@@ -6,11 +6,6 @@ internal static class ParameterEmittability
 {
     internal static bool IsParameterEmittable(ParameterAnalysis param)
     {
-        return IsParameterEmittableCore(param, isRoot: true);
-    }
-
-    private static bool IsParameterEmittableCore(ParameterAnalysis param, bool isRoot)
-    {
         if (param.IsIgnored)
         {
             return true;
@@ -23,7 +18,7 @@ internal static class ParameterEmittability
 
         if (param.IsCollection)
         {
-            return CanEmitCollection(param, isRoot);
+            return CanEmitCollection(param);
         }
 
         if (param.IsRecord)
@@ -34,35 +29,26 @@ internal static class ParameterEmittability
         return CanEmitPrimitive(param);
     }
 
-    private static bool CanEmitCollection(ParameterAnalysis param, bool isRoot)
+    private static bool CanEmitCollection(ParameterAnalysis param)
     {
         var collection = param.Collection!;
 
-        var isMultiColumnArrayOrSet = collection.Kind is CollectionKind.ImmutableArray or CollectionKind.FrozenSet;
-
-        // nested record 안에서는 array/set 만 지원한다(single-column/dict 는 root 만).
-        if (!isRoot && !isMultiColumnArrayOrSet)
+        if (collection.Kind is CollectionKind.ImmutableArray or CollectionKind.FrozenSet)
         {
-            return false;
-        }
-
-        if (isMultiColumnArrayOrSet)
-        {
-            if (!IsElementValidationCompatible(param, collection))
+            if (!AreValidationAttributesApplicable(param, collection))
             {
                 return false;
             }
 
             if (collection.ElementNested is { } elementNested)
             {
-                // nullable record 원소는 매퍼가 null 분기를 만들지 못하므로 미지원 유지.
+                // nullable record 지원하지 않음
                 if (TypeClassifier.IsNullable(collection.ElementType))
                 {
                     return false;
                 }
 
-                return elementNested.Parameters.All(
-                    nestedParameter => IsParameterEmittableCore(nestedParameter, isRoot: false));
+                return elementNested.Parameters.All(IsParameterEmittable);
             }
 
             if (!IsEmittableCollectionElement(collection.ElementKind, param))
@@ -70,8 +56,6 @@ internal static class ParameterEmittability
                 return false;
             }
 
-            // nullable scalar 원소는 [NullString] 이 함께 있어야 null 로 매핑된다(single-column 경로와 동일).
-            // 없으면 빈 셀에서 파싱 예외가 나므로 미지원.
             if (TypeClassifier.IsNullable(collection.ElementType) && param.NullString is null)
             {
                 return false;
@@ -87,7 +71,7 @@ internal static class ParameterEmittability
                 return false;
             }
 
-            if (!IsElementValidationCompatible(param, collection))
+            if (!AreValidationAttributesApplicable(param, collection))
             {
                 return false;
             }
@@ -97,7 +81,6 @@ internal static class ParameterEmittability
                 return false;
             }
 
-            // nullable element 는 [NullString] 이 함께 있어야 emit
             if (TypeClassifier.IsNullable(collection.ElementType) && param.NullString is null)
             {
                 return false;
@@ -108,8 +91,7 @@ internal static class ParameterEmittability
 
         if (collection.Kind == CollectionKind.FrozenDictionary)
         {
-            // dict 의 ElementKind 는 Unsupported 라 [Range]/[RegularExpression] 가 붙으면 여기서 거부된다.
-            if (!IsElementValidationCompatible(param, collection))
+            if (!AreValidationAttributesApplicable(param, collection))
             {
                 return false;
             }
@@ -122,21 +104,17 @@ internal static class ParameterEmittability
 
     private static bool CanEmitRecord(ParameterAnalysis param)
     {
-        // nullable record 파라미터는 매퍼가 null 분기를 만들지 못하므로 미지원(컬렉션 record 원소와 동일 정책).
         if (param.IsNullable)
         {
             return false;
         }
 
-        // record 파라미터에 붙은 [Range]/[RegularExpression] 은 스칼라 전용이라 의미가 없고,
-        // emit 시 object 비교 헬퍼가 방출되어 생성 코드가 컴파일되지 않으므로 거부한다(SDP0004).
         if (param.Range is not null || param.RegexPattern is not null)
         {
             return false;
         }
 
-        return param.Nested!.Parameters.All(
-            nestedParameter => IsParameterEmittableCore(nestedParameter, isRoot: false));
+        return param.Nested!.Parameters.All(IsParameterEmittable);
     }
 
     private static bool CanEmitPrimitive(ParameterAnalysis param)
@@ -146,8 +124,11 @@ internal static class ParameterEmittability
             return false;
         }
 
-        if (param.Kind is ScalarKind.DateTime or ScalarKind.DateTimeOffset
-            or ScalarKind.DateOnly or ScalarKind.TimeOnly)
+        if (param.Kind
+            is ScalarKind.DateTime
+            or ScalarKind.DateTimeOffset
+            or ScalarKind.DateOnly
+            or ScalarKind.TimeOnly)
         {
             if (param.DateTimeFormat is null)
             {
@@ -163,7 +144,7 @@ internal static class ParameterEmittability
             }
         }
 
-        if (param.IsNullable && param.NullString is null)
+        if (param is { IsNullable: true, NullString: null })
         {
             return false;
         }
@@ -187,9 +168,9 @@ internal static class ParameterEmittability
         return true;
     }
 
-    // 컬렉션 파라미터에 [Range]/[RegularExpression] 가 붙으면 각 원소에 검증을 적용한다.
-    // 원소 타입이 검증 대상과 맞지 않거나 nullable 이면 미지원 처리한다.
-    private static bool IsElementValidationCompatible(ParameterAnalysis param, CollectionInfo collection)
+    // 컬렉션에 붙은 [Range]/[RegularExpression] 검증 attribute 를 원소 타입에 적용할 수 있는지 판정한다.
+    // 원소가 nullable 이거나 attribute 의 검증 종류와 원소 타입이 맞지 않으면 미지원이다.
+    private static bool AreValidationAttributesApplicable(ParameterAnalysis param, CollectionInfo collection)
     {
         if (param.Range is null && param.RegexPattern is null)
         {
@@ -240,9 +221,9 @@ internal static class ParameterEmittability
             return false;
         }
 
-        // nested 안 모든 param이 emit 가능해야 (재귀, isRoot=false: nested 안 컬렉션 차단)
+        // value record 안 모든 param이 emit 가능해야 한다(재귀).
         if (!info.ValueNested.Parameters.All(
-                nestedParameter => IsParameterEmittableCore(nestedParameter, isRoot: false)))
+                nestedParameter => IsParameterEmittable(nestedParameter)))
         {
             return false;
         }

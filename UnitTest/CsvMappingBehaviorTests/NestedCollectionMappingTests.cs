@@ -56,6 +56,70 @@ public partial class NestedCollectionMappingTests(ITestOutputHelper testOutputHe
         logger.LogInformation("Record set mapped with {Count} elements", record.Items.Count);
     }
 
+    public sealed record TagSet(
+        int Id,
+        [SingleColumnCollection(";")] ImmutableArray<int> Tags);
+
+    [StaticDataRecord("NestedCollection", "SingleCol")]
+    public sealed partial record TagHolderRecord(int Id, TagSet Data);
+
+    [Fact]
+    public void NestedRecord_WithSingleColumnCollection_Maps()
+    {
+        var logger = CreateLogger();
+
+        var csv = "Id,Data.Id,Data.Tags\n1,7,10;20;30";
+
+        var record = Assert.Single(CsvLoader.Parse(csv, TagHolderRecord.MapFromCsvRow));
+
+        Assert.Equal(1, record.Id);
+        Assert.Equal(7, record.Data.Id);
+        Assert.Equal(3, record.Data.Tags.Length);
+        Assert.Equal(10, record.Data.Tags[0]);
+        Assert.Equal(20, record.Data.Tags[1]);
+        Assert.Equal(30, record.Data.Tags[2]);
+        logger.LogInformation(
+            "Nested single-column collection mapped: Data.Id={DataId}, Tags=[{T0}, {T1}, {T2}]",
+            record.Data.Id,
+            record.Data.Tags[0],
+            record.Data.Tags[1],
+            record.Data.Tags[2]);
+    }
+
+    public sealed record ScoreValue([Key] int Subject, int Point);
+
+    public sealed record ScoreBook(
+        int Id,
+        [Length(2)] FrozenDictionary<int, ScoreValue> Scores);
+
+    [StaticDataRecord("NestedCollection", "DictHolder")]
+    public sealed partial record ScoreHolderRecord(int Id, ScoreBook Book);
+
+    [Fact]
+    public void NestedRecord_WithFrozenDictionary_Maps()
+    {
+        var logger = CreateLogger();
+
+        var csv = "Id,Book.Id,Book.Scores[0].Subject,Book.Scores[0].Point,"
+                + "Book.Scores[1].Subject,Book.Scores[1].Point\n"
+                + "1,7,100,90,200,80";
+
+        var record = Assert.Single(CsvLoader.Parse(csv, ScoreHolderRecord.MapFromCsvRow));
+
+        Assert.Equal(1, record.Id);
+        Assert.Equal(7, record.Book.Id);
+        Assert.Equal(2, record.Book.Scores.Count);
+        Assert.True(record.Book.Scores.ContainsKey(100));
+        Assert.True(record.Book.Scores.ContainsKey(200));
+        Assert.Equal(90, record.Book.Scores[100].Point);
+        Assert.Equal(80, record.Book.Scores[200].Point);
+        logger.LogInformation(
+            "Nested dictionary mapped: Book.Id={BookId}, Scores={Count}, [100]={Point}",
+            record.Book.Id,
+            record.Book.Scores.Count,
+            record.Book.Scores[100].Point);
+    }
+
     private TestOutputLogger<NestedCollectionMappingTests> CreateLogger()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);

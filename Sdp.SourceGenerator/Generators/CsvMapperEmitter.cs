@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
@@ -118,19 +117,19 @@ internal static class CsvMapperEmitter
                 CollectNestedTokens(nested.Parameters, map);
             }
 
+            if (param.Collection is { ElementNested: { } elementNested }
+                && !map.ContainsKey(elementNested.Symbol))
+            {
+                map[elementNested.Symbol] = MakeToken(elementNested.Symbol.Name, map);
+                CollectNestedTokens(elementNested.Parameters, map);
+            }
+
             if (param.Collection is { Kind: CollectionKind.FrozenDictionary } collection
                 && collection.ValueNested is { } valueNested
                 && !map.ContainsKey(valueNested.Symbol))
             {
                 map[valueNested.Symbol] = MakeToken(valueNested.Symbol.Name, map);
                 CollectNestedTokens(valueNested.Parameters, map);
-            }
-
-            if (param.Collection is { ElementNested: { } elementNested }
-                && !map.ContainsKey(elementNested.Symbol))
-            {
-                map[elementNested.Symbol] = MakeToken(elementNested.Symbol.Name, map);
-                CollectNestedTokens(elementNested.Parameters, map);
             }
 
             if (param.Collection is { ElementKind: ScalarKind.Enum, ElementNested: null } enumCollection)
@@ -847,7 +846,7 @@ internal static class CsvMapperEmitter
         var baseConversion = EmitElementBaseConversion(info, valueExpr, param, nestedTokens);
 
         // [Range]/[RegularExpression] 가 컬렉션에 붙으면 원소를 각각 검증한다. 검증 attribute 가 붙은
-        // nullable 원소 컬렉션은 IsElementValidationCompatible 이 emit 자체를 거부하므로, nullable 원소가
+        // nullable 원소 컬렉션은 AreValidationAttributesApplicable 이 emit 자체를 거부하므로, nullable 원소가
         // 여기 도달하는 경우 WrapValidations 는 no-op 이다.
         var converted = WrapValidations(param, baseConversion, ownerToken);
 
