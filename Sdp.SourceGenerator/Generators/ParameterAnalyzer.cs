@@ -62,14 +62,14 @@ internal static class ParameterAnalyzer
             }
 
             var namespaceName = attrClass.ContainingNamespace?.ToDisplayString();
-            if (namespaceName != AttributeNames.Namespace)
+            if (namespaceName != SdpAttributeNames.Namespace)
             {
                 continue;
             }
 
             switch (attrClass.Name)
             {
-                case AttributeNames.ColumnName:
+                case SdpAttributeNames.ColumnName:
                 {
                     if (attr.ConstructorArguments.Length > 0 &&
                         attr.ConstructorArguments[0].Value is string name)
@@ -80,13 +80,13 @@ internal static class ParameterAnalyzer
                     break;
                 }
 
-                case AttributeNames.Key:
+                case SdpAttributeNames.Key:
                 {
                     isKey = true;
                     break;
                 }
 
-                case AttributeNames.NullString:
+                case SdpAttributeNames.NullString:
                 {
                     if (attr.ConstructorArguments.Length > 0 &&
                         attr.ConstructorArguments[0].Value is string nullStringValue)
@@ -97,7 +97,7 @@ internal static class ParameterAnalyzer
                     break;
                 }
 
-                case AttributeNames.DateTimeFormat:
+                case SdpAttributeNames.DateTimeFormat:
                 {
                     if (attr.ConstructorArguments.Length > 0 &&
                         attr.ConstructorArguments[0].Value is string format)
@@ -108,7 +108,7 @@ internal static class ParameterAnalyzer
                     break;
                 }
 
-                case AttributeNames.TimeSpanFormat:
+                case SdpAttributeNames.TimeSpanFormat:
                 {
                     if (attr.ConstructorArguments.Length > 0 &&
                         attr.ConstructorArguments[0].Value is string format)
@@ -119,13 +119,13 @@ internal static class ParameterAnalyzer
                     break;
                 }
 
-                case AttributeNames.Range:
+                case SdpAttributeNames.Range:
                 {
                     range = ExtractRangeInfo(attr);
                     break;
                 }
 
-                case AttributeNames.RegularExpression:
+                case SdpAttributeNames.RegularExpression:
                 {
                     if (attr.ConstructorArguments.Length > 0 &&
                         attr.ConstructorArguments[0].Value is string pattern)
@@ -136,7 +136,7 @@ internal static class ParameterAnalyzer
                     break;
                 }
 
-                case AttributeNames.Length:
+                case SdpAttributeNames.Length:
                 {
                     hasLengthAttribute = true;
                     if (attr.ConstructorArguments.Length > 0 &&
@@ -148,7 +148,7 @@ internal static class ParameterAnalyzer
                     break;
                 }
 
-                case AttributeNames.SingleColumnCollection:
+                case SdpAttributeNames.SingleColumnCollection:
                 {
                     hasSingleColumnCollectionAttribute = true;
                     if (attr.ConstructorArguments.Length > 0 &&
@@ -164,7 +164,7 @@ internal static class ParameterAnalyzer
                     break;
                 }
 
-                case AttributeNames.CountRange:
+                case SdpAttributeNames.CountRange:
                 {
                     hasCountRangeAttribute = true;
                     if (attr.ConstructorArguments.Length >= 2 &&
@@ -178,13 +178,13 @@ internal static class ParameterAnalyzer
                     break;
                 }
 
-                case AttributeNames.ForeignKey:
-                case AttributeNames.SwitchForeignKey:
+                case SdpAttributeNames.ForeignKey:
+                case SdpAttributeNames.SwitchForeignKey:
                 {
                     break;
                 }
 
-                case AttributeNames.Ignore:
+                case SdpAttributeNames.Ignore:
                 {
                     isIgnored = true;
                     break;
@@ -198,35 +198,14 @@ internal static class ParameterAnalyzer
             }
         }
 
-        // [Ignore] 파라미터는 매핑 대상이 아니므로 타입 분석 없이 default 주입 대상으로만 표시한다.
         if (isIgnored)
         {
-            return new ParameterAnalysis(
-                param.Name,
-                columnName,
-                param.Type,
-                ScalarKind.Unsupported,
-                IsNullable: false,
-                IsKey: false,
-                NullString: null,
-                DateTimeFormat: null,
-                TimeSpanFormat: null,
-                Range: null,
-                RegexPattern: null,
-                Nested: null,
-                Collection: null,
-                HasUnsupportedAttribute: false,
-                HasCountRangeAttribute: false,
-                HasLengthAttribute: false,
-                HasSingleColumnCollectionAttribute: false,
-                IsIgnored: true);
+            return ParameterAnalysis.Ignored(param.Name, columnName, param.Type);
         }
 
         var kind = TypeClassifier.ClassifyScalar(param.Type);
         var isNullable = TypeClassifier.IsNullable(param.Type);
 
-        // 컬렉션 타입이면 항상 분류한다. [Length] 가 있으면 고정 길이 다중 컬럼,
-        // [SingleColumnCollection] 이면 단일 컬럼, 둘 다 없으면 다중 컬럼 동적 길이(Length 0)로 매핑한다.
         CollectionInfo? collection = null;
         var classified = TypeClassifier.ClassifyCollection(param.Type);
         if (classified is not null)
@@ -242,6 +221,20 @@ internal static class ParameterAnalyzer
                 };
             }
 
+            var isMultiColumnArrayOrSet = collectionKind is CollectionKind.ImmutableArray or CollectionKind.FrozenSet;
+            var elementIsNonScalar = classified.ElementKind is ScalarKind.Unsupported;
+
+            NestedRecordInfo? valueNested = null;
+            NestedRecordInfo? elementNested = null;
+            if (collectionKind == CollectionKind.FrozenDictionary)
+            {
+                valueNested = AnalyzeNestedRecord(classified.ElementType, visiting, cancellationToken);
+            }
+            else if (isMultiColumnArrayOrSet && elementIsNonScalar)
+            {
+                elementNested = AnalyzeNestedRecord(classified.ElementType, visiting, cancellationToken);
+            }
+
             collection = classified with
             {
                 Kind = collectionKind,
@@ -249,19 +242,9 @@ internal static class ParameterAnalyzer
                 Separator = singleColumnSeparator,
                 MinCount = minCount,
                 MaxCount = maxCount,
+                ValueNested = valueNested,
+                ElementNested = elementNested,
             };
-
-            if (collectionKind == CollectionKind.FrozenDictionary)
-            {
-                var valueNested = AnalyzeNestedRecord(collection.ElementType, visiting, cancellationToken);
-                collection = collection with { ValueNested = valueNested };
-            }
-            else if (collectionKind is CollectionKind.ImmutableArray or CollectionKind.FrozenSet && collection.ElementKind == ScalarKind.Unsupported)
-            {
-                // 다중 컬럼 컬렉션의 원소가 record 인 경우 nested 로 분석한다.
-                var elementNested = AnalyzeNestedRecord(collection.ElementType, visiting, cancellationToken);
-                collection = collection with { ElementNested = elementNested };
-            }
         }
 
         NestedRecordInfo? nested = null;
@@ -298,7 +281,12 @@ internal static class ParameterAnalyzer
     {
         var underlying = TypeClassifier.UnwrapNullable(type);
 
-        if (underlying is not INamedTypeSymbol named || !named.IsRecord)
+        if (underlying is not INamedTypeSymbol named)
+        {
+            return null;
+        }
+
+        if (!named.IsRecord)
         {
             return null;
         }
@@ -335,23 +323,5 @@ internal static class ParameterAnalyzer
         }
 
         return null;
-    }
-
-    private static class AttributeNames
-    {
-        public const string Namespace = "Sdp.Attributes";
-        public const string ColumnName = "ColumnNameAttribute";
-        public const string Key = "KeyAttribute";
-        public const string NullString = "NullStringAttribute";
-        public const string DateTimeFormat = "DateTimeFormatAttribute";
-        public const string TimeSpanFormat = "TimeSpanFormatAttribute";
-        public const string Range = "RangeAttribute";
-        public const string RegularExpression = "RegularExpressionAttribute";
-        public const string Length = "LengthAttribute";
-        public const string SingleColumnCollection = "SingleColumnCollectionAttribute";
-        public const string CountRange = "CountRangeAttribute";
-        public const string ForeignKey = "ForeignKeyAttribute";
-        public const string SwitchForeignKey = "SwitchForeignKeyAttribute";
-        public const string Ignore = "IgnoreAttribute";
     }
 }

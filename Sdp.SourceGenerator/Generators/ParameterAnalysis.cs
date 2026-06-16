@@ -26,6 +26,33 @@ internal sealed record ParameterAnalysis(
     public bool IsCollection => Collection is not null;
 
     public bool IsRecord => Nested is not null;
+
+    public ScalarKind EffectiveKind => Collection is { } collection ? collection.ElementKind : Kind;
+
+    public ITypeSymbol EffectiveType => Collection is { } collection ? collection.ElementType : Type;
+
+    public static ParameterAnalysis Ignored(string name, string columnName, ITypeSymbol type)
+    {
+        return new ParameterAnalysis(
+            name,
+            columnName,
+            type,
+            ScalarKind.Unsupported,
+            IsNullable: false,
+            IsKey: false,
+            NullString: null,
+            DateTimeFormat: null,
+            TimeSpanFormat: null,
+            Range: null,
+            RegexPattern: null,
+            Nested: null,
+            Collection: null,
+            HasUnsupportedAttribute: false,
+            HasCountRangeAttribute: false,
+            HasLengthAttribute: false,
+            HasSingleColumnCollectionAttribute: false,
+            IsIgnored: true);
+    }
 }
 
 internal sealed record NestedRecordInfo(

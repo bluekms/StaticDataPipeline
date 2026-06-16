@@ -26,9 +26,6 @@ internal static class GeneratorEmitHelper
         return "class";
     }
 
-    // C# 예약어와 충돌하는 심볼 이름(@default 등)은 verbatim 식별자로 escape 해 방출한다.
-    // FullyQualifiedFormat 으로 방출하는 타입 이름은 Roslyn 이 escape 를 포함하므로,
-    // symbol.Name 을 직접 잇는 멤버 접근·타입 선언·named argument 지점에서만 사용한다.
     public static string EscapeIdentifier(string name)
     {
         if (SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None)
@@ -39,13 +36,9 @@ internal static class GeneratorEmitHelper
         return name;
     }
 
-    // OpenNamespaceAndContainingTypes 가 연 namespace/중첩 체인의 상태.
-    // CloseContainingTypes 에 그대로 넘겨 닫는다.
     public sealed record ContainingTypeScope(string Indent, int OpenedTypeCount, bool HasNamespace);
 
-    // namespace 선언 + 중첩 outer 타입 partial 체인 열기. 모든 emitter 가 공유한다.
-    // namespace 는 block 형태로 연다 — file-scoped namespace 는 C# 10 문법이라
-    // 유니티(C# 9) 소비자 컴파일레이션에서 생성 코드가 컴파일되지 않는다.
+    // namespace는 유니티의 C# 9를 위해 block 형태로 연다
     public static ContainingTypeScope OpenNamespaceAndContainingTypes(StringBuilder sb, INamedTypeSymbol type)
     {
         var namespaceName = type.ContainingNamespace.IsGlobalNamespace

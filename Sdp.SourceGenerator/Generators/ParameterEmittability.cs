@@ -11,7 +11,6 @@ internal static class ParameterEmittability
 
     private static bool IsParameterEmittableCore(ParameterAnalysis param, bool isRoot)
     {
-        // [Ignore] 파라미터는 매핑하지 않고 default 를 주입하므로 타입 지원 여부와 무관하게 emit 가능하다.
         if (param.IsIgnored)
         {
             return true;
@@ -39,13 +38,15 @@ internal static class ParameterEmittability
     {
         var collection = param.Collection!;
 
+        var isMultiColumnArrayOrSet = collection.Kind is CollectionKind.ImmutableArray or CollectionKind.FrozenSet;
+
         // nested record 안에서는 array/set 만 지원한다(single-column/dict 는 root 만).
-        if (!isRoot && collection.Kind is not (CollectionKind.ImmutableArray or CollectionKind.FrozenSet))
+        if (!isRoot && !isMultiColumnArrayOrSet)
         {
             return false;
         }
 
-        if (collection.Kind is CollectionKind.ImmutableArray or CollectionKind.FrozenSet)
+        if (isMultiColumnArrayOrSet)
         {
             if (!IsElementValidationCompatible(param, collection))
             {

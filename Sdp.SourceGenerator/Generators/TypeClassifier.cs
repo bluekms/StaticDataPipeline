@@ -182,8 +182,6 @@ internal static class TypeClassifier
         };
     }
 
-    // 표시 문자열 비교는 타입 파라미터 선언명("T", "TKey, TValue")에 결합되고 동명 사용자 타입을 구분하지
-    // 못하므로, 메타데이터 이름과 global 루트까지의 네임스페이스 체인으로 BCL 타입을 판정한다.
     private static bool IsBclType(ITypeSymbol type, string metadataName, string[] namespaceChain)
     {
         if (type.ContainingType is not null || type.MetadataName != metadataName)
@@ -210,8 +208,6 @@ internal static class TypeClassifier
         return current is { IsGlobalNamespace: true };
     }
 
-    // Nullable<T> 면 T 를, 아니면 입력 그대로를 돌려준다. 진단(Generator)과 생성 코드(Emitter)가
-    // 같은 언랩 의미를 공유해야 하므로 단일 구현을 여기서만 유지한다.
     public static ITypeSymbol UnwrapNullable(ITypeSymbol type)
     {
         if (type is INamedTypeSymbol namedType &&
