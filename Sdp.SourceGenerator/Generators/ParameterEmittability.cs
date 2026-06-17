@@ -149,7 +149,6 @@ internal static class ParameterEmittability
             return false;
         }
 
-        // typed range([Range(typeof(T), ...)]) 는 string/enum/숫자/DateTime/DateTimeOffset/TimeSpan 을 지원한다.
         if (param.Range is { ArgKind: RangeArgKind.Typed } && !TypeClassifier.IsTypedRangeSupported(param.Kind))
         {
             return false;
@@ -168,8 +167,6 @@ internal static class ParameterEmittability
         return true;
     }
 
-    // 컬렉션에 붙은 [Range]/[RegularExpression] 검증 attribute 를 원소 타입에 적용할 수 있는지 판정한다.
-    // 원소가 nullable 이거나 attribute 의 검증 종류와 원소 타입이 맞지 않으면 미지원이다.
     private static bool AreValidationAttributesApplicable(ParameterAnalysis param, CollectionInfo collection)
     {
         if (param.Range is null && param.RegexPattern is null)
@@ -204,7 +201,6 @@ internal static class ParameterEmittability
 
     private static bool IsFrozenDictionaryEmittable(CollectionInfo info)
     {
-        // value는 nested record, key는 scalar
         if (info.ValueNested is null)
         {
             return false;
@@ -215,21 +211,20 @@ internal static class ParameterEmittability
             return false;
         }
 
-        // nullable value record 는 매퍼가 null 분기를 만들지 못하므로 미지원(array/set 원소와 동일 정책).
         if (TypeClassifier.IsNullable(info.ElementType))
         {
             return false;
         }
 
-        // value record 안 모든 param이 emit 가능해야 한다(재귀).
-        if (!info.ValueNested.Parameters.All(
-                nestedParameter => IsParameterEmittable(nestedParameter)))
+        if (!info.ValueNested.Parameters.All(IsParameterEmittable))
         {
             return false;
         }
 
-        // [Key] 표시 param이 정확히 1개
-        var keyParams = info.ValueNested.Parameters.Where(nestedParameter => nestedParameter.IsKey).ToList();
+        var keyParams = info.ValueNested.Parameters
+            .Where(nestedParameter => nestedParameter.IsKey)
+            .ToList();
+
         if (keyParams.Count != 1)
         {
             return false;
@@ -238,25 +233,20 @@ internal static class ParameterEmittability
         return IsFrozenDictionaryKeyCompatible(info, keyParams[0]);
     }
 
-    // 키는 scalar(enum·DateTime·TimeSpan 계열 포함) 또는 KeyType 과 동일한 record 여야 한다.
-    // scalar 키는 별도 파싱 없이 매핑된 value record 의 [Key] 속성에서 그대로 꺼내므로,
-    // 그 [Key] 파라미터가 emit 가능(DateTime/TimeSpan 이면 포맷 보유)하면 키로도 안전하다.
-    // kind 만 비교하면 서로 다른 enum 이나 nullable [Key] 가 통과해 생성 코드가 깨지므로
-    // 타입 동일성과 non-nullable 여부까지 함께 검사한다.
-    // CsvMapperGenerator.ValidateFrozenDictionaryKeys(SDP0018)가 같은 판정을 공유한다.
     public static bool IsFrozenDictionaryKeyCompatible(CollectionInfo info, ParameterAnalysis keyParam)
     {
         if (TypeClassifier.IsDirectlyParsable(info.KeyKind)
-            || info.KeyKind is ScalarKind.Enum
-            or ScalarKind.DateTime
-            or ScalarKind.DateTimeOffset
-            or ScalarKind.DateOnly
-            or ScalarKind.TimeOnly
-            or ScalarKind.TimeSpan)
+            || info.KeyKind
+                is ScalarKind.Enum
+                or ScalarKind.DateTime
+                or ScalarKind.DateTimeOffset
+                or ScalarKind.DateOnly
+                or ScalarKind.TimeOnly
+                or ScalarKind.TimeSpan)
         {
             return keyParam.Kind == info.KeyKind
-                && !keyParam.IsNullable
-                && SymbolEqualityComparer.Default.Equals(keyParam.Type, info.KeyType);
+                   && !keyParam.IsNullable
+                   && SymbolEqualityComparer.Default.Equals(keyParam.Type, info.KeyType);
         }
 
         return keyParam.Nested is not null
@@ -276,7 +266,11 @@ internal static class ParameterEmittability
             return true;
         }
 
-        if (kind is ScalarKind.DateTime or ScalarKind.DateTimeOffset or ScalarKind.DateOnly or ScalarKind.TimeOnly)
+        if (kind
+            is ScalarKind.DateTime
+            or ScalarKind.DateTimeOffset
+            or ScalarKind.DateOnly
+            or ScalarKind.TimeOnly)
         {
             return param.DateTimeFormat is not null;
         }

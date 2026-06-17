@@ -8,8 +8,6 @@ namespace Sdp.SourceGenerator.Generators;
 
 internal static class CsvMapperEmitter
 {
-    // 컬렉션 매핑 헬퍼 이름 prefix. EmitConversion 의 호출부와 각 헬퍼 방출부가 같은 이름을 쓰도록
-    // 상수로 공유한다 — 한쪽만 바뀌면 생성 코드가 존재하지 않는 헬퍼를 호출하게 된다.
     private const string ArrayHelperPrefix = "__MapArray_";
     private const string SetHelperPrefix = "__MapSet_";
     private const string DictionaryHelperPrefix = "__MapDict_";
@@ -26,6 +24,7 @@ internal static class CsvMapperEmitter
         var scope = GeneratorEmitHelper.OpenNamespaceAndContainingTypes(sb, analysis.Symbol);
         var indent = scope.Indent;
 
+        // '    partial record FooRecord'
         var recordKeyword = GeneratorEmitHelper.GetTypeKeyword(analysis.Symbol);
         sb.Append(indent).Append("partial ").Append(recordKeyword).Append(' ')
             .AppendLine(GeneratorEmitHelper.EscapeIdentifier(analysis.TypeName));
@@ -67,7 +66,6 @@ internal static class CsvMapperEmitter
         string indent,
         Dictionary<INamedTypeSymbol, string> nestedTokens)
     {
-        // CsvLoader 에 메서드 그룹으로 넘기는 진입점. 생성 테이블 코드(같은 어셈블리)가 전달하므로 internal 로 둔다.
         sb.Append(indent).Append("internal static ").Append(analysis.FullyQualifiedTypeName).AppendLine(" MapFromCsvRow(");
         sb.Append(indent).AppendLine("    global::Sdp.Csv.CsvHeaderIndex headers,");
         sb.Append(indent).AppendLine("    string[] values)");
@@ -93,13 +91,39 @@ internal static class CsvMapperEmitter
         sb.Append(indent).AppendLine("}");
     }
 
-    // 중첩 record 타입마다 헬퍼 이름에 쓸 고유 토큰을 부여한다.
-    // 토큰은 '일련번호_타입명' 형태다. 일련번호가 타입 간 유일성을 보장하고(서로 다른 네임스페이스의
-    // 동명 타입 포함), C# 식별자는 숫자로 시작할 수 없으므로 토큰이 붙은 헬퍼 이름이 토큰 없는
-    // root 파라미터 헬퍼 이름과 충돌할 수도 없다 (중첩 A 의 파라미터 B → __ValidateRange_1_A_B,
-    // root 파라미터 A_B → __ValidateRange_A_B).
+    // 예)
+    // public sealed partial record QuestRecord(
+    //     int Id,                                                          // 어느 분기에도 해당 없음
+    //     RewardInfo Reward,                                               // 분기 1: 중첩 record
+    //     ImmutableArray<StageInfo> Stages,                                // 분기 2: 컬렉션 원소 record
+    //     FrozenDictionary<int, NpcInfo> Npcs,                             // 분기 3: dict 값 record
+    //     [SingleColumnCollection(",")] ImmutableArray<Element> Elements); // 분기 4: 원소 enum
+    //
+    // public sealed partial record RewardInfo(ItemId Item, int Count);     // 중첩 안의 중첩
+    // public sealed partial record ItemId(long Value);
+    // public sealed partial record StageInfo(int Stage);
+    // public sealed partial record NpcInfo([Key] int NpcId, string Name);
+    // public enum Element { Fire, Water, }
+    //
+    // 타입별 고유 토큰("일련번호_타입명")이 필요한 경우 map에 넣고 반환
+    // int Id 처럼 인라인 파싱식으로 끝나는 스칼라는 전용 헬퍼가 없으므로 맵에 들어가지 않는다.
+    // map = {
+    //     RewardInfo : "1_RewardInfo",
+    //     ItemId     : "2_ItemId",
+    //     StageInfo  : "3_StageInfo",
+    //     NpcInfo    : "4_NpcInfo",
+    //     Element    : "5_Element",
+    // }
+    //
+    // 토큰          | 생성되는 헬퍼               | 호출하는 쪽
+    // 1_RewardInfo | __MapNested_1_RewardInfo   | MapFromCsvRow 의 Reward: 인자
+    // 2_ItemId     | __MapNested_2_ItemId       | __MapNested_1_RewardInfo 내부
+    // 3_StageInfo  | __MapNested_3_StageInfo    | __MapArray_Stages 의 원소 변환
+    // 4_NpcInfo    | __MapNested_4_NpcInfo      | __MapDict_Npcs 의 값 변환
+    // 5_Element    | __MapElementEnum_5_Element | __MapSingleArray_Elements 의 조각 변환
     private static Dictionary<INamedTypeSymbol, string> BuildNestedTokenMap(ImmutableArray<ParameterAnalysis> parameters)
     {
+        // Roslyn 심볼은 참조 동일성이 보장되지 않아 전용 비교자가 필요 (같은 타입 다른 인스턴스 상황이나 nullable에서 문제 발생)
         var map = new Dictionary<INamedTypeSymbol, string>(SymbolEqualityComparer.Default);
         CollectNestedTokens(parameters, map);
         return map;
@@ -109,14 +133,17 @@ internal static class CsvMapperEmitter
         ImmutableArray<ParameterAnalysis> parameters,
         Dictionary<INamedTypeSymbol, string> map)
     {
+        // 타입별 고유 토큰("일련번호_타입명")이 필요한 경우 map에 넣고 반환
         foreach (var param in parameters)
         {
+            // 중첩 레코드
             if (param.Nested is { } nested && !map.ContainsKey(nested.Symbol))
             {
                 map[nested.Symbol] = MakeToken(nested.Symbol.Name, map);
                 CollectNestedTokens(nested.Parameters, map);
             }
 
+            // 컬렉션된 원소 레코드
             if (param.Collection is { ElementNested: { } elementNested }
                 && !map.ContainsKey(elementNested.Symbol))
             {
@@ -124,6 +151,7 @@ internal static class CsvMapperEmitter
                 CollectNestedTokens(elementNested.Parameters, map);
             }
 
+            // dict의 값 레코드
             if (param.Collection is { Kind: CollectionKind.FrozenDictionary } collection
                 && collection.ValueNested is { } valueNested
                 && !map.ContainsKey(valueNested.Symbol))
@@ -132,6 +160,7 @@ internal static class CsvMapperEmitter
                 CollectNestedTokens(valueNested.Parameters, map);
             }
 
+            // 컬렉션된 원소 enum
             if (param.Collection is { ElementKind: ScalarKind.Enum, ElementNested: null } enumCollection)
             {
                 var enumType = (INamedTypeSymbol)TypeClassifier.UnwrapNullable(enumCollection.ElementType);
@@ -144,13 +173,23 @@ internal static class CsvMapperEmitter
     }
 
     private static string MakeToken(string baseName, Dictionary<INamedTypeSymbol, string> map)
-        => (map.Count + 1).ToString(CultureInfo.InvariantCulture) + "_" + baseName;
-
-    private static string NestedToken(Dictionary<INamedTypeSymbol, string> map, INamedTypeSymbol symbol)
-        => map[symbol];
+    {
+        return FormattableString.Invariant($"{map.Count + 1}_{baseName}");
+    }
 
     private static string HelperName(string prefix, string ownerToken, string name)
-        => ownerToken.Length == 0 ? prefix + name : prefix + ownerToken + "_" + name;
+    {
+        if (ownerToken.Length == 0)
+        {
+            // 루트 파라미터 Level
+            // HelperName("__ValidateRange_", "", "Level") → "__ValidateRange_Level"
+            return $"{prefix}{name}";
+        }
+
+        // 중첩 RewardInfo의 파라미터 Count
+        // HelperName("__ValidateRange_", "1_RewardInfo", "Count") → "__ValidateRange_1_RewardInfo_Count"
+        return $"{prefix}{ownerToken}_{name}";
+    }
 
     private static void EmitHelpers(
         StringBuilder sb,
@@ -210,7 +249,7 @@ internal static class CsvMapperEmitter
             {
                 sb.AppendLine();
                 EmitNestedHelper(sb, nested, indent, nestedTokens);
-                EmitHelpersRecursive(sb, nested.Parameters, emittedHelperTypes, indent, NestedToken(nestedTokens, nested.Symbol), nestedTokens);
+                EmitHelpersRecursive(sb, nested.Parameters, emittedHelperTypes, indent, nestedTokens[nested.Symbol], nestedTokens);
             }
 
             if (param.Collection is not null)
@@ -236,7 +275,7 @@ internal static class CsvMapperEmitter
                     {
                         EmitNestedHelper(sb, valueNested, indent, nestedTokens);
                         sb.AppendLine();
-                        EmitHelpersRecursive(sb, valueNested.Parameters, emittedHelperTypes, indent, NestedToken(nestedTokens, valueNested.Symbol), nestedTokens);
+                        EmitHelpersRecursive(sb, valueNested.Parameters, emittedHelperTypes, indent, nestedTokens[valueNested.Symbol], nestedTokens);
                     }
 
                     EmitDictHelper(sb, param, indent, ownerToken, nestedTokens);
@@ -260,7 +299,7 @@ internal static class CsvMapperEmitter
         Dictionary<INamedTypeSymbol, string> nestedTokens)
     {
         var typeFullName = info.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-        var token = NestedToken(nestedTokens, info.Symbol);
+        var token = nestedTokens[info.Symbol];
 
         sb.Append(indent).Append("private static ").Append(typeFullName).Append(" __MapNested_").Append(token).AppendLine("(");
         sb.Append(indent).AppendLine("    global::Sdp.Csv.CsvHeaderIndex headers,");
@@ -473,7 +512,7 @@ internal static class CsvMapperEmitter
 
         if (param.Nested is { } nested)
         {
-            return $"__MapNested_{NestedToken(nestedTokens, nested.Symbol)}(headers, values, {keyExpr})";
+            return $"__MapNested_{nestedTokens[nested.Symbol]}(headers, values, {keyExpr})";
         }
 
         // NullString 분기는 같은 셀(헤더 조회 + 인덱싱)을 두 번 읽지 않도록 헬퍼를 경유한다.
@@ -788,7 +827,7 @@ internal static class CsvMapperEmitter
         {
             EmitNestedHelper(sb, elementNested, indent, nestedTokens);
             sb.AppendLine();
-            EmitHelpersRecursive(sb, elementNested.Parameters, emittedHelperTypes, indent, NestedToken(nestedTokens, elementNested.Symbol), nestedTokens);
+            EmitHelpersRecursive(sb, elementNested.Parameters, emittedHelperTypes, indent, nestedTokens[elementNested.Symbol], nestedTokens);
             sb.AppendLine();
         }
     }
@@ -812,7 +851,7 @@ internal static class CsvMapperEmitter
             return;
         }
 
-        EmitEnumSwitchHelper(sb, enumType, indent, "__MapElementEnum_" + NestedToken(nestedTokens, enumType), isKey: false);
+        EmitEnumSwitchHelper(sb, enumType, indent, "__MapElementEnum_" + nestedTokens[enumType], isKey: false);
         sb.AppendLine();
     }
 
@@ -839,7 +878,7 @@ internal static class CsvMapperEmitter
         var info = param.Collection!;
         if (info.ElementNested is { } elementNested)
         {
-            return $"__MapNested_{NestedToken(nestedTokens, elementNested.Symbol)}(headers, values, {keyExpression})";
+            return $"__MapNested_{nestedTokens[elementNested.Symbol]}(headers, values, {keyExpression})";
         }
 
         var valueExpr = $"values[headers[{keyExpression}]]";
@@ -868,7 +907,7 @@ internal static class CsvMapperEmitter
         if (info.ElementKind == ScalarKind.Enum)
         {
             var enumType = (INamedTypeSymbol)TypeClassifier.UnwrapNullable(info.ElementType);
-            return $"__MapElementEnum_{NestedToken(nestedTokens, enumType)}({valueExpr})";
+            return $"__MapElementEnum_{nestedTokens[enumType]}({valueExpr})";
         }
 
         return EmitScalarParse(info.ElementKind, valueExpr, param.DateTimeFormat, param.TimeSpanFormat);
@@ -1027,7 +1066,7 @@ internal static class CsvMapperEmitter
         var valueFullName = valueNested.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var keyParam = valueNested.Parameters.Single(nestedParameter => nestedParameter.IsKey);
         var keyMemberAccess = GeneratorEmitHelper.EscapeIdentifier(keyParam.Name);
-        var valueToken = NestedToken(nestedTokens, valueNested.Symbol);
+        var valueToken = nestedTokens[valueNested.Symbol];
 
         sb.Append(indent).Append("private static global::System.Collections.Frozen.FrozenDictionary<")
             .Append(keyKeyword).Append(", ").Append(valueFullName)
