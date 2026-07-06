@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Sdp.SourceGenerator.Generators;
 
-// 파라미터 하나를 채우는 변환식과 스칼라 파싱식 생성
 internal static partial class CsvMapperEmitter
 {
     private static string EmitConversion(
@@ -13,7 +12,6 @@ internal static partial class CsvMapperEmitter
         string ownerToken,
         Dictionary<INamedTypeSymbol, string> nestedTokens)
     {
-        // [Ignore] 파라미터는 스캐너가 헤더에서 제외하므로 매핑하지 않고 default 를 주입한다.
         if (param.IsIgnored)
         {
             return "default!";
@@ -29,11 +27,11 @@ internal static partial class CsvMapperEmitter
         {
             var helperPrefix = param.Collection.Kind switch
             {
-                CollectionKind.ImmutableArray => ArrayHelperPrefix,
-                CollectionKind.FrozenSet => SetHelperPrefix,
-                CollectionKind.FrozenDictionary => DictionaryHelperPrefix,
-                CollectionKind.SingleColumnImmutableArray => SingleColumnArrayHelperPrefix,
-                CollectionKind.SingleColumnFrozenSet => SingleColumnSetHelperPrefix,
+                CollectionKind.ImmutableArray => "__MapArray_",
+                CollectionKind.FrozenSet => "__MapSet_",
+                CollectionKind.FrozenDictionary => "__MapDict_",
+                CollectionKind.SingleColumnImmutableArray => "__MapSingleArray_",
+                CollectionKind.SingleColumnFrozenSet => "__MapSingleSet_",
                 _ => throw new InvalidOperationException(FormattableString.Invariant(
                     $"Unsupported collection kind: {param.Collection.Kind}")),
             };
@@ -46,7 +44,6 @@ internal static partial class CsvMapperEmitter
             return $"__MapNested_{nestedTokens[nested.Symbol]}(headers, values, {keyExpr})";
         }
 
-        // NullString 분기는 같은 셀(헤더 조회 + 인덱싱)을 두 번 읽지 않도록 헬퍼를 경유한다.
         if (param.IsNullable && param.NullString is not null)
         {
             return $"{HelperName("__MapNullable_", ownerToken, param.Name)}({valueExpr})";
@@ -81,7 +78,11 @@ internal static partial class CsvMapperEmitter
         return EmitScalarParse(param.Kind, valueExpr, param.DateTimeFormat, param.TimeSpanFormat);
     }
 
-    private static string EmitScalarParse(ScalarKind kind, string valueExpr, string? dateTimeFormat = null, string? timeSpanFormat = null)
+    private static string EmitScalarParse(
+        ScalarKind kind,
+        string valueExpr,
+        string? dateTimeFormat = null,
+        string? timeSpanFormat = null)
     {
         return kind switch
         {
@@ -109,7 +110,6 @@ internal static partial class CsvMapperEmitter
         };
     }
 
-    // nullable 스칼라 + [NullString] 변환 헬퍼. 호출부가 셀 값을 한 번만 읽어 넘기게 한다.
     private static void EmitNullableScalarHelper(StringBuilder sb, ParameterAnalysis param, string indent, string ownerToken)
     {
         var returnType = NullableScalarTypeName(param);
@@ -163,7 +163,8 @@ internal static partial class CsvMapperEmitter
             ScalarKind.DateOnly => "global::System.DateOnly",
             ScalarKind.TimeOnly => "global::System.TimeOnly",
             ScalarKind.TimeSpan => "global::System.TimeSpan",
-            _ => "object",
+            _ => throw new InvalidOperationException(FormattableString.Invariant(
+                $"Unsupported scalar kind: {kind}")),
         };
     }
 

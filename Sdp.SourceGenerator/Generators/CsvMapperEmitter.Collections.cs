@@ -119,7 +119,7 @@ internal static partial class CsvMapperEmitter
 
         sb.Append(indent).Append("private static global::System.Collections.Immutable.ImmutableArray<")
             .Append(elementKeyword)
-            .Append("> ").Append(HelperName(ArrayHelperPrefix, ownerToken, param.Name)).AppendLine("(");
+            .Append("> ").Append(HelperName("__MapArray_", ownerToken, param.Name)).AppendLine("(");
         sb.Append(indent).AppendLine("    global::Sdp.Csv.CsvHeaderIndex headers,");
         sb.Append(indent).AppendLine("    string[] values,");
         sb.Append(indent).AppendLine("    string basePath)");
@@ -161,7 +161,7 @@ internal static partial class CsvMapperEmitter
 
         sb.Append(indent).Append("private static global::System.Collections.Frozen.FrozenSet<")
             .Append(elementKeyword)
-            .Append("> ").Append(HelperName(SetHelperPrefix, ownerToken, param.Name)).AppendLine("(");
+            .Append("> ").Append(HelperName("__MapSet_", ownerToken, param.Name)).AppendLine("(");
         sb.Append(indent).AppendLine("    global::Sdp.Csv.CsvHeaderIndex headers,");
         sb.Append(indent).AppendLine("    string[] values,");
         sb.Append(indent).AppendLine("    string basePath)");
@@ -223,7 +223,7 @@ internal static partial class CsvMapperEmitter
 
         sb.Append(indent).Append("private static global::System.Collections.Frozen.FrozenDictionary<")
             .Append(keyKeyword).Append(", ").Append(valueFullName)
-            .Append("> ").Append(HelperName(DictionaryHelperPrefix, ownerToken, param.Name)).AppendLine("(");
+            .Append("> ").Append(HelperName("__MapDict_", ownerToken, param.Name)).AppendLine("(");
         sb.Append(indent).AppendLine("    global::Sdp.Csv.CsvHeaderIndex headers,");
         sb.Append(indent).AppendLine("    string[] values,");
         sb.Append(indent).AppendLine("    string basePath)");
@@ -277,7 +277,7 @@ internal static partial class CsvMapperEmitter
 
         sb.Append(indent).Append("private static global::System.Collections.Immutable.ImmutableArray<")
             .Append(elementKeyword)
-            .Append("> ").Append(HelperName(SingleColumnArrayHelperPrefix, ownerToken, param.Name)).AppendLine("(");
+            .Append("> ").Append(HelperName("__MapSingleArray_", ownerToken, param.Name)).AppendLine("(");
         sb.Append(indent).AppendLine("    global::Sdp.Csv.CsvHeaderIndex headers,");
         sb.Append(indent).AppendLine("    string[] values,");
         sb.Append(indent).AppendLine("    string basePath)");
@@ -313,7 +313,7 @@ internal static partial class CsvMapperEmitter
 
         sb.Append(indent).Append("private static global::System.Collections.Frozen.FrozenSet<")
             .Append(elementKeyword)
-            .Append("> ").Append(HelperName(SingleColumnSetHelperPrefix, ownerToken, param.Name)).AppendLine("(");
+            .Append("> ").Append(HelperName("__MapSingleSet_", ownerToken, param.Name)).AppendLine("(");
         sb.Append(indent).AppendLine("    global::Sdp.Csv.CsvHeaderIndex headers,");
         sb.Append(indent).AppendLine("    string[] values,");
         sb.Append(indent).AppendLine("    string basePath)");

@@ -4,17 +4,8 @@ using Microsoft.CodeAnalysis;
 
 namespace Sdp.SourceGenerator.Generators;
 
-// 진입점(Emit)과 파일 골격, 헬퍼 이름 규칙, 헬퍼 방출 순회.
-// 나머지 방출부는 partial 로 분리 — Scalars(변환식·파싱) / Validations([Range]·[RegularExpression]) /
-// Enums(enum 스위치) / Nested(중첩 record) / Collections(컬렉션 5종)
 internal static partial class CsvMapperEmitter
 {
-    private const string ArrayHelperPrefix = "__MapArray_";
-    private const string SetHelperPrefix = "__MapSet_";
-    private const string DictionaryHelperPrefix = "__MapDict_";
-    private const string SingleColumnArrayHelperPrefix = "__MapSingleArray_";
-    private const string SingleColumnSetHelperPrefix = "__MapSingleSet_";
-
     public static string Emit(RecordAnalysis analysis)
     {
         var sb = new StringBuilder();
