@@ -57,7 +57,14 @@ internal sealed record ParameterAnalysis(
 
 internal sealed record NestedRecordInfo(
     INamedTypeSymbol Symbol,
-    ImmutableArray<ParameterAnalysis> Parameters);
+    ImmutableArray<ParameterAnalysis> Parameters)
+{
+    public bool IsTypeBrandingRecord
+        => Parameters.Length == 1
+           && Parameters[0].Nested is null
+           && Parameters[0].Collection is null
+           && Parameters[0].Kind != ScalarKind.Unsupported;
+}
 
 internal sealed record CollectionInfo(
     CollectionKind Kind,

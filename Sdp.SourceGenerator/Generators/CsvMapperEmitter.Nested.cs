@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Sdp.SourceGenerator.Generators;
 
-// 중첩 record 조립 헬퍼(__MapNested_)와 컬렉션 원소 record/enum 준비 방출
 internal static partial class CsvMapperEmitter
 {
     private static void EmitNestedHelper(
@@ -22,11 +21,8 @@ internal static partial class CsvMapperEmitter
         sb.Append(indent).AppendLine("    string basePath)");
         sb.Append(indent).AppendLine("{");
 
-        // single-param scalar record(type branding) — basePath 자체를 헤더로 직접 매핑.
-        if (info.Parameters.Length == 1
-            && info.Parameters[0].Nested is null
-            && info.Parameters[0].Collection is null
-            && info.Parameters[0].Kind != ScalarKind.Unsupported)
+        // type branding record 는 basePath 자체를 헤더로 직접 매핑.
+        if (info.IsTypeBrandingRecord)
         {
             var only = info.Parameters[0];
 
