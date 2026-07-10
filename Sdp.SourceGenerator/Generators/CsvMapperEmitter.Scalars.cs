@@ -44,6 +44,13 @@ internal static partial class CsvMapperEmitter
             return $"__MapNested_{nestedTokens[nested.Symbol]}(headers, values, {keyExpr})";
         }
 
+        return EmitScalarConversion(param, valueExpr, ownerToken);
+    }
+
+    // 스칼라 셀 값 하나의 변환식. [NullString] nullable 은 같은 셀을 두 번 읽지 않도록 __MapNullable_ 헬퍼를 경유하고,
+    // 그 외에는 기본 변환(enum 이면 __MapColumn_ 호출)에 [Range]/[RegularExpression] 검증을 감싸 인라인으로 만든다.
+    private static string EmitScalarConversion(ParameterAnalysis param, string valueExpr, string ownerToken)
+    {
         if (param.IsNullable && param.NullString is not null)
         {
             return $"{HelperName("__MapNullable_", ownerToken, param.Name)}({valueExpr})";

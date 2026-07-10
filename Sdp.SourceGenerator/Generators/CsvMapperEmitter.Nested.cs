@@ -21,30 +21,17 @@ internal static partial class CsvMapperEmitter
         sb.Append(indent).AppendLine("    string basePath)");
         sb.Append(indent).AppendLine("{");
 
-        // type branding record 는 basePath 자체를 헤더로 직접 매핑.
         if (info.IsTypeBrandingRecord)
         {
             var only = info.Parameters[0];
 
-            // basePath 헤더가 있으면 그것을(브랜딩), 없으면 basePath + "." + 컬럼명으로 폴백한다.
-            // 깊은 중첩(예: Middle.Inner.Value)과 Id.Value 형태 하위호환을 모두 처리.
             var columnNameLiteral = SymbolDisplay.FormatLiteral(only.ColumnName, quote: true);
             sb.Append(indent).Append("    var __key = headers.Contains(basePath) ? basePath : basePath + \".\" + ")
                 .Append(columnNameLiteral).AppendLine(";");
+
             sb.Append(indent).AppendLine("    var __raw = values[headers[__key]];");
 
-            // enum 이면 __MapColumn_ 헬퍼 호출이 나간다. 그 헬퍼는 EmitHelpersRecursive 가 같은 토큰으로 방출한다.
-            // NullString 분기는 EmitConversion 과 동일하게 __MapNullable_ 헬퍼를 경유한다.
-            string conversion;
-            if (only.IsNullable && only.NullString is not null)
-            {
-                conversion = HelperName("__MapNullable_", token, only.Name) + "(__raw)";
-            }
-            else
-            {
-                conversion = WrapValidations(only, EmitBaseConversion(only, "__raw", token), token);
-            }
-
+            var conversion = EmitScalarConversion(only, "__raw", token);
             sb.Append(indent).Append("    return new ").Append(typeFullName).Append('(').Append(conversion).AppendLine(");");
             sb.Append(indent).AppendLine("}");
             return;
@@ -78,16 +65,30 @@ internal static partial class CsvMapperEmitter
         string indent,
         Dictionary<INamedTypeSymbol, string> nestedTokens)
     {
-        if (param.Collection?.ElementNested is { } elementNested && emittedHelperTypes.Add(elementNested.Symbol))
+        if (param.Collection?.ElementNested is not { } elementNested)
         {
-            EmitNestedHelper(sb, elementNested, indent, nestedTokens);
-            sb.AppendLine();
-            EmitHelpersRecursive(sb, elementNested.Parameters, emittedHelperTypes, indent, nestedTokens[elementNested.Symbol], nestedTokens);
-            sb.AppendLine();
+            return;
         }
+
+        if (!emittedHelperTypes.Add(elementNested.Symbol))
+        {
+            return;
+        }
+
+        EmitNestedHelper(sb, elementNested, indent, nestedTokens);
+        sb.AppendLine();
+
+        EmitHelpersRecursive(
+            sb,
+            elementNested.Parameters,
+            emittedHelperTypes,
+            indent,
+            nestedTokens[elementNested.Symbol],
+            nestedTokens);
+
+        sb.AppendLine();
     }
 
-    // 컬렉션 원소가 enum 인 경우, 원소 타입별로 한 번만 enum 파싱 스위치 헬퍼를 방출한다.
     private static void EmitCollectionElementEnumHelper(
         StringBuilder sb,
         ParameterAnalysis param,
@@ -106,7 +107,13 @@ internal static partial class CsvMapperEmitter
             return;
         }
 
-        EmitEnumSwitchHelper(sb, enumType, indent, "__MapElementEnum_" + nestedTokens[enumType], isKey: false);
+        EmitEnumSwitchHelper(
+            sb,
+            enumType,
+            indent,
+            "__MapElementEnum_" + nestedTokens[enumType],
+            isKey: false);
+
         sb.AppendLine();
     }
 }

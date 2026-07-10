@@ -59,6 +59,8 @@ internal sealed record NestedRecordInfo(
     INamedTypeSymbol Symbol,
     ImmutableArray<ParameterAnalysis> Parameters)
 {
+    // single-param scalar record — 예: record ItemId(long Value).
+    // record 를 감싼 체인(예: record Middle(Inner Inner))은 브랜딩이 아니다 — 마지막 스칼라 세그먼트만 축약 가능.
     public bool IsTypeBrandingRecord
         => Parameters.Length == 1
            && Parameters[0].Nested is null
