@@ -72,7 +72,6 @@ internal static partial class CsvMapperEmitter
         return $"({ScalarTypeKeyword(info.ElementKind)}?)null";
     }
 
-    // 컬렉션 헬퍼는 basePath 를 받아 절대 헤더(root)와 중첩 헤더(basePath + "." + 절대키)를 모두 처리한다.
     private static void EmitKeyVar(StringBuilder sb, string indent, string keyVar, string absoluteKey)
     {
         var absoluteKeyLiteral = SymbolDisplay.FormatLiteral(absoluteKey, quote: true);
@@ -81,8 +80,6 @@ internal static partial class CsvMapperEmitter
             .Append(" : basePath + \".\" + ").Append(absoluteKeyLiteral).AppendLine(";");
     }
 
-    // 동적 길이 컬렉션: 헤더에서 <ColumnName>[i] 인덱스를 모아 0..N-1 을 순회한다.
-    // 인덱스가 비연속(gap)이면 throw 한다. 호출부는 이어서 루프 본문과 닫는 중괄호를 방출한다.
     private static void EmitDynamicElementLoopBegin(StringBuilder sb, ParameterAnalysis param, string indent)
     {
         var columnLiteral = SymbolDisplay.FormatLiteral(param.ColumnName, quote: true);
@@ -107,7 +104,30 @@ internal static partial class CsvMapperEmitter
         sb.AppendLine();
     }
 
-    private static void EmitArrayHelper(StringBuilder sb, ParameterAnalysis param, string indent, string ownerToken, Dictionary<INamedTypeSymbol, string> nestedTokens)
+    private static void EmitFixedLengthExcessColumnCheck(StringBuilder sb, ParameterAnalysis param, string indent)
+    {
+        var columnLiteral = SymbolDisplay.FormatLiteral(param.ColumnName, quote: true);
+        var lengthLiteral = param.Collection!.Length.ToString(CultureInfo.InvariantCulture);
+        sb.Append(indent).Append("    var __prefix = (basePath.Length == 0 ? ").Append(columnLiteral)
+            .Append(" : basePath + \".\" + ").Append(columnLiteral).AppendLine(") + \"[\";");
+        sb.Append(indent).AppendLine("    foreach (var __h in headers.ColumnNames)");
+        sb.Append(indent).AppendLine("    {");
+        sb.Append(indent).AppendLine("        if (!__h.StartsWith(__prefix, global::System.StringComparison.Ordinal)) { continue; }");
+        sb.Append(indent).AppendLine("        var __close = __h.IndexOf(']', __prefix.Length);");
+        sb.Append(indent).AppendLine("        if (__close < 0) { continue; }");
+        sb.Append(indent).Append("        if (int.TryParse(__h.Substring(__prefix.Length, __close - __prefix.Length), global::System.Globalization.NumberStyles.None, global::System.Globalization.CultureInfo.InvariantCulture, out var __idx) && __idx >= ").Append(lengthLiteral)
+            .Append(") throw new global::System.ArgumentException(global::System.FormattableString.Invariant($\"Column '{__h}' exceeds declared length ").Append(lengthLiteral).Append(" in collection '")
+            .Append(param.Name).AppendLine("'.\"));");
+        sb.Append(indent).AppendLine("    }");
+        sb.AppendLine();
+    }
+
+    private static void EmitArrayHelper(
+        StringBuilder sb,
+        ParameterAnalysis param,
+        string indent,
+        string ownerToken,
+        Dictionary<INamedTypeSymbol, string> nestedTokens)
     {
         var info = param.Collection!;
         var elementKeyword = ElementTypeName(info);
@@ -122,6 +142,7 @@ internal static partial class CsvMapperEmitter
 
         if (info.Length > 0)
         {
+            EmitFixedLengthExcessColumnCheck(sb, param, indent);
             sb.Append(indent).Append("    var builder = global::System.Collections.Immutable.ImmutableArray.CreateBuilder<")
                 .Append(elementKeyword).Append(">(").Append(info.Length).AppendLine(");");
 
@@ -149,7 +170,12 @@ internal static partial class CsvMapperEmitter
         sb.Append(indent).AppendLine("}");
     }
 
-    private static void EmitSetHelper(StringBuilder sb, ParameterAnalysis param, string indent, string ownerToken, Dictionary<INamedTypeSymbol, string> nestedTokens)
+    private static void EmitSetHelper(
+        StringBuilder sb,
+        ParameterAnalysis param,
+        string indent,
+        string ownerToken,
+        Dictionary<INamedTypeSymbol, string> nestedTokens)
     {
         var info = param.Collection!;
         var elementKeyword = ElementTypeName(info);
@@ -164,6 +190,7 @@ internal static partial class CsvMapperEmitter
 
         if (info.Length > 0)
         {
+            EmitFixedLengthExcessColumnCheck(sb, param, indent);
             sb.Append(indent).Append("    var set = new global::System.Collections.Generic.HashSet<")
                 .Append(elementKeyword).Append(">(").Append(info.Length).AppendLine(");");
 
@@ -207,7 +234,6 @@ internal static partial class CsvMapperEmitter
         var info = param.Collection!;
         var valueNested = info.ValueNested!;
 
-        // enum/record 키는 키워드가 없으므로 FQN 으로 쓴다.
         var keyKeyword = info.KeyKind is ScalarKind.Enum or ScalarKind.Unsupported
             ? info.KeyType!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
             : ScalarTypeKeyword(info.KeyKind);
@@ -225,6 +251,7 @@ internal static partial class CsvMapperEmitter
         sb.Append(indent).AppendLine("{");
         if (info.Length > 0)
         {
+            EmitFixedLengthExcessColumnCheck(sb, param, indent);
             sb.Append(indent).Append("    var dict = new global::System.Collections.Generic.Dictionary<")
                 .Append(keyKeyword).Append(", ").Append(valueFullName).Append(">(").Append(info.Length).AppendLine(");");
 
@@ -332,10 +359,11 @@ internal static partial class CsvMapperEmitter
         sb.Append(indent).AppendLine("}");
     }
 
-    // 빈 셀은 기본적으로 빈 컬렉션으로 매핑한다. 단 [NullString("")]이 부착된 nullable 원소 컬렉션이면
-    // 빈 셀이 "null 원소 하나"를 의미하므로 단축을 적용하지 않는다 — "".Split 은 빈 문자열 한 조각을
-    // 돌려주고, 그 조각이 NullString 과 일치해 null 로 매핑된다.
-    private static void EmitSingleColumnSplit(StringBuilder sb, ParameterAnalysis param, string separatorLiteral, string indent)
+    private static void EmitSingleColumnSplit(
+        StringBuilder sb,
+        ParameterAnalysis param,
+        string separatorLiteral,
+        string indent)
     {
         var emptyCellMeansNullElement = TypeClassifier.IsNullable(param.Collection!.ElementType)
             && param.NullString is { Length: 0 };
