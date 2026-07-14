@@ -242,6 +242,38 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
         logger.LogInformation("__ValidateRange_Score emitted, compilation errors: {ErrorCount}", errors.Count);
     }
 
+    [Fact]
+    public void Combines_Range_with_NullString_for_nullable_element_collection()
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        const string source = """
+            using System.Collections.Immutable;
+            using Sdp.Attributes;
+            namespace Test;
+
+            [StaticDataRecord("File", "Sheet")]
+            public sealed partial record Foo(
+                int Id,
+                [Length(2)][NullString("-")][Range(0, 100)] ImmutableArray<int?> Scores);
+            """;
+
+        var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
+
+        var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
+
+        var code = mapperTree.ToString();
+        Assert.Contains("== \"-\" ? (int?)null : __ValidateRange_Scores(", code);
+
+        var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
+        Assert.Empty(errors);
+
+        logger.LogInformation(
+            "__ValidateRange_Scores emitted for nullable elements, compilation errors: {ErrorCount}",
+            errors.Count);
+    }
+
     private TestOutputLogger<CsvMapperGeneratorValidationTests> CreateLogger()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);

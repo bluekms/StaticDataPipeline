@@ -5,7 +5,6 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Sdp.SourceGenerator.Generators;
 
-// 컬렉션 5종(다중 컬럼 배열/셋, dict, 단일 컬럼 배열/셋) 매핑 헬퍼 방출
 internal static partial class CsvMapperEmitter
 {
     private static string ElementTypeName(CollectionInfo info)
@@ -21,7 +20,6 @@ internal static partial class CsvMapperEmitter
         return TypeClassifier.IsNullable(info.ElementType) ? keyword + "?" : keyword;
     }
 
-    // 고정 길이(__k0 …)와 동적 길이(__ek) 양쪽에서 헤더 키 변수/식을 받아 원소 변환식을 만든다.
     private static string EmitColumnElementConversion(
         ParameterAnalysis param,
         string keyExpression,
@@ -37,9 +35,6 @@ internal static partial class CsvMapperEmitter
         var valueExpr = $"values[headers[{keyExpression}]]";
         var baseConversion = EmitElementBaseConversion(info, valueExpr, param, nestedTokens);
 
-        // [Range]/[RegularExpression] 가 컬렉션에 붙으면 원소를 각각 검증한다. 검증 attribute 가 붙은
-        // nullable 원소 컬렉션은 AreValidationAttributesApplicable 이 emit 자체를 거부하므로, nullable 원소가
-        // 여기 도달하는 경우 WrapValidations 는 no-op 이다.
         var converted = WrapValidations(param, baseConversion, ownerToken);
 
         if (TypeClassifier.IsNullable(info.ElementType) && param.NullString is not null)

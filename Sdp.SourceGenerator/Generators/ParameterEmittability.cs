@@ -174,11 +174,6 @@ internal static class ParameterEmittability
             return true;
         }
 
-        if (TypeClassifier.IsNullable(collection.ElementType))
-        {
-            return false;
-        }
-
         if (param.Range is { ArgKind: RangeArgKind.Typed }
             && !TypeClassifier.IsTypedRangeSupported(collection.ElementKind))
         {
