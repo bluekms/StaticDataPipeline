@@ -57,7 +57,7 @@ public partial class StaticDataManagerWithViewTests(ITestOutputHelper testOutput
         IReadOnlyList<Equipment> Equipment);
 
     private sealed partial class EventBundleView(GameStaticData.TableSet tables)
-        : StaticDataView<EventBundleView, GameStaticData.TableSet>(tables)
+        : StaticDataView<GameStaticData.TableSet>(tables)
     {
         private readonly UniqueIndex<EventBundle, int> byEventId = Build(tables);
 
@@ -104,7 +104,7 @@ public partial class StaticDataManagerWithViewTests(ITestOutputHelper testOutput
     private sealed partial record EventAttackTotal(int EventId, int TotalAttackPower);
 
     private sealed partial class EventAttackTotalView(GameStaticData.TableSet tables)
-        : StaticDataView<EventAttackTotalView, GameStaticData.TableSet>(tables)
+        : StaticDataView<GameStaticData.TableSet>(tables)
     {
         private readonly UniqueIndex<EventAttackTotal, int> byEventId = Build(tables);
 
@@ -157,7 +157,7 @@ public partial class StaticDataManagerWithViewTests(ITestOutputHelper testOutput
         }
     }
 
-    private sealed partial class FailingViewA : StaticDataView<FailingViewA, FailingViewManager.TableSet>
+    private sealed partial class FailingViewA : StaticDataView<FailingViewManager.TableSet>
     {
         public FailingViewA(FailingViewManager.TableSet tables)
             : base(tables)
@@ -166,7 +166,7 @@ public partial class StaticDataManagerWithViewTests(ITestOutputHelper testOutput
         }
     }
 
-    private sealed partial class FailingViewB : StaticDataView<FailingViewB, FailingViewManager.TableSet>
+    private sealed partial class FailingViewB : StaticDataView<FailingViewManager.TableSet>
     {
         public FailingViewB(FailingViewManager.TableSet tables)
             : base(tables)
@@ -189,7 +189,7 @@ public partial class StaticDataManagerWithViewTests(ITestOutputHelper testOutput
     }
 
     private sealed partial class ValidateThrowingViewA(ValidateThrowingViewManager.TableSet tables)
-        : StaticDataView<ValidateThrowingViewA, ValidateThrowingViewManager.TableSet>(tables)
+        : StaticDataView<ValidateThrowingViewManager.TableSet>(tables)
     {
         protected override void Validate()
         {
@@ -198,7 +198,7 @@ public partial class StaticDataManagerWithViewTests(ITestOutputHelper testOutput
     }
 
     private sealed partial class ValidateThrowingViewB(ValidateThrowingViewManager.TableSet tables)
-        : StaticDataView<ValidateThrowingViewB, ValidateThrowingViewManager.TableSet>(tables)
+        : StaticDataView<ValidateThrowingViewManager.TableSet>(tables)
     {
         protected override void Validate()
         {

@@ -46,7 +46,7 @@ public class UnityCompatibilityTests(ITestOutputHelper testOutputHelper)
                 {
                 }
 
-                public sealed partial class EventView : StaticDataView<EventView, GameStaticData.TableSet>
+                public sealed partial class EventView : StaticDataView<GameStaticData.TableSet>
                 {
                     public EventView(GameStaticData.TableSet tables)
                         : base(tables)

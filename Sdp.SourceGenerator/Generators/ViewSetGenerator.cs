@@ -268,14 +268,14 @@ internal static class ViewSetGenerator
                 continue;
             }
 
-            // View 가 base StaticDataView<,> 에 선언한 TableSet 이 매니저의 TableSet 과 다르면,
+            // View 가 base StaticDataView<> 에 선언한 TableSet 이 매니저의 TableSet 과 다르면,
             // 팩토리는 View 쪽 TableSet 으로 생성되는데 Build 는 매니저 TableSet 으로 호출돼
             // 생성 코드에서 CS0311 이 새거나(생성자가 매니저 쪽 타입일 때) 런타임에야 실패한다.
             // 컴파일 시점에 전용 진단으로 차단한다. base 타입 인자가 닫힌 타입이 아닌 경우는
             // StaticDataViewGenerator 와 동일하게 여기서 판정하지 않는다.
             INamedTypeSymbol? viewTableSet = null;
-            if (viewBase.TypeArguments.Length == 2
-                && viewBase.TypeArguments[1] is INamedTypeSymbol viewBaseTableSet)
+            if (viewBase.TypeArguments.Length == 1
+                && viewBase.TypeArguments[0] is INamedTypeSymbol viewBaseTableSet)
             {
                 viewTableSet = viewBaseTableSet;
             }

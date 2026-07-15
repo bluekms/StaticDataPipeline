@@ -1,7 +1,6 @@
 namespace Sdp.View;
 
-public abstract class StaticDataView<TSelf, TTableSet>(TTableSet tables)
-    where TSelf : StaticDataView<TSelf, TTableSet>
+public abstract class StaticDataView<TTableSet>(TTableSet tables)
     where TTableSet : class
 {
     protected TTableSet Tables => tables;

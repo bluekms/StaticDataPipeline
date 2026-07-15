@@ -34,7 +34,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         // language=C#
         const string source = """
             public sealed partial class SomeView(GenManager.TableSet tables)
-                : StaticDataView<SomeView, GenManager.TableSet>(tables);
+                : StaticDataView<GenManager.TableSet>(tables);
 
             public partial class GenManager(ILogger logger)
                 : StaticDataManager<GenManager.TableSet, GenManager.ViewSet>(logger)
@@ -61,7 +61,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         // language=C#
         const string source = """
             public sealed partial class SomeView(GenManager.TableSet tables)
-                : StaticDataView<SomeView, GenManager.TableSet>(tables);
+                : StaticDataView<GenManager.TableSet>(tables);
 
             public partial class GenManager(ILogger logger)
                 : StaticDataManager<GenManager.TableSet, GenManager.ViewSet>(logger)
@@ -87,7 +87,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         const string source = """
-            public sealed class SomeView : StaticDataView<SomeView, GenManager.TableSet>
+            public sealed class SomeView : StaticDataView<GenManager.TableSet>
             {
                 public SomeView(GenManager.TableSet tables) : base(tables) { }
             }
@@ -116,7 +116,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         const string source = """
-            public sealed partial class SomeView : StaticDataView<SomeView, GenManager.TableSet>
+            public sealed partial class SomeView : StaticDataView<GenManager.TableSet>
             {
                 public SomeView() : base(null!) { }
             }
@@ -146,7 +146,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         // language=C#
         const string source = """
             public sealed partial class SomeView(ManagerA.TableSet tables)
-                : StaticDataView<SomeView, ManagerA.TableSet>(tables);
+                : StaticDataView<ManagerA.TableSet>(tables);
 
             public sealed partial record SharedViewSet(SomeView V);
 
@@ -186,7 +186,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
             }
 
             public sealed partial class SomeView(OtherManager.TableSet tables)
-                : StaticDataView<SomeView, OtherManager.TableSet>(tables);
+                : StaticDataView<OtherManager.TableSet>(tables);
 
             public partial class GenManager(ILogger logger)
                 : StaticDataManager<GenManager.TableSet, GenManager.ViewSet>(logger)
@@ -213,7 +213,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         // language=C#
         const string source = """
             public sealed partial class SomeView(GenManager.TableSet tables)
-                : StaticDataView<SomeView, GenManager.TableSet>(tables);
+                : StaticDataView<GenManager.TableSet>(tables);
 
             public partial class GenManager(ILogger logger)
                 : StaticDataManager<GenManager.TableSet, GenManager.ViewSet>(logger)

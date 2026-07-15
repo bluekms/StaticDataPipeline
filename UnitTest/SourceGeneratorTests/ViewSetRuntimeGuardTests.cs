@@ -35,7 +35,7 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
         // language=C#
         const string source = """
             public sealed partial class SomeView(GenManager.TableSet tables)
-                : StaticDataView<SomeView, GenManager.TableSet>(tables);
+                : StaticDataView<GenManager.TableSet>(tables);
 
             public partial class GenManager(ILogger logger)
                 : StaticDataManager<GenManager.TableSet, GenManager.ViewSet>(logger)
@@ -84,7 +84,7 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         const string source = """
-            public sealed partial class SomeView : StaticDataView<SomeView, GenManager.TableSet>
+            public sealed partial class SomeView : StaticDataView<GenManager.TableSet>
             {
                 public SomeView() : base(null!) { }
             }
@@ -113,7 +113,7 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
         // language=C#
         const string source = """
             public sealed partial class SomeView(GenManager.TableSet tables)
-                : StaticDataView<SomeView, GenManager.TableSet>(tables);
+                : StaticDataView<GenManager.TableSet>(tables);
 
             public partial class GenManager(ILogger logger)
                 : StaticDataManager<GenManager.TableSet, GenManager.ViewSet>(logger)

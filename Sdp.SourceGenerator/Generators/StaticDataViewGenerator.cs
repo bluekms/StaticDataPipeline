@@ -62,12 +62,12 @@ internal static class StaticDataViewGenerator
         }
 
         var baseType = StaticDataViewBaseResolver.FindBase(symbol);
-        if (baseType is null || baseType.TypeArguments.Length != 2)
+        if (baseType is null || baseType.TypeArguments.Length != 1)
         {
             return null;
         }
 
-        var tableSetType = baseType.TypeArguments[1] as INamedTypeSymbol;
+        var tableSetType = baseType.TypeArguments[0] as INamedTypeSymbol;
         if (tableSetType is null)
         {
             return null;
