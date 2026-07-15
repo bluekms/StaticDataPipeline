@@ -6,10 +6,6 @@ namespace Sdp.SourceGenerator.Generators;
 
 internal static class StaticDataTableGenerator
 {
-    private const string TableNamespace = "Sdp.Table";
-    private const string TableTypeName = "StaticDataTable";
-    private const string StaticDataRecordAttributeFullName = "Sdp.Attributes.StaticDataRecordAttribute";
-
     public static void Register(IncrementalGeneratorInitializationContext context)
     {
         var tables = context.SyntaxProvider
@@ -127,7 +123,7 @@ internal static class StaticDataTableGenerator
     {
         for (var type = symbol.BaseType; type is not null; type = type.BaseType)
         {
-            if (type.ContainingNamespace?.ToDisplayString() == TableNamespace && type.Name == TableTypeName)
+            if (type.ContainingNamespace?.ToDisplayString() == "Sdp.Table" && type.Name == "StaticDataTable")
             {
                 return type;
             }
@@ -147,7 +143,7 @@ internal static class StaticDataTableGenerator
             }
 
             var fullName = attrClass.ToDisplayString();
-            if (fullName != StaticDataRecordAttributeFullName)
+            if (fullName != "Sdp.Attributes.StaticDataRecordAttribute")
             {
                 continue;
             }

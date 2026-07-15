@@ -48,8 +48,6 @@ internal static class StaticDataTableEmitter
         var fileName = analysis.ExcelFileName + "." + analysis.SheetName + ".csv";
         var fileNameLit = SymbolDisplay.FormatLiteral(fileName, quote: true);
 
-        // 생성 TableSet 코드가 메서드 그룹으로 TableSetLoaderHelper 에 넘기는 진입점.
-        // 같은 어셈블리(소비자)에서만 쓰므로 internal 로 둔다.
         sb.Append(indent).Append("internal static async global::System.Threading.Tasks.Task<")
             .Append(analysis.FullyQualifiedTypeName).AppendLine("> LoadAsync(");
         sb.Append(indent).AppendLine("    string csvDir,");
