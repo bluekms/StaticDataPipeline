@@ -7,16 +7,15 @@ namespace Sdp.SourceGenerator.Generators;
 
 internal static class ViewSetGenerator
 {
-    private const string ManagerNamespace = "Sdp.Manager";
-    private const string ManagerTypeName = "StaticDataManager";
+    private const string StaticDataManagerNamespace = "Sdp.Manager";
+    private const string StaticDataManagerTypeName = "StaticDataManager";
 
     public static void Register(IncrementalGeneratorInitializationContext context)
     {
         var viewSets = context.SyntaxProvider
             .CreateSyntaxProvider(
-                predicate: static (node, _) => IsCandidateManagerClass(node),
-                transform: static (syntaxContext, cancellationToken) =>
-                    Analyze(syntaxContext, cancellationToken))
+                predicate: static (node, _) => IsCandidateStaticDataManagerClass(node),
+                transform: static (syntaxContext, cancellationToken) => Analyze(syntaxContext, cancellationToken))
             .Where(static analysis => analysis is not null)
             .Collect()
             .SelectMany(static (analyses, _) =>
@@ -98,8 +97,10 @@ internal static class ViewSetGenerator
         });
     }
 
-    private static bool IsCandidateManagerClass(SyntaxNode node)
-        => node is ClassDeclarationSyntax classDecl && classDecl.BaseList is not null;
+    private static bool IsCandidateStaticDataManagerClass(SyntaxNode node)
+    {
+        return node is ClassDeclarationSyntax { BaseList: not null };
+    }
 
     private static ViewSetAnalysis? Analyze(GeneratorSyntaxContext context, CancellationToken cancellationToken)
     {
@@ -112,8 +113,8 @@ internal static class ViewSetGenerator
 
         var baseType = symbol.BaseType;
         if (baseType is null
-            || baseType.ContainingNamespace?.ToDisplayString() != ManagerNamespace
-            || baseType.Name != ManagerTypeName
+            || baseType.ContainingNamespace?.ToDisplayString() != StaticDataManagerNamespace
+            || baseType.Name != StaticDataManagerTypeName
             || baseType.TypeArguments.Length != 2)
         {
             return null;
@@ -133,7 +134,7 @@ internal static class ViewSetGenerator
             if (baseType.TypeArguments[1] is ITypeParameterSymbol typeParameter)
             {
                 var diagnostic = Diagnostic.Create(
-                    SdpDiagnostics.ManagerTypeArgumentMustBeClosed,
+                    SdpDiagnostics.StaticDataManagerTypeArgumentMustBeClosed,
                     classDecl.Identifier.GetLocation(),
                     symbol.ToDisplayString(),
                     typeParameter.Name);
@@ -142,8 +143,8 @@ internal static class ViewSetGenerator
                     tableSetType,
                     ImmutableArray<ViewInfo>.Empty,
                     new[] { diagnostic },
-                    false,
-                    false);
+                    CanEmit: false,
+                    CanEmitBuilderShell: false);
             }
 
             return null;
@@ -159,7 +160,7 @@ internal static class ViewSetGenerator
         var primaryConstructorResolved = false;
         if (viewSetIsRecord)
         {
-            viewInfos = CollectViewInfos(
+            viewInfos = AnalyzeViewInfos(
                 viewSetType, tableSetType, diagnostics, out primaryConstructorResolved, cancellationToken);
         }
 
@@ -209,7 +210,7 @@ internal static class ViewSetGenerator
         return false;
     }
 
-    private static ImmutableArray<ViewInfo> CollectViewInfos(
+    private static ImmutableArray<ViewInfo> AnalyzeViewInfos(
         INamedTypeSymbol viewSetType,
         INamedTypeSymbol tableSetType,
         List<Diagnostic> diagnostics,
@@ -256,14 +257,14 @@ internal static class ViewSetGenerator
                     param.Type.ToDisplayString()));
                 builder.Add(new ViewInfo(
                     param.Name,
-                    viewSymbol,
                     param.Type.ToDisplayString(),
-                    false,
+                    viewSymbol,
+                    IsView: false,
                     isNullable,
-                    false,
-                    false,
-                    false,
-                    TargetsManagerTableSet: true,
+                    IsPartial: false,
+                    ContainingTypesPartial: false,
+                    HasValidCtor: false,
+                    TargetsStaticDataManagerTableSet: true,
                     ViewTableSetName: null));
                 continue;
             }
@@ -280,9 +281,9 @@ internal static class ViewSetGenerator
                 viewTableSet = viewBaseTableSet;
             }
 
-            var targetsManagerTableSet = viewTableSet is null
+            var targetsStaticDataManagerTableSet = viewTableSet is null
                 || SymbolEqualityComparer.Default.Equals(viewTableSet, tableSetType);
-            if (!targetsManagerTableSet)
+            if (!targetsStaticDataManagerTableSet)
             {
                 diagnostics.Add(Diagnostic.Create(
                     SdpDiagnostics.ViewTargetsDifferentTableSet,
@@ -313,14 +314,14 @@ internal static class ViewSetGenerator
 
             builder.Add(new ViewInfo(
                 param.Name,
-                viewSymbol,
                 viewSymbol.ToDisplayString(),
-                true,
+                viewSymbol,
+                IsView: true,
                 isNullable,
                 isPartial,
                 containingTypesPartial,
                 hasValidCtor,
-                targetsManagerTableSet,
+                targetsStaticDataManagerTableSet,
                 viewTableSet?.ToDisplayString()));
         }
 
@@ -349,26 +350,26 @@ internal static class ViewSetGenerator
 
     internal sealed record ViewInfo(
         string ParameterName,
-        INamedTypeSymbol? ViewSymbol,
         string TypeName,
+        INamedTypeSymbol? ViewSymbol,
         bool IsView,
         bool IsNullable,
         bool IsPartial,
         bool ContainingTypesPartial,
         bool HasValidCtor,
-        bool TargetsManagerTableSet,
+        bool TargetsStaticDataManagerTableSet,
         string? ViewTableSetName)
     {
         // canEmit(ViewSetGenerator)과 HasDeferrableErrors(ViewSetEmitter)가 같은 판정을 공유한다.
         // ContainingTypesPartial 은 StaticDataViewGenerator 의 팩토리 방출 조건(CanEmitFactoryShell)과
         // 같은 판정이다. 빠지면 팩토리 없는 View 에 Build 가 방출되어 CS0117 로 새어 나간다.
-        // TargetsManagerTableSet 이 빠져도 팩토리(View 쪽 TableSet)와 Build(매니저 TableSet)가 어긋나
+        // TargetsStaticDataManagerTableSet 이 빠져도 팩토리(View 쪽 TableSet)와 Build(매니저 TableSet)가 어긋나
         // 같은 방식으로 새어 나간다(SDP0308).
         public bool IsFullyValid => IsView
             && IsPartial
             && ContainingTypesPartial
             && HasValidCtor
-            && TargetsManagerTableSet
+            && TargetsStaticDataManagerTableSet
             && !IsNullable;
     }
 }

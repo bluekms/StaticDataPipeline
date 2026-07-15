@@ -92,7 +92,7 @@ internal static class ViewSetEmitter
 
             // View 가 다른 TableSet 을 대상으로 하면 매니저 TableSet 기준의 생성자 검사(HasValidCtor)는
             // 오답을 가리키므로, 대상 불일치 오류만 보고하고 생성자 오류는 보고하지 않는다.
-            if (!view.TargetsManagerTableSet)
+            if (!view.TargetsStaticDataManagerTableSet)
             {
                 sb.Append(indent).Append("    __errors.Add(global::Sdp.View.ViewSetBuildHelper.ViewTargetsDifferentTableSetError(")
                     .Append(Literal(view.TypeName)).Append(", ").Append(Literal(view.ViewTableSetName ?? string.Empty))

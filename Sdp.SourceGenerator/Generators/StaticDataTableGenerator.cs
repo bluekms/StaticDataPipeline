@@ -11,8 +11,7 @@ internal static class StaticDataTableGenerator
         var tables = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: static (node, _) => IsCandidateTableClass(node),
-                transform: static (syntaxContext, cancellationToken) =>
-                    Analyze(syntaxContext, cancellationToken))
+                transform: static (syntaxContext, cancellationToken) => Analyze(syntaxContext, cancellationToken))
             .Where(static analysis => analysis is not null)
             .Collect()
             .SelectMany(static (analyses, _) =>
@@ -48,7 +47,9 @@ internal static class StaticDataTableGenerator
     }
 
     private static bool IsCandidateTableClass(SyntaxNode node)
-        => node is ClassDeclarationSyntax classDecl && classDecl.BaseList is not null;
+    {
+        return node is ClassDeclarationSyntax { BaseList: not null };
+    }
 
     private static StaticDataTableAnalysis? Analyze(GeneratorSyntaxContext context, CancellationToken cancellationToken)
     {
@@ -88,32 +89,35 @@ internal static class StaticDataTableGenerator
 
         var containingPartial = ContainingTypePartialChecker.Check(symbol, diagnostics);
 
-        var recordSource = ExtractStaticDataRecordAttribute(recordType);
+        var hasUserDefinedConstructor = symbol.InstanceConstructors
+            .Any(static ctor => !ctor.IsImplicitlyDeclared);
 
-        // [StaticDataRecord] 가 없으면 팩토리를 emit 할 수 없다. 진단 없이 생략하면 TableSet 의
-        // LoadTableOrSkipAsync<T> 제약 위반(CS0311)으로만 드러나므로 명시 진단을 보고한다.
-        if (recordSource.ExcelFileName is null || recordSource.SheetName is null)
+        var recordSource = ExtractStaticDataRecordAttribute(recordType);
+        if (recordSource is null)
         {
             diagnostics.Add(Diagnostic.Create(
                 SdpDiagnostics.TableRecordMustHaveStaticDataRecordAttribute,
                 classDecl.Identifier.GetLocation(),
                 symbol.ToDisplayString(),
                 recordType.ToDisplayString()));
+
+            return new StaticDataTableAnalysis(
+                symbol,
+                recordType,
+                ExcelFileName: string.Empty,
+                SheetName: string.Empty,
+                hasUserDefinedConstructor,
+                diagnostics,
+                CanEmit: false);
         }
 
-        var canEmit = isPartial
-            && containingPartial
-            && recordSource.ExcelFileName is not null
-            && recordSource.SheetName is not null;
-
-        var hasUserDefinedConstructor = symbol.InstanceConstructors
-            .Any(static ctor => !ctor.IsImplicitlyDeclared);
+        var canEmit = isPartial && containingPartial;
 
         return new StaticDataTableAnalysis(
             symbol,
             recordType,
-            recordSource.ExcelFileName ?? string.Empty,
-            recordSource.SheetName ?? string.Empty,
+            recordSource.ExcelFileName,
+            recordSource.SheetName,
             hasUserDefinedConstructor,
             diagnostics,
             canEmit);
@@ -132,7 +136,7 @@ internal static class StaticDataTableGenerator
         return null;
     }
 
-    private static StaticDataRecordSource ExtractStaticDataRecordAttribute(INamedTypeSymbol recordType)
+    private static StaticDataRecordSource? ExtractStaticDataRecordAttribute(INamedTypeSymbol recordType)
     {
         foreach (var attr in recordType.GetAttributes())
         {
@@ -157,8 +161,8 @@ internal static class StaticDataTableGenerator
             }
         }
 
-        return new StaticDataRecordSource(null, null);
+        return null;
     }
 
-    private sealed record StaticDataRecordSource(string? ExcelFileName, string? SheetName);
+    private sealed record StaticDataRecordSource(string ExcelFileName, string SheetName);
 }

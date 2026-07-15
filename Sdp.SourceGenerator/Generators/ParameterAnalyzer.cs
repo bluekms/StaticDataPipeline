@@ -314,12 +314,12 @@ internal static class ParameterAnalyzer
         var arguments = attr.ConstructorArguments;
         if (arguments.Length == 2)
         {
-            return new RangeInfo(arguments[0].Value, arguments[1].Value, RangeArgKind.Numeric);
+            return new RangeInfo(Minimum: arguments[0].Value, Maximum: arguments[1].Value, RangeArgKind.Numeric);
         }
 
         if (arguments.Length == 3)
         {
-            return new RangeInfo(arguments[1].Value, arguments[2].Value, RangeArgKind.Typed);
+            return new RangeInfo(Minimum: arguments[1].Value, Maximum: arguments[2].Value, RangeArgKind.Typed);
         }
 
         return null;

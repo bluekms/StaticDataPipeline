@@ -230,8 +230,11 @@ internal static partial class CsvMapperEmitter
                 EmitRegexHelper(sb, param, indent, ownerToken);
             }
 
-            if (param.Collection is null && param.Nested is null && !param.IsIgnored
-                && param.IsNullable && param.NullString is not null)
+            if (param.Collection is null &&
+                param.Nested is null &&
+                !param.IsIgnored &&
+                param.IsNullable &&
+                param.NullString is not null)
             {
                 sb.AppendLine();
                 EmitNullableScalarHelper(sb, param, indent, ownerToken);

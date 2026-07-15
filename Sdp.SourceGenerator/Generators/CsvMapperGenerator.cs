@@ -15,8 +15,7 @@ internal static class CsvMapperGenerator
             .ForAttributeWithMetadataName(
                 StaticDataRecordAttributeMetadataName,
                 predicate: static (node, _) => node is RecordDeclarationSyntax,
-                transform: static (attributeContext, cancellationToken) =>
-                    Analyze(attributeContext, cancellationToken));
+                transform: static (syntaxContext, cancellationToken) => Analyze(syntaxContext, cancellationToken));
 
         context.RegisterSourceOutput(analyses, static (sourceProductionContext, analysis) =>
         {

@@ -12,8 +12,7 @@ internal static class StaticDataViewGenerator
         var views = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: static (node, _) => IsCandidateViewClass(node),
-                transform: static (syntaxContext, cancellationToken) =>
-                    Analyze(syntaxContext, cancellationToken))
+                transform: static (syntaxContext, cancellationToken) => Analyze(syntaxContext, cancellationToken))
             .Where(static analysis => analysis is not null)
             .Collect()
             .SelectMany(static (analyses, _) =>
@@ -50,7 +49,9 @@ internal static class StaticDataViewGenerator
     }
 
     private static bool IsCandidateViewClass(SyntaxNode node)
-        => node is ClassDeclarationSyntax classDecl && classDecl.BaseList is not null;
+    {
+        return node is ClassDeclarationSyntax { BaseList: not null };
+    }
 
     private static StaticDataViewAnalysis? Analyze(GeneratorSyntaxContext context, CancellationToken cancellationToken)
     {

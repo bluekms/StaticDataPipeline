@@ -286,7 +286,7 @@ internal static class SdpDiagnostics
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
-    public static readonly DiagnosticDescriptor ManagerTypeArgumentMustBeClosed = new(
+    public static readonly DiagnosticDescriptor StaticDataManagerTypeArgumentMustBeClosed = new(
         id: "SDP0218",
         title: "StaticDataManager type arguments must be closed types",
         messageFormat: "StaticDataManager를 상속한 '{0}'의 타입 인자가 타입 파라미터('{1}')입니다. 닫힌 타입으로 직접 상속해야 소스가 생성됩니다.",
@@ -294,10 +294,18 @@ internal static class SdpDiagnostics
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
-    public static readonly DiagnosticDescriptor ManagerMustBePartial = new(
+    public static readonly DiagnosticDescriptor StaticDataManagerMustBePartial = new(
         id: "SDP0219",
         title: "StaticDataManager subclass must be partial",
         messageFormat: "StaticDataManager를 상속한 '{0}'은 partial로 선언되어야 합니다",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor SwitchForeignKeyIntegralConditionValueInvalid = new(
+        id: "SDP0220",
+        title: "SwitchForeignKey condition value can never match the integral condition column",
+        messageFormat: "record '{0}'의 [SwitchForeignKey] ConditionValue '{1}'은 조건 컬럼 '{2}' (정수 타입 '{3}')의 값으로 해석될 수 없어 런타임에 절대 매칭되지 않습니다",
         category: Category,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
