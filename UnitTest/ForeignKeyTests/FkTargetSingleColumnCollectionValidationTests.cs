@@ -52,13 +52,13 @@ public partial class FkTargetSingleColumnCollectionValidationTests(ITestOutputHe
 #pragma warning restore SDP0207
 
     private sealed partial class TagBundleTable(ImmutableArray<TagBundleRecord> records)
-        : StaticDataTable<TagBundleTable, TagBundleRecord>(records);
+        : StaticDataTable<TagBundleRecord>(records);
 
     private sealed partial class FkConsumerTable(ImmutableArray<FkConsumerRecord> records)
-        : StaticDataTable<FkConsumerTable, FkConsumerRecord>(records);
+        : StaticDataTable<FkConsumerRecord>(records);
 
     private sealed partial class SwitchFkConsumerTable(ImmutableArray<SwitchFkConsumerRecord> records)
-        : StaticDataTable<SwitchFkConsumerTable, SwitchFkConsumerRecord>(records);
+        : StaticDataTable<SwitchFkConsumerRecord>(records);
 
     private sealed partial class FkStaticData(ILogger logger)
         : StaticDataManager<FkStaticData.TableSet>(logger)

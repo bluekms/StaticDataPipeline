@@ -21,7 +21,7 @@ public partial class SharedRecordTableTests(ITestOutputHelper testOutputHelper)
     [StaticDataRecord("Item", "Main")]
     private partial record ItemRecord(int Id, string Name);
 
-    private sealed partial class PrimaryItemTable : StaticDataTable<PrimaryItemTable, ItemRecord>
+    private sealed partial class PrimaryItemTable : StaticDataTable<ItemRecord>
     {
         private readonly UniqueIndex<ItemRecord, int> byId;
 
@@ -34,7 +34,7 @@ public partial class SharedRecordTableTests(ITestOutputHelper testOutputHelper)
         public ItemRecord Get(int id) => byId.Get(id);
     }
 
-    private sealed partial class SecondaryItemTable : StaticDataTable<SecondaryItemTable, ItemRecord>
+    private sealed partial class SecondaryItemTable : StaticDataTable<ItemRecord>
     {
         private readonly UniqueIndex<ItemRecord, string> byName;
 

@@ -62,13 +62,13 @@ public partial class MultipleForeignKeyValidationTests(ITestOutputHelper testOut
         int RecipientId);
 
     private sealed partial class SchoolTable(ImmutableArray<SchoolRecord> records)
-        : StaticDataTable<SchoolTable, SchoolRecord>(records);
+        : StaticDataTable<SchoolRecord>(records);
 
     private sealed partial class TeacherTable(ImmutableArray<TeacherRecord> records)
-        : StaticDataTable<TeacherTable, TeacherRecord>(records);
+        : StaticDataTable<TeacherRecord>(records);
 
     private sealed partial class ScholarshipTable(ImmutableArray<ScholarshipRecord> records)
-        : StaticDataTable<ScholarshipTable, ScholarshipRecord>(records);
+        : StaticDataTable<ScholarshipRecord>(records);
 
     private sealed partial class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)

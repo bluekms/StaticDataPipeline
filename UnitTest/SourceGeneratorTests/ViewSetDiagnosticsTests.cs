@@ -22,7 +22,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         public sealed partial record Rec(int Id);
 
         public sealed partial class RecTable(ImmutableArray<Rec> records)
-            : StaticDataTable<RecTable, Rec>(records);
+            : StaticDataTable<Rec>(records);
 
         """;
 

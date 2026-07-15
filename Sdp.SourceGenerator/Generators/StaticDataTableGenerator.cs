@@ -65,12 +65,12 @@ internal static class StaticDataTableGenerator
             return null;
         }
 
-        if (baseType.TypeArguments.Length < 2)
+        if (baseType.TypeArguments.Length < 1)
         {
             return null;
         }
 
-        var recordType = baseType.TypeArguments[1] as INamedTypeSymbol;
+        var recordType = baseType.TypeArguments[0] as INamedTypeSymbol;
         if (recordType is null)
         {
             return null;

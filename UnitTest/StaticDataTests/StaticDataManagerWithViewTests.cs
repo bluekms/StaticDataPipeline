@@ -44,13 +44,13 @@ public partial class StaticDataManagerWithViewTests(ITestOutputHelper testOutput
         int DefensePower);
 
     private sealed partial class EventTable(ImmutableArray<EventRecord> records)
-        : StaticDataTable<EventTable, EventRecord>(records);
+        : StaticDataTable<EventRecord>(records);
 
     private sealed partial class WeaponTable(ImmutableArray<WeaponRecord> records)
-        : StaticDataTable<WeaponTable, WeaponRecord>(records);
+        : StaticDataTable<WeaponRecord>(records);
 
     private sealed partial class ArmorTable(ImmutableArray<ArmorRecord> records)
-        : StaticDataTable<ArmorTable, ArmorRecord>(records);
+        : StaticDataTable<ArmorRecord>(records);
 
     private sealed partial record EventBundle(
         EventRecord Event,

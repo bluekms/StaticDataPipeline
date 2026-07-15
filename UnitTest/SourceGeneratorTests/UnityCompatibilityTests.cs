@@ -38,11 +38,11 @@ public class UnityCompatibilityTests(ITestOutputHelper testOutputHelper)
                     [ForeignKey("Events", "Id")] int EventId,
                     string Name);
 
-                public sealed partial class EventTable : StaticDataTable<EventTable, EventRecord>
+                public sealed partial class EventTable : StaticDataTable<EventRecord>
                 {
                 }
 
-                public sealed partial class ItemTable : StaticDataTable<ItemTable, ItemRecord>
+                public sealed partial class ItemTable : StaticDataTable<ItemRecord>
                 {
                 }
 

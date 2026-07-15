@@ -23,10 +23,10 @@ public partial class FilteredRecordTableTests(ITestOutputHelper testOutputHelper
     private partial record BuffRecord(int Id, string Name, bool IsNormal);
 
     private sealed partial class NormalBuffTable(ImmutableArray<BuffRecord> records)
-        : StaticDataTable<NormalBuffTable, BuffRecord>(records.Where(x => x.IsNormal).ToImmutableArray());
+        : StaticDataTable<BuffRecord>(records.Where(x => x.IsNormal).ToImmutableArray());
 
     private sealed partial class AbnormalBuffTable(ImmutableArray<BuffRecord> records)
-        : StaticDataTable<AbnormalBuffTable, BuffRecord>(records.Where(x => !x.IsNormal).ToImmutableArray());
+        : StaticDataTable<BuffRecord>(records.Where(x => !x.IsNormal).ToImmutableArray());
 
     private sealed partial class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)

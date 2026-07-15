@@ -14,7 +14,7 @@ public partial class StaticDataManagerTests(ITestOutputHelper testOutputHelper)
     [StaticDataRecord("Fake", "Sheet1")]
     private sealed partial record FakeRecord(int Id);
 
-    private sealed partial class FakeTable : StaticDataTable<FakeTable, FakeRecord>;
+    private sealed partial class FakeTable : StaticDataTable<FakeRecord>;
 
     private sealed partial class FakeManager(ILogger logger)
         : StaticDataManager<FakeManager.TableSet>(logger)

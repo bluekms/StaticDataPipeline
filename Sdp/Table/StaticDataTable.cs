@@ -2,8 +2,7 @@ using System.Collections.Immutable;
 
 namespace Sdp.Table;
 
-public abstract class StaticDataTable<TSelf, TRecord>(ImmutableArray<TRecord> records)
-    where TSelf : StaticDataTable<TSelf, TRecord>
+public abstract class StaticDataTable<TRecord>(ImmutableArray<TRecord> records)
     where TRecord : notnull
 {
     public ImmutableArray<TRecord> Records => records;

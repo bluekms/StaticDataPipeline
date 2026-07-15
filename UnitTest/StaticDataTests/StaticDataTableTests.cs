@@ -10,9 +10,9 @@ public partial class StaticDataTableTests
     private sealed partial record ItemRecord(int Id, string Name);
 
     private sealed partial class ItemTable(ImmutableArray<ItemRecord> records)
-        : StaticDataTable<ItemTable, ItemRecord>(records);
+        : StaticDataTable<ItemRecord>(records);
 
-    private sealed partial class IndexedItemTable : StaticDataTable<IndexedItemTable, ItemRecord>
+    private sealed partial class IndexedItemTable : StaticDataTable<ItemRecord>
     {
         private readonly UniqueIndex<ItemRecord, int> byId;
 

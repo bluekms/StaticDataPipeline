@@ -952,9 +952,9 @@ internal static class TableSetGenerator
         {
             if (type.ContainingNamespace?.ToDisplayString() == TableNamespace
                 && type.Name == TableTypeName
-                && type.TypeArguments.Length >= 2)
+                && type.TypeArguments.Length >= 1)
             {
-                return type.TypeArguments[1] as INamedTypeSymbol;
+                return type.TypeArguments[0] as INamedTypeSymbol;
             }
         }
 

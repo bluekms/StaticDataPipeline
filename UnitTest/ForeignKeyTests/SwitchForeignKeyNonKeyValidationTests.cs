@@ -59,13 +59,13 @@ public partial class SwitchForeignKeyNonKeyValidationTests(ITestOutputHelper tes
     private partial record DesignerRecord(int Id, string Name);
 
     private sealed partial class StaffTable(ImmutableArray<StaffRecord> records)
-        : StaticDataTable<StaffTable, StaffRecord>(records);
+        : StaticDataTable<StaffRecord>(records);
 
     private sealed partial class EngineerTable(ImmutableArray<EngineerRecord> records)
-        : StaticDataTable<EngineerTable, EngineerRecord>(records);
+        : StaticDataTable<EngineerRecord>(records);
 
     private sealed partial class DesignerTable(ImmutableArray<DesignerRecord> records)
-        : StaticDataTable<DesignerTable, DesignerRecord>(records);
+        : StaticDataTable<DesignerRecord>(records);
 
     private sealed partial class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)

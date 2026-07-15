@@ -24,10 +24,10 @@ public partial class SharedCsvTableTests(ITestOutputHelper testOutputHelper)
     private partial record UnitProfileRecord(int Id, string Name, string Description);
 
     private sealed partial class UnitStatTable(ImmutableArray<UnitStatRecord> records)
-        : StaticDataTable<UnitStatTable, UnitStatRecord>(records);
+        : StaticDataTable<UnitStatRecord>(records);
 
     private sealed partial class UnitProfileTable(ImmutableArray<UnitProfileRecord> records)
-        : StaticDataTable<UnitProfileTable, UnitProfileRecord>(records);
+        : StaticDataTable<UnitProfileRecord>(records);
 
     private sealed partial class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)

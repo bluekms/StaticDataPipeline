@@ -74,7 +74,7 @@ public partial class ForeignKeyValidationTests(ITestOutputHelper testOutputHelpe
         [ForeignKey("School", "Id")] int SchoolId,
         [ForeignKey("Teacher", "Id")] int TeacherId);
 
-    private sealed partial class SchoolTable : StaticDataTable<SchoolTable, SchoolRecord>
+    private sealed partial class SchoolTable : StaticDataTable<SchoolRecord>
     {
         private readonly UniqueIndex<SchoolRecord, int> byId;
 
@@ -87,7 +87,7 @@ public partial class ForeignKeyValidationTests(ITestOutputHelper testOutputHelpe
         public SchoolRecord Get(int id) => byId.Get(id);
     }
 
-    private sealed partial class TeacherTable : StaticDataTable<TeacherTable, TeacherRecord>
+    private sealed partial class TeacherTable : StaticDataTable<TeacherRecord>
     {
         private readonly UniqueIndex<TeacherRecord, int> byId;
 
@@ -100,7 +100,7 @@ public partial class ForeignKeyValidationTests(ITestOutputHelper testOutputHelpe
         public TeacherRecord Get(int id) => byId.Get(id);
     }
 
-    private sealed partial class StudentTable : StaticDataTable<StudentTable, StudentRecord>
+    private sealed partial class StudentTable : StaticDataTable<StudentRecord>
     {
         private readonly UniqueIndex<StudentRecord, int> byId;
 

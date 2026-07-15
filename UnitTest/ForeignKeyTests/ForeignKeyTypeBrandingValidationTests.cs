@@ -40,10 +40,10 @@ public partial class ForeignKeyTypeBrandingValidationTests(ITestOutputHelper tes
         [ForeignKey("Hero", "Id")] HeroId AssignedTo);
 
     private sealed partial class HeroTable(ImmutableArray<HeroRecord> records)
-        : StaticDataTable<HeroTable, HeroRecord>(records);
+        : StaticDataTable<HeroRecord>(records);
 
     private sealed partial class HeroQuestTable(ImmutableArray<HeroQuestRecord> records)
-        : StaticDataTable<HeroQuestTable, HeroQuestRecord>(records);
+        : StaticDataTable<HeroQuestRecord>(records);
 
     private sealed partial class EnumBrandedStaticData(ILogger logger)
         : StaticDataManager<EnumBrandedStaticData.TableSet>(logger)
@@ -129,10 +129,10 @@ public partial class ForeignKeyTypeBrandingValidationTests(ITestOutputHelper tes
         [ForeignKey("Character", "Id")] CharId AssignedTo);
 
     private sealed partial class CharacterTable(ImmutableArray<CharacterRecord> records)
-        : StaticDataTable<CharacterTable, CharacterRecord>(records);
+        : StaticDataTable<CharacterRecord>(records);
 
     private sealed partial class CharacterQuestTable(ImmutableArray<CharacterQuestRecord> records)
-        : StaticDataTable<CharacterQuestTable, CharacterQuestRecord>(records);
+        : StaticDataTable<CharacterQuestRecord>(records);
 
     private sealed partial class RecordBrandedStaticData(ILogger logger)
         : StaticDataManager<RecordBrandedStaticData.TableSet>(logger)
@@ -236,13 +236,13 @@ public partial class ForeignKeyTypeBrandingValidationTests(ITestOutputHelper tes
         FaceId FaceId);
 
     private sealed partial class NpcFaceTable(ImmutableArray<NpcFaceRecord> records)
-        : StaticDataTable<NpcFaceTable, NpcFaceRecord>(records);
+        : StaticDataTable<NpcFaceRecord>(records);
 
     private sealed partial class PcFaceTable(ImmutableArray<PcFaceRecord> records)
-        : StaticDataTable<PcFaceTable, PcFaceRecord>(records);
+        : StaticDataTable<PcFaceRecord>(records);
 
     private sealed partial class FaceLookupTable(ImmutableArray<FaceLookupRecord> records)
-        : StaticDataTable<FaceLookupTable, FaceLookupRecord>(records);
+        : StaticDataTable<FaceLookupRecord>(records);
 
     private sealed partial class EnumBrandedSfkStaticData(ILogger logger)
         : StaticDataManager<EnumBrandedSfkStaticData.TableSet>(logger)
@@ -351,13 +351,13 @@ public partial class ForeignKeyTypeBrandingValidationTests(ITestOutputHelper tes
         PartId PartId);
 
     private sealed partial class MetalPartTable(ImmutableArray<MetalPartRecord> records)
-        : StaticDataTable<MetalPartTable, MetalPartRecord>(records);
+        : StaticDataTable<MetalPartRecord>(records);
 
     private sealed partial class WoodPartTable(ImmutableArray<WoodPartRecord> records)
-        : StaticDataTable<WoodPartTable, WoodPartRecord>(records);
+        : StaticDataTable<WoodPartRecord>(records);
 
     private sealed partial class PartLookupTable(ImmutableArray<PartLookupRecord> records)
-        : StaticDataTable<PartLookupTable, PartLookupRecord>(records);
+        : StaticDataTable<PartLookupRecord>(records);
 
     private sealed partial class RecordBrandedSfkStaticData(ILogger logger)
         : StaticDataManager<RecordBrandedSfkStaticData.TableSet>(logger)

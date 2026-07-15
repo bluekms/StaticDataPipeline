@@ -20,7 +20,7 @@ public class StaticDataTableGeneratorTests(ITestOutputHelper testOutputHelper)
             [StaticDataRecord("File", "Sheet")]
             public sealed partial record Foo(int Id);
 
-            public sealed partial class FooTable : StaticDataTable<FooTable, Foo>;
+            public sealed partial class FooTable : StaticDataTable<Foo>;
             """;
 
         var output = SourceGeneratorTestHelper.RunWithFinal(source);
@@ -52,7 +52,7 @@ public class StaticDataTableGeneratorTests(ITestOutputHelper testOutputHelper)
             public sealed partial record Foo(int Id);
 
             public sealed partial class FooTable(ImmutableArray<Foo> records)
-                : StaticDataTable<FooTable, Foo>(records);
+                : StaticDataTable<Foo>(records);
             """;
 
         var output = SourceGeneratorTestHelper.RunWithFinal(source);
@@ -82,7 +82,7 @@ public class StaticDataTableGeneratorTests(ITestOutputHelper testOutputHelper)
             [StaticDataRecord("File", "Sheet")]
             public sealed partial record Foo(int Id);
 
-            public sealed partial class FooTable : StaticDataTable<FooTable, Foo>
+            public sealed partial class FooTable : StaticDataTable<Foo>
             {
                 public FooTable(ImmutableArray<Foo> records)
                     : base(records)

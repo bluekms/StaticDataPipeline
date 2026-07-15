@@ -31,10 +31,10 @@ public partial class ComplexRecordAndManagerSampleTests(ITestOutputHelper testOu
         [NullString("NULL")] string? Description);
 
     private sealed partial class ItemCategoryTable(ImmutableArray<ItemCategoryRecord> records)
-        : StaticDataTable<ItemCategoryTable, ItemCategoryRecord>(records);
+        : StaticDataTable<ItemCategoryRecord>(records);
 
     private sealed partial class ItemTable(ImmutableArray<ItemRecord> records)
-        : StaticDataTable<ItemTable, ItemRecord>(records);
+        : StaticDataTable<ItemRecord>(records);
 
     private sealed partial class GameStaticData(ILogger logger)
         : StaticDataManager<GameStaticData.TableSet>(logger)

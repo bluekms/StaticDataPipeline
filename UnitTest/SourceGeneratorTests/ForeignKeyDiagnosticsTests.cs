@@ -34,7 +34,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             [SingleColumnCollection(",")] ImmutableArray<string> Tags);
 
         public sealed partial class TargetTable(ImmutableArray<TargetRec> records)
-            : StaticDataTable<TargetTable, TargetRec>(records);
+            : StaticDataTable<TargetRec>(records);
 
         """;
 
@@ -68,7 +68,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
                 int RefId);
 
             public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
-                : StaticDataTable<ConsumerTable, ConsumerRec>(records);
+                : StaticDataTable<ConsumerRec>(records);
 
             public partial class GenManager(ILogger logger)
                 : StaticDataManager<GenManager.TableSet>(logger)
@@ -96,7 +96,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
                 [ForeignKey("NonExistentTarget", "Id")] int RefId);
 
             public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
-                : StaticDataTable<ConsumerTable, ConsumerRec>(records);
+                : StaticDataTable<ConsumerRec>(records);
 
             public partial class GenManager(ILogger logger)
                 : StaticDataManager<GenManager.TableSet>(logger)
@@ -124,7 +124,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
                 [ForeignKey("Target", "NoSuchColumn")] int RefId);
 
             public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
-                : StaticDataTable<ConsumerTable, ConsumerRec>(records);
+                : StaticDataTable<ConsumerRec>(records);
 
             public partial class GenManager(ILogger logger)
                 : StaticDataManager<GenManager.TableSet>(logger)
@@ -152,7 +152,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
                 [ForeignKey("Target", "Tags")] string RefId);
 
             public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
-                : StaticDataTable<ConsumerTable, ConsumerRec>(records);
+                : StaticDataTable<ConsumerRec>(records);
 
             public partial class GenManager(ILogger logger)
                 : StaticDataManager<GenManager.TableSet>(logger)
@@ -183,7 +183,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
                 int RefId);
 
             public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
-                : StaticDataTable<ConsumerTable, ConsumerRec>(records);
+                : StaticDataTable<ConsumerRec>(records);
 
             public partial class GenManager(ILogger logger)
                 : StaticDataManager<GenManager.TableSet>(logger)
@@ -211,7 +211,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
                 [SwitchForeignKey("NoSuchColumn", "Item", "Target", "Id")] int RefId);
 
             public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
-                : StaticDataTable<ConsumerTable, ConsumerRec>(records);
+                : StaticDataTable<ConsumerRec>(records);
 
             public partial class GenManager(ILogger logger)
                 : StaticDataManager<GenManager.TableSet>(logger)
@@ -243,7 +243,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
                 int RefId);
 
             public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
-                : StaticDataTable<ConsumerTable, ConsumerRec>(records);
+                : StaticDataTable<ConsumerRec>(records);
 
             public partial class GenManager(ILogger logger)
                 : StaticDataManager<GenManager.TableSet>(logger)
@@ -271,7 +271,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
                 [ForeignKey("Target", "Id")] string RefId);
 
             public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
-                : StaticDataTable<ConsumerTable, ConsumerRec>(records);
+                : StaticDataTable<ConsumerRec>(records);
 
             public partial class GenManager(ILogger logger)
                 : StaticDataManager<GenManager.TableSet>(logger)

@@ -104,16 +104,16 @@ public partial class SwitchForeignKeyValidationTests(ITestOutputHelper testOutpu
     private partial record CurrencyRecord(int Id, string Name);
 
     private sealed partial class QuestTable(ImmutableArray<QuestRecord> records)
-        : StaticDataTable<QuestTable, QuestRecord>(records);
+        : StaticDataTable<QuestRecord>(records);
 
     private sealed partial class ItemTable(ImmutableArray<ItemRecord> records)
-        : StaticDataTable<ItemTable, ItemRecord>(records);
+        : StaticDataTable<ItemRecord>(records);
 
     private sealed partial class CharacterTable(ImmutableArray<CharacterRecord> records)
-        : StaticDataTable<CharacterTable, CharacterRecord>(records);
+        : StaticDataTable<CharacterRecord>(records);
 
     private sealed partial class CurrencyTable(ImmutableArray<CurrencyRecord> records)
-        : StaticDataTable<CurrencyTable, CurrencyRecord>(records);
+        : StaticDataTable<CurrencyRecord>(records);
 
     private sealed partial class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)
@@ -299,10 +299,10 @@ public partial class SwitchForeignKeyConfigurationErrorTests(ITestOutputHelper t
     private partial record TargetRecord(int Id);
 
     private sealed partial class BadConditionQuestTable(ImmutableArray<BadConditionQuestRecord> records)
-        : StaticDataTable<BadConditionQuestTable, BadConditionQuestRecord>(records);
+        : StaticDataTable<BadConditionQuestRecord>(records);
 
     private sealed partial class TargetTable(ImmutableArray<TargetRecord> records)
-        : StaticDataTable<TargetTable, TargetRecord>(records);
+        : StaticDataTable<TargetRecord>(records);
 
     private sealed partial class ConditionColumnStaticData(ILogger logger)
         : StaticDataManager<ConditionColumnStaticData.TableSet>(logger)
@@ -334,7 +334,7 @@ public partial class SwitchForeignKeyConfigurationErrorTests(ITestOutputHelper t
 #pragma warning restore SDP0205
 
     private sealed partial class BadTargetQuestTable(ImmutableArray<BadTargetQuestRecord> records)
-        : StaticDataTable<BadTargetQuestTable, BadTargetQuestRecord>(records);
+        : StaticDataTable<BadTargetQuestRecord>(records);
 
     private sealed partial class TargetTableStaticData(ILogger logger)
         : StaticDataManager<TargetTableStaticData.TableSet>(logger)

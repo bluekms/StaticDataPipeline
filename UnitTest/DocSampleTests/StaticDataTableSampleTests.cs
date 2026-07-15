@@ -22,7 +22,7 @@ public partial class StaticDataTableSampleTests
         int Price,
         ItemCategory Category);
 
-    private sealed partial class ItemTable : StaticDataTable<ItemTable, ItemRecord>
+    private sealed partial class ItemTable : StaticDataTable<ItemRecord>
     {
         private readonly UniqueIndex<ItemRecord, int> byId;
 
