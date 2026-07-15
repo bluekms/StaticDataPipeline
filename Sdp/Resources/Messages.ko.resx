@@ -67,7 +67,7 @@
     <value>LoadAsync가 이미 실행 중입니다. 동시 로드는 지원하지 않습니다.</value>
   </data>
   <data name="InvalidViewParameter" xml:space="preserve">
-    <value>'{0}' 파라미터의 타입 '{1}'이(가) StaticDataView&lt;,&gt; 서브타입이 아닙니다.</value>
+    <value>'{0}' 파라미터의 타입 '{1}'이(가) StaticDataView&lt;&gt; 서브타입이 아닙니다.</value>
   </data>
   <data name="ViewConstructorNotFound" xml:space="preserve">
     <value>{0}에는 {1}을(를) 받는 생성자가 필요합니다.</value>

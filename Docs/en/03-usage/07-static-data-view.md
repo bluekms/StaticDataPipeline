@@ -44,7 +44,7 @@ There are three rules.
 
 ## Implementing a StaticDataView
 
-A view puts itself as the first argument via CRTP, and has **a constructor that takes only a TableSet**. The standard pattern is to pre-build the needed indexes and aggregations inside the constructor.
+A view has **a constructor that takes only a TableSet**. The standard pattern is to pre-build the needed indexes and aggregations inside the constructor.
 
 ```csharp
 using Sdp.Table;
@@ -55,7 +55,7 @@ public sealed record EventBundle(
     IReadOnlyList<Equipment> Equipment);
 
 public sealed class EventBundleView(GameStaticData.TableSet tables)
-    : StaticDataView<EventBundleView, GameStaticData.TableSet>(tables)
+    : StaticDataView<GameStaticData.TableSet>(tables)
 {
     private readonly UniqueIndex<EventBundle, int> byEventId = Build(tables);
 
@@ -91,7 +91,7 @@ public sealed class EventBundleView(GameStaticData.TableSet tables)
 
 The three key points are as follows.
 
-1. **CRTP** — bind the class itself and the input TableSet as type arguments, as in `StaticDataView<EventBundleView, GameStaticData.TableSet>`.
+1. Declare the input TableSet as the type argument, as in `StaticDataView<GameStaticData.TableSet>`.
 2. **A single constructor taking only a TableSet** — `ViewSetBuilder` invokes this constructor via reflection. If there is a different signature, it fails with `ViewConstructorNotFound`.
 3. **Finish the build inside the constructor** — keep no mutable state on the outside, and store only lookup indexes (`UniqueIndex`, `MultiIndex`) and pre-built collections as readonly.
 
@@ -103,7 +103,7 @@ In the same way a table has a `Validate`, a view can also override `Validate` to
 
 ```csharp
 public sealed class EventBundleView(GameStaticData.TableSet tables)
-    : StaticDataView<EventBundleView, GameStaticData.TableSet>(tables)
+    : StaticDataView<GameStaticData.TableSet>(tables)
 {
     protected override void Validate()
     {
@@ -249,7 +249,7 @@ If you do not need view composition, you can use `StaticDataManager<TTableSet>` 
 ## Summary
 
 - `StaticDataManager<TTableSet, TViewSet>` is responsible for view composition.
-- A view inherits from `StaticDataView<TSelf, TTableSet>` and finishes the build in a constructor that takes one TableSet.
+- A view inherits from `StaticDataView<TTableSet>` and finishes the build in a constructor that takes one TableSet.
 - If needed, override `Validate` to place the view's own post-check.
 - Keep the ViewSet as a record with non-nullable views, and the call site accesses it through `Current.Views`.
 - The TableSet and ViewSet are swapped atomically as a single bundle, so a query always sees a consistent bundle.

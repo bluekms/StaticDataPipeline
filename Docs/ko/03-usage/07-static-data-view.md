@@ -44,7 +44,7 @@ public sealed class GameStaticData(ILogger<GameStaticData> logger)
 
 ## StaticDataView 구현
 
-뷰는 CRTP 로 자기 자신을 첫 번째 인자에 넣고, **TableSet 하나만 받는 생성자** 를 가집니다. 생성자 안에서 필요한 인덱스, 집계를 미리 만들어 두는 것이 표준 패턴입니다.
+뷰는 **TableSet 하나만 받는 생성자** 를 가집니다. 생성자 안에서 필요한 인덱스, 집계를 미리 만들어 두는 것이 표준 패턴입니다.
 
 ```csharp
 using Sdp.Table;
@@ -55,7 +55,7 @@ public sealed record EventBundle(
     IReadOnlyList<Equipment> Equipment);
 
 public sealed class EventBundleView(GameStaticData.TableSet tables)
-    : StaticDataView<EventBundleView, GameStaticData.TableSet>(tables)
+    : StaticDataView<GameStaticData.TableSet>(tables)
 {
     private readonly UniqueIndex<EventBundle, int> byEventId = Build(tables);
 
@@ -91,7 +91,7 @@ public sealed class EventBundleView(GameStaticData.TableSet tables)
 
 핵심은 다음 세 가지입니다.
 
-1. **CRTP** — `StaticDataView<EventBundleView, GameStaticData.TableSet>` 처럼 자기 자신과 입력 TableSet 을 타입 인자로 묶는다.
+1. `StaticDataView<GameStaticData.TableSet>` 처럼 입력 TableSet 을 타입 인자로 선언한다.
 2. **TableSet 만 받는 단일 생성자** — `ViewSetBuilder` 가 리플렉션으로 이 생성자를 호출한다. 다른 시그니처가 있으면 `ViewConstructorNotFound` 로 실패한다.
 3. **생성자 안에서 빌드를 끝낸다** — 외부에 가변 상태를 두지 않고, 조회용 인덱스 (`UniqueIndex`, `MultiIndex`) 와 사전 생성된 컬렉션만 readonly 로 보관한다.
 
@@ -103,7 +103,7 @@ public sealed class EventBundleView(GameStaticData.TableSet tables)
 
 ```csharp
 public sealed class EventBundleView(GameStaticData.TableSet tables)
-    : StaticDataView<EventBundleView, GameStaticData.TableSet>(tables)
+    : StaticDataView<GameStaticData.TableSet>(tables)
 {
     protected override void Validate()
     {
@@ -249,7 +249,7 @@ public sealed class EventController(
 ## 요약
 
 - `StaticDataManager<TTableSet, TViewSet>` 가 뷰 합성을 담당한다.
-- 뷰는 `StaticDataView<TSelf, TTableSet>` 를 상속하고 TableSet 한 개를 받는 생성자에서 빌드를 끝낸다.
+- 뷰는 `StaticDataView<TTableSet>` 를 상속하고 TableSet 한 개를 받는 생성자에서 빌드를 끝낸다.
 - 필요하면 `Validate` 를 override 해서 뷰 자신의 사후 점검을 둔다.
 - ViewSet 은 non-nullable 뷰들을 가진 record 로 두고, 호출부는 `Current.Views` 로 접근한다.
 - TableSet 과 ViewSet 은 한 묶음으로 atomic 교체되므로 조회는 항상 정합한 묶음을 본다.

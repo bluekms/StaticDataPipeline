@@ -67,7 +67,7 @@
     <value>LoadAsync is already in progress; concurrent loads are not supported.</value>
   </data>
   <data name="InvalidViewParameter" xml:space="preserve">
-    <value>Parameter '{0}' of type '{1}' is not a StaticDataView&lt;,&gt; subtype.</value>
+    <value>Parameter '{0}' of type '{1}' is not a StaticDataView&lt;&gt; subtype.</value>
   </data>
   <data name="ViewConstructorNotFound" xml:space="preserve">
     <value>{0} must have a constructor accepting {1}.</value>

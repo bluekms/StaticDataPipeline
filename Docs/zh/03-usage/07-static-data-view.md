@@ -44,7 +44,7 @@ public sealed class GameStaticData(ILogger<GameStaticData> logger)
 
 ## 实现 StaticDataView
 
-视图通过 CRTP 把自身放进第一个类型参数，并拥有一个 **只接收一个 TableSet 的构造函数**。在构造函数中预先构建所需的索引和聚合是标准模式。
+视图拥有一个 **只接收一个 TableSet 的构造函数**。在构造函数中预先构建所需的索引和聚合是标准模式。
 
 ```csharp
 using Sdp.Table;
@@ -55,7 +55,7 @@ public sealed record EventBundle(
     IReadOnlyList<Equipment> Equipment);
 
 public sealed class EventBundleView(GameStaticData.TableSet tables)
-    : StaticDataView<EventBundleView, GameStaticData.TableSet>(tables)
+    : StaticDataView<GameStaticData.TableSet>(tables)
 {
     private readonly UniqueIndex<EventBundle, int> byEventId = Build(tables);
 
@@ -91,7 +91,7 @@ public sealed class EventBundleView(GameStaticData.TableSet tables)
 
 核心是以下三点。
 
-1. **CRTP** — 像 `StaticDataView<EventBundleView, GameStaticData.TableSet>` 这样，把类自身和输入 TableSet 作为类型参数捆绑在一起。
+1. 像 `StaticDataView<GameStaticData.TableSet>` 这样，把输入 TableSet 声明为类型参数。
 2. **只接收一个 TableSet 的单一构造函数** — `ViewSetBuilder` 通过反射调用这个构造函数。如果存在不同的签名，会以 `ViewConstructorNotFound` 失败。
 3. **在构造函数中完成构建** — 不在外部保留可变状态，只把查询用的索引（`UniqueIndex`、`MultiIndex`）和预构建的集合作为 readonly 保留。
 
@@ -103,7 +103,7 @@ public sealed class EventBundleView(GameStaticData.TableSet tables)
 
 ```csharp
 public sealed class EventBundleView(GameStaticData.TableSet tables)
-    : StaticDataView<EventBundleView, GameStaticData.TableSet>(tables)
+    : StaticDataView<GameStaticData.TableSet>(tables)
 {
     protected override void Validate()
     {
@@ -249,7 +249,7 @@ public sealed class EventController(
 ## 小结
 
 - `StaticDataManager<TTableSet, TViewSet>` 负责视图合成。
-- 视图继承 `StaticDataView<TSelf, TTableSet>`，并在接收一个 TableSet 的构造函数中完成构建。
+- 视图继承 `StaticDataView<TTableSet>`，并在接收一个 TableSet 的构造函数中完成构建。
 - 如有需要，override `Validate` 来放置视图自身的事后检查。
 - 把 ViewSet 作为拥有 non-nullable 视图的 record，调用方通过 `Current.Views` 访问。
 - TableSet 和 ViewSet 作为单个束被原子地替换，因此查询总是看到一致的束。

@@ -164,13 +164,13 @@ public sealed record RewardRecord(
     int Amount);
 
 public sealed class ItemTable(ImmutableArray<ItemRecord> records)
-    : StaticDataTable<ItemTable, ItemRecord>(records);
+    : StaticDataTable<ItemRecord>(records);
 
 public sealed class CurrencyTable(ImmutableArray<CurrencyRecord> records)
-    : StaticDataTable<CurrencyTable, CurrencyRecord>(records);
+    : StaticDataTable<CurrencyRecord>(records);
 
 public sealed class RewardTable(ImmutableArray<RewardRecord> records)
-    : StaticDataTable<RewardTable, RewardRecord>(records);
+    : StaticDataTable<RewardRecord>(records);
 
 public sealed class GameStaticData(ILogger<GameStaticData> logger)
     : StaticDataManager<GameStaticData.TableSet>(logger)

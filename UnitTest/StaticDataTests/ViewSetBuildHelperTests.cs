@@ -9,8 +9,8 @@ namespace UnitTest.StaticDataTests;
 public class ViewSetBuildHelperTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
-    [InlineData("en", "Parameter 'NotAView' of type 'String' is not a StaticDataView<,> subtype.")]
-    [InlineData("ko", "'NotAView' 파라미터의 타입 'String'이(가) StaticDataView<,> 서브타입이 아닙니다.")]
+    [InlineData("en", "Parameter 'NotAView' of type 'String' is not a StaticDataView<> subtype.")]
+    [InlineData("ko", "'NotAView' 파라미터의 타입 'String'이(가) StaticDataView<> 서브타입이 아닙니다.")]
     public void InvalidViewParameterError_IsLocalized(string locale, string expected)
     {
         var logger = CreateLogger();

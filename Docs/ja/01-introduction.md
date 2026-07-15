@@ -43,7 +43,7 @@ flowchart TB
     Record["Record 定義 *.cs<br/>(レコード作業者)"]
     Extractor["ExcelColumnExtractor<br/>(Roslyn 解析)"]
     Csv["CSV<br/>(必要なカラムのみ)"]
-    Table["StaticDataTable&lt;TSelf, TRecord&gt;<br/>(ImmutableArray 載せ)"]
+    Table["StaticDataTable&lt;TRecord&gt;<br/>(ImmutableArray 載せ)"]
     Manager["StaticDataManager&lt;TTableSet&gt;<br/>(複数テーブル + FK 検証)"]
     App["アプリケーション照会<br/>(Get / TryGet)"]
 
