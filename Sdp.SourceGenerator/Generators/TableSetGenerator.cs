@@ -199,7 +199,7 @@ internal static class TableSetGenerator
             membersByName[tableInfo.ParameterName] = tableInfo.RecordSymbol;
         }
 
-        var foreignKeysValid = ForeignKeyAnalyzer.Validate(
+        var foreignKeysValid = ForeignKeyAttributeValidator.Validate(
             tableInfos,
             membersByName,
             diagnostics,

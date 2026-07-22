@@ -558,7 +558,7 @@ internal static class TableSetEmitter
         if (conditionType.TypeKind == TypeKind.Enum && conditionType is INamedTypeSymbol enumType)
         {
             // [Flags] enum 의 조합값('A, B')은 단일 멤버/숫자로 표현할 수 없어 폴백한다.
-            if (ForeignKeyAnalyzer.HasFlagsAttribute(enumType))
+            if (ForeignKeyAttributeValidator.HasFlagsAttribute(enumType))
             {
                 return null;
             }
@@ -580,7 +580,7 @@ internal static class TableSetEmitter
                     System.Globalization.NumberStyles.Integer,
                     System.Globalization.CultureInfo.InvariantCulture,
                     out var enumNumeric)
-                && ForeignKeyAnalyzer.FitsInEnumUnderlyingType(enumType, enumNumeric))
+                && ForeignKeyAttributeValidator.FitsInEnumUnderlyingType(enumType, enumNumeric))
             {
                 return "(" + enumFullyQualifiedName + ")(" + enumNumeric.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")";
             }
@@ -617,7 +617,7 @@ internal static class TableSetEmitter
                         System.Globalization.NumberStyles.Integer,
                         System.Globalization.CultureInfo.InvariantCulture,
                         out var signed)
-                    && ForeignKeyAnalyzer.FitsInIntegralType(conditionType.SpecialType, signed)
+                    && ForeignKeyAttributeValidator.FitsInIntegralType(conditionType.SpecialType, signed)
                     ? signed.ToString(System.Globalization.CultureInfo.InvariantCulture)
                     : null;
 

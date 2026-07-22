@@ -310,6 +310,38 @@ internal static class SdpDiagnostics
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
+    public static readonly DiagnosticDescriptor SwitchForeignKeyBoolConditionValueInvalid = new(
+        id: "SDP0221",
+        title: "SwitchForeignKey condition value can never match the bool condition column",
+        messageFormat: "record '{0}'의 [SwitchForeignKey] ConditionValue '{1}'은 bool로 해석될 수 없어 조건 컬럼 '{2}'과 런타임에 절대 매칭되지 않습니다",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor SwitchForeignKeyCharConditionValueInvalid = new(
+        id: "SDP0222",
+        title: "SwitchForeignKey condition value can never match the char condition column",
+        messageFormat: "record '{0}'의 [SwitchForeignKey] ConditionValue '{1}'은 한 글자가 아니라서 조건 컬럼 '{2}' (char)와 런타임에 절대 매칭되지 않습니다",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor SwitchForeignKeyGuidConditionValueInvalid = new(
+        id: "SDP0223",
+        title: "SwitchForeignKey condition value can never match the Guid condition column",
+        messageFormat: "record '{0}'의 [SwitchForeignKey] ConditionValue '{1}'은 Guid로 해석될 수 없어 조건 컬럼 '{2}'과 런타임에 절대 매칭되지 않습니다",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor SwitchForeignKeyConditionColumnIsCollection = new(
+        id: "SDP0224",
+        title: "SwitchForeignKey condition column must not be a collection",
+        messageFormat: "record '{0}'의 [SwitchForeignKey] 조건 컬럼 '{1}' (type '{2}')은 컬렉션 타입이라 조건으로 사용할 수 없습니다",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     public static readonly DiagnosticDescriptor ViewSetRecordMustBePartial = new(
         id: "SDP0301",
         title: "ViewSet record must be partial",

@@ -1,3 +1,5 @@
+using Microsoft.CodeAnalysis;
+
 namespace Sdp.SourceGenerator.Generators;
 
 // UnitTest SdpAttributeNamesGuardTests로 이 상수가 실제 attr과 이름이 같은 것을 확인
@@ -17,4 +19,7 @@ internal static class SdpAttributeNames
     public const string ForeignKey = "ForeignKeyAttribute";
     public const string SwitchForeignKey = "SwitchForeignKeyAttribute";
     public const string Ignore = "IgnoreAttribute";
+
+    public static bool IsSdpAttribute(AttributeData attr)
+        => attr.AttributeClass?.ContainingNamespace?.ToDisplayString() == Namespace;
 }
