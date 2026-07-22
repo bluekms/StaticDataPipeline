@@ -89,6 +89,7 @@ public partial class SharedRecordTableTests(ITestOutputHelper testOutputHelper)
     {
         var path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         Directory.CreateDirectory(path);
+
         return path;
     }
 

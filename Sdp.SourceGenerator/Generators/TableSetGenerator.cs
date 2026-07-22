@@ -251,6 +251,7 @@ internal static class TableSetGenerator
                 tableSetType.Locations.FirstOrDefault() ?? Location.None,
                 tableSetType.ToDisplayString()));
             isRecordInCurrentCompilation = false;
+
             return false;
         }
 
@@ -265,6 +266,7 @@ internal static class TableSetGenerator
             SdpDiagnostics.TableSetRecordMustBePartial,
             tableSetSyntax.Identifier.GetLocation(),
             tableSetType.ToDisplayString()));
+
         return false;
     }
 
@@ -283,6 +285,7 @@ internal static class TableSetGenerator
                 SdpDiagnostics.RecordMustHaveSinglePrimaryConstructor,
                 tableSetType.Locations.FirstOrDefault() ?? Location.None,
                 tableSetType.ToDisplayString()));
+
             return ImmutableArray<TableInfo>.Empty;
         }
 

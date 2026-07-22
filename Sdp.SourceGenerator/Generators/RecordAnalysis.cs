@@ -22,6 +22,7 @@ internal sealed record RecordAnalysis(
             var qualified = Symbol.ToDisplayString(new SymbolDisplayFormat(
                 globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
                 typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces));
+
             return qualified + ".CsvMapper.g.cs";
         }
     }

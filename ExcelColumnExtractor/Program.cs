@@ -20,6 +20,7 @@ public class Program
                 options =>
                 {
                     Run(options);
+
                     return 0;
                 },
                 HandleParseErrors);

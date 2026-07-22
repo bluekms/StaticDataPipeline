@@ -112,6 +112,7 @@ internal static partial class CsvMapperEmitter
         }
 
         var value = Convert.ToInt64(constantValue, CultureInfo.InvariantCulture);
+
         return value.ToString(CultureInfo.InvariantCulture);
     }
 
@@ -120,6 +121,7 @@ internal static partial class CsvMapperEmitter
         if (isUnsigned64)
         {
             var bits = Convert.ToUInt64(constantValue, CultureInfo.InvariantCulture);
+
             return bits.ToString(CultureInfo.InvariantCulture) + "UL";
         }
 
@@ -130,6 +132,7 @@ internal static partial class CsvMapperEmitter
         }
 
         var pattern = unchecked((ulong)value).ToString(CultureInfo.InvariantCulture);
+
         return "unchecked((long)" + pattern + "UL)";
     }
 }

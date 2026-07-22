@@ -138,6 +138,7 @@ internal static class ViewSetGenerator
                     classDecl.Identifier.GetLocation(),
                     symbol.ToDisplayString(),
                     typeParameter.Name);
+
                 return new ViewSetAnalysis(
                     symbol,
                     tableSetType,
@@ -193,6 +194,7 @@ internal static class ViewSetGenerator
                 viewSetType.Locations.FirstOrDefault() ?? Location.None,
                 viewSetType.ToDisplayString()));
             isRecordInCurrentCompilation = false;
+
             return false;
         }
 
@@ -207,6 +209,7 @@ internal static class ViewSetGenerator
             SdpDiagnostics.ViewSetRecordMustBePartial,
             viewSetSyntax.Identifier.GetLocation(),
             viewSetType.ToDisplayString()));
+
         return false;
     }
 
@@ -225,6 +228,7 @@ internal static class ViewSetGenerator
                 viewSetType.Locations.FirstOrDefault() ?? Location.None,
                 viewSetType.ToDisplayString()));
             primaryConstructorResolved = false;
+
             return ImmutableArray<ViewInfo>.Empty;
         }
 
@@ -343,6 +347,7 @@ internal static class ViewSetGenerator
                 var qualified = ViewSetSymbol.ToDisplayString(new SymbolDisplayFormat(
                     globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
                     typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces));
+
                 return qualified + ".ViewSetBuilder.g.cs";
             }
         }

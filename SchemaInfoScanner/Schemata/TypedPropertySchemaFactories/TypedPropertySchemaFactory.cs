@@ -27,6 +27,7 @@ public static class TypedPropertySchemaFactory
         else if (ArrayTypeChecker.IsPrimitiveArrayType(propertySymbol))
         {
             var isSingleColumnCollection = AttributeAccessors.HasAttribute<SingleColumnCollectionAttribute>(attributeList);
+
             return isSingleColumnCollection
                 ? PrimitiveArrayPropertySchemaFactory.CreateForSingleColumn(propertyName, propertySymbol, attributeList)
                 : PrimitiveArrayPropertySchemaFactory.Create(propertyName, propertySymbol, attributeList);
@@ -34,6 +35,7 @@ public static class TypedPropertySchemaFactory
         else if (SetTypeChecker.IsPrimitiveSetType(propertySymbol))
         {
             var isSingleColumnCollection = AttributeAccessors.HasAttribute<SingleColumnCollectionAttribute>(attributeList);
+
             return isSingleColumnCollection
                 ? PrimitiveSetPropertySchemaFactory.CreateForSingleColumn(propertyName, propertySymbol, attributeList)
                 : PrimitiveSetPropertySchemaFactory.Create(propertyName, propertySymbol, attributeList);

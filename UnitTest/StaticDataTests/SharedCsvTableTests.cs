@@ -76,6 +76,7 @@ public partial class SharedCsvTableTests(ITestOutputHelper testOutputHelper)
     {
         var path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         Directory.CreateDirectory(path);
+
         return path;
     }
 

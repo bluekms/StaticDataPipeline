@@ -92,12 +92,14 @@ public static class RangeAttributeChecker
         if (typeof(T) == typeof(TimeSpan))
         {
             var format = propertySchema.GetAttributeValue<TimeSpanFormatAttribute, string>();
+
             return (T)(object)TimeSpan.ParseExact(raw, format, CultureInfo.InvariantCulture);
         }
 
         if (typeof(T) == typeof(DateTime))
         {
             var format = propertySchema.GetAttributeValue<DateTimeFormatAttribute, string>();
+
             return (T)(object)DateTime.ParseExact(raw, format, CultureInfo.InvariantCulture, DateTimeStyles.None);
         }
 

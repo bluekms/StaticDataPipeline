@@ -147,12 +147,14 @@ internal static class ForeignKeyAnalyzer
         }
 
         var primaryCtor = SinglePrimaryConstructorResolver.Resolve(record);
+
         return primaryCtor?.Parameters.FirstOrDefault(param => param.Name == columnName)?.Type;
     }
 
     private static bool IsScalarTargetType(ITypeSymbol type)
     {
         var collection = TypeClassifier.ClassifyCollection(type);
+
         return collection is null;
     }
 
@@ -511,6 +513,7 @@ internal static class ForeignKeyAnalyzer
             ParameterLocation(param),
             recordType.Name,
             param.Name));
+
         return false;
     }
 
@@ -606,6 +609,7 @@ internal static class ForeignKeyAnalyzer
                 SdpDiagnostics.ForeignKeyTargetNotFound,
                 ParameterLocation(param),
                 tableSetName));
+
             return;
         }
 
@@ -624,6 +628,7 @@ internal static class ForeignKeyAnalyzer
                 ParameterLocation(param),
                 columnName,
                 targetRecord.Name));
+
             return;
         }
 
@@ -636,6 +641,7 @@ internal static class ForeignKeyAnalyzer
                 ParameterLocation(param),
                 columnName,
                 targetRecord.Name));
+
             return;
         }
 
@@ -649,6 +655,7 @@ internal static class ForeignKeyAnalyzer
                 ParameterLocation(param),
                 columnName,
                 targetRecord.Name));
+
             return;
         }
 
@@ -662,6 +669,7 @@ internal static class ForeignKeyAnalyzer
                 columnName,
                 targetRecord.Name,
                 targetType.ToDisplayString()));
+
             return;
         }
 

@@ -36,6 +36,7 @@ internal static partial class CsvMapperEmitter
                     $"Unsupported collection kind: {param.Collection.Kind}")),
             };
             var basePathArg = basePathVar ?? "string.Empty";
+
             return $"{HelperName(helperPrefix, ownerToken, param.Name)}(headers, values, {basePathArg})";
         }
 
@@ -57,6 +58,7 @@ internal static partial class CsvMapperEmitter
         }
 
         var baseConversion = EmitBaseConversion(param, valueExpr, ownerToken);
+
         return WrapValidations(param, baseConversion, ownerToken);
     }
 
@@ -140,6 +142,7 @@ internal static partial class CsvMapperEmitter
         if (param.Kind == ScalarKind.Enum)
         {
             var enumName = TypeClassifier.UnwrapNullable(param.Type).ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
             return enumName + "?";
         }
 
@@ -187,6 +190,7 @@ internal static partial class CsvMapperEmitter
     private static string InvariantParseExact(string typeName, string valueExpr, string format)
     {
         var formatLiteral = SymbolDisplay.FormatLiteral(format, quote: true);
+
         return $"{typeName}.ParseExact({valueExpr}, {formatLiteral}, global::System.Globalization.CultureInfo.InvariantCulture)";
     }
 }

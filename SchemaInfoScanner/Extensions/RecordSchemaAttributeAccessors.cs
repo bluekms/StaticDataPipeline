@@ -13,6 +13,7 @@ public static class RecordSchemaAttributeAccessors
         where T : Attribute
     {
         var attributeName = typeof(T).Name.Replace("Attribute", string.Empty);
+
         return recordSchema.RecordAttributeList.Any(x => x.Name.ToString() == attributeName);
     }
 
@@ -54,11 +55,13 @@ public static class RecordSchemaAttributeAccessors
         try
         {
             value = recordSchema.GetAttributeValue<TAttribute, TValue>(attributeParameterIndex);
+
             return value is not null;
         }
         catch (Exception)
         {
             value = default;
+
             return false;
         }
     }

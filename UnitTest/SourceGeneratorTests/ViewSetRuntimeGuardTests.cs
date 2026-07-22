@@ -137,6 +137,7 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
     {
         var result = SourceGeneratorTestHelper.Run(Header + source);
         var tree = SourceGeneratorTestHelper.GetSingleTree(result, "ViewSetBuilder.g.cs");
+
         return tree.ToString();
     }
 

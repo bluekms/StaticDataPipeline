@@ -82,6 +82,7 @@ public static class SetTypeChecker
         }
 
         var typeArgument = (INamedTypeSymbol)symbol.TypeArguments.Single();
+
         return PrimitiveTypeChecker.IsSupportedPrimitiveType(typeArgument);
     }
 }

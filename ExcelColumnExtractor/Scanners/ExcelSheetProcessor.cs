@@ -201,6 +201,7 @@ public sealed class ExcelSheetProcessor
     private static bool IsValidCellAddress(string cellAddress)
     {
         var regex = new Regex(@"^[A-Z]+[0-9]+$", RegexOptions.IgnoreCase);
+
         return regex.IsMatch(cellAddress);
     }
 

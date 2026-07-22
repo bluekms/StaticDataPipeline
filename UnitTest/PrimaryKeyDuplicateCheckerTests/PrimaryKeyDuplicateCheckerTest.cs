@@ -145,6 +145,7 @@ public partial class PrimaryKeyDuplicateCheckerTest(ITestOutputHelper testOutput
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
         var catalog = new RecordSchemaCatalog(recordSchemaSet);
+
         return catalog.StaticDataRecordSchemata[0];
     }
 

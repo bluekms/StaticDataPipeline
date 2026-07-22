@@ -27,6 +27,7 @@ internal static class RecordTypeChecker
                 Messages.Composite.Ignored,
                 recordSchema.RecordName.FullName);
             LogTrace(logger, ignoredMsg, null);
+
             return;
         }
 
@@ -55,6 +56,7 @@ internal static class RecordTypeChecker
                 Messages.Composite.AlreadyVisited,
                 recordSchema.RecordName.FullName);
             LogTrace(logger, visitedMsg, null);
+
             return;
         }
 
@@ -112,6 +114,7 @@ internal static class RecordTypeChecker
         if (candidate is not null && IsSupportedRecordType(candidate))
         {
             nestedRecordSymbol = candidate;
+
             return nestedRecordSymbol.IsRecord;
         }
 
@@ -141,6 +144,7 @@ internal static class RecordTypeChecker
         }
 
         Check(recordSchema, recordSchemaCatalog, visited, visiting, logger);
+
         return recordSchema;
     }
 

@@ -118,6 +118,7 @@ internal static partial class CsvMapperEmitter
         // Roslyn 심볼은 참조 동일성이 보장되지 않아 전용 비교자가 필요 (같은 타입 다른 인스턴스 상황이나 nullable에서 문제 발생)
         var map = new Dictionary<INamedTypeSymbol, string>(SymbolEqualityComparer.Default);
         CollectNestedTokens(parameters, map);
+
         return map;
     }
 

@@ -12,6 +12,7 @@ public static class AttributeAccessors
         where T : Attribute
     {
         var attributeName = typeof(T).Name.Replace("Attribute", string.Empty);
+
         return attributeSyntaxList.Any(x => x.Name.ToString() == attributeName);
     }
 
@@ -32,6 +33,7 @@ public static class AttributeAccessors
         }
 
         var valueString = attribute.ArgumentList.Arguments[attributeParameterIndex].ToString().Trim('"');
+
         return typeof(TValue).IsEnum
             ? (TValue)Enum.Parse(typeof(TValue), valueString.Split('.')[^1])
             : (TValue)Convert.ChangeType(valueString, typeof(TValue), CultureInfo.InvariantCulture);
@@ -46,6 +48,7 @@ public static class AttributeAccessors
         if (!HasAttribute<TAttribute>(attributeSyntaxList))
         {
             value = default!;
+
             return false;
         }
 
@@ -53,10 +56,12 @@ public static class AttributeAccessors
         if (result is null)
         {
             value = default!;
+
             return false;
         }
 
         value = result;
+
         return true;
     }
 }

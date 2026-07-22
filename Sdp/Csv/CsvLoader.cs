@@ -12,6 +12,7 @@ public static class CsvLoader
         Func<CsvHeaderIndex, string[], TRecord> mapFromCsvRow)
     {
         var content = await File.ReadAllTextAsync(filePath);
+
         return Parse(content, mapFromCsvRow, filePath);
     }
 
@@ -76,6 +77,7 @@ public static class CsvLoader
         }
 
         builder.Capacity = builder.Count;
+
         return builder.MoveToImmutable();
     }
 

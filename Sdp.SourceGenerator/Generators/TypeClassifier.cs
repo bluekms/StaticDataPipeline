@@ -67,6 +67,7 @@ internal static class TypeClassifier
         if (IsBclType(definition, "ImmutableArray`1", SystemCollectionsImmutableChain))
         {
             var elementType = namedType.TypeArguments[0];
+
             return new CollectionInfo(
                 Kind: CollectionKind.ImmutableArray,
                 Length: 0,
@@ -83,6 +84,7 @@ internal static class TypeClassifier
         if (IsBclType(definition, "FrozenSet`1", SystemCollectionsFrozenChain))
         {
             var elementType = namedType.TypeArguments[0];
+
             return new CollectionInfo(
                 Kind: CollectionKind.FrozenSet,
                 Length: 0,
@@ -100,6 +102,7 @@ internal static class TypeClassifier
         {
             var keyType = namedType.TypeArguments[0];
             var valueType = namedType.TypeArguments[1];
+
             return new CollectionInfo(
                 Kind: CollectionKind.FrozenDictionary,
                 Length: 0,

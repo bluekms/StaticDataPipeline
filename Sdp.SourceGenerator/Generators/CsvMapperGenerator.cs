@@ -173,6 +173,7 @@ internal static class CsvMapperGenerator
         var result = new List<QualifiedParameter>();
         var visitedNestedRecords = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
         AddParameters(parameters, pathPrefix: string.Empty, visitedNestedRecords, result);
+
         return result;
     }
 

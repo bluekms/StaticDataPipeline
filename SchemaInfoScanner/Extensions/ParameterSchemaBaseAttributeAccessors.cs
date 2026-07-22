@@ -13,6 +13,7 @@ public static class ParameterSchemaBaseAttributeAccessors
         where T : Attribute
     {
         var attributeName = typeof(T).Name.Replace("Attribute", string.Empty);
+
         return propertySchema.AttributeList.Any(x => x.Name.ToString() == attributeName);
     }
 
@@ -33,6 +34,7 @@ public static class ParameterSchemaBaseAttributeAccessors
         }
 
         var valueString = attribute.ArgumentList.Arguments[attributeParameterIndex].ToString().Trim('"');
+
         return typeof(TValue).IsEnum
             ? (TValue)Enum.Parse(typeof(TValue), valueString.Split('.')[^1])
             : (TValue)Convert.ChangeType(valueString, typeof(TValue), CultureInfo.InvariantCulture);
@@ -47,11 +49,13 @@ public static class ParameterSchemaBaseAttributeAccessors
         try
         {
             value = propertySchema.GetAttributeValue<TAttribute, TValue>(attributeParameterIndex);
+
             return value is not null;
         }
         catch (Exception)
         {
             value = default;
+
             return false;
         }
     }

@@ -21,6 +21,7 @@ internal sealed record StaticDataManagerAnalysis(
             var qualified = TableSetSymbol.ToDisplayString(new SymbolDisplayFormat(
                 globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
                 typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces));
+
             return qualified + ".TableSetLoader.g.cs";
         }
     }
@@ -32,6 +33,7 @@ internal sealed record StaticDataManagerAnalysis(
             var qualified = StaticDataManagerSymbol.ToDisplayString(new SymbolDisplayFormat(
                 globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
                 typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces));
+
             return qualified + ".StaticDataManager.g.cs";
         }
     }

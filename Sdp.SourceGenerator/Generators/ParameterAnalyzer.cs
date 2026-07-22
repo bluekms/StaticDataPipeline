@@ -12,6 +12,7 @@ internal static class ParameterAnalyzer
         CancellationToken cancellationToken)
     {
         var visiting = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+
         return AnalyzeParameters(ctor, visiting, cancellationToken);
     }
 
@@ -300,12 +301,14 @@ internal static class ParameterAnalyzer
         if (primaryCtor is null)
         {
             visiting.Remove(named);
+
             return null;
         }
 
         var parameters = AnalyzeParameters(primaryCtor, visiting, cancellationToken);
 
         visiting.Remove(named);
+
         return new NestedRecordInfo(named, parameters);
     }
 

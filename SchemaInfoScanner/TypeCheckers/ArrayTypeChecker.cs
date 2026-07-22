@@ -82,6 +82,7 @@ internal static class ArrayTypeChecker
         }
 
         var typeArgument = (INamedTypeSymbol)symbol.TypeArguments.Single();
+
         return PrimitiveTypeChecker.IsSupportedPrimitiveType(typeArgument);
     }
 }

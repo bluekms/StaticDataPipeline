@@ -17,6 +17,7 @@ internal static partial class CsvMapperEmitter
         var keyword = info.ElementKind == ScalarKind.Enum
             ? TypeClassifier.UnwrapNullable(info.ElementType).ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
             : ScalarTypeKeyword(info.ElementKind);
+
         return TypeClassifier.IsNullable(info.ElementType) ? keyword + "?" : keyword;
     }
 
@@ -40,6 +41,7 @@ internal static partial class CsvMapperEmitter
         if (TypeClassifier.IsNullable(info.ElementType) && param.NullString is not null)
         {
             var nullLiteral = SymbolDisplay.FormatLiteral(param.NullString, quote: true);
+
             return $"({valueExpr} == {nullLiteral} ? {EmitElementNullCast(info)} : {converted})";
         }
 
@@ -55,6 +57,7 @@ internal static partial class CsvMapperEmitter
         if (info.ElementKind == ScalarKind.Enum)
         {
             var enumType = (INamedTypeSymbol)TypeClassifier.UnwrapNullable(info.ElementType);
+
             return $"__MapElementEnum_{nestedTokens[enumType]}({valueExpr})";
         }
 
@@ -66,6 +69,7 @@ internal static partial class CsvMapperEmitter
         if (info.ElementKind == ScalarKind.Enum)
         {
             var enumName = TypeClassifier.UnwrapNullable(info.ElementType).ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
             return $"({enumName}?)null";
         }
 
@@ -370,6 +374,7 @@ internal static partial class CsvMapperEmitter
         if (emptyCellMeansNullElement)
         {
             sb.Append(indent).Append("    var parts = __cell.Split(").Append(separatorLiteral).AppendLine(");");
+
             return;
         }
 
@@ -389,6 +394,7 @@ internal static partial class CsvMapperEmitter
         if (TypeClassifier.IsNullable(info.ElementType) && param.NullString is not null)
         {
             var nullLiteral = SymbolDisplay.FormatLiteral(param.NullString, quote: true);
+
             return $"({rawVar} == {nullLiteral} ? {EmitElementNullCast(info)} : {converted})";
         }
 

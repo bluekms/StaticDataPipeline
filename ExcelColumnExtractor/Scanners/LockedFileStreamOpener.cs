@@ -49,6 +49,7 @@ public class LockedFileStreamOpener : IDisposable
                 FileShare.Read,
                 bufferSize: 4096,
                 useAsync: true);
+
             return new LockedFileStreamOpener(stream, null);
         }
         catch (FileNotFoundException)
@@ -66,6 +67,7 @@ public class LockedFileStreamOpener : IDisposable
                 FileShare.Read,
                 bufferSize: 4096,
                 useAsync: true);
+
             return new LockedFileStreamOpener(stream, tempFileName);
         }
     }

@@ -49,6 +49,7 @@ internal static class SourceGeneratorTestHelper
             parseOptions: parseOptions);
 
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var finalCompilation, out _);
+
         return new GeneratorRunOutput(driver.GetRunResult(), (CSharpCompilation)finalCompilation);
     }
 

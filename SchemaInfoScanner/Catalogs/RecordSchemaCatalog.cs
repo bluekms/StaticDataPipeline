@@ -60,6 +60,7 @@ public sealed class RecordSchemaCatalog
     public RecordSchema? TryFind(INamedTypeSymbol namedTypeSymbol)
     {
         var name = new RecordName(namedTypeSymbol);
+
         return recordSchemaDictionary.GetValueOrDefault(name);
     }
 

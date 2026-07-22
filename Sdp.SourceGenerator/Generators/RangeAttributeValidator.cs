@@ -190,6 +190,7 @@ internal sealed class RangeAttributeValidator(
         if (kind == ScalarKind.Enum)
         {
             var enumType = (INamedTypeSymbol)TypeClassifier.UnwrapNullable(type);
+
             return !IsValidEnumBound(enumType, minimum) || !IsValidEnumBound(enumType, maximum);
         }
 

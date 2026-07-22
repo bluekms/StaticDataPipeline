@@ -26,6 +26,7 @@ internal sealed record StaticDataTableAnalysis(
             var qualified = Symbol.ToDisplayString(new SymbolDisplayFormat(
                 globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
                 typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces));
+
             return qualified + ".TableFactory.g.cs";
         }
     }

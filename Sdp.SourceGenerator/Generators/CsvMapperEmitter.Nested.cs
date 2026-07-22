@@ -34,6 +34,7 @@ internal static partial class CsvMapperEmitter
             var conversion = EmitScalarConversion(only, "__raw", token);
             sb.Append(indent).Append("    return new ").Append(typeFullName).Append('(').Append(conversion).AppendLine(");");
             sb.Append(indent).AppendLine("}");
+
             return;
         }
 
