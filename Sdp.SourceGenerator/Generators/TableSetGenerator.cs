@@ -23,12 +23,15 @@ internal static class TableSetGenerator
                 var list = new List<StaticDataManagerAnalysis>(analyses.Length);
                 foreach (var analysis in analyses)
                 {
-                    // 같은 TableSet 을 공유하는 매니저가 둘 이상이면 소스는 첫 매니저로 한 번만 방출한다.
-                    // 진단은 모두 TableSet 심볼 기준(동일 id·위치·메시지)이라 첫 매니저가 이미 보고하므로,
-                    // 두 번째 이후 매니저에서는 비워 중복 보고를 막는다(ViewSetGenerator 와 동일 정책).
-                    list.Add(seen.Add(analysis!.TableSetSymbol)
-                        ? analysis
-                        : analysis with { CanEmit = false, Diagnostics = Array.Empty<Diagnostic>() });
+                    var isFirstAnalysisForTableSet = seen.Add(analysis!.TableSetSymbol);
+                    if (isFirstAnalysisForTableSet)
+                    {
+                        list.Add(analysis);
+                    }
+                    else
+                    {
+                        list.Add(analysis with { CanEmit = false, Diagnostics = Array.Empty<Diagnostic>() });
+                    }
                 }
 
                 return list;
@@ -50,8 +53,6 @@ internal static class TableSetGenerator
             sourceProductionContext.AddSource(analysis.HintName, source);
         });
 
-        // 매니저 브리지는 TableSet 과 달리 매니저마다 하나씩 방출한다 — 같은 TableSet 을
-        // 공유하는 매니저들도 각자 추상 훅 override 가 필요하다.
         var bridges = collected
             .SelectMany(static (analyses, _) =>
             {

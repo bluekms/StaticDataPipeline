@@ -379,7 +379,7 @@ internal static class TableSetEmitter
             var conditionType = TypeClassifier.UnwrapNullable(conditionPropertyType);
 
             // ToString 문자열 왕복 대신 조건 컬럼 값을 직접 비교한다(culture 함정 제거 + 행 단위 할당 제거).
-            // 타입 비교를 구성할 수 없는 종류([Flags] enum 조합값, 커스텀 타입 등)는 기존 ToString 비교로 폴백한다.
+            // 타입 비교를 구성할 수 없는 종류(값으로 환원 불가한 조건 값, 커스텀 타입 등)는 기존 ToString 비교로 폴백한다.
             var typedLiterals = TryBuildTypedConditionLiterals(conditionType, switchBranches);
 
             if (typedLiterals is null)
@@ -557,12 +557,6 @@ internal static class TableSetEmitter
     {
         if (conditionType.TypeKind == TypeKind.Enum && conditionType is INamedTypeSymbol enumType)
         {
-            // [Flags] enum 의 조합값('A, B')은 단일 멤버/숫자로 표현할 수 없어 폴백한다.
-            if (ForeignKeyAttributeValidator.HasFlagsAttribute(enumType))
-            {
-                return null;
-            }
-
             var enumFullyQualifiedName = enumType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             foreach (var member in enumType.GetMembers().OfType<IFieldSymbol>())
             {
@@ -570,6 +564,21 @@ internal static class TableSetEmitter
                 {
                     return enumFullyQualifiedName + "." + GeneratorEmitHelper.EscapeIdentifier(member.Name);
                 }
+            }
+
+            // [Flags] enum 은 'A, B' 조합·숫자를 컴파일 타임에 값으로 환원해 캐스트 비교한다 —
+            // ToString 조합 표기(순서·별칭 선택 비보장)에 의존하던 문자열 폴백을 값 비교로 대체하고,
+            // 값으로 환원되지 않는 ConditionValue 만 폴백으로 남긴다.
+            if (SwitchForeignKeyConditionValueValidator.HasFlagsAttribute(enumType))
+            {
+                var parsedFlags = SwitchForeignKeyConditionValueValidator.TryParseFlagsConditionValue(
+                    enumType, conditionValue, out var flagsNumericLiteral);
+                if (!parsedFlags)
+                {
+                    return null;
+                }
+
+                return "(" + enumFullyQualifiedName + ")(" + flagsNumericLiteral + ")";
             }
 
             // 멤버명이 아니면 미정의 숫자값으로 보고 캐스트 비교한다(원본 Enum 동작 보존).
@@ -580,7 +589,7 @@ internal static class TableSetEmitter
                     System.Globalization.NumberStyles.Integer,
                     System.Globalization.CultureInfo.InvariantCulture,
                     out var enumNumeric)
-                && ForeignKeyAttributeValidator.FitsInEnumUnderlyingType(enumType, enumNumeric))
+                && SwitchForeignKeyConditionValueValidator.FitsInEnumUnderlyingType(enumType, enumNumeric))
             {
                 return "(" + enumFullyQualifiedName + ")(" + enumNumeric.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")";
             }
@@ -617,7 +626,7 @@ internal static class TableSetEmitter
                         System.Globalization.NumberStyles.Integer,
                         System.Globalization.CultureInfo.InvariantCulture,
                         out var signed)
-                    && ForeignKeyAttributeValidator.FitsInIntegralType(conditionType.SpecialType, signed)
+                    && SwitchForeignKeyConditionValueValidator.FitsInIntegralType(conditionType.SpecialType, signed)
                     ? signed.ToString(System.Globalization.CultureInfo.InvariantCulture)
                     : null;
 

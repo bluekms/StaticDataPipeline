@@ -42,6 +42,11 @@ SDP0216 | Sdp.SourceGenerator | Error | TableSet must be a record declared in th
 SDP0217 | Sdp.SourceGenerator | Error | TableSet member table must be declared in the current compilation
 SDP0218 | Sdp.SourceGenerator | Error | StaticDataManager type arguments must be closed types
 SDP0219 | Sdp.SourceGenerator | Error | StaticDataManager subclass must be partial
+SDP0220 | Sdp.SourceGenerator | Error | SwitchForeignKey condition value can never match the integral condition column
+SDP0221 | Sdp.SourceGenerator | Error | SwitchForeignKey condition value can never match the bool condition column
+SDP0222 | Sdp.SourceGenerator | Error | SwitchForeignKey condition value can never match the char condition column
+SDP0223 | Sdp.SourceGenerator | Error | SwitchForeignKey condition value can never match the Guid condition column
+SDP0224 | Sdp.SourceGenerator | Error | SwitchForeignKey condition column must not be a collection
 SDP0301 | Sdp.SourceGenerator | Error | ViewSet record must be partial
 SDP0302 | Sdp.SourceGenerator | Error | ViewSet member must be non-nullable
 SDP0303 | Sdp.SourceGenerator | Error | StaticDataView subclass must be partial
