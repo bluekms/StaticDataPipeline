@@ -44,7 +44,7 @@ internal static partial class CsvMapperEmitter
         {
             var param = info.Parameters[i];
             sb.Append(indent).Append("        ");
-            sb.Append(GeneratorEmitHelper.EscapeIdentifier(param.Name)).Append(": ");
+            sb.Append(EmitHelper.EscapeIdentifier(param.Name)).Append(": ");
             sb.Append(EmitConversion(param, basePathVar: "basePath", ownerToken: token, nestedTokens));
 
             if (i < info.Parameters.Length - 1)

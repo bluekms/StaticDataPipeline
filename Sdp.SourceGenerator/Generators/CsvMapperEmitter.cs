@@ -13,13 +13,13 @@ internal static partial class CsvMapperEmitter
         sb.AppendLine("#nullable enable");
         sb.AppendLine();
 
-        var scope = GeneratorEmitHelper.OpenNamespaceAndContainingTypes(sb, analysis.Symbol);
+        var scope = EmitHelper.OpenNamespaceAndContainingTypes(sb, analysis.Symbol);
         var indent = scope.Indent;
 
         // '    partial record FooRecord'
-        var recordKeyword = GeneratorEmitHelper.GetTypeKeyword(analysis.Symbol);
+        var recordKeyword = EmitHelper.GetTypeKeyword(analysis.Symbol);
         sb.Append(indent).Append("partial ").Append(recordKeyword).Append(' ')
-            .AppendLine(GeneratorEmitHelper.EscapeIdentifier(analysis.TypeName));
+            .AppendLine(EmitHelper.EscapeIdentifier(analysis.TypeName));
         sb.Append(indent).AppendLine("{");
 
         var memberIndent = indent + "    ";
@@ -35,7 +35,7 @@ internal static partial class CsvMapperEmitter
         }
 
         sb.Append(indent).AppendLine("}");
-        GeneratorEmitHelper.CloseContainingTypes(sb, scope);
+        EmitHelper.CloseContainingTypes(sb, scope);
 
         return sb.ToString();
     }
@@ -68,7 +68,7 @@ internal static partial class CsvMapperEmitter
         {
             var param = analysis.Parameters[i];
             sb.Append(indent).Append("        ");
-            sb.Append(GeneratorEmitHelper.EscapeIdentifier(param.Name)).Append(": ");
+            sb.Append(EmitHelper.EscapeIdentifier(param.Name)).Append(": ");
             sb.Append(EmitConversion(param, basePathVar: null, ownerToken: string.Empty, nestedTokens));
 
             if (i < analysis.Parameters.Length - 1)

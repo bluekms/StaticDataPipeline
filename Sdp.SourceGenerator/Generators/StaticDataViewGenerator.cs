@@ -114,13 +114,13 @@ internal static class StaticDataViewGenerator
         sb.AppendLine("#nullable enable");
         sb.AppendLine();
 
-        var scope = GeneratorEmitHelper.OpenNamespaceAndContainingTypes(sb, analysis.Symbol);
+        var scope = EmitHelper.OpenNamespaceAndContainingTypes(sb, analysis.Symbol);
         var indent = scope.Indent;
 
         var viewFullyQualifiedName = analysis.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var tableSetFullyQualifiedName = analysis.TableSetSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-        sb.Append(indent).Append("partial class ").AppendLine(GeneratorEmitHelper.EscapeIdentifier(analysis.Symbol.Name));
+        sb.Append(indent).Append("partial class ").AppendLine(EmitHelper.EscapeIdentifier(analysis.Symbol.Name));
         sb.Append(indent).AppendLine("{");
 
         // 생성 ViewSet 코드가 메서드 그룹으로 ViewSetBuildHelper 에 넘기는 진입점.
@@ -142,7 +142,7 @@ internal static class StaticDataViewGenerator
         }
 
         sb.Append(indent).AppendLine("}");
-        GeneratorEmitHelper.CloseContainingTypes(sb, scope);
+        EmitHelper.CloseContainingTypes(sb, scope);
 
         return sb.ToString();
     }

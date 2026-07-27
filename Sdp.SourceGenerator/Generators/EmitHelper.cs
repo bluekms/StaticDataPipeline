@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Sdp.SourceGenerator.Generators;
 
-internal static class GeneratorEmitHelper
+internal static class EmitHelper
 {
     public static string GetTypeKeyword(INamedTypeSymbol type)
     {

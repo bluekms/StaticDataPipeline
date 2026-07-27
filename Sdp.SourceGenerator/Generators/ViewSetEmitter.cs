@@ -13,14 +13,14 @@ internal static class ViewSetEmitter
         sb.AppendLine();
 
         var viewSet = analysis.ViewSetSymbol;
-        var scope = GeneratorEmitHelper.OpenNamespaceAndContainingTypes(sb, viewSet);
+        var scope = EmitHelper.OpenNamespaceAndContainingTypes(sb, viewSet);
         var indent = scope.Indent;
 
         var viewSetFullyQualifiedName = viewSet.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var tableSetFullyQualifiedName = analysis.TableSetSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-        sb.Append(indent).Append("partial ").Append(GeneratorEmitHelper.GetTypeKeyword(viewSet)).Append(' ')
-            .AppendLine(GeneratorEmitHelper.EscapeIdentifier(viewSet.Name));
+        sb.Append(indent).Append("partial ").Append(EmitHelper.GetTypeKeyword(viewSet)).Append(' ')
+            .AppendLine(EmitHelper.EscapeIdentifier(viewSet.Name));
         sb.Append(indent).AppendLine("{");
 
         if (analysis.CanEmit)
@@ -37,7 +37,7 @@ internal static class ViewSetEmitter
         }
 
         sb.Append(indent).AppendLine("}");
-        GeneratorEmitHelper.CloseContainingTypes(sb, scope);
+        EmitHelper.CloseContainingTypes(sb, scope);
 
         return sb.ToString();
     }

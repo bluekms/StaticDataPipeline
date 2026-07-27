@@ -13,13 +13,13 @@ internal static class StaticDataManagerBridgeEmitter
         sb.AppendLine();
 
         var staticDataManager = analysis.StaticDataManagerSymbol;
-        var scope = GeneratorEmitHelper.OpenNamespaceAndContainingTypes(sb, staticDataManager);
+        var scope = EmitHelper.OpenNamespaceAndContainingTypes(sb, staticDataManager);
         var indent = scope.Indent;
 
         var tableSetFullyQualifiedName = analysis.TableSetSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
         sb.Append(indent).Append("partial class ")
-            .AppendLine(GeneratorEmitHelper.EscapeIdentifier(staticDataManager.Name));
+            .AppendLine(EmitHelper.EscapeIdentifier(staticDataManager.Name));
         sb.Append(indent).AppendLine("{");
 
         var memberIndent = indent + "    ";
@@ -57,7 +57,7 @@ internal static class StaticDataManagerBridgeEmitter
         }
 
         sb.Append(indent).AppendLine("}");
-        GeneratorEmitHelper.CloseContainingTypes(sb, scope);
+        EmitHelper.CloseContainingTypes(sb, scope);
 
         return sb.ToString();
     }

@@ -243,7 +243,7 @@ internal static partial class CsvMapperEmitter
             : ScalarTypeKeyword(info.KeyKind);
         var valueFullName = valueNested.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var keyParam = valueNested.Parameters.Single(nestedParameter => nestedParameter.IsKey);
-        var keyMemberAccess = GeneratorEmitHelper.EscapeIdentifier(keyParam.Name);
+        var keyMemberAccess = EmitHelper.EscapeIdentifier(keyParam.Name);
         var valueToken = nestedTokens[valueNested.Symbol];
 
         sb.Append(indent).Append("private static global::System.Collections.Frozen.FrozenDictionary<")

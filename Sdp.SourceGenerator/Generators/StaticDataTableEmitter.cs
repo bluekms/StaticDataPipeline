@@ -12,10 +12,10 @@ internal static class StaticDataTableEmitter
         sb.AppendLine("#nullable enable");
         sb.AppendLine();
 
-        var scope = GeneratorEmitHelper.OpenNamespaceAndContainingTypes(sb, analysis.Symbol);
+        var scope = EmitHelper.OpenNamespaceAndContainingTypes(sb, analysis.Symbol);
         var indent = scope.Indent;
 
-        sb.Append(indent).Append("partial class ").AppendLine(GeneratorEmitHelper.EscapeIdentifier(analysis.TypeName));
+        sb.Append(indent).Append("partial class ").AppendLine(EmitHelper.EscapeIdentifier(analysis.TypeName));
         sb.Append(indent).AppendLine("{");
 
         var memberIndent = indent + "    ";
@@ -28,14 +28,14 @@ internal static class StaticDataTableEmitter
         EmitFactoryMethod(sb, analysis, memberIndent);
 
         sb.Append(indent).AppendLine("}");
-        GeneratorEmitHelper.CloseContainingTypes(sb, scope);
+        EmitHelper.CloseContainingTypes(sb, scope);
 
         return sb.ToString();
     }
 
     private static void EmitConstructor(StringBuilder sb, StaticDataTableAnalysis analysis, string indent)
     {
-        sb.Append(indent).Append("public ").Append(GeneratorEmitHelper.EscapeIdentifier(analysis.TypeName)).AppendLine("(");
+        sb.Append(indent).Append("public ").Append(EmitHelper.EscapeIdentifier(analysis.TypeName)).AppendLine("(");
         sb.Append(indent).Append("    global::System.Collections.Immutable.ImmutableArray<")
             .Append(analysis.FullyQualifiedRecordName).AppendLine("> records)");
         sb.Append(indent).AppendLine("    : base(records)");
