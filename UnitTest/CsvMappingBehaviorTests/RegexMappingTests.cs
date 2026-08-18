@@ -21,9 +21,7 @@ public partial class RegexMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = $"Id,IconPath\n1,{cell}";
-
         var record = Assert.Single(CsvLoader.Parse(csv, IconRecord.MapFromCsvRow));
-
         Assert.Equal(cell, record.IconPath);
         logger.LogInformation("Matching cell mapped to {IconPath}", record.IconPath);
     }
@@ -37,9 +35,7 @@ public partial class RegexMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = $"Id,IconPath\n1,{cell}";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, IconRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentException>(ex.InnerException);
         logger.LogInformation("Non-matching cell '{Cell}' threw: {Message}", cell, ex.Message);
     }
@@ -55,9 +51,7 @@ public partial class RegexMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = "Id,IconPath\n1,-";
-
         var record = Assert.Single(CsvLoader.Parse(csv, NullableIconRecord.MapFromCsvRow));
-
         Assert.Null(record.IconPath);
         logger.LogInformation("Null string cell skipped pattern validation and mapped to null");
     }

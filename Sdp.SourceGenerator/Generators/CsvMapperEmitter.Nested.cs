@@ -14,7 +14,6 @@ internal static partial class CsvMapperEmitter
     {
         var typeFullName = info.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var token = nestedTokens[info.Symbol];
-
         sb.Append(indent).Append("private static ").Append(typeFullName).Append(" __MapNested_").Append(token).AppendLine("(");
         sb.Append(indent).AppendLine("    global::Sdp.Csv.CsvHeaderIndex headers,");
         sb.Append(indent).AppendLine("    string[] values,");
@@ -24,7 +23,6 @@ internal static partial class CsvMapperEmitter
         if (info.IsTypeBrandingRecord)
         {
             var only = info.Parameters[0];
-
             var columnNameLiteral = SymbolDisplay.FormatLiteral(only.ColumnName, quote: true);
             sb.Append(indent).Append("    var __key = headers.Contains(basePath) ? basePath : basePath + \".\" + ")
                 .Append(columnNameLiteral).AppendLine(";");

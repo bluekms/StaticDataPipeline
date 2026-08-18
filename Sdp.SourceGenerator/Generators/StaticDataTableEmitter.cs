@@ -14,7 +14,6 @@ internal static class StaticDataTableEmitter
 
         var scope = EmitHelper.OpenNamespaceAndContainingTypes(sb, analysis.Symbol);
         var indent = scope.Indent;
-
         sb.Append(indent).Append("partial class ").AppendLine(EmitHelper.EscapeIdentifier(analysis.TypeName));
         sb.Append(indent).AppendLine("{");
 

@@ -45,7 +45,6 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.Contains(diagnostics, d => d.Id == "SDP0305" && d.Severity == DiagnosticSeverity.Error);
 
         logger.LogInformation(
@@ -72,7 +71,6 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.Contains(diagnostics, d => d.Id == "SDP0302" && d.Severity == DiagnosticSeverity.Error);
 
         logger.LogInformation(
@@ -101,7 +99,6 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.Contains(diagnostics, d => d.Id == "SDP0303" && d.Severity == DiagnosticSeverity.Error);
 
         logger.LogInformation(
@@ -130,7 +127,6 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.Contains(diagnostics, d => d.Id == "SDP0304" && d.Severity == DiagnosticSeverity.Error);
 
         logger.LogInformation(
@@ -164,7 +160,6 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.Contains(diagnostics, d => d.Id == "SDP0307" && d.Severity == DiagnosticSeverity.Error);
 
         logger.LogInformation(
@@ -197,7 +192,6 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.Contains(diagnostics, d => d.Id == "SDP0308" && d.Severity == DiagnosticSeverity.Error);
 
         logger.LogInformation(
@@ -224,7 +218,6 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0302");
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0303");
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0304");

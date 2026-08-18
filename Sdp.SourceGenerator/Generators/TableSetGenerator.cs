@@ -15,7 +15,6 @@ internal static class TableSetGenerator
                 transform: static (syntaxContext, cancellationToken) => Analyze(syntaxContext, cancellationToken))
             .Where(static analysis => analysis is not null)
             .Collect();
-
         var tableSets = collected
             .SelectMany(static (analyses, _) =>
             {
@@ -180,7 +179,6 @@ internal static class TableSetGenerator
         }
 
         var diagnostics = new List<Diagnostic>();
-
         var tableSetPartial = CollectTableSetPartialDiagnostics(tableSetType, diagnostics, out var tableSetIsRecord);
 
         // record syntax 가 없는 TableSet(SDP0216)은 syntax 기반의 primary ctor 해석이 항상 실패해
@@ -312,7 +310,6 @@ internal static class TableSetGenerator
                 .Select(reference => reference.GetSyntax())
                 .OfType<ClassDeclarationSyntax>()
                 .FirstOrDefault();
-
             var isPartial = tableSyntax?.Modifiers
                 .Any(static modifier => modifier.IsKind(SyntaxKind.PartialKeyword)) ?? false;
 

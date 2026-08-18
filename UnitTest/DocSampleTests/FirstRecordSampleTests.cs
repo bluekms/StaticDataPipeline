@@ -34,7 +34,6 @@ public partial class FirstRecordSampleTests
     public void Parse_ConceptualCsv_ReturnsThreeItems()
     {
         var records = CsvLoader.Parse(ItemsCsv, ItemRecord.MapFromCsvRow);
-
         Assert.Equal(3, records.Length);
 
         Assert.Equal(1, records[0].Id);
@@ -50,7 +49,6 @@ public partial class FirstRecordSampleTests
     public void Parse_PreservesRowOrder()
     {
         var records = CsvLoader.Parse(ItemsCsv, ItemRecord.MapFromCsvRow);
-
         Assert.Equal(ExpectedIds, records.Select(x => x.Id).ToArray());
     }
 }

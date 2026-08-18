@@ -27,7 +27,6 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__MapArray_Departments(headers, values, string.Empty)", code);
         Assert.Contains("ImmutableArray.CreateBuilder<string>(3)", code);
@@ -62,7 +61,6 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("ImmutableArray.CreateBuilder<int>(2)", code);
         Assert.Contains("\"Grades[0]\"", code);
@@ -94,7 +92,6 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__MapSet_Grades(headers, values, string.Empty)", code);
         Assert.Contains("HashSet<int>(2)", code);
@@ -131,7 +128,6 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__MapDict_Items(headers, values, string.Empty)", code);
         Assert.Contains("\"Items[0]\"", code);
@@ -168,7 +164,6 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
             """;
 
         var result = SourceGeneratorTestHelper.Run(source);
-
         Assert.Contains(result.Diagnostics, d => d.Id == "SDP0017" && d.Severity == DiagnosticSeverity.Error);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
@@ -199,7 +194,6 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
             """;
 
         var result = SourceGeneratorTestHelper.Run(source);
-
         Assert.Contains(result.Diagnostics, d => d.Id == "SDP0018" && d.Severity == DiagnosticSeverity.Error);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");

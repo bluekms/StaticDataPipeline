@@ -105,7 +105,6 @@ public partial class StaticDataTableSampleTests
             """;
 
         var records = CsvLoader.Parse(DuplicateCsv, ItemRecord.MapFromCsvRow);
-
         Assert.Throws<InvalidOperationException>(() => new ItemTable(records));
     }
 }

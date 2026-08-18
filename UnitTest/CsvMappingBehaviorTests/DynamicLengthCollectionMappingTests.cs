@@ -19,9 +19,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var logger = CreateLogger();
 
         var csv = "Scores[0],Scores[1],Scores[2]\n10,20,30";
-
         var record = Assert.Single(CsvLoader.Parse(csv, BareIntArrayRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Scores.Length);
         Assert.Equal(10, record.Scores[0]);
         Assert.Equal(20, record.Scores[1]);
@@ -39,9 +37,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var logger = CreateLogger();
 
         var csv = "Scores[0],Scores[1]\n10,20";
-
         var record = Assert.Single(CsvLoader.Parse(csv, BareIntArrayRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Scores.Length);
         Assert.Equal(10, record.Scores[0]);
         Assert.Equal(20, record.Scores[1]);
@@ -54,9 +50,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var logger = CreateLogger();
 
         var csv = "Scores[0],Scores[2]\n10,30";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, BareIntArrayRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentException>(ex.InnerException);
         logger.LogInformation("Non-contiguous index threw: {Message}", ex.Message);
     }
@@ -73,9 +67,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var logger = CreateLogger();
 
         var csv = "Id,Values[0],Values[1],Name\n42,10,20,Test";
-
         var record = Assert.Single(CsvLoader.Parse(csv, BareMixedRecord.MapFromCsvRow));
-
         Assert.Equal(42, record.Id);
         Assert.Equal(2, record.Values.Length);
         Assert.Equal(10, record.Values[0]);
@@ -97,9 +89,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var logger = CreateLogger();
 
         var csv = "Ids[0],Ids[1]\n5,7";
-
         var record = Assert.Single(CsvLoader.Parse(csv, BareIntSetRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Ids.Count);
 
         var ids = record.Ids.ToArray();
@@ -114,9 +104,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var logger = CreateLogger();
 
         var csv = "Ids[0],Ids[1]\n5,5";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, BareIntSetRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentException>(ex.InnerException);
         logger.LogInformation("Duplicate set value threw: {Message}", ex.Message);
     }
@@ -132,9 +120,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var logger = CreateLogger();
 
         var csv = "Items[0].Id,Items[0].Name,Items[1].Id,Items[1].Name\n1,First,2,Second";
-
         var record = Assert.Single(CsvLoader.Parse(csv, BareItemMapRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Items.Count);
         Assert.Equal("First", record.Items[1].Name);
         Assert.Equal("Second", record.Items[2].Name);
@@ -152,9 +138,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var logger = CreateLogger();
 
         var csv = "Points[0].X,Points[0].Y,Points[1].X,Points[1].Y\n1,2,3,4";
-
         var record = Assert.Single(CsvLoader.Parse(csv, BareRecordArrayRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Points.Length);
         Assert.Equal(1, record.Points[0].X);
         Assert.Equal(2, record.Points[0].Y);
@@ -172,9 +156,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var logger = CreateLogger();
 
         var csv = "Points[0].X,Points[0].Y,Points[1].X,Points[1].Y\n1,2,3,4";
-
         var record = Assert.Single(CsvLoader.Parse(csv, BareRecordSetRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Points.Count);
 
         var points = record.Points.ToArray();
@@ -189,9 +171,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var logger = CreateLogger();
 
         var csv = "Points[0].X,Points[0].Y,Points[1].X,Points[1].Y\n1,2,1,2";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, BareRecordSetRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentException>(ex.InnerException);
         logger.LogInformation("Duplicate record set value threw: {Message}", ex.Message);
     }

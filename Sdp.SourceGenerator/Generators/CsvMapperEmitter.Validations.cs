@@ -191,7 +191,6 @@ internal static partial class CsvMapperEmitter
     {
         var patternLiteral = SymbolDisplay.FormatLiteral(param.RegexPattern!, quote: true);
         var patternField = HelperName("__Pattern_", ownerToken, param.Name);
-
         sb.Append(indent).Append("private static readonly global::System.Text.RegularExpressions.Regex ").Append(patternField).AppendLine(" =");
         sb.Append(indent).Append("    new global::System.Text.RegularExpressions.Regex(").Append(patternLiteral).AppendLine(");");
         sb.AppendLine();

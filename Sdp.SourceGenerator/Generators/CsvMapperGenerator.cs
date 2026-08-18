@@ -16,7 +16,6 @@ internal static class CsvMapperGenerator
                 StaticDataRecordAttributeMetadataName,
                 predicate: static (node, _) => node is RecordDeclarationSyntax,
                 transform: static (syntaxContext, cancellationToken) => Analyze(syntaxContext, cancellationToken));
-
         context.RegisterSourceOutput(analyses, static (sourceProductionContext, analysis) =>
         {
             foreach (var diagnostic in analysis.Diagnostics)
@@ -91,7 +90,6 @@ internal static class CsvMapperGenerator
         var parameters = ParameterAnalyzer.CollectParameters(
             primaryCtor,
             cancellationToken);
-
         var allParameters = FlattenParameters(parameters);
 
         ValidateKeyUniqueness(symbol, syntax, parameters, diagnostics);
@@ -106,7 +104,6 @@ internal static class CsvMapperGenerator
             var rangeValidator = new RangeAttributeValidator(symbol, syntax, allParameters, diagnostics);
 
             var specificallyRejected = ValidateCollectionParameterUsage(symbol, syntax, allParameters, diagnostics);
-
             specificallyRejected.UnionWith(rangeValidator.ValidateRedundantTypedRange());
 
             specificallyRejected.UnionWith(rangeValidator.ValidateNumericRangeBounds());
@@ -134,7 +131,6 @@ internal static class CsvMapperGenerator
                     path => path.StartsWith(param.Name + ".", StringComparison.Ordinal)))
                 .Select(param => param.Name)
                 .ToList();
-
             if (unsupportedParameterNames.Count > 0)
             {
                 diagnostics.Add(Diagnostic.Create(
@@ -241,7 +237,6 @@ internal static class CsvMapperGenerator
         foreach (var qualified in allParameters)
         {
             var param = qualified.Parameter;
-
             if (IsNullableCollection(param.Type))
             {
                 diagnostics.Add(Diagnostic.Create(

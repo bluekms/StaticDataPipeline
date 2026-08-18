@@ -29,7 +29,6 @@ public partial class SingleColumnCollectionSheetCsvLoaderTests
     public void Load_SingleColumnCollectionSheetCsv_ReturnsValidRecords()
     {
         var records = CsvLoader.Parse(SingleColumnCollectionSheetCsv, SingleColumnCollectionSheet.MapFromCsvRow);
-
         Assert.NotEmpty(records);
         Assert.Equal(9, records.Length);
 
@@ -56,7 +55,6 @@ public partial class SingleColumnCollectionSheetCsvLoaderTests
     public void Load_SingleColumnCollectionSheetCsv_ParsesAllFloatValues()
     {
         var records = CsvLoader.Parse(SingleColumnCollectionSheetCsv, SingleColumnCollectionSheet.MapFromCsvRow);
-
         foreach (var record in records)
         {
             Assert.NotEmpty(record.Values);

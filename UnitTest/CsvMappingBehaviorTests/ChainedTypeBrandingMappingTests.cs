@@ -21,9 +21,7 @@ public partial class ChainedTypeBrandingMappingTests(ITestOutputHelper testOutpu
         var logger = CreateLogger();
 
         var csv = "Id,Middle.Inner.Value\n1,12345";
-
         var record = Assert.Single(CsvLoader.Parse(csv, ChainedRecord.MapFromCsvRow));
-
         Assert.Equal(1, record.Id);
         Assert.Equal(12345L, record.Middle.Inner.Value);
         logger.LogInformation("Expanded header mapped: Value={Value}", record.Middle.Inner.Value);
@@ -35,9 +33,7 @@ public partial class ChainedTypeBrandingMappingTests(ITestOutputHelper testOutpu
         var logger = CreateLogger();
 
         var csv = "Id,Middle.Inner\n1,12345";
-
         var record = Assert.Single(CsvLoader.Parse(csv, ChainedRecord.MapFromCsvRow));
-
         Assert.Equal(1, record.Id);
         Assert.Equal(12345L, record.Middle.Inner.Value);
         logger.LogInformation("Branded leaf header mapped: Value={Value}", record.Middle.Inner.Value);
@@ -49,9 +45,7 @@ public partial class ChainedTypeBrandingMappingTests(ITestOutputHelper testOutpu
         var logger = CreateLogger();
 
         var csv = "Id,Middle\n1,12345";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, ChainedRecord.MapFromCsvRow));
-
         logger.LogInformation("Fully collapsed header threw: {Message}", ex.Message);
     }
 
@@ -66,9 +60,7 @@ public partial class ChainedTypeBrandingMappingTests(ITestOutputHelper testOutpu
         var logger = CreateLogger();
 
         var csv = "Id,Wrap.Middle.Inner\n1,777";
-
         var record = Assert.Single(CsvLoader.Parse(csv, DeepChainedRecord.MapFromCsvRow));
-
         Assert.Equal(1, record.Id);
         Assert.Equal(777L, record.Wrap.Middle.Inner.Value);
         logger.LogInformation("Three-level branded leaf mapped: Value={Value}", record.Wrap.Middle.Inner.Value);
@@ -80,9 +72,7 @@ public partial class ChainedTypeBrandingMappingTests(ITestOutputHelper testOutpu
         var logger = CreateLogger();
 
         var csv = "Id,Wrap.Middle\n1,777";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, DeepChainedRecord.MapFromCsvRow));
-
         logger.LogInformation("Intermediate collapse threw: {Message}", ex.Message);
     }
 

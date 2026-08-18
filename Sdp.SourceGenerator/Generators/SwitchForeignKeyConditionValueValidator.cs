@@ -23,7 +23,6 @@ internal static class SwitchForeignKeyConditionValueValidator
         }
 
         var conditionType = TypeClassifier.UnwrapNullable(conditionProperty.Type);
-
         var conditionCollection = TypeClassifier.ClassifyCollection(conditionType);
         if (conditionCollection is not null)
         {
@@ -392,7 +391,6 @@ internal static class SwitchForeignKeyConditionValueValidator
             System.Globalization.NumberStyles.Integer,
             System.Globalization.CultureInfo.InvariantCulture,
             out var numeric);
-
         if (!parsed)
         {
             return false;

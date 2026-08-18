@@ -69,7 +69,6 @@ public class UnityCompatibilityTests(ITestOutputHelper testOutputHelper)
             """;
 
         var output = SourceGeneratorTestHelper.RunWithFinal(source, LanguageVersion.CSharp9);
-
         var diagnostics = output.Run.Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.DoesNotContain(diagnostics, d => d.Id.StartsWith("SDP", StringComparison.Ordinal));
 

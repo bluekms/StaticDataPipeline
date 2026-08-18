@@ -26,7 +26,6 @@ public class CsvMapperGeneratorSingleColumnTests(ITestOutputHelper testOutputHel
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__MapSingleArray_Tags(headers, values, string.Empty)", code);
         Assert.Contains(".Split(\",\")", code);
@@ -59,7 +58,6 @@ public class CsvMapperGeneratorSingleColumnTests(ITestOutputHelper testOutputHel
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__MapSingleSet_Labels(headers, values, string.Empty)", code);
         Assert.Contains(".Split(\"|\")", code);

@@ -32,7 +32,6 @@ internal static class ParameterEmittability
     private static bool CanEmitCollection(ParameterAnalysis param)
     {
         var collection = param.Collection!;
-
         if (collection.Kind is CollectionKind.ImmutableArray or CollectionKind.FrozenSet)
         {
             if (!AreValidationAttributesApplicable(param, collection))
@@ -219,7 +218,6 @@ internal static class ParameterEmittability
         var keyParams = info.ValueNested.Parameters
             .Where(nestedParameter => nestedParameter.IsKey)
             .ToList();
-
         if (keyParams.Count != 1)
         {
             return false;

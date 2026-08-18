@@ -30,7 +30,6 @@ public partial class ColumnNameForbiddenCharacterRuleTests(ITestOutputHelper tes
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
         var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
-
         RecordComplianceChecker.Check(recordSchemaCatalog, logger);
         Assert.Empty(logger.Logs);
     }
@@ -58,7 +57,6 @@ public partial class ColumnNameForbiddenCharacterRuleTests(ITestOutputHelper tes
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
         var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
-
         Assert.Throws<InvalidAttributeUsageException>(() => RecordComplianceChecker.Check(recordSchemaCatalog, logger));
         Assert.Single(logger.Logs);
     }

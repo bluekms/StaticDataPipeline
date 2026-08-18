@@ -19,9 +19,7 @@ public partial class DateOnlyTimeOnlyMappingTests(ITestOutputHelper testOutputHe
         var logger = CreateLogger();
 
         var csv = "Id,Date\n1,2026-05-19";
-
         var record = Assert.Single(CsvLoader.Parse(csv, DateOnlyRecord.MapFromCsvRow));
-
         Assert.Equal(new global::System.DateOnly(2026, 5, 19), record.Date);
         logger.LogInformation("DateOnly mapped to {Date}", record.Date);
     }
@@ -32,9 +30,7 @@ public partial class DateOnlyTimeOnlyMappingTests(ITestOutputHelper testOutputHe
         var logger = CreateLogger();
 
         var csv = "Id,Date\n1,05/19/2026";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, DateOnlyRecord.MapFromCsvRow));
-
         Assert.IsType<FormatException>(ex.InnerException);
         logger.LogInformation("Format mismatch threw: {Message}", ex.Message);
     }
@@ -50,9 +46,7 @@ public partial class DateOnlyTimeOnlyMappingTests(ITestOutputHelper testOutputHe
         var logger = CreateLogger();
 
         var csv = "Id,Open\n1,09:30";
-
         var record = Assert.Single(CsvLoader.Parse(csv, TimeOnlyRecord.MapFromCsvRow));
-
         Assert.Equal(new global::System.TimeOnly(9, 30), record.Open);
         logger.LogInformation("TimeOnly mapped to {Open}", record.Open);
     }
@@ -68,9 +62,7 @@ public partial class DateOnlyTimeOnlyMappingTests(ITestOutputHelper testOutputHe
         var logger = CreateLogger();
 
         var csv = "Id,Date\n1,-";
-
         var record = Assert.Single(CsvLoader.Parse(csv, NullableDateOnlyRecord.MapFromCsvRow));
-
         Assert.Null(record.Date);
         logger.LogInformation("Nullable DateOnly mapped to null for null string cell");
     }

@@ -47,7 +47,6 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
     private static void AssertReportedAsError(string consumerSource, string diagnosticId)
     {
         var diagnostics = RunDiagnostics(consumerSource);
-
         Assert.Contains(diagnostics, d => d.Id == diagnosticId && d.Severity == DiagnosticSeverity.Error);
     }
 

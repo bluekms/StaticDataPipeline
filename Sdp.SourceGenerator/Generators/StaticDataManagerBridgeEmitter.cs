@@ -23,7 +23,6 @@ internal static class StaticDataManagerBridgeEmitter
         sb.Append(indent).AppendLine("{");
 
         var memberIndent = indent + "    ";
-
         sb.Append(memberIndent).Append("protected override global::System.Threading.Tasks.Task<")
             .Append(tableSetFullyQualifiedName).AppendLine("> LoadTableSetAsync(");
         sb.Append(memberIndent).AppendLine("    string csvDir,");

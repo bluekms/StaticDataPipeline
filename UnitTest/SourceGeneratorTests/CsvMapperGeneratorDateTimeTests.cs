@@ -27,7 +27,6 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("global::System.DateTime.ParseExact(", code);
         Assert.Contains("\"yyyy-MM-dd\"", code);
@@ -58,7 +57,6 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("global::System.DateTimeOffset.ParseExact(", code);
 
@@ -88,7 +86,6 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("global::System.TimeSpan.ParseExact(", code);
 
@@ -114,7 +111,6 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
             """;
 
         var result = SourceGeneratorTestHelper.Run(source);
-
         Assert.Contains(result.Diagnostics, d => d.Id == "SDP0004" && d.Severity == DiagnosticSeverity.Error);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
@@ -139,7 +135,6 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
             """;
 
         var result = SourceGeneratorTestHelper.Run(source);
-
         Assert.Contains(result.Diagnostics, d => d.Id == "SDP0004" && d.Severity == DiagnosticSeverity.Error);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");

@@ -30,7 +30,6 @@ public class CsvMapperGeneratorNestedTests(ITestOutputHelper testOutputHelper)
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__MapNested_1_Address(headers, values, \"Address\")", code);
         Assert.Contains("private static global::Test.Address __MapNested_1_Address(", code);
@@ -65,7 +64,6 @@ public class CsvMapperGeneratorNestedTests(ITestOutputHelper testOutputHelper)
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
 
         var helperMatches = System.Text.RegularExpressions.Regex.Matches(
@@ -103,7 +101,6 @@ public class CsvMapperGeneratorNestedTests(ITestOutputHelper testOutputHelper)
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__MapNested_1_Address", code);
         Assert.Contains("__MapNested_2_Coords", code);
@@ -136,7 +133,6 @@ public class CsvMapperGeneratorNestedTests(ITestOutputHelper testOutputHelper)
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__MapNested_1_ContactInfo", code);
         Assert.Contains("private static string? __MapNullable_1_ContactInfo_Phone(string value)", code);

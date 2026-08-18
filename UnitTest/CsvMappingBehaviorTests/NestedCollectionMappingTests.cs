@@ -21,9 +21,7 @@ public partial class NestedCollectionMappingTests(ITestOutputHelper testOutputHe
         var logger = CreateLogger();
 
         var csv = "Id,Data.Id,Data.Values[0],Data.Values[1]\n1,7,10,20";
-
         var record = Assert.Single(CsvLoader.Parse(csv, HolderRecord.MapFromCsvRow));
-
         Assert.Equal(1, record.Id);
         Assert.Equal(7, record.Data.Id);
         Assert.Equal(2, record.Data.Values.Length);
@@ -47,9 +45,7 @@ public partial class NestedCollectionMappingTests(ITestOutputHelper testOutputHe
         var logger = CreateLogger();
 
         var csv = "Items[0].Id,Items[0].Name,Items[1].Id,Items[1].Name\n1,First,2,Second";
-
         var record = Assert.Single(CsvLoader.Parse(csv, SetHolderRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Items.Count);
         Assert.Contains(new Item(1, "First"), (IEnumerable<Item>)record.Items);
         Assert.Contains(new Item(2, "Second"), (IEnumerable<Item>)record.Items);
@@ -69,9 +65,7 @@ public partial class NestedCollectionMappingTests(ITestOutputHelper testOutputHe
         var logger = CreateLogger();
 
         var csv = "Id,Data.Id,Data.Tags\n1,7,10;20;30";
-
         var record = Assert.Single(CsvLoader.Parse(csv, TagHolderRecord.MapFromCsvRow));
-
         Assert.Equal(1, record.Id);
         Assert.Equal(7, record.Data.Id);
         Assert.Equal(3, record.Data.Tags.Length);
@@ -103,9 +97,7 @@ public partial class NestedCollectionMappingTests(ITestOutputHelper testOutputHe
         var csv = "Id,Book.Id,Book.Scores[0].Subject,Book.Scores[0].Point,"
                 + "Book.Scores[1].Subject,Book.Scores[1].Point\n"
                 + "1,7,100,90,200,80";
-
         var record = Assert.Single(CsvLoader.Parse(csv, ScoreHolderRecord.MapFromCsvRow));
-
         Assert.Equal(1, record.Id);
         Assert.Equal(7, record.Book.Id);
         Assert.Equal(2, record.Book.Scores.Count);

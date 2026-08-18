@@ -24,7 +24,6 @@ internal static class SourceGeneratorTestHelper
 
         var trusted = ((string?)System.AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES"))
             ?.Split(Path.PathSeparator) ?? [];
-
         var references = trusted
             .Where(p => !string.IsNullOrEmpty(p))
             .Select(p => (MetadataReference)MetadataReference.CreateFromFile(p))

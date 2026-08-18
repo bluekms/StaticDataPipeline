@@ -11,7 +11,6 @@ internal static class TypeClassifier
     public static ScalarKind ClassifyScalar(ITypeSymbol type)
     {
         var underlying = UnwrapNullable(type);
-
         if (underlying.TypeKind == TypeKind.Enum)
         {
             return ScalarKind.Enum;
@@ -63,7 +62,6 @@ internal static class TypeClassifier
         }
 
         var definition = namedType.OriginalDefinition;
-
         if (IsBclType(definition, "ImmutableArray`1", SystemCollectionsImmutableChain))
         {
             var elementType = namedType.TypeArguments[0];

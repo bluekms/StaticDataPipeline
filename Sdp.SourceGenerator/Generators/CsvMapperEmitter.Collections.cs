@@ -35,7 +35,6 @@ internal static partial class CsvMapperEmitter
 
         var valueExpr = $"values[headers[{keyExpression}]]";
         var baseConversion = EmitElementBaseConversion(info, valueExpr, param, nestedTokens);
-
         var converted = WrapValidations(param, baseConversion, ownerToken);
 
         if (TypeClassifier.IsNullable(info.ElementType) && param.NullString is not null)
@@ -264,7 +263,6 @@ internal static partial class CsvMapperEmitter
                 var keyVar = "__k" + i.ToString(CultureInfo.InvariantCulture);
                 EmitKeyVar(sb, indent, keyVar, param.ColumnName + "[" + i.ToString(CultureInfo.InvariantCulture) + "]");
                 var varName = "__v" + i.ToString(CultureInfo.InvariantCulture);
-
                 sb.Append(indent).Append("    var ").Append(varName).Append(" = __MapNested_")
                     .Append(valueToken).Append("(headers, values, ").Append(keyVar).AppendLine(");");
                 sb.Append(indent).Append("    if (!dict.TryAdd(").Append(varName).Append('.').Append(keyMemberAccess).Append(", ").Append(varName)
@@ -411,7 +409,6 @@ internal static partial class CsvMapperEmitter
 
         var minCount = info.MinCount.Value.ToString(CultureInfo.InvariantCulture);
         var maxCount = info.MaxCount.Value.ToString(CultureInfo.InvariantCulture);
-
         sb.Append(indent).Append("    if (").Append(countExpr).Append(" < ").Append(minCount).Append(" || ").Append(countExpr).Append(" > ").Append(maxCount).AppendLine(")");
         sb.Append(indent).AppendLine("    {");
         sb.Append(indent).Append("        throw new global::System.ArgumentException(global::System.FormattableString.Invariant($\"Count of '").Append(param.Name)

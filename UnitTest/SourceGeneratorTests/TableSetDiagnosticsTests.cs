@@ -41,7 +41,6 @@ public class TableSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.Contains(diagnostics, d => d.Id == "SDP0218" && d.Severity == DiagnosticSeverity.Error);
 
         logger.LogInformation(
@@ -68,7 +67,6 @@ public class TableSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.Contains(diagnostics, d => d.Id == "SDP0218" && d.Severity == DiagnosticSeverity.Error);
 
         logger.LogInformation(
@@ -91,7 +89,6 @@ public class TableSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.Contains(diagnostics, d => d.Id == "SDP0219" && d.Severity == DiagnosticSeverity.Error);
 
         logger.LogInformation(
@@ -114,7 +111,6 @@ public class TableSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0219");
 
         logger.LogInformation(

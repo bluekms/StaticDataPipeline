@@ -20,9 +20,7 @@ public partial class SingleColumnTimeSpanMappingTests(ITestOutputHelper testOutp
         var logger = CreateLogger();
 
         var csv = "Id,Cooldowns\n1,00:00:30|01:00:00";
-
         var record = Assert.Single(CsvLoader.Parse(csv, CooldownRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Cooldowns.Length);
         Assert.Equal(TimeSpan.FromSeconds(30), record.Cooldowns[0]);
         Assert.Equal(TimeSpan.FromHours(1), record.Cooldowns[1]);

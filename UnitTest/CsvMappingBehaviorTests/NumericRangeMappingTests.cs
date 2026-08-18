@@ -20,9 +20,7 @@ public partial class NumericRangeMappingTests(ITestOutputHelper testOutputHelper
         var logger = CreateLogger();
 
         var csv = $"Id,Score\n1,{cell}";
-
         var record = Assert.Single(CsvLoader.Parse(csv, IntRangeRecord.MapFromCsvRow));
-
         Assert.Equal(expected, record.Score);
         logger.LogInformation("In-range cell '{Cell}' mapped to {Score}", cell, record.Score);
     }
@@ -35,9 +33,7 @@ public partial class NumericRangeMappingTests(ITestOutputHelper testOutputHelper
         var logger = CreateLogger();
 
         var csv = $"Id,Score\n1,{cell}";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, IntRangeRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentOutOfRangeException>(ex.InnerException);
         logger.LogInformation("Out-of-range cell '{Cell}' threw: {Message}", cell, ex.Message);
     }
@@ -53,9 +49,7 @@ public partial class NumericRangeMappingTests(ITestOutputHelper testOutputHelper
         var logger = CreateLogger();
 
         var csv = "Id,Score\n1,-";
-
         var record = Assert.Single(CsvLoader.Parse(csv, NullableIntRangeRecord.MapFromCsvRow));
-
         Assert.Null(record.Score);
         logger.LogInformation("Null string cell skipped range validation and mapped to null");
     }
@@ -69,9 +63,7 @@ public partial class NumericRangeMappingTests(ITestOutputHelper testOutputHelper
         var logger = CreateLogger();
 
         var csv = "Id,Ratio\n1,0.1";
-
         var record = Assert.Single(CsvLoader.Parse(csv, FloatRangeRecord.MapFromCsvRow));
-
         Assert.Equal(0.1f, record.Ratio);
         logger.LogInformation("Upper boundary value mapped to {Ratio}", record.Ratio);
     }

@@ -28,9 +28,7 @@ public partial class CollectionEnumMappingTests(ITestOutputHelper testOutputHelp
         var logger = CreateLogger();
 
         var csv = "Id,Colors[0],Colors[1],Colors[2]\n1,Red,1,Blue";
-
         var record = Assert.Single(CsvLoader.Parse(csv, FixedEnumArrayRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Colors.Length);
         Assert.Equal(Color.Red, record.Colors[0]);
         Assert.Equal(Color.Green, record.Colors[1]);
@@ -48,9 +46,7 @@ public partial class CollectionEnumMappingTests(ITestOutputHelper testOutputHelp
         var logger = CreateLogger();
 
         var csv = "Id,Colors[0],Colors[1],Colors[2]\n1,Red,99,Blue";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, FixedEnumArrayRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentException>(ex.InnerException);
         logger.LogInformation("Undefined enum element threw: {Message}", ex.Message);
     }
@@ -66,9 +62,7 @@ public partial class CollectionEnumMappingTests(ITestOutputHelper testOutputHelp
         var logger = CreateLogger();
 
         var csv = "Id,Colors\n1,\"Red,Green,Blue\"";
-
         var record = Assert.Single(CsvLoader.Parse(csv, SingleColumnEnumRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Colors.Length);
         Assert.Equal(Color.Red, record.Colors[0]);
         Assert.Equal(Color.Green, record.Colors[1]);
@@ -91,9 +85,7 @@ public partial class CollectionEnumMappingTests(ITestOutputHelper testOutputHelp
         var logger = CreateLogger();
 
         var csv = "Id,Colors\n1,\"Red,Blue\"";
-
         var record = Assert.Single(CsvLoader.Parse(csv, EnumSetRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Colors.Count);
         Assert.Contains(Color.Red, (IEnumerable<Color>)record.Colors);
         Assert.Contains(Color.Blue, (IEnumerable<Color>)record.Colors);

@@ -24,9 +24,7 @@ public partial class EnumMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = "Id,Category\n1,Weapon";
-
         var record = Assert.Single(CsvLoader.Parse(csv, CategoryRecord.MapFromCsvRow));
-
         Assert.Equal(1, record.Id);
         Assert.Equal(ItemCategory.Weapon, record.Category);
         logger.LogInformation("Category mapped to {Category}", record.Category);
@@ -38,9 +36,7 @@ public partial class EnumMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = "Id,Category\n1,1";
-
         var record = Assert.Single(CsvLoader.Parse(csv, CategoryRecord.MapFromCsvRow));
-
         Assert.Equal(ItemCategory.Weapon, record.Category);
         logger.LogInformation("Numeric cell mapped to {Category}", record.Category);
     }
@@ -51,9 +47,7 @@ public partial class EnumMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = "Id,Category\n1,99";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, CategoryRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentException>(ex.InnerException);
         logger.LogInformation("Undefined enum value threw: {Message}", ex.Message);
     }
@@ -72,9 +66,7 @@ public partial class EnumMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = "Id,Name\n1001,Sword";
-
         var record = Assert.Single(CsvLoader.Parse(csv, ItemRecord.MapFromCsvRow));
-
         Assert.Equal((ItemId)1001, record.Id);
         Assert.Equal("Sword", record.Name);
         logger.LogInformation("Key enum mapped: Id={Id}, Name={Name}", record.Id, record.Name);

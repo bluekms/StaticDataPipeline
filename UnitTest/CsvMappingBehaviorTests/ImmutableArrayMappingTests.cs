@@ -18,9 +18,7 @@ public partial class ImmutableArrayMappingTests(ITestOutputHelper testOutputHelp
         var logger = CreateLogger();
 
         var csv = "Scores[0],Scores[1],Scores[2]\n10,20,30";
-
         var record = Assert.Single(CsvLoader.Parse(csv, RecordWithIntArrayRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Scores.Length);
         Assert.Equal(10, record.Scores[0]);
         Assert.Equal(20, record.Scores[1]);
@@ -41,9 +39,7 @@ public partial class ImmutableArrayMappingTests(ITestOutputHelper testOutputHelp
         var logger = CreateLogger();
 
         var csv = "Names[0],Names[1]\nAlice,Bob";
-
         var record = Assert.Single(CsvLoader.Parse(csv, RecordWithStringArrayRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Names.Length);
         Assert.Equal("Alice", record.Names[0]);
         Assert.Equal("Bob", record.Names[1]);
@@ -60,9 +56,7 @@ public partial class ImmutableArrayMappingTests(ITestOutputHelper testOutputHelp
         var logger = CreateLogger();
 
         var csv = "Score[0],Score[1],Score[2]\n100,200,300";
-
         var record = Assert.Single(CsvLoader.Parse(csv, RecordWithColumnNameArrayRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Scores.Length);
         Assert.Equal(100, record.Scores[0]);
         Assert.Equal(200, record.Scores[1]);
@@ -82,9 +76,7 @@ public partial class ImmutableArrayMappingTests(ITestOutputHelper testOutputHelp
         var logger = CreateLogger();
 
         var csv = "Id,Values[0],Values[1],Name\n42,10,20,Test";
-
         var record = Assert.Single(CsvLoader.Parse(csv, MixedRecord.MapFromCsvRow));
-
         Assert.Equal(42, record.Id);
         Assert.Equal(2, record.Values.Length);
         Assert.Equal(10, record.Values[0]);
@@ -107,9 +99,7 @@ public partial class ImmutableArrayMappingTests(ITestOutputHelper testOutputHelp
         var logger = CreateLogger();
 
         var csv = "Scores[0],Scores[1],Scores[2]\n10,-,30";
-
         var record = Assert.Single(CsvLoader.Parse(csv, RecordWithNullableIntArrayRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Scores.Length);
         Assert.Equal(10, record.Scores[0]);
         Assert.Null(record.Scores[1]);
@@ -132,9 +122,7 @@ public partial class ImmutableArrayMappingTests(ITestOutputHelper testOutputHelp
         var logger = CreateLogger();
 
         var csv = "Items[0].Id,Items[0].Name,Items[1].Id,Items[1].Name\n1,First,2,Second";
-
         var record = Assert.Single(CsvLoader.Parse(csv, RecordWithRecordArrayRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Items.Length);
         Assert.Equal(1, record.Items[0].Id);
         Assert.Equal("First", record.Items[0].Name);

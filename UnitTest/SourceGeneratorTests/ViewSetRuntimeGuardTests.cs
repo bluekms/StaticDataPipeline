@@ -46,7 +46,6 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
             """;
 
         var generated = GeneratedViewSet(source);
-
         Assert.Contains("ViewSetBuildHelper.NullableViewMemberError(", generated);
         Assert.Contains("throw new global::System.AggregateException", generated);
         Assert.DoesNotContain("NotSupportedException", generated);
@@ -70,7 +69,6 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
             """;
 
         var generated = GeneratedViewSet(source);
-
         Assert.Contains("ViewSetBuildHelper.InvalidViewParameterError(", generated);
         Assert.Contains("throw new global::System.AggregateException", generated);
 
@@ -98,7 +96,6 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
             """;
 
         var generated = GeneratedViewSet(source);
-
         Assert.Contains("ViewSetBuildHelper.ViewConstructorNotFoundError(", generated);
         Assert.Contains("throw new global::System.AggregateException", generated);
 
@@ -124,7 +121,6 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
             """;
 
         var generated = GeneratedViewSet(source);
-
         Assert.Contains("ViewSetBuildHelper.Build<", generated);
         Assert.DoesNotContain("InvalidViewParameterError(", generated);
         Assert.DoesNotContain("NullableViewMemberError(", generated);

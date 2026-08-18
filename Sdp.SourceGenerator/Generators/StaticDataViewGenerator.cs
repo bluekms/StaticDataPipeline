@@ -88,7 +88,6 @@ internal static class StaticDataViewGenerator
         }
 
         var containingPartial = ContainingTypePartialChecker.Check(symbol, diagnostics);
-
         var canEmitFactoryShell = isPartial && containingPartial;
         var canEmit = canEmitFactoryShell && hasValidCtor;
 

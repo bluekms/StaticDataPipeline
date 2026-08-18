@@ -281,7 +281,6 @@ internal static class ParameterAnalyzer
         CancellationToken cancellationToken)
     {
         var underlying = TypeClassifier.UnwrapNullable(type);
-
         if (underlying is not INamedTypeSymbol named)
         {
             return null;

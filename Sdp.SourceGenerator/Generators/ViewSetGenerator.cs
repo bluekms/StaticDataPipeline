@@ -307,7 +307,6 @@ internal static class ViewSetGenerator
                 .Select(reference => reference.GetSyntax())
                 .OfType<ClassDeclarationSyntax>()
                 .ToList();
-
             var isPartial = viewDeclarations.Count > 0
                 && viewDeclarations.All(declaration =>
                     declaration.Modifiers.Any(static modifier => modifier.IsKind(SyntaxKind.PartialKeyword)));

@@ -23,9 +23,7 @@ public partial class SingleColumnNullStringMappingTests(ITestOutputHelper testOu
         var logger = CreateLogger();
 
         var csv = "Id,Values\n1,-";
-
         var record = Assert.Single(CsvLoader.Parse(csv, DashRecord.MapFromCsvRow));
-
         var value = Assert.Single(record.Values);
         Assert.Null(value);
         logger.LogInformation("Dash cell mapped to single null element");
@@ -37,9 +35,7 @@ public partial class SingleColumnNullStringMappingTests(ITestOutputHelper testOu
         var logger = CreateLogger();
 
         var csv = "Id,Values\n1,\"1,-,3\"";
-
         var record = Assert.Single(CsvLoader.Parse(csv, DashRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Values.Length);
         Assert.Equal(1, record.Values[0]);
         Assert.Null(record.Values[1]);
@@ -65,9 +61,7 @@ public partial class SingleColumnNullStringMappingTests(ITestOutputHelper testOu
         var logger = CreateLogger();
 
         var csv = "Id,Values\n1,";
-
         var record = Assert.Single(CsvLoader.Parse(csv, EmptyRecord.MapFromCsvRow));
-
         var value = Assert.Single(record.Values);
         Assert.Null(value);
         logger.LogInformation("Empty cell mapped to single null element");

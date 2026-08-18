@@ -77,7 +77,6 @@ public class SwitchForeignKeyFlagsConditionDiagnosticsTests(ITestOutputHelper te
             .Results
             .SelectMany(r => r.Diagnostics)
             .ToList();
-
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0212");
         Assert.Empty(logger.Logs);
     }
@@ -94,7 +93,6 @@ public class SwitchForeignKeyFlagsConditionDiagnosticsTests(ITestOutputHelper te
             .Results
             .SelectMany(r => r.Diagnostics)
             .ToList();
-
         Assert.Contains(diagnostics, d => d.Id == "SDP0212" && d.Severity == DiagnosticSeverity.Error);
         Assert.Empty(logger.Logs);
     }
@@ -111,7 +109,6 @@ public class SwitchForeignKeyFlagsConditionDiagnosticsTests(ITestOutputHelper te
             .SelectMany(r => r.GeneratedSources)
             .Select(s => s.SourceText.ToString())
             .ToList();
-
         Assert.Contains(generatedTexts, text => text.Contains(expectedLiteral, StringComparison.Ordinal));
         Assert.Empty(logger.Logs);
     }

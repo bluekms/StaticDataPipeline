@@ -20,9 +20,7 @@ public partial class AdditionalScalarMappingTests(ITestOutputHelper testOutputHe
         var logger = CreateLogger();
 
         var csv = $"Id,Enabled\n1,{cell}";
-
         var record = Assert.Single(CsvLoader.Parse(csv, BoolRecord.MapFromCsvRow));
-
         Assert.Equal(expected, record.Enabled);
         logger.LogInformation("Bool cell '{Cell}' mapped to {Enabled}", cell, record.Enabled);
     }
@@ -36,9 +34,7 @@ public partial class AdditionalScalarMappingTests(ITestOutputHelper testOutputHe
         var logger = CreateLogger();
 
         var csv = "Id,Name\n12345678-1234-1234-1234-1234567890ab,Alpha";
-
         var record = Assert.Single(CsvLoader.Parse(csv, GuidRecord.MapFromCsvRow));
-
         Assert.Equal(global::System.Guid.Parse("12345678-1234-1234-1234-1234567890ab"), record.Id);
         Assert.Equal("Alpha", record.Name);
         logger.LogInformation("Guid record mapped: Id={Id}, Name={Name}", record.Id, record.Name);
@@ -56,9 +52,7 @@ public partial class AdditionalScalarMappingTests(ITestOutputHelper testOutputHe
         var logger = CreateLogger();
 
         var csv = $"Id,Grade\n1,{cell}";
-
         var record = Assert.Single(CsvLoader.Parse(csv, CharRecord.MapFromCsvRow));
-
         Assert.Equal(expected, record.Grade);
         logger.LogInformation("Char cell '{Cell}' mapped to {Grade}", cell, record.Grade);
     }
@@ -69,9 +63,7 @@ public partial class AdditionalScalarMappingTests(ITestOutputHelper testOutputHe
         var logger = CreateLogger();
 
         var csv = "Id,Grade\n1,AB";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, CharRecord.MapFromCsvRow));
-
         Assert.IsType<FormatException>(ex.InnerException);
         logger.LogInformation("Multi-character char cell threw: {Message}", ex.Message);
     }
@@ -91,9 +83,7 @@ public partial class AdditionalScalarMappingTests(ITestOutputHelper testOutputHe
         var logger = CreateLogger();
 
         var csv = "B,Sb,S,Us,Ui,Ul\n255,-128,-32768,65535,4000000000,18000000000000000000";
-
         var record = Assert.Single(CsvLoader.Parse(csv, IntegerRecord.MapFromCsvRow));
-
         Assert.Equal((byte)255, record.B);
         Assert.Equal((sbyte)-128, record.Sb);
         Assert.Equal((short)-32768, record.S);
@@ -121,7 +111,6 @@ public partial class AdditionalScalarMappingTests(ITestOutputHelper testOutputHe
         var logger = CreateLogger();
 
         var csv = "Id,Timestamp\n1,2026-05-19T13:30:00+09:00";
-
         var record = Assert.Single(CsvLoader.Parse(csv, DateTimeOffsetRecord.MapFromCsvRow));
 
         Assert.Equal(

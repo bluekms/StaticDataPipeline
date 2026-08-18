@@ -26,7 +26,6 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__ValidateRange_Price(int.Parse(", code);
         Assert.Contains("value < 0", code);
@@ -58,7 +57,6 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__ValidateRange_Ratio", code);
         Assert.Contains("private static double __ValidateRange_Ratio(double value)", code);
@@ -86,7 +84,6 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
             """;
 
         var result = SourceGeneratorTestHelper.Run(source);
-
         Assert.Contains(result.Diagnostics, d => d.Id == "SDP0016" && d.Severity == DiagnosticSeverity.Error);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
@@ -114,7 +111,6 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__Pattern_Title", code);
         Assert.Contains("__ValidatePattern_Title", code);
@@ -143,7 +139,6 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
             """;
 
         var result = SourceGeneratorTestHelper.Run(source);
-
         var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0004");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
 
@@ -168,9 +163,7 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
             """;
 
         var result = SourceGeneratorTestHelper.Run(source);
-
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("NumberStyles.Float | global::System.Globalization.NumberStyles.AllowThousands", code);
 
@@ -198,7 +191,6 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__RangeMin_Date", code);
         Assert.Contains("__RangeMax_Date", code);
@@ -230,7 +222,6 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("== \"-\"", code);
         Assert.Contains("private static int? __MapNullable_Score(string value)", code);
@@ -262,7 +253,6 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("== \"-\" ? (int?)null : __ValidateRange_Scores(", code);
 

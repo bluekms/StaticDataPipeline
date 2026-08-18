@@ -19,9 +19,7 @@ public partial class SingleParameterMappingTests(ITestOutputHelper testOutputHel
         var logger = CreateLogger();
 
         var csv = "Id,Name\n42,Test Entity";
-
         var record = Assert.Single(CsvLoader.Parse(csv, EntityRecord.MapFromCsvRow));
-
         Assert.Equal(42, record.Id.Value);
         Assert.Equal("Test Entity", record.Name);
         logger.LogInformation("Entity mapped: Id={Id}, Name={Name}", record.Id.Value, record.Name);
@@ -40,9 +38,7 @@ public partial class SingleParameterMappingTests(ITestOutputHelper testOutputHel
         var logger = CreateLogger();
 
         var csv = "UserId,ProductId,Quantity\n1001,500,3";
-
         var record = Assert.Single(CsvLoader.Parse(csv, OrderRecord.MapFromCsvRow));
-
         Assert.Equal(1001L, record.UserId.Value);
         Assert.Equal(500, record.ProductId.Value);
         Assert.Equal(3, record.Quantity);
@@ -64,9 +60,7 @@ public partial class SingleParameterMappingTests(ITestOutputHelper testOutputHel
         var logger = CreateLogger();
 
         var csv = "Id,Amount\n123.456,999.99";
-
         var record = Assert.Single(CsvLoader.Parse(csv, PriceRecord.MapFromCsvRow));
-
         Assert.Equal(123.456m, record.Id.Value);
         Assert.Equal(999.99m, record.Amount);
         logger.LogInformation("Price mapped: Id={Id}, Amount={Amount}", record.Id.Value, record.Amount);
@@ -90,9 +84,7 @@ public partial class SingleParameterMappingTests(ITestOutputHelper testOutputHel
         var logger = CreateLogger();
 
         var csv = "Id,Grade\n1,Gold";
-
         var record = Assert.Single(CsvLoader.Parse(csv, GradedRecord.MapFromCsvRow));
-
         Assert.Equal(Grade.Gold, record.Grade.Value);
         logger.LogInformation("Enum branding mapped: Grade={Grade}", record.Grade.Value);
     }
@@ -108,9 +100,7 @@ public partial class SingleParameterMappingTests(ITestOutputHelper testOutputHel
         var logger = CreateLogger();
 
         var csv = "Point.X,Point.Y,Label\n10,20,Origin";
-
         var record = Assert.Single(CsvLoader.Parse(csv, ContainerWithMultiParamRecord.MapFromCsvRow));
-
         Assert.Equal(10, record.Point.X);
         Assert.Equal(20, record.Point.Y);
         Assert.Equal("Origin", record.Label);
@@ -123,9 +113,7 @@ public partial class SingleParameterMappingTests(ITestOutputHelper testOutputHel
         var logger = CreateLogger();
 
         var csv = "Id.Value,Name\n99,Legacy Entity";
-
         var record = Assert.Single(CsvLoader.Parse(csv, EntityRecord.MapFromCsvRow));
-
         Assert.Equal(99, record.Id.Value);
         Assert.Equal("Legacy Entity", record.Name);
         logger.LogInformation("Legacy header mapped: Id={Id}, Name={Name}", record.Id.Value, record.Name);

@@ -118,9 +118,7 @@ public partial class SwitchForeignKeyFlagsEnumValidationTests(ITestOutputHelper 
         WriteFixedCsvs(dir);
 
         var staticData = new FlagsStaticData(logger);
-
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
-
         var inner = Assert.Single(ex.InnerExceptions);
         Assert.Contains("Access=Write", inner.Message);
         Assert.Empty(logger.Logs);
@@ -136,9 +134,7 @@ public partial class SwitchForeignKeyFlagsEnumValidationTests(ITestOutputHelper 
         WriteFixedCsvs(dir);
 
         var staticData = new FlagsStaticData(logger);
-
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
-
         var inner = Assert.Single(ex.InnerExceptions);
         Assert.Contains("999", inner.Message);
         Assert.Empty(logger.Logs);

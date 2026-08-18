@@ -93,7 +93,6 @@ internal static class ForeignKeyAttributeValidator
 
                 var consistent = SwitchForeignKeyValidator
                     .ValidateConditionColumnConsistency(recordType, param, switchFkAttrs, diagnostics);
-
                 valid &= consistent;
 
                 if (consistent)

@@ -94,7 +94,6 @@ internal static class ForeignKeyAnalyzer
                     }
 
                     var conditionType = TypeClassifier.UnwrapNullable(conditionProperty.Type);
-
                     if (TypeClassifier.ClassifyScalar(conditionType) == ScalarKind.Guid)
                     {
                         conditionValue = NormalizeGuidConditionValue(conditionValue);

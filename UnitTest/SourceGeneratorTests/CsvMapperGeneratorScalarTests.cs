@@ -21,9 +21,7 @@ public class CsvMapperGeneratorScalarTests(ITestOutputHelper testOutputHelper)
             """;
 
         var result = SourceGeneratorTestHelper.Run(source);
-
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("MapFromCsvRow", code);
         Assert.Contains("global::Test.Foo", code);
@@ -67,7 +65,6 @@ public class CsvMapperGeneratorScalarTests(ITestOutputHelper testOutputHelper)
         SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
-
         Assert.Empty(errors);
 
         logger.LogInformation(
@@ -93,9 +90,7 @@ public class CsvMapperGeneratorScalarTests(ITestOutputHelper testOutputHelper)
             """;
 
         var result = SourceGeneratorTestHelper.Run(source);
-
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("headers[\"이름\"]", code);
         Assert.DoesNotContain("headers[\"Name\"]", code);

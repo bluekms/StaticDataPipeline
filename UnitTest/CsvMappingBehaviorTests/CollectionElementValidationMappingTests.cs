@@ -21,9 +21,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Scores[0],Scores[1],Scores[2]\n1,1,50,100";
-
         var record = Assert.Single(CsvLoader.Parse(csv, RangeArrayRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Scores.Length);
         Assert.Equal(1, record.Scores[0]);
         Assert.Equal(50, record.Scores[1]);
@@ -41,9 +39,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Scores[0],Scores[1],Scores[2]\n1,1,50,101";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, RangeArrayRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentOutOfRangeException>(ex.InnerException);
         logger.LogInformation("Out-of-range element threw: {Message}", ex.Message);
     }
@@ -59,9 +55,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Levels\n1,\"1,5,10\"";
-
         var record = Assert.Single(CsvLoader.Parse(csv, SingleColumnRangeRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Levels.Length);
         Assert.Equal(1, record.Levels[0]);
         Assert.Equal(5, record.Levels[1]);
@@ -79,9 +73,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Levels\n1,\"1,5,11\"";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, SingleColumnRangeRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentOutOfRangeException>(ex.InnerException);
         logger.LogInformation("Out-of-range single-column element threw: {Message}", ex.Message);
     }
@@ -97,9 +89,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Tags\n1,\"alpha,beta\"";
-
         var record = Assert.Single(CsvLoader.Parse(csv, RegexArrayRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Tags.Length);
         Assert.Equal("alpha", record.Tags[0]);
         Assert.Equal("beta", record.Tags[1]);
@@ -112,9 +102,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Tags\n1,\"alpha,Beta\"";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, RegexArrayRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentException>(ex.InnerException);
         logger.LogInformation("Pattern-mismatch element threw: {Message}", ex.Message);
     }
@@ -130,9 +118,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Scores[0],Scores[1],Scores[2]\n1,1,-,100";
-
         var record = Assert.Single(CsvLoader.Parse(csv, NullableRangeArrayRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Scores.Length);
         Assert.Equal(1, record.Scores[0]);
         Assert.Null(record.Scores[1]);
@@ -150,9 +136,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Scores[0],Scores[1],Scores[2]\n1,1,-,101";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, NullableRangeArrayRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentOutOfRangeException>(ex.InnerException);
         logger.LogInformation("Out-of-range nullable element threw: {Message}", ex.Message);
     }
@@ -168,9 +152,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Levels\n1,\"1,-,10\"";
-
         var record = Assert.Single(CsvLoader.Parse(csv, SingleColumnNullableRangeRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Levels.Length);
         Assert.Equal(1, record.Levels[0]);
         Assert.Null(record.Levels[1]);
@@ -188,9 +170,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Levels\n1,\"1,-,11\"";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, SingleColumnNullableRangeRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentOutOfRangeException>(ex.InnerException);
         logger.LogInformation("Out-of-range nullable single-column element threw: {Message}", ex.Message);
     }
@@ -206,9 +186,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Tags\n1,\"alpha,~,beta\"";
-
         var record = Assert.Single(CsvLoader.Parse(csv, NullableRegexArrayRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Tags.Length);
         Assert.Equal("alpha", record.Tags[0]);
         Assert.Null(record.Tags[1]);
@@ -226,9 +204,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Tags\n1,\"alpha,~,Beta\"";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, NullableRegexArrayRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentException>(ex.InnerException);
         logger.LogInformation("Pattern-mismatch nullable element threw: {Message}", ex.Message);
     }
@@ -244,9 +220,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Scores[0],Scores[1],Scores[2]\n1,1,-,100";
-
         var record = Assert.Single(CsvLoader.Parse(csv, NullableRangeSetRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Scores.Count);
 
         var array = record.Scores.ToArray();
@@ -262,9 +236,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Scores[0],Scores[1],Scores[2]\n1,1,-,101";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, NullableRangeSetRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentOutOfRangeException>(ex.InnerException);
         logger.LogInformation("Out-of-range nullable set element threw: {Message}", ex.Message);
     }
@@ -280,9 +252,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Levels\n1,\"1,-,10\"";
-
         var record = Assert.Single(CsvLoader.Parse(csv, SingleColumnNullableRangeSetRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Levels.Count);
 
         var array = record.Levels.ToArray();
@@ -298,9 +268,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Levels\n1,\"1,-,11\"";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, SingleColumnNullableRangeSetRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentOutOfRangeException>(ex.InnerException);
         logger.LogInformation("Out-of-range nullable single-column set element threw: {Message}", ex.Message);
     }
@@ -316,9 +284,7 @@ public partial class CollectionElementValidationMappingTests(ITestOutputHelper t
         var logger = CreateLogger();
 
         var csv = "Id,Levels\n1,";
-
         var record = Assert.Single(CsvLoader.Parse(csv, EmptyNullStringRangeRecord.MapFromCsvRow));
-
         var value = Assert.Single(record.Levels);
         Assert.Null(value);
         logger.LogInformation("Empty cell mapped to single null element without range validation");

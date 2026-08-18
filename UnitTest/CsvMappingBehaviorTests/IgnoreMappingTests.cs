@@ -17,9 +17,7 @@ public partial class IgnoreMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = "Id,Name\n1,Alpha";
-
         var record = Assert.Single(CsvLoader.Parse(csv, CachedRecord.MapFromCsvRow));
-
         Assert.Equal(1, record.Id);
         Assert.Equal(0, record.CachedValue);
         Assert.Null(record.Note);
@@ -36,9 +34,7 @@ public partial class IgnoreMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = "Id,CachedValue,Note,Name\n1,99,memo,Alpha";
-
         var record = Assert.Single(CsvLoader.Parse(csv, CachedRecord.MapFromCsvRow));
-
         Assert.Equal(0, record.CachedValue);
         Assert.Null(record.Note);
         logger.LogInformation(

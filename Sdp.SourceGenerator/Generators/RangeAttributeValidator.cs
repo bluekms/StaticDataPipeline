@@ -102,7 +102,6 @@ internal sealed class RangeAttributeValidator(
         foreach (var qualified in allParameters)
         {
             var param = qualified.Parameter;
-
             if (param.Range is { ArgKind: RangeArgKind.Numeric } range
                 && TryConvertToDouble(range.Minimum, out var minimum)
                 && TryConvertToDouble(range.Maximum, out var maximum)

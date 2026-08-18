@@ -22,7 +22,6 @@ public class CsvMapperGeneratorPartialTests(ITestOutputHelper testOutputHelper)
 
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.Contains(diagnostics, d => d.Id == "SDP0001");
 
         logger.LogInformation(
@@ -46,7 +45,6 @@ public class CsvMapperGeneratorPartialTests(ITestOutputHelper testOutputHelper)
 
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0001");
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0002");
 
@@ -74,7 +72,6 @@ public class CsvMapperGeneratorPartialTests(ITestOutputHelper testOutputHelper)
 
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.Contains(diagnostics, d => d.Id == "SDP0002");
 
         logger.LogInformation(

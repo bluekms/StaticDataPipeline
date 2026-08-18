@@ -22,9 +22,7 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
 
         var csv = "Inventory[0].Id,Inventory[0].Name,Inventory[1].Id,Inventory[1].Name\n"
                 + "1,First,2,Second";
-
         var record = Assert.Single(CsvLoader.Parse(csv, SimpleInventoryRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Inventory.Count);
         Assert.True(record.Inventory.ContainsKey(1));
         Assert.True(record.Inventory.ContainsKey(2));
@@ -43,9 +41,7 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
 
         var csv = "Inventory[0].Id,Inventory[0].Name,Inventory[1].Id,Inventory[1].Name\n"
                 + "1,First,1,Second";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, SimpleInventoryRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentException>(ex.InnerException);
         logger.LogInformation("Duplicate dictionary key threw: {Message}", ex.Message);
     }
@@ -63,9 +59,7 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
 
         var csv = "Items[0].Code,Items[0].Amount,Items[1].Code,Items[1].Amount\n"
                 + "A001,100,B002,200";
-
         var record = Assert.Single(CsvLoader.Parse(csv, StringKeyItemsRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Items.Count);
         Assert.True(record.Items.ContainsKey("A001"));
         Assert.True(record.Items.ContainsKey("B002"));
@@ -90,9 +84,7 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
 
         var csv = "Id,Name,Items[0].Id,Items[0].Name,Items[1].Id,Items[1].Name\n"
                 + "42,Test,1,ItemA,2,ItemB";
-
         var record = Assert.Single(CsvLoader.Parse(csv, MixedItemsRecord.MapFromCsvRow));
-
         Assert.Equal(42, record.Id);
         Assert.Equal("Test", record.Name);
         Assert.Equal(2, record.Items.Count);
@@ -122,9 +114,7 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
         var logger = CreateLogger();
 
         var csv = "Items[0].Id,Items[0].Name,Items[1].Id,Items[1].Name\n42,Potion,1001,Sword";
-
         var record = Assert.Single(CsvLoader.Parse(csv, EnumKeyInventoryRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Items.Count);
         Assert.True(record.Items.ContainsKey((ItemId)42));
         Assert.True(record.Items.ContainsKey((ItemId)1001));
@@ -152,9 +142,7 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
         var csv = "Inventory[0].Id,Inventory[0].Grades[0],Inventory[0].Grades[1],Inventory[0].Grades[2],"
                 + "Inventory[1].Id,Inventory[1].Grades[0],Inventory[1].Grades[1],Inventory[1].Grades[2]\n"
                 + "1,4.0,4.1,1.5,2,4.3,2.5,4.5";
-
         var record = Assert.Single(CsvLoader.Parse(csv, ComplexInventoryRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Inventory.Count);
         Assert.Equal(3, record.Inventory[1].Grades.Length);
         Assert.Equal(4.0f, record.Inventory[1].Grades[0]);
@@ -183,9 +171,7 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
         var csv = "Inventory[0].Id.Id,Inventory[0].Id.Name,Inventory[0].Grade,"
                 + "Inventory[1].Id.Id,Inventory[1].Id.Name,Inventory[1].Grade\n"
                 + "1,Alice,4.0,2,Bob,4.3";
-
         var record = Assert.Single(CsvLoader.Parse(csv, RecordKeyInventoryRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Inventory.Count);
 
         var key1 = new KeyRecord(1, "Alice");

@@ -72,7 +72,6 @@ internal static class ForeignKeyTargetValidator
 
         var fkType = TypeClassifier.UnwrapNullable(param.Type);
         var targetType = TypeClassifier.UnwrapNullable(targetParam.Type);
-
         var targetCollection = TypeClassifier.ClassifyCollection(targetType);
         if (targetCollection is not null)
         {

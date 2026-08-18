@@ -20,7 +20,6 @@ public class ViewSetBuildHelperTests(ITestOutputHelper testOutputHelper)
         try
         {
             var ex = ViewSetBuildHelper.InvalidViewParameterError("NotAView", "String");
-
             Assert.Equal(expected, ex.Message);
             logger.LogInformation("InvalidViewParameterError [{Locale}]: {Message}", locale, ex.Message);
         }
@@ -42,7 +41,6 @@ public class ViewSetBuildHelperTests(ITestOutputHelper testOutputHelper)
         try
         {
             var ex = ViewSetBuildHelper.ViewConstructorNotFoundError("BadCtorView", "TableSet");
-
             Assert.Equal(expected, ex.Message);
             logger.LogInformation("ViewConstructorNotFoundError [{Locale}]: {Message}", locale, ex.Message);
         }
@@ -64,7 +62,6 @@ public class ViewSetBuildHelperTests(ITestOutputHelper testOutputHelper)
         try
         {
             var ex = ViewSetBuildHelper.NullableViewMemberError("Member", "NullableMemberView");
-
             Assert.Equal(expected, ex.Message);
             logger.LogInformation("NullableViewMemberError [{Locale}]: {Message}", locale, ex.Message);
         }

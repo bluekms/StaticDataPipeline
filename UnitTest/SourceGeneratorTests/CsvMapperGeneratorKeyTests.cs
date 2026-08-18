@@ -24,7 +24,6 @@ public class CsvMapperGeneratorKeyTests(ITestOutputHelper testOutputHelper)
 
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.Contains(diagnostics, d => d.Id == "SDP0003");
 
         logger.LogInformation(
@@ -50,7 +49,6 @@ public class CsvMapperGeneratorKeyTests(ITestOutputHelper testOutputHelper)
 
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0003");
 
         logger.LogInformation(
@@ -74,7 +72,6 @@ public class CsvMapperGeneratorKeyTests(ITestOutputHelper testOutputHelper)
 
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
-
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0003");
 
         logger.LogInformation(

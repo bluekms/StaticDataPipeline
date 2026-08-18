@@ -16,7 +16,6 @@ internal static class ContainingTypePartialChecker
                 .Select(r => r.GetSyntax())
                 .OfType<TypeDeclarationSyntax>()
                 .FirstOrDefault();
-
             if (parentSyntax is null)
             {
                 continue;

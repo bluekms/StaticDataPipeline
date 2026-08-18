@@ -28,7 +28,6 @@ public partial class ArraySheet2CsvLoaderTests
     public void Load_ArraySheet2Csv_AllRecordsHaveThreeScores()
     {
         var records = CsvLoader.Parse(ArraySheetCsv, ArraySheet.MapFromCsvRow);
-
         foreach (var record in records)
         {
             Assert.Equal(3, record.Scores.Length);

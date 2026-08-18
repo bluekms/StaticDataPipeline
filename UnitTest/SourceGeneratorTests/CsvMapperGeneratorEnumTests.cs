@@ -25,7 +25,6 @@ public class CsvMapperGeneratorEnumTests(ITestOutputHelper testOutputHelper)
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__MapColumn_K", code);
         Assert.Contains("case \"Alpha\":", code);
@@ -62,7 +61,6 @@ public class CsvMapperGeneratorEnumTests(ITestOutputHelper testOutputHelper)
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("value.Split(',')", code);
         Assert.Contains("__acc |=", code);
@@ -95,7 +93,6 @@ public class CsvMapperGeneratorEnumTests(ITestOutputHelper testOutputHelper)
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("== \"?\"", code);
         Assert.Contains("private static global::Test.Kind? __MapNullable_K(string value)", code);
@@ -127,7 +124,6 @@ public class CsvMapperGeneratorEnumTests(ITestOutputHelper testOutputHelper)
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         Assert.Contains("unchecked((long)", mapperTree.ToString());
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);

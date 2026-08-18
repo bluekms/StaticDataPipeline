@@ -17,9 +17,7 @@ public partial class PrimitiveTypeMappingTests(ITestOutputHelper testOutputHelpe
         var logger = CreateLogger();
 
         var csv = "Id,Name,Score\n1,Alice,95.5";
-
         var record = Assert.Single(CsvLoader.Parse(csv, SimpleRecord.MapFromCsvRow));
-
         Assert.Equal(1, record.Id);
         Assert.Equal("Alice", record.Name);
         Assert.Equal(95.5, record.Score);
@@ -41,9 +39,7 @@ public partial class PrimitiveTypeMappingTests(ITestOutputHelper testOutputHelpe
         var logger = CreateLogger();
 
         var csv = "StudentId,StudentName\n42,Bob";
-
         var record = Assert.Single(CsvLoader.Parse(csv, RecordWithColumnNameRecord.MapFromCsvRow));
-
         Assert.Equal(42, record.Id);
         Assert.Equal("Bob", record.Name);
         logger.LogInformation("Column-renamed record mapped: Id={Id}, Name={Name}", record.Id, record.Name);
@@ -61,9 +57,7 @@ public partial class PrimitiveTypeMappingTests(ITestOutputHelper testOutputHelpe
         var logger = CreateLogger();
 
         var csv = "Id,OptionalValue,NullableString\n1,100,N/A";
-
         var record = Assert.Single(CsvLoader.Parse(csv, RecordWithNullableRecord.MapFromCsvRow));
-
         Assert.Equal(1, record.Id);
         Assert.Equal(100, record.OptionalValue);
         Assert.Null(record.NullableString);
@@ -83,9 +77,7 @@ public partial class PrimitiveTypeMappingTests(ITestOutputHelper testOutputHelpe
         var logger = CreateLogger();
 
         var csv = "Price,Date\n123.45,2024-12-22";
-
         var record = Assert.Single(CsvLoader.Parse(csv, RecordWithDecimalRecord.MapFromCsvRow));
-
         Assert.Equal(123.45m, record.Price);
         Assert.Equal(new DateTime(2024, 12, 22), record.Date);
         logger.LogInformation("Decimal record mapped: Price={Price}, Date={Date}", record.Price, record.Date);

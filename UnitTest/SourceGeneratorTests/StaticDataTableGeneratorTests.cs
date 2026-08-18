@@ -26,7 +26,6 @@ public class StaticDataTableGeneratorTests(ITestOutputHelper testOutputHelper)
         var output = SourceGeneratorTestHelper.RunWithFinal(source);
         var tree = SourceGeneratorTestHelper.GetSingleTree(output.Run, "FooTable.TableFactory.g.cs");
         var generated = tree.ToString();
-
         Assert.Contains("public FooTable(", generated, StringComparison.Ordinal);
         Assert.Contains(": base(records)", generated, StringComparison.Ordinal);
 
@@ -58,7 +57,6 @@ public class StaticDataTableGeneratorTests(ITestOutputHelper testOutputHelper)
         var output = SourceGeneratorTestHelper.RunWithFinal(source);
         var tree = SourceGeneratorTestHelper.GetSingleTree(output.Run, "FooTable.TableFactory.g.cs");
         var generated = tree.ToString();
-
         Assert.DoesNotContain("public FooTable(", generated, StringComparison.Ordinal);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(output.Final);
@@ -94,7 +92,6 @@ public class StaticDataTableGeneratorTests(ITestOutputHelper testOutputHelper)
         var output = SourceGeneratorTestHelper.RunWithFinal(source);
         var tree = SourceGeneratorTestHelper.GetSingleTree(output.Run, "FooTable.TableFactory.g.cs");
         var generated = tree.ToString();
-
         Assert.DoesNotContain("public FooTable(", generated, StringComparison.Ordinal);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(output.Final);

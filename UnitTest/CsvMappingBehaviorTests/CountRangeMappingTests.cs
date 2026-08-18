@@ -24,9 +24,7 @@ public partial class CountRangeMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = $"Id,Tags\n1,\"{cell}\"";
-
         var record = Assert.Single(CsvLoader.Parse(csv, TagsRecord.MapFromCsvRow));
-
         Assert.Equal(expectedCount, record.Tags.Length);
         logger.LogInformation("Tags cell '{Cell}' mapped to {Count} elements", cell, record.Tags.Length);
     }
@@ -37,9 +35,7 @@ public partial class CountRangeMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = "Id,Tags\n1,a";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, TagsRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentException>(ex.InnerException);
         logger.LogInformation("Count below min threw: {Message}", ex.Message);
     }
@@ -50,9 +46,7 @@ public partial class CountRangeMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = "Id,Tags\n1,\"a,b,c,d,e\"";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, TagsRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentException>(ex.InnerException);
         logger.LogInformation("Count above max threw: {Message}", ex.Message);
     }
@@ -71,9 +65,7 @@ public partial class CountRangeMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = $"Id,Tags\n1,\"{cell}\"";
-
         var record = Assert.Single(CsvLoader.Parse(csv, TagSetRecord.MapFromCsvRow));
-
         Assert.Equal(expectedCount, record.Tags.Count);
         logger.LogInformation("Tag set cell '{Cell}' mapped to {Count} elements", cell, record.Tags.Count);
     }
@@ -84,9 +76,7 @@ public partial class CountRangeMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = "Id,Tags\n1,\"a,b,a\"";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, TagSetRecord.MapFromCsvRow));
-
         Assert.IsType<ArgumentException>(ex.InnerException);
         logger.LogInformation("Duplicate set element threw: {Message}", ex.Message);
     }

@@ -18,9 +18,7 @@ public partial class FrozenSetMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = "Ids[0],Ids[1],Ids[2]\n1,2,3";
-
         var record = Assert.Single(CsvLoader.Parse(csv, RecordWithIntSetRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Ids.Count);
 
         var array = record.Ids.ToArray();
@@ -39,9 +37,7 @@ public partial class FrozenSetMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = "Tags[0],Tags[1]\nimportant,urgent";
-
         var record = Assert.Single(CsvLoader.Parse(csv, RecordWithStringSetRecord.MapFromCsvRow));
-
         Assert.Equal(2, record.Tags.Count);
 
         var array = record.Tags.ToArray();
@@ -60,9 +56,7 @@ public partial class FrozenSetMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = "Tag[0],Tag[1],Tag[2]\na,b,c";
-
         var record = Assert.Single(CsvLoader.Parse(csv, RecordWithColumnNameSetRecord.MapFromCsvRow));
-
         Assert.Equal(3, record.Tags.Count);
 
         var array = record.Tags.ToArray();
@@ -84,9 +78,7 @@ public partial class FrozenSetMappingTests(ITestOutputHelper testOutputHelper)
         var logger = CreateLogger();
 
         var csv = "Id,Values[0],Values[1],Name\n42,100,200,Test";
-
         var record = Assert.Single(CsvLoader.Parse(csv, MixedWithSetRecord.MapFromCsvRow));
-
         Assert.Equal(42, record.Id);
         Assert.Equal(2, record.Values.Count);
 

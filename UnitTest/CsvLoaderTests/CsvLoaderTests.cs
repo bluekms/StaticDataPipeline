@@ -46,7 +46,6 @@ public partial class CsvLoaderTests(ITestOutputHelper testOutputHelper)
         var csv = string.Empty;
 
         var result = CsvLoader.Parse(csv, SimpleRecord.MapFromCsvRow);
-
         Assert.Empty(result);
     }
 
@@ -56,7 +55,6 @@ public partial class CsvLoaderTests(ITestOutputHelper testOutputHelper)
         var csv = "Id,Name,Score";
 
         var result = CsvLoader.Parse(csv, SimpleRecord.MapFromCsvRow);
-
         Assert.Empty(result);
     }
 
@@ -104,7 +102,6 @@ public partial class CsvLoaderTests(ITestOutputHelper testOutputHelper)
             await File.WriteAllTextAsync(tempFile, csv);
 
             var result = await CsvLoader.LoadAsync(tempFile, SimpleRecord.MapFromCsvRow);
-
             Assert.Equal(2, result.Length);
             Assert.Equal(1, result[0].Id);
             Assert.Equal(2, result[1].Id);
@@ -129,7 +126,6 @@ public partial class CsvLoaderTests(ITestOutputHelper testOutputHelper)
             await File.WriteAllTextAsync(tempFile, csv);
 
             var result = await CsvLoader.LoadAsync(tempFile, SimpleRecord.MapFromCsvRow);
-
             Assert.Equal(2, result.Length);
             Assert.Equal(1, result[0].Id);
             Assert.Equal(2, result[1].Id);
@@ -162,7 +158,6 @@ public partial class CsvLoaderTests(ITestOutputHelper testOutputHelper)
         var csv = "Id,Name,Score\n1,\"Hello\nWorld\",95.5\n2,Bob,87.3";
 
         var result = CsvLoader.Parse(csv, SimpleRecord.MapFromCsvRow);
-
         Assert.Equal(2, result.Length);
         Assert.Equal("Hello\nWorld", result[0].Name);
         Assert.Equal("Bob", result[1].Name);
@@ -174,7 +169,6 @@ public partial class CsvLoaderTests(ITestOutputHelper testOutputHelper)
         var csv = "Id,Name,Score\n1,\"Say \"\"Hello\"\"\",95.5";
 
         var result = CsvLoader.Parse(csv, SimpleRecord.MapFromCsvRow);
-
         var record = Assert.Single(result);
         Assert.Equal("Say \"Hello\"", record.Name);
     }
@@ -185,7 +179,6 @@ public partial class CsvLoaderTests(ITestOutputHelper testOutputHelper)
         var csv = "Id,Name,Score\n1,\"Line1\nLine2\nLine3\",95.5\n2,Simple,87.3";
 
         var result = CsvLoader.Parse(csv, SimpleRecord.MapFromCsvRow);
-
         Assert.Equal(2, result.Length);
         Assert.Equal("Line1\nLine2\nLine3", result[0].Name);
         Assert.Equal("Simple", result[1].Name);
@@ -197,7 +190,6 @@ public partial class CsvLoaderTests(ITestOutputHelper testOutputHelper)
         var csv = "Id,Name,Score\n1,\"Hello, World\nGoodbye\",95.5";
 
         var result = CsvLoader.Parse(csv, SimpleRecord.MapFromCsvRow);
-
         var record = Assert.Single(result);
         Assert.Equal("Hello, World\nGoodbye", record.Name);
     }
@@ -207,9 +199,7 @@ public partial class CsvLoaderTests(ITestOutputHelper testOutputHelper)
     {
         // RFC 4180: 따옴표 안의 개행은 원문 그대로 보존된다 (CRLF를 LF로 정규화하지 않는다).
         var csv = "Id,Name,Score\n1,\"Line1\r\nLine2\",95.5";
-
         var result = CsvLoader.Parse(csv, SimpleRecord.MapFromCsvRow);
-
         var record = Assert.Single(result);
         Assert.Equal("Line1\r\nLine2", record.Name);
     }
@@ -218,9 +208,7 @@ public partial class CsvLoaderTests(ITestOutputHelper testOutputHelper)
     public void Parse_WithUnterminatedQuote_ThrowsWithExplicitMessage()
     {
         var csv = "Id,Name,Score\n1,\"Alice,95.5";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, SimpleRecord.MapFromCsvRow));
-
         Assert.Equal(Messages.CsvUnterminatedQuote, ex.Message);
     }
 
@@ -228,7 +216,6 @@ public partial class CsvLoaderTests(ITestOutputHelper testOutputHelper)
     public void Parse_WithRowFieldShortage_ThrowsWithRowContext()
     {
         var csv = "Id,Name,Score\n1,Alice,95.5\n2,Bob";
-
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, SimpleRecord.MapFromCsvRow));
 
         var expectedShortage = string.Format(

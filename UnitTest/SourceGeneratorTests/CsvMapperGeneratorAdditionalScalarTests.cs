@@ -24,7 +24,6 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         Assert.Contains("char.Parse(", mapperTree.ToString());
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
@@ -53,7 +52,6 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         Assert.Contains("System.DateOnly.ParseExact(", mapperTree.ToString());
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
@@ -82,7 +80,6 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         Assert.Contains("System.TimeOnly.ParseExact(", mapperTree.ToString());
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
@@ -107,7 +104,6 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
             """;
 
         var result = SourceGeneratorTestHelper.Run(source);
-
         Assert.Contains(result.Diagnostics, d => d.Id == "SDP0004" && d.Severity == DiagnosticSeverity.Error);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
@@ -138,7 +134,6 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__MapElementEnum_1_Color", code);
         Assert.DoesNotContain("NotSupportedException", code);
@@ -169,7 +164,6 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-
         var code = mapperTree.ToString();
         Assert.Contains("__ValidateRange_Scores", code);
         Assert.DoesNotContain("NotSupportedException", code);
@@ -198,7 +192,6 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
             """;
 
         var result = SourceGeneratorTestHelper.Run(source);
-
         var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0005");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
 
@@ -223,7 +216,6 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
             """;
 
         var result = SourceGeneratorTestHelper.Run(source);
-
         var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0007");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
 
@@ -248,7 +240,6 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
             """;
 
         var result = SourceGeneratorTestHelper.Run(source);
-
         Assert.DoesNotContain(result.Diagnostics, d => d.Id == "SDP0005");
         Assert.DoesNotContain(result.Diagnostics, d => d.Id == "SDP0007");
 
