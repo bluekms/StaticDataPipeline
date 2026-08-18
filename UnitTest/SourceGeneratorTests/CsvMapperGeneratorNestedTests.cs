@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using UnitTest.Utility;
 using Xunit.Abstractions;
@@ -66,7 +67,7 @@ public class CsvMapperGeneratorNestedTests(ITestOutputHelper testOutputHelper)
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         var code = mapperTree.ToString();
 
-        var helperMatches = System.Text.RegularExpressions.Regex.Matches(
+        var helperMatches = Regex.Matches(
             code,
             @"private\s+static\s+global::Test\.Address\s+__MapNested_1_Address\(");
         Assert.Single(helperMatches);

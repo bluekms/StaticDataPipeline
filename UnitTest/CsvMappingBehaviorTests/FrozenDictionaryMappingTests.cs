@@ -1,4 +1,5 @@
 using System.Collections.Frozen;
+using System.Collections.Immutable;
 using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
 using Sdp.Csv;
@@ -128,7 +129,7 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
 
     public sealed record ComplexValue(
         [Key] int Id,
-        [Length(3)] System.Collections.Immutable.ImmutableArray<float> Grades);
+        [Length(3)] ImmutableArray<float> Grades);
 
     [StaticDataRecord("Dict", "Complex")]
     public sealed partial record ComplexInventoryRecord(

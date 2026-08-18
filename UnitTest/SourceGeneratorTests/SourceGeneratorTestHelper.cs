@@ -22,7 +22,7 @@ internal static class SourceGeneratorTestHelper
         var parseOptions = new CSharpParseOptions(langVersion);
         var syntaxTree = CSharpSyntaxTree.ParseText(source, parseOptions);
 
-        var trusted = ((string?)System.AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES"))
+        var trusted = ((string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES"))
             ?.Split(Path.PathSeparator) ?? [];
         var references = trusted
             .Where(p => !string.IsNullOrEmpty(p))

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
@@ -85,7 +86,7 @@ public partial class CsvLoaderTests(ITestOutputHelper testOutputHelper)
 
         var result = CsvLoader.Parse(csv, SimpleRecord.MapFromCsvRow);
 
-        Assert.IsType<System.Collections.Immutable.ImmutableArray<SimpleRecord>>(result);
+        Assert.IsType<ImmutableArray<SimpleRecord>>(result);
     }
 
     [Fact]

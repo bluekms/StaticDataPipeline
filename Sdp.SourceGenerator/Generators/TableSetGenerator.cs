@@ -192,7 +192,7 @@ internal static class TableSetGenerator
 
         var tableSetOuterPartial = ContainingTypePartialChecker.Check(tableSetType, diagnostics);
 
-        var membersByName = new Dictionary<string, INamedTypeSymbol?>(System.StringComparer.Ordinal);
+        var membersByName = new Dictionary<string, INamedTypeSymbol?>(StringComparer.Ordinal);
         foreach (var tableInfo in tableInfos)
         {
             membersByName[tableInfo.ParameterName] = tableInfo.RecordSymbol;

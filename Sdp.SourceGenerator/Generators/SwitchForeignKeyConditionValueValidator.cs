@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 
 namespace Sdp.SourceGenerator.Generators;
@@ -159,8 +160,8 @@ internal static class SwitchForeignKeyConditionValueValidator
             {
                 if (ulong.TryParse(
                     conditionValue,
-                    System.Globalization.NumberStyles.Integer,
-                    System.Globalization.CultureInfo.InvariantCulture,
+                    NumberStyles.Integer,
+                    CultureInfo.InvariantCulture,
                     out _))
                 {
                     continue;
@@ -170,8 +171,8 @@ internal static class SwitchForeignKeyConditionValueValidator
             {
                 var parsed = long.TryParse(
                     conditionValue,
-                    System.Globalization.NumberStyles.Integer,
-                    System.Globalization.CultureInfo.InvariantCulture,
+                    NumberStyles.Integer,
+                    CultureInfo.InvariantCulture,
                     out var numeric);
                 if (parsed && FitsInIntegralType(conditionType.SpecialType, numeric))
                 {
@@ -323,15 +324,15 @@ internal static class SwitchForeignKeyConditionValueValidator
                 var trimmedToken = token.Trim();
                 if (memberValues.TryGetValue(trimmedToken, out var memberValue))
                 {
-                    accumulator |= Convert.ToUInt64(memberValue, System.Globalization.CultureInfo.InvariantCulture);
+                    accumulator |= Convert.ToUInt64(memberValue, CultureInfo.InvariantCulture);
 
                     continue;
                 }
 
                 var parsed = ulong.TryParse(
                     trimmedToken,
-                    System.Globalization.NumberStyles.Integer,
-                    System.Globalization.CultureInfo.InvariantCulture,
+                    NumberStyles.Integer,
+                    CultureInfo.InvariantCulture,
                     out var numeric);
                 if (!parsed)
                 {
@@ -341,7 +342,7 @@ internal static class SwitchForeignKeyConditionValueValidator
                 accumulator |= numeric;
             }
 
-            numericLiteral = accumulator.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            numericLiteral = accumulator.ToString(CultureInfo.InvariantCulture);
 
             return true;
         }
@@ -352,15 +353,15 @@ internal static class SwitchForeignKeyConditionValueValidator
             var trimmedToken = token.Trim();
             if (memberValues.TryGetValue(trimmedToken, out var memberValue))
             {
-                signedAccumulator |= Convert.ToInt64(memberValue, System.Globalization.CultureInfo.InvariantCulture);
+                signedAccumulator |= Convert.ToInt64(memberValue, CultureInfo.InvariantCulture);
 
                 continue;
             }
 
             var parsed = long.TryParse(
                 trimmedToken,
-                System.Globalization.NumberStyles.Integer,
-                System.Globalization.CultureInfo.InvariantCulture,
+                NumberStyles.Integer,
+                CultureInfo.InvariantCulture,
                 out var numeric);
             if (!parsed || !FitsInEnumUnderlyingType(enumType, numeric))
             {
@@ -370,7 +371,7 @@ internal static class SwitchForeignKeyConditionValueValidator
             signedAccumulator |= numeric;
         }
 
-        numericLiteral = signedAccumulator.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        numericLiteral = signedAccumulator.ToString(CultureInfo.InvariantCulture);
 
         return true;
     }
@@ -381,15 +382,15 @@ internal static class SwitchForeignKeyConditionValueValidator
         {
             return ulong.TryParse(
                 value,
-                System.Globalization.NumberStyles.Integer,
-                System.Globalization.CultureInfo.InvariantCulture,
+                NumberStyles.Integer,
+                CultureInfo.InvariantCulture,
                 out _);
         }
 
         var parsed = long.TryParse(
             value,
-            System.Globalization.NumberStyles.Integer,
-            System.Globalization.CultureInfo.InvariantCulture,
+            NumberStyles.Integer,
+            CultureInfo.InvariantCulture,
             out var numeric);
         if (!parsed)
         {

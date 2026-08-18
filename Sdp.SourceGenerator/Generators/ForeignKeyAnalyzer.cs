@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 
 namespace Sdp.SourceGenerator.Generators;
@@ -127,6 +128,6 @@ internal static class ForeignKeyAnalyzer
             return conditionValue;
         }
 
-        return guid.ToString("D", System.Globalization.CultureInfo.InvariantCulture);
+        return guid.ToString("D", CultureInfo.InvariantCulture);
     }
 }
