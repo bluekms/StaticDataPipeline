@@ -212,34 +212,51 @@ internal static partial class TableSetEmitter
 
         if (fkBranches.Count > 0)
         {
-            sb.Append(body).AppendLine("    var __targetLoaded = false;");
+            var parameterSetVariables = new List<string>();
+            var targetMemberBySetVariable = new Dictionary<string, string>();
             foreach (var branch in fkBranches)
             {
                 var setKey = new FkTargetSetKey(branch.TableSetMember, branch.TargetColumn, propertyTypeFullyQualifiedName);
                 var setVariable = fkSetVariables[setKey];
-                sb.Append(body).Append("    if (").Append(setVariable).AppendLine(" is not null)");
+                if (!parameterSetVariables.Contains(setVariable))
+                {
+                    parameterSetVariables.Add(setVariable);
+                    targetMemberBySetVariable[setVariable] = branch.TableSetMember;
+                }
+
+                sb.Append(body).Append("    if (!__ok && ").Append(setVariable).Append(" is not null && ")
+                    .Append(setVariable).AppendLine(".Contains(__v))");
                 sb.Append(body).AppendLine("    {");
-                sb.Append(body).AppendLine("        __targetLoaded = true;");
-                sb.Append(body).Append("        if (!__ok && ").Append(setVariable).AppendLine(".Contains(__v))");
-                sb.Append(body).AppendLine("        {");
-                sb.Append(body).AppendLine("            __ok = true;");
-                sb.Append(body).AppendLine("        }");
+                sb.Append(body).AppendLine("        __ok = true;");
                 sb.Append(body).AppendLine("    }");
             }
 
-            var fkTargetMembers = string.Join(", ", fkBranches.Select(branch => branch.TableSetMember).Distinct());
             var fkTargets = string.Join(", ", fkBranches.Select(branch => branch.TableSetMember + "." + branch.TargetColumn).Distinct());
+            var allTargetsLoadedCondition = string.Join(
+                " && ", parameterSetVariables.Select(setVariable => setVariable + " is not null"));
 
             sb.Append(body).AppendLine("    if (!__ok)");
             sb.Append(body).AppendLine("    {");
-            sb.Append(body).AppendLine("        if (!__targetLoaded)");
-            sb.Append(body).AppendLine("        {");
-            AppendTargetNotLoadedError(body + "            ", fkTargetMembers);
-            sb.Append(body).AppendLine("        }");
-            sb.Append(body).AppendLine("        else");
+            sb.Append(body).Append("        if (").Append(allTargetsLoadedCondition).AppendLine(")");
             sb.Append(body).AppendLine("        {");
             AppendValueNotFoundError(body + "            ", "{__v}", fkTargets);
             sb.Append(body).AppendLine("        }");
+
+            if (parameterSetVariables.Count > 1)
+            {
+                sb.Append(body).AppendLine("        else");
+                sb.Append(body).AppendLine("        {");
+                foreach (var setVariable in parameterSetVariables)
+                {
+                    sb.Append(body).Append("            if (").Append(setVariable).AppendLine(" is null)");
+                    sb.Append(body).AppendLine("            {");
+                    AppendTargetNotLoadedError(body + "                ", targetMemberBySetVariable[setVariable]);
+                    sb.Append(body).AppendLine("            }");
+                }
+
+                sb.Append(body).AppendLine("        }");
+            }
+
             sb.Append(body).AppendLine("    }");
         }
 

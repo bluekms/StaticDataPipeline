@@ -126,4 +126,50 @@ public partial class MultipleForeignKeyValidationTests(ITestOutputHelper testOut
         Assert.Contains("99", ex.InnerExceptions[0].Message);
         Assert.Empty(logger.Logs);
     }
+
+    [Fact]
+    public async Task Load_MultipleFkPartialLoad_ValidWhenValueExistsInLoadedTarget()
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<MultipleForeignKeyValidationTests>() is not TestOutputLogger<MultipleForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Scholarship.Sheet1.csv", ScholarshipCsv);
+
+        var staticData = new StaticData(logger);
+        await staticData.LoadAsync(dir.Path, new List<string> { "Teacher" });
+
+        Assert.Equal(2, staticData.ScholarshipTable.Records.Length);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public async Task Load_MultipleFkPartialLoad_ThrowsTargetNotLoadedWhenValueMissingInLoadedTargets()
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<MultipleForeignKeyValidationTests>() is not TestOutputLogger<MultipleForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Scholarship.Sheet1.csv", ErrorScholarshipCsv);
+
+        var staticData = new StaticData(logger);
+
+        var ex = await Assert.ThrowsAsync<AggregateException>(
+            () => staticData.LoadAsync(dir.Path, new List<string> { "Teacher" }));
+
+        // 99는 로드된 School에 없지만 미로드 Teacher에는 있을 수 있으므로,
+        // 값 부재(ValueNotFound) 단정이 아니라 타깃 미로드로 1회 보고되어야 한다.
+        var inner = Assert.Single(ex.InnerExceptions);
+        Assert.Contains("Teacher", inner.Message);
+        Assert.DoesNotContain("99", inner.Message);
+        Assert.Empty(logger.Logs);
+    }
 }
