@@ -342,6 +342,14 @@ internal static class SdpDiagnostics
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
+    public static readonly DiagnosticDescriptor SwitchForeignKeyEquivalentConditionValue = new(
+        id: "SDP0225",
+        title: "SwitchForeignKey equivalent condition value",
+        messageFormat: "record '{0}' 파라미터 '{1}'의 ConditionValue '{3}'은 같은 컬럼('{2}')의 앞선 값 '{4}'와 같은 값으로 중복됩니다",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     public static readonly DiagnosticDescriptor ViewSetRecordMustBePartial = new(
         id: "SDP0301",
         title: "ViewSet record must be partial",

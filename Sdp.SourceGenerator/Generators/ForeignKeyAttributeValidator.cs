@@ -98,6 +98,9 @@ internal static class ForeignKeyAttributeValidator
                 if (consistent)
                 {
                     SwitchForeignKeyConditionValueValidator.Validate(recordType, param, switchFkAttrs, diagnostics);
+
+                    SwitchForeignKeyValidator
+                        .ValidateConditionValueEquivalence(recordType, param, switchFkAttrs, diagnostics);
                 }
             }
         }
