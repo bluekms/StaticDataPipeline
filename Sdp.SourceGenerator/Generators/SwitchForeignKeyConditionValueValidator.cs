@@ -363,7 +363,12 @@ internal static class SwitchForeignKeyConditionValueValidator
                 NumberStyles.Integer,
                 CultureInfo.InvariantCulture,
                 out var numeric);
-            if (!parsed || !FitsInEnumUnderlyingType(enumType, numeric))
+            if (!parsed)
+            {
+                return false;
+            }
+
+            if (!FitsInIntegralType(enumType.EnumUnderlyingType!.SpecialType, numeric))
             {
                 return false;
             }
@@ -397,12 +402,7 @@ internal static class SwitchForeignKeyConditionValueValidator
             return false;
         }
 
-        return FitsInEnumUnderlyingType(enumType, numeric);
-    }
-
-    public static bool FitsInEnumUnderlyingType(INamedTypeSymbol enumType, long value)
-    {
-        return FitsInIntegralType(enumType.EnumUnderlyingType!.SpecialType, value);
+        return FitsInIntegralType(enumType.EnumUnderlyingType!.SpecialType, numeric);
     }
 
     public static bool FitsInIntegralType(SpecialType specialType, long value)
