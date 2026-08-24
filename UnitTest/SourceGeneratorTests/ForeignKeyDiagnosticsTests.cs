@@ -316,6 +316,36 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
         logger.LogInformation("SDP0225 reported as Error.");
     }
 
+    [Fact]
+    public void Reports_SDP0226_when_ForeignKey_target_is_duplicated()
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        const string source =
+            """
+            [StaticDataRecord("Consumer", "S")]
+            public sealed partial record ConsumerRec(
+                int Id,
+                [ForeignKey("Target", "Id")]
+                [ForeignKey("Target", "Id")]
+                int RefId);
+
+            public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
+                : StaticDataTable<ConsumerRec>(records);
+
+            public partial class GenManager(ILogger logger)
+                : StaticDataManager<GenManager.TableSet>(logger)
+            {
+                public sealed partial record TableSet(TargetTable? Target, ConsumerTable? Consumer);
+            }
+            """;
+
+        AssertReportedAsError(source, "SDP0226");
+
+        logger.LogInformation("SDP0226 reported as Error.");
+    }
+
     private TestOutputLogger<ForeignKeyDiagnosticsTests> CreateLogger()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);

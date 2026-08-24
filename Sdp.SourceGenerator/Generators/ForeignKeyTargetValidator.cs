@@ -21,6 +21,36 @@ internal static class ForeignKeyTargetValidator
         ValidateColumn(tableSetName, columnName, param, membersByName, diagnostics);
     }
 
+    public static void ValidateTargetUniqueness(
+        INamedTypeSymbol recordType,
+        IParameterSymbol param,
+        List<AttributeData> fkAttrs,
+        List<Diagnostic> diagnostics)
+    {
+        var seen = new HashSet<(string, string)>();
+        foreach (var attr in fkAttrs)
+        {
+            var args = attr.ConstructorArguments;
+            if (args.Length < 2 ||
+                args[0].Value is not string tableSetName ||
+                args[1].Value is not string columnName)
+            {
+                continue;
+            }
+
+            if (!seen.Add((tableSetName, columnName)))
+            {
+                diagnostics.Add(Diagnostic.Create(
+                    SdpDiagnostics.ForeignKeyDuplicateTarget,
+                    ParameterLocation(param),
+                    recordType.Name,
+                    param.Name,
+                    tableSetName,
+                    columnName));
+            }
+        }
+    }
+
     public static void ValidateColumn(
         string tableSetName,
         string columnName,

@@ -350,6 +350,14 @@ internal static class SdpDiagnostics
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
+    public static readonly DiagnosticDescriptor ForeignKeyDuplicateTarget = new(
+        id: "SDP0226",
+        title: "ForeignKey duplicate target",
+        messageFormat: "record '{0}'의 파라미터 '{1}'에서 [ForeignKey] 대상 (TableSet='{2}', Column='{3}')이 중복됩니다",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     public static readonly DiagnosticDescriptor ViewSetRecordMustBePartial = new(
         id: "SDP0301",
         title: "ViewSet record must be partial",
