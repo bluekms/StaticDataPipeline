@@ -21,11 +21,9 @@ internal static class StaticDataViewGenerator
                 var list = new List<StaticDataViewAnalysis>(analyses.Length);
                 foreach (var analysis in analyses)
                 {
-                    // 같은 View 가 복수 syntax(부분 선언 등)에서 잡혀도 팩토리 셸은 한 번만
-                    // 방출하되, 두 번째 이후의 진단은 버리지 않고 진단 전용으로 보존한다.
                     list.Add(seen.Add(analysis!.Symbol)
                         ? analysis
-                        : analysis with { CanEmit = false, CanEmitFactoryShell = false });
+                        : analysis.DiagnosticsOnly());
                 }
 
                 return list;

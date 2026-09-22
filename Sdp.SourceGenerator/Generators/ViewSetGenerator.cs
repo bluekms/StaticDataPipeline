@@ -60,21 +60,11 @@ internal static class ViewSetGenerator
                                 analysis.TableSetSymbol.ToDisplayString()));
                         }
 
-                        list.Add(analysis with
-                        {
-                            CanEmit = false,
-                            CanEmitBuilderShell = false,
-                            Diagnostics = conflictDiagnostics,
-                        });
+                        list.Add(analysis.DiagnosticsOnly(conflictDiagnostics));
                         continue;
                     }
 
-                    list.Add(analysis with
-                    {
-                        CanEmit = false,
-                        CanEmitBuilderShell = false,
-                        Diagnostics = ImmutableArray<Diagnostic>.Empty,
-                    });
+                    list.Add(analysis.Suppressed());
                 }
 
                 return list;
@@ -349,6 +339,16 @@ internal static class ViewSetGenerator
 
                 return qualified + ".ViewSetBuilder.g.cs";
             }
+        }
+
+        public ViewSetAnalysis DiagnosticsOnly(ImmutableArray<Diagnostic> diagnostics)
+        {
+            return this with { CanEmit = false, CanEmitBuilderShell = false, Diagnostics = diagnostics };
+        }
+
+        public ViewSetAnalysis Suppressed()
+        {
+            return DiagnosticsOnly(ImmutableArray<Diagnostic>.Empty);
         }
     }
 

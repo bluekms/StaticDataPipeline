@@ -37,6 +37,11 @@ internal sealed record StaticDataManagerAnalysis(
             return qualified + ".StaticDataManager.g.cs";
         }
     }
+
+    public StaticDataManagerAnalysis BridgeOnly()
+    {
+        return this with { CanEmit = false, Diagnostics = Array.Empty<Diagnostic>() };
+    }
 }
 
 internal sealed record TableInfo(

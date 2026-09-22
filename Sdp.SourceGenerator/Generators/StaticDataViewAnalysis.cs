@@ -20,4 +20,9 @@ internal sealed record StaticDataViewAnalysis(
             return qualified + ".ViewFactory.g.cs";
         }
     }
+
+    public StaticDataViewAnalysis DiagnosticsOnly()
+    {
+        return this with { CanEmit = false, CanEmitFactoryShell = false };
+    }
 }

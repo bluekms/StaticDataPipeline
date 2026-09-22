@@ -29,7 +29,7 @@ internal static class TableSetGenerator
                     }
                     else
                     {
-                        list.Add(analysis with { CanEmit = false, Diagnostics = Array.Empty<Diagnostic>() });
+                        list.Add(analysis.BridgeOnly());
                     }
                 }
 
