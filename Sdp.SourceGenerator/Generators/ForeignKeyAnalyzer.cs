@@ -44,7 +44,7 @@ internal static class ForeignKeyAnalyzer
         INamedTypeSymbol recordType,
         Dictionary<string, INamedTypeSymbol?> membersByName)
     {
-        var primaryCtor = SinglePrimaryConstructorResolver.Resolve(recordType);
+        var primaryCtor = SymbolResolver.FindPrimaryConstructor(recordType);
         if (primaryCtor is null)
         {
             return ImmutableArray<FkParameter>.Empty;

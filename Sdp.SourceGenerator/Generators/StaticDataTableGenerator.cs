@@ -87,7 +87,7 @@ internal static class StaticDataTableGenerator
                 symbol.ToDisplayString()));
         }
 
-        var containingPartial = ContainingTypePartialChecker.Check(symbol, diagnostics);
+        var containingPartial = SymbolResolver.AreContainingTypesPartial(symbol, diagnostics);
 
         var hasUserDefinedConstructor = symbol.InstanceConstructors
             .Any(static ctor => !ctor.IsImplicitlyDeclared);

@@ -68,7 +68,7 @@ internal static class ForeignKeyTargetValidator
             return;
         }
 
-        var targetCtor = SinglePrimaryConstructorResolver.Resolve(targetRecord);
+        var targetCtor = SymbolResolver.FindPrimaryConstructor(targetRecord);
         if (targetCtor is null)
         {
             return;

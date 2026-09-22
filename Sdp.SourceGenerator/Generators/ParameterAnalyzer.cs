@@ -296,7 +296,7 @@ internal static class ParameterAnalyzer
             return null;
         }
 
-        var primaryCtor = SinglePrimaryConstructorResolver.Resolve(named);
+        var primaryCtor = SymbolResolver.FindPrimaryConstructor(named);
         if (primaryCtor is null)
         {
             visiting.Remove(named);

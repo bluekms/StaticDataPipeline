@@ -353,7 +353,7 @@ internal static partial class TableSetEmitter
 
     private static IParameterSymbol? FindKeyParameter(INamedTypeSymbol record)
     {
-        var primaryConstructor = SinglePrimaryConstructorResolver.Resolve(record);
+        var primaryConstructor = SymbolResolver.FindPrimaryConstructor(record);
         if (primaryConstructor is null)
         {
             return null;
@@ -379,7 +379,7 @@ internal static partial class TableSetEmitter
         var access = "__r." + EmitHelper.EscapeIdentifier(keyParameter.Name);
         if (keyParameter.Type is INamedTypeSymbol { IsValueType: true, IsRecord: true } keyType)
         {
-            var primaryConstructor = SinglePrimaryConstructorResolver.Resolve(keyType);
+            var primaryConstructor = SymbolResolver.FindPrimaryConstructor(keyType);
             if (primaryConstructor is { Parameters.Length: 1 })
             {
                 access += "." + EmitHelper.EscapeIdentifier(primaryConstructor.Parameters[0].Name);

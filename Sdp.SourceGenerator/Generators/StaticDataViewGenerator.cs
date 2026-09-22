@@ -60,7 +60,7 @@ internal static class StaticDataViewGenerator
             return null;
         }
 
-        var baseType = StaticDataViewBaseResolver.FindBase(symbol);
+        var baseType = SymbolResolver.FindStaticDataViewBase(symbol);
         if (baseType is null || baseType.TypeArguments.Length != 1)
         {
             return null;
@@ -74,7 +74,7 @@ internal static class StaticDataViewGenerator
 
         var isPartial = classDecl.Modifiers.Any(static modifier => modifier.IsKind(SyntaxKind.PartialKeyword));
 
-        var hasValidCtor = ViewConstructorResolver.HasSingleTableSetConstructor(symbol, tableSetType);
+        var hasValidCtor = SymbolResolver.HasSingleTableSetConstructor(symbol, tableSetType);
 
         var diagnostics = new List<Diagnostic>();
         if (!isPartial)
@@ -85,7 +85,7 @@ internal static class StaticDataViewGenerator
                 symbol.ToDisplayString()));
         }
 
-        var containingPartial = ContainingTypePartialChecker.Check(symbol, diagnostics);
+        var containingPartial = SymbolResolver.AreContainingTypesPartial(symbol, diagnostics);
         var canEmitFactoryShell = isPartial && containingPartial;
         var canEmit = canEmitFactoryShell && hasValidCtor;
 

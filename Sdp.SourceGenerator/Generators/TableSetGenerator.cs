@@ -166,7 +166,7 @@ internal static class TableSetGenerator
         }
 
         var staticDataManagerContainingPartial =
-            ContainingTypePartialChecker.Check(symbol, staticDataManagerDiagnostics);
+            SymbolResolver.AreContainingTypesPartial(symbol, staticDataManagerDiagnostics);
 
         // WithView 매니저(타입 인자 2개)는 BuildViewSet 훅도 연결해야 한다. TViewSet 이 타입
         // 파라미터면 SDP0218 을 ViewSetGenerator 가 보고하므로 여기서는 브리지만 막는다.
@@ -190,7 +190,7 @@ internal static class TableSetGenerator
             tableInfos = AnalyzeTableInfos(tableSetType, diagnostics, out allParametersValid, cancellationToken);
         }
 
-        var tableSetOuterPartial = ContainingTypePartialChecker.Check(tableSetType, diagnostics);
+        var tableSetOuterPartial = SymbolResolver.AreContainingTypesPartial(tableSetType, diagnostics);
 
         var membersByName = new Dictionary<string, INamedTypeSymbol?>(StringComparer.Ordinal);
         foreach (var tableInfo in tableInfos)
@@ -277,7 +277,7 @@ internal static class TableSetGenerator
     {
         allParametersValid = true;
 
-        var primaryCtor = SinglePrimaryConstructorResolver.Resolve(tableSetType);
+        var primaryCtor = SymbolResolver.FindPrimaryConstructor(tableSetType);
         if (primaryCtor is null)
         {
             diagnostics.Add(Diagnostic.Create(

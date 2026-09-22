@@ -66,12 +66,12 @@ internal static class CsvMapperGenerator
                 symbol.ToDisplayString()));
         }
 
-        var allContainingPartial = ContainingTypePartialChecker.Check(symbol, diagnostics);
+        var allContainingPartial = SymbolResolver.AreContainingTypesPartial(symbol, diagnostics);
 
         var canEmit = false;
         var canEmitMapperShell = false;
 
-        var primaryCtor = SinglePrimaryConstructorResolver.Resolve(symbol);
+        var primaryCtor = SymbolResolver.FindPrimaryConstructor(symbol);
         if (primaryCtor is null)
         {
             diagnostics.Add(Diagnostic.Create(

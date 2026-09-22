@@ -34,7 +34,7 @@ internal static class ForeignKeyAttributeValidator
         Dictionary<string, INamedTypeSymbol?> membersByName,
         List<Diagnostic> diagnostics)
     {
-        var primaryCtor = SinglePrimaryConstructorResolver.Resolve(recordType);
+        var primaryCtor = SymbolResolver.FindPrimaryConstructor(recordType);
         if (primaryCtor is null)
         {
             return true;

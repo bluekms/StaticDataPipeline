@@ -15,7 +15,7 @@ internal static class FkTargetResolver
             return false;
         }
 
-        var primaryCtor = SinglePrimaryConstructorResolver.Resolve(targetRecord);
+        var primaryCtor = SymbolResolver.FindPrimaryConstructor(targetRecord);
         if (primaryCtor is null)
         {
             return false;

@@ -143,7 +143,7 @@ internal static class ViewSetGenerator
 
         var diagnostics = new List<Diagnostic>();
         var viewSetPartial = CollectViewSetPartialDiagnostic(viewSetType, diagnostics, out var viewSetIsRecord);
-        var viewSetOuterPartial = ContainingTypePartialChecker.Check(viewSetType, diagnostics);
+        var viewSetOuterPartial = SymbolResolver.AreContainingTypesPartial(viewSetType, diagnostics);
 
         // record syntax 가 없는 ViewSet(SDP0306)은 syntax 기반의 primary ctor 해석이 항상 실패해
         // 허위 SDP0006 이 따라붙으므로 멤버 수집을 건너뛴다.
@@ -210,7 +210,7 @@ internal static class ViewSetGenerator
         out bool primaryConstructorResolved,
         CancellationToken cancellationToken)
     {
-        var primaryCtor = SinglePrimaryConstructorResolver.Resolve(viewSetType);
+        var primaryCtor = SymbolResolver.FindPrimaryConstructor(viewSetType);
         if (primaryCtor is null)
         {
             diagnostics.Add(Diagnostic.Create(
@@ -241,7 +241,7 @@ internal static class ViewSetGenerator
             }
 
             var viewSymbol = param.Type as INamedTypeSymbol;
-            var viewBase = viewSymbol is null ? null : StaticDataViewBaseResolver.FindBase(viewSymbol);
+            var viewBase = viewSymbol is null ? null : SymbolResolver.FindStaticDataViewBase(viewSymbol);
             if (viewSymbol is null || viewBase is null)
             {
                 diagnostics.Add(Diagnostic.Create(
@@ -301,9 +301,10 @@ internal static class ViewSetGenerator
                 && viewDeclarations.All(declaration =>
                     declaration.Modifiers.Any(static modifier => modifier.IsKind(SyntaxKind.PartialKeyword)));
 
-            var containingTypesPartial = ContainingTypePartialChecker.Check(viewSymbol, new List<Diagnostic>());
+            var containingTypesPartial = SymbolResolver.AreContainingTypesPartial(
+                viewSymbol, new List<Diagnostic>());
 
-            var hasValidCtor = ViewConstructorResolver.HasSingleTableSetConstructor(viewSymbol, tableSetType);
+            var hasValidCtor = SymbolResolver.HasSingleTableSetConstructor(viewSymbol, tableSetType);
 
             builder.Add(new ViewInfo(
                 param.Name,
