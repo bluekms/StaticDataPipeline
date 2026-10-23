@@ -34,6 +34,18 @@ public class ColumnOrderTests(ITestOutputHelper testOutputHelper)
         public sealed record ItemRecord(ItemId Id, string Name, int Price);
         """;
 
+    private const string DuplicateColumnNameRecordSource = """
+        using Sdp.Attributes;
+
+        namespace ColumnOrder;
+
+        [StaticDataRecord("Order", "Items")]
+        public sealed record ItemRecord(
+            int Id,
+            [ColumnName("Price")] int Price,
+            [ColumnName("Price")] int Cost);
+        """;
+
     [Fact]
     public void SheetColumnOrderSameAsRecord_HeadersMatchValues()
     {
@@ -108,6 +120,21 @@ public class ColumnOrderTests(ITestOutputHelper testOutputHelper)
             startCell: "B2");
 
         AssertTable(table, RecordOrderHeaders, RecordOrderRows);
+    }
+
+    [Fact]
+    public void TwoHeadersReferToSameSheetColumn_Throws()
+    {
+        var exception = Assert.Throws<AggregateException>(() => Extract(
+            DuplicateColumnNameRecordSource,
+            sheetHeaders: ["Id", "Price"],
+            sheetRows:
+            [
+                ["1", "100"],
+            ]));
+
+        testOutputHelper.WriteLine(exception.Message);
+        Assert.Contains("Price", exception.Message, StringComparison.Ordinal);
     }
 
     private static void AssertTable(
