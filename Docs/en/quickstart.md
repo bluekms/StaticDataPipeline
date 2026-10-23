@@ -78,13 +78,13 @@ public sealed record QuestRecord(
 
 ## 2. Define a Table
 
-Inherit from `StaticDataTable<TSelf, TRecord>` and provide a constructor that takes a single `ImmutableArray<TRecord>`. Also add a `UniqueIndex` so you can find a single record by key.
+Inherit from `StaticDataTable<TRecord>` and provide a constructor that takes a single `ImmutableArray<TRecord>`. Also add a `UniqueIndex` so you can find a single record by key.
 
 ```csharp
 using System.Collections.Immutable;
 using Sdp.Table;
 
-public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
+public sealed class ItemTable : StaticDataTable<ItemRecord>
 {
     private readonly UniqueIndex<ItemRecord, int> byId;
 
@@ -100,10 +100,10 @@ public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
 }
 
 public sealed class HeroTable(ImmutableArray<HeroRecord> records)
-    : StaticDataTable<HeroTable, HeroRecord>(records);
+    : StaticDataTable<HeroRecord>(records);
 
 public sealed class QuestTable(ImmutableArray<QuestRecord> records)
-    : StaticDataTable<QuestTable, QuestRecord>(records);
+    : StaticDataTable<QuestRecord>(records);
 ```
 
 Not only tables that have a `UniqueIndex` like `ItemTable`, but also index-free tables like `HeroTable` and `QuestTable`, expose the full list directly through the `Records` property. `Records` preserves the row order entered in the CSV.

@@ -78,13 +78,13 @@ public sealed record QuestRecord(
 
 ## 2. Table 정의
 
-`StaticDataTable<TSelf, TRecord>` 를 상속하고 `ImmutableArray<TRecord>` 한 개짜리 생성자를 제공합니다. 키로 단일 레코드를 찾을 수 있도록 `UniqueIndex` 도 같이 둡니다.
+`StaticDataTable<TRecord>` 를 상속하고 `ImmutableArray<TRecord>` 한 개짜리 생성자를 제공합니다. 키로 단일 레코드를 찾을 수 있도록 `UniqueIndex` 도 같이 둡니다.
 
 ```csharp
 using System.Collections.Immutable;
 using Sdp.Table;
 
-public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
+public sealed class ItemTable : StaticDataTable<ItemRecord>
 {
     private readonly UniqueIndex<ItemRecord, int> byId;
 
@@ -100,10 +100,10 @@ public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
 }
 
 public sealed class HeroTable(ImmutableArray<HeroRecord> records)
-    : StaticDataTable<HeroTable, HeroRecord>(records);
+    : StaticDataTable<HeroRecord>(records);
 
 public sealed class QuestTable(ImmutableArray<QuestRecord> records)
-    : StaticDataTable<QuestTable, QuestRecord>(records);
+    : StaticDataTable<QuestRecord>(records);
 ```
 
 `ItemTable` 처럼 `UniqueIndex` 를 둔 테이블만이 아니라, `HeroTable` · `QuestTable` 같이 인덱스 없는 테이블도 `Records` 속성으로 전체 목록을 그대로 노출합니다. `Records` 는 CSV 에 입력된 행 순서를 유지합니다.

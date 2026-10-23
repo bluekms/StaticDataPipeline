@@ -78,13 +78,13 @@ public sealed record QuestRecord(
 
 ## 2. Table の定義
 
-`StaticDataTable<TSelf, TRecord>` を継承し、`ImmutableArray<TRecord>` 1 個を受け取るコンストラクターを提供します。キーで単一レコードを見つけられるよう `UniqueIndex` も一緒に置きます。
+`StaticDataTable<TRecord>` を継承し、`ImmutableArray<TRecord>` 1 個を受け取るコンストラクターを提供します。キーで単一レコードを見つけられるよう `UniqueIndex` も一緒に置きます。
 
 ```csharp
 using System.Collections.Immutable;
 using Sdp.Table;
 
-public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
+public sealed class ItemTable : StaticDataTable<ItemRecord>
 {
     private readonly UniqueIndex<ItemRecord, int> byId;
 
@@ -100,10 +100,10 @@ public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
 }
 
 public sealed class HeroTable(ImmutableArray<HeroRecord> records)
-    : StaticDataTable<HeroTable, HeroRecord>(records);
+    : StaticDataTable<HeroRecord>(records);
 
 public sealed class QuestTable(ImmutableArray<QuestRecord> records)
-    : StaticDataTable<QuestTable, QuestRecord>(records);
+    : StaticDataTable<QuestRecord>(records);
 ```
 
 `ItemTable` のように `UniqueIndex` を置いたテーブルだけでなく、`HeroTable`・`QuestTable` のようなインデックスのないテーブルも `Records` プロパティで全リストをそのまま公開します。`Records` は CSV に入力された行の順序を保持します。

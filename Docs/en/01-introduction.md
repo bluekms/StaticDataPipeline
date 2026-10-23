@@ -43,7 +43,7 @@ flowchart TB
     Record["Record definition *.cs<br/>(record author)"]
     Extractor["ExcelColumnExtractor<br/>(Roslyn analysis)"]
     Csv["CSV<br/>(required columns only)"]
-    Table["StaticDataTable&lt;TSelf, TRecord&gt;<br/>(ImmutableArray load)"]
+    Table["StaticDataTable&lt;TRecord&gt;<br/>(ImmutableArray load)"]
     Manager["StaticDataManager&lt;TTableSet&gt;<br/>(multiple tables + FK validation)"]
     App["Application lookup<br/>(Get / TryGet)"]
 

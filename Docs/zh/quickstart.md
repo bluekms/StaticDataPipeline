@@ -78,13 +78,13 @@ public sealed record QuestRecord(
 
 ## 2. 定义 Table
 
-继承 `StaticDataTable<TSelf, TRecord>`，并提供一个接收单个 `ImmutableArray<TRecord>` 的构造函数。同时放置一个 `UniqueIndex`，以便按键查找单条记录。
+继承 `StaticDataTable<TRecord>`，并提供一个接收单个 `ImmutableArray<TRecord>` 的构造函数。同时放置一个 `UniqueIndex`，以便按键查找单条记录。
 
 ```csharp
 using System.Collections.Immutable;
 using Sdp.Table;
 
-public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
+public sealed class ItemTable : StaticDataTable<ItemRecord>
 {
     private readonly UniqueIndex<ItemRecord, int> byId;
 
@@ -100,10 +100,10 @@ public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
 }
 
 public sealed class HeroTable(ImmutableArray<HeroRecord> records)
-    : StaticDataTable<HeroTable, HeroRecord>(records);
+    : StaticDataTable<HeroRecord>(records);
 
 public sealed class QuestTable(ImmutableArray<QuestRecord> records)
-    : StaticDataTable<QuestTable, QuestRecord>(records);
+    : StaticDataTable<QuestRecord>(records);
 ```
 
 不仅是像 `ItemTable` 这样放置了 `UniqueIndex` 的表，连 `HeroTable`、`QuestTable` 这类没有索引的表也通过 `Records` 属性直接公开完整列表。`Records` 保持 CSV 中输入的行顺序。

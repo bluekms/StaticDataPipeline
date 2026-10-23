@@ -30,10 +30,10 @@ using System.Collections.Immutable;
 using Sdp.Table;
 
 public sealed class CategoryTable(ImmutableArray<CategoryRecord> records)
-    : StaticDataTable<CategoryTable, CategoryRecord>(records);
+    : StaticDataTable<CategoryRecord>(records);
 
 public sealed class ItemTable(ImmutableArray<ItemRecord> records)
-    : StaticDataTable<ItemTable, ItemRecord>(records);
+    : StaticDataTable<ItemRecord>(records);
 ```
 
 </br></br></br>

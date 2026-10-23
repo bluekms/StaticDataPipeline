@@ -43,7 +43,7 @@ flowchart TB
     Record["Record 정의 *.cs<br/>(레코드 작업자)"]
     Extractor["ExcelColumnExtractor<br/>(Roslyn 분석)"]
     Csv["CSV<br/>(필요한 컬럼만)"]
-    Table["StaticDataTable&lt;TSelf, TRecord&gt;<br/>(ImmutableArray 적재)"]
+    Table["StaticDataTable&lt;TRecord&gt;<br/>(ImmutableArray 적재)"]
     Manager["StaticDataManager&lt;TTableSet&gt;<br/>(여러 테이블 + FK 검증)"]
     App["애플리케이션 조회<br/>(Get / TryGet)"]
 
