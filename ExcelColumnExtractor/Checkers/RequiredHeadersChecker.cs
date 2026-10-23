@@ -14,7 +14,9 @@ namespace ExcelColumnExtractor.Checkers;
 
 public static class RequiredHeadersChecker
 {
-    public sealed record RequiredHeaderMapping(IReadOnlyList<string> SheetHeaders, IReadOnlySet<int> SheetHeaderIndexSet);
+    public sealed record RequiredHeader(string Header, int Index);
+
+    public sealed record RequiredHeaderMapping(IReadOnlyList<RequiredHeader> Headers);
 
     public static RequiredHeaderMap Check(
         RecordSchemaCatalog recordSchemaCatalog,
@@ -67,30 +69,12 @@ public static class RequiredHeadersChecker
             recordSchemaCatalog,
             logger);
 
-        var targetColumnIndexSet = ComputeRequiredHeaderIndices(standardHeaders, sheetHeaders);
-        var requiredSheetHeaders = targetColumnIndexSet.Select(index => sheetHeaders[index]).ToList();
-        if (requiredSheetHeaders.Count != targetColumnIndexSet.Count)
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine(Messages.HeaderAndIndexCountMismatch);
-            sb.AppendLine(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.HeadersLine,
-                string.Join(", ", requiredSheetHeaders)));
-            sb.AppendLine(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.IndexSetLine,
-                string.Join(", ", targetColumnIndexSet)));
-
-            throw new ArgumentException(sb.ToString());
-        }
-
-        return new(requiredSheetHeaders, targetColumnIndexSet);
+        return new(ComputeRequiredHeaders(standardHeaders, sheetHeaders));
     }
 
-    private static HashSet<int> ComputeRequiredHeaderIndices(IReadOnlyList<string> standardHeaders, IReadOnlyList<string> sheetHeaders)
+    private static List<RequiredHeader> ComputeRequiredHeaders(IReadOnlyList<string> standardHeaders, IReadOnlyList<string> sheetHeaders)
     {
-        var requiredHeaderIndices = new HashSet<int>();
+        var requiredHeaders = new List<RequiredHeader>();
         foreach (var standardHeader in standardHeaders)
         {
             var index = IndexOf(sheetHeaders, standardHeader);
@@ -131,10 +115,13 @@ public static class RequiredHeadersChecker
                     standardHeader));
             }
 
-            requiredHeaderIndices.Add(index);
+            if (requiredHeaders.All(x => x.Index != index))
+            {
+                requiredHeaders.Add(new(sheetHeader, index));
+            }
         }
 
-        return requiredHeaderIndices;
+        return requiredHeaders;
     }
 
     private static int IndexOf(IReadOnlyList<string> list, string value)

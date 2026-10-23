@@ -27,15 +27,6 @@
   <data name="FileUpdatedBeforeCapture" xml:space="preserve">
     <value>파일 {0}이(가) 마지막 캡처 이전에 수정되었습니다. {1} -> {2}</value>
   </data>
-  <data name="HeaderAndIndexCountMismatch" xml:space="preserve">
-    <value>헤더와 인덱스 개수가 맞지 않습니다.</value>
-  </data>
-  <data name="HeadersLine" xml:space="preserve">
-    <value>Headers: {{ {0} }}</value>
-  </data>
-  <data name="IndexSetLine" xml:space="preserve">
-    <value>IndexSet: {{ {0} }}</value>
-  </data>
   <data name="RequiredHeaderNotFound" xml:space="preserve">
     <value>헤더를 찾을 수 없습니다: {0}</value>
   </data>
