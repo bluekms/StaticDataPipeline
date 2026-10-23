@@ -39,6 +39,9 @@
   <data name="HeaderCaseSensitivity" xml:space="preserve">
     <value>Header case sensitivity: {0}</value>
   </data>
+  <data name="DuplicateRequiredHeader" xml:space="preserve">
+    <value>Record headers '{0}' and '{1}' both refer to the same sheet column '{2}'. Check for duplicate [ColumnName] values.</value>
+  </data>
   <data name="SheetNotFound" xml:space="preserve">
     <value>Sheet '{0}' not found.</value>
   </data>
