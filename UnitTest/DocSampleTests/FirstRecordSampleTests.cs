@@ -4,7 +4,7 @@ using Sdp.Csv;
 namespace UnitTest.DocSampleTests;
 
 // Docs/ko/03-usage/01-first-record.md 의 Item 예제를 검증한다.
-public class FirstRecordSampleTests
+public partial class FirstRecordSampleTests
 {
     private enum ItemCategory
     {
@@ -14,7 +14,7 @@ public class FirstRecordSampleTests
     }
 
     [StaticDataRecord("Items", "Items")]
-    private sealed record ItemRecord(
+    private sealed partial record ItemRecord(
         [Key] int Id,
         string Name,
         int Price,
@@ -33,8 +33,7 @@ public class FirstRecordSampleTests
     [Fact]
     public void Parse_ConceptualCsv_ReturnsThreeItems()
     {
-        var records = CsvLoader.Parse<ItemRecord>(ItemsCsv);
-
+        var records = CsvLoader.Parse(ItemsCsv, ItemRecord.MapFromCsvRow);
         Assert.Equal(3, records.Length);
 
         Assert.Equal(1, records[0].Id);
@@ -49,8 +48,7 @@ public class FirstRecordSampleTests
     [Fact]
     public void Parse_PreservesRowOrder()
     {
-        var records = CsvLoader.Parse<ItemRecord>(ItemsCsv);
-
+        var records = CsvLoader.Parse(ItemsCsv, ItemRecord.MapFromCsvRow);
         Assert.Equal(ExpectedIds, records.Select(x => x.Id).ToArray());
     }
 }

@@ -1,6 +1,6 @@
 namespace UnitTest.Utility;
 
-internal sealed class CsvTestDirectory : IDisposable
+internal sealed partial class CsvTestDirectory : IDisposable
 {
     public string Path { get; }
 
