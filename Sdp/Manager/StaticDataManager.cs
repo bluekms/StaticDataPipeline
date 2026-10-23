@@ -23,17 +23,8 @@ public abstract class StaticDataManager<TTableSet>(ILogger logger)
         {
             var stopwatch = Stopwatch.StartNew();
 
-            TableSetLoader.EnsureSingleConstructor<TTableSet>();
-
-            var fkTargetError = ForeignKeyTargetValidator.Validate<TTableSet>();
-            if (fkTargetError is not null)
-            {
-                throw fkTargetError;
-            }
-
-            var tableSet = await TableSetLoader.LoadAsync<TTableSet>(csvDir, disabledTables, logger);
-
-            ReferenceValidator.Validate(tableSet);
+            var tableSet = await LoadTableSetAsync(csvDir, disabledTables, logger);
+            ValidateForeignKeys(tableSet);
             Validate(tableSet);
             current = tableSet;
 
@@ -47,6 +38,13 @@ public abstract class StaticDataManager<TTableSet>(ILogger logger)
             Interlocked.Exchange(ref loading, 0);
         }
     }
+
+    protected abstract Task<TTableSet> LoadTableSetAsync(
+        string csvDir,
+        List<string>? disabledTables,
+        ILogger logger);
+
+    protected abstract void ValidateForeignKeys(TTableSet tableSet);
 
     protected virtual void Validate(TTableSet tableSet)
     {

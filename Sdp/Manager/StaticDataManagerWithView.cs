@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Sdp.Resources;
-using Sdp.View;
 
 namespace Sdp.Manager;
 
@@ -25,20 +24,11 @@ public abstract class StaticDataManager<TTableSet, TViewSet>(ILogger logger)
         {
             var stopwatch = Stopwatch.StartNew();
 
-            TableSetLoader.EnsureSingleConstructor<TTableSet>();
-
-            var fkTargetError = ForeignKeyTargetValidator.Validate<TTableSet>();
-            if (fkTargetError is not null)
-            {
-                throw fkTargetError;
-            }
-
-            var tableSet = await TableSetLoader.LoadAsync<TTableSet>(csvDir, disabledTables, logger);
-
-            ReferenceValidator.Validate(tableSet);
+            var tableSet = await LoadTableSetAsync(csvDir, disabledTables, logger);
+            ValidateForeignKeys(tableSet);
             Validate(tableSet);
 
-            var viewSet = ViewSetBuilder.Build<TTableSet, TViewSet>(tableSet, logger);
+            var viewSet = BuildViewSet(tableSet, logger);
             current = new TableAndViewSet(tableSet, viewSet);
 
             stopwatch.Stop();
@@ -51,6 +41,15 @@ public abstract class StaticDataManager<TTableSet, TViewSet>(ILogger logger)
             Interlocked.Exchange(ref loading, 0);
         }
     }
+
+    protected abstract Task<TTableSet> LoadTableSetAsync(
+        string csvDir,
+        List<string>? disabledTables,
+        ILogger logger);
+
+    protected abstract void ValidateForeignKeys(TTableSet tableSet);
+
+    protected abstract TViewSet BuildViewSet(TTableSet tableSet, ILogger logger);
 
     protected virtual void Validate(TTableSet tableSet)
     {
