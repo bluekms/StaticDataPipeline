@@ -10,10 +10,10 @@ public static class CsvWriter
 {
     private const int FlushThreshold = 1024 * 1024;
     private static readonly char[] SpecialChars = [',', '"', '\n', '\r'];
+    private static readonly UTF8Encoding Utf8NoBom = new(false);
 
     public static void Write(
         string path,
-        Encoding encoding,
         ExtractedTableMap extractedTableMap)
     {
         foreach (var (recordSchema, table) in extractedTableMap.SortedTables)
@@ -22,9 +22,10 @@ public static class CsvWriter
             var sheetName = recordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(1);
             var fileName = Path.Combine(path, $"{excelFileName}.{sheetName}.csv");
             var sb = new StringBuilder();
-            sb.AppendLine(string.Join(",", table.Headers));
 
-            using var writer = new StreamWriter(fileName, false, encoding);
+            sb.AppendLine(string.Join(",", table.Headers.Select(EscapeCell)));
+
+            using var writer = new StreamWriter(fileName, false, Utf8NoBom);
             foreach (var row in table.Rows)
             {
                 if (sb.Length > FlushThreshold)
@@ -49,19 +50,7 @@ public static class CsvWriter
 
         foreach (var cell in row.Data)
         {
-            var value = cell.Value ?? string.Empty;
-
-            if (value.IndexOfAny(SpecialChars) != -1)
-            {
-                sb.Append('"');
-                sb.Append(value.Replace("\"", "\"\""));
-                sb.Append('"');
-            }
-            else
-            {
-                sb.Append(value);
-            }
-
+            sb.Append(EscapeCell(cell.Value));
             sb.Append(',');
         }
 
@@ -71,5 +60,15 @@ public static class CsvWriter
         }
 
         return sb.ToString();
+    }
+
+    private static string EscapeCell(string value)
+    {
+        if (value.IndexOfAny(SpecialChars) == -1)
+        {
+            return value;
+        }
+
+        return "\"" + value.Replace("\"", "\"\"") + "\"";
     }
 }

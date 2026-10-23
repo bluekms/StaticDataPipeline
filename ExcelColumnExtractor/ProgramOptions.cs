@@ -19,9 +19,6 @@ public sealed class ProgramOptions
     [Option('v', "version", Required = false, HelpText = "출력 버전")]
     public string? Version { get; set; }
 
-    [Option('c', "encoding", Required = false, Default = "UTF-8", HelpText = "UTF-8 has no bom. (e.g., UTF-8, UTF-16, etc.).")]
-    public string? Encoding { get; set; }
-
     [Option('l', "log-path", Required = false, HelpText = "로그 파일 경로")]
     public string? LogPath { get; set; }
 
