@@ -27,6 +27,7 @@ internal static class SupportedTypeChecker
                 Messages.Composite.Ignored,
                 property.PropertyName.FullName);
             LogTrace(logger, msg, null);
+
             return;
         }
 
@@ -43,12 +44,14 @@ internal static class SupportedTypeChecker
         if (PrimitiveTypeChecker.IsSupportedPrimitiveType(property.NamedTypeSymbol))
         {
             PrimitiveTypeChecker.Check(property);
+
             return;
         }
 
         if (CollectionTypeChecker.IsSupportedCollectionType(property.NamedTypeSymbol))
         {
             CheckSupportedCollectionType(property, recordSchemaCatalog, visited, visiting, logger);
+
             return;
         }
 

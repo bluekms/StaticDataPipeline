@@ -8,7 +8,7 @@ namespace UnitTest.Utility;
 
 public static class SimpleCordParser
 {
-    public sealed record Result(RecordSchemaCatalog RecordSchemaCatalog, IReadOnlyList<RecordSchema> RawRecordSchemata);
+    public sealed partial record Result(RecordSchemaCatalog RecordSchemaCatalog, IReadOnlyList<RecordSchema> RawRecordSchemata);
 
     public static Result Parse(string code, ILogger logger)
     {

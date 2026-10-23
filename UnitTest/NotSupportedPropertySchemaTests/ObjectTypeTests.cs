@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.NotSupportedPropertySchemaTests;
 
-public class ObjectTypeTests(ITestOutputHelper testOutputHelper)
+public partial class ObjectTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void RejectsObjectTest()
@@ -20,7 +20,7 @@ public class ObjectTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        object Property,
                    );
                    """;
@@ -42,11 +42,11 @@ public class ObjectTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        MyData Property,
                    );
 
-                   public sealed class MyData
+                   public sealed partial class MyData
                    {
                        public int Value { get; set; }
                    }

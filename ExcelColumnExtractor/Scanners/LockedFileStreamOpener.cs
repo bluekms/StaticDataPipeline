@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace ExcelColumnExtractor.Scanners;
 
@@ -13,7 +14,7 @@ public class LockedFileStreamOpener : IDisposable
     {
         try
         {
-            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             Stream = File.Open(fileName, FileMode.Open, FileAccess.Read);
         }
         catch (FileNotFoundException)
@@ -38,7 +39,7 @@ public class LockedFileStreamOpener : IDisposable
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
         try
         {
@@ -49,6 +50,7 @@ public class LockedFileStreamOpener : IDisposable
                 FileShare.Read,
                 bufferSize: 4096,
                 useAsync: true);
+
             return new LockedFileStreamOpener(stream, null);
         }
         catch (FileNotFoundException)
@@ -66,6 +68,7 @@ public class LockedFileStreamOpener : IDisposable
                 FileShare.Read,
                 bufferSize: 4096,
                 useAsync: true);
+
             return new LockedFileStreamOpener(stream, tempFileName);
         }
     }

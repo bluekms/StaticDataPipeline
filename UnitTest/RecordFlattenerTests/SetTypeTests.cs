@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.RecordFlattenerTests;
 
-public class SetTypeTests(ITestOutputHelper testOutputHelper)
+public partial class SetTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void SetPrimitiveTypeTest()
@@ -19,7 +19,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)] FrozenSet<int> Ids
                    );
                    """;
@@ -50,7 +50,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [ColumnName("UserId")][Length(2)] FrozenSet<int> Ids
                    );
                    """;
@@ -80,7 +80,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(",")][Length(3)] FrozenSet<string> Tags
                    );
                    """;
@@ -109,7 +109,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        string Name,
                        [Length(2)] FrozenSet<int> Ids,
                        [Length(3)] FrozenSet<string> Tags
@@ -144,13 +144,13 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record ItemInfo(
+                   public sealed partial record ItemInfo(
                        [ColumnName("ID")] int ItemId,
                        int Count
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2), ColumnName("Inven")] FrozenSet<ItemInfo> Items
                    );
                    """;

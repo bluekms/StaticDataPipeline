@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.ForeignKeyTests;
 
-public class MultipleForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
+public partial class MultipleForeignKeyValidationTests(ITestOutputHelper testOutputHelper)
 {
     private const string SchoolCsv =
         """
@@ -43,37 +43,37 @@ public class MultipleForeignKeyValidationTests(ITestOutputHelper testOutputHelpe
         """;
 
     [StaticDataRecord("School", "Sheet1")]
-    private record SchoolRecord(
+    private partial record SchoolRecord(
         int Id,
         string Name);
 
     [StaticDataRecord("Teacher", "Sheet1")]
-    private record TeacherRecord(
+    private partial record TeacherRecord(
         int Id,
         string Name,
         [ForeignKey("School", "Name")] string SchoolName);
 
     [StaticDataRecord("Scholarship", "Sheet1")]
-    private record ScholarshipRecord(
+    private partial record ScholarshipRecord(
         int Id,
         string Title,
         [ForeignKey("School", "Id")]
         [ForeignKey("Teacher", "Id")]
         int RecipientId);
 
-    private sealed class SchoolTable(ImmutableArray<SchoolRecord> records)
-        : StaticDataTable<SchoolTable, SchoolRecord>(records);
+    private sealed partial class SchoolTable(ImmutableArray<SchoolRecord> records)
+        : StaticDataTable<SchoolRecord>(records);
 
-    private sealed class TeacherTable(ImmutableArray<TeacherRecord> records)
-        : StaticDataTable<TeacherTable, TeacherRecord>(records);
+    private sealed partial class TeacherTable(ImmutableArray<TeacherRecord> records)
+        : StaticDataTable<TeacherRecord>(records);
 
-    private sealed class ScholarshipTable(ImmutableArray<ScholarshipRecord> records)
-        : StaticDataTable<ScholarshipTable, ScholarshipRecord>(records);
+    private sealed partial class ScholarshipTable(ImmutableArray<ScholarshipRecord> records)
+        : StaticDataTable<ScholarshipRecord>(records);
 
-    private sealed class StaticData(ILogger logger)
+    private sealed partial class StaticData(ILogger logger)
         : StaticDataManager<StaticData.TableSet>(logger)
     {
-        public sealed record TableSet(
+        public sealed partial record TableSet(
             SchoolTable? School,
             TeacherTable? Teacher,
             ScholarshipTable? Scholarship);
@@ -124,6 +124,52 @@ public class MultipleForeignKeyValidationTests(ITestOutputHelper testOutputHelpe
 
         Assert.Single(ex.InnerExceptions);
         Assert.Contains("99", ex.InnerExceptions[0].Message);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public async Task Load_MultipleFkPartialLoad_ValidWhenValueExistsInLoadedTarget()
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<MultipleForeignKeyValidationTests>() is not TestOutputLogger<MultipleForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Scholarship.Sheet1.csv", ScholarshipCsv);
+
+        var staticData = new StaticData(logger);
+        await staticData.LoadAsync(dir.Path, new List<string> { "Teacher" });
+
+        Assert.Equal(2, staticData.ScholarshipTable.Records.Length);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public async Task Load_MultipleFkPartialLoad_ThrowsTargetNotLoadedWhenValueMissingInLoadedTargets()
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<MultipleForeignKeyValidationTests>() is not TestOutputLogger<MultipleForeignKeyValidationTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        using var dir = new CsvTestDirectory();
+        dir.Write("School.Sheet1.csv", SchoolCsv);
+        dir.Write("Scholarship.Sheet1.csv", ErrorScholarshipCsv);
+
+        var staticData = new StaticData(logger);
+
+        var ex = await Assert.ThrowsAsync<AggregateException>(
+            () => staticData.LoadAsync(dir.Path, new List<string> { "Teacher" }));
+
+        // 99는 로드된 School에 없지만 미로드 Teacher에는 있을 수 있으므로,
+        // 값 부재(ValueNotFound) 단정이 아니라 타깃 미로드로 1회 보고되어야 한다.
+        var inner = Assert.Single(ex.InnerExceptions);
+        Assert.Contains("Teacher", inner.Message);
+        Assert.DoesNotContain("99", inner.Message);
         Assert.Empty(logger.Logs);
     }
 }

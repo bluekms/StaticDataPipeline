@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper)
+public partial class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void RequireTest()
@@ -22,7 +22,7 @@ public class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        TimeSpan Property,
                    );
@@ -48,7 +48,7 @@ public class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        TimeSpan Property,
                    );
                    """;
@@ -73,7 +73,7 @@ public class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        int Property,
                    );
@@ -99,7 +99,7 @@ public class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        [Length(2)]
                        ImmutableArray<TimeSpan> Property,
@@ -126,7 +126,7 @@ public class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2)]
                        ImmutableArray<TimeSpan> Property,
                    );
@@ -151,14 +151,14 @@ public class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
 
         // language=C#
         var code = """
-                   public sealed record DurationInfo(
+                   public sealed partial record DurationInfo(
                        [Key] int Id,
                        [TimeSpanFormat("c")]
                        TimeSpan Cooldown,
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        [Length(2)]
                        FrozenDictionary<int, DurationInfo> Property,
@@ -184,13 +184,13 @@ public class TimeSpanFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
 
         // language=C#
         var code = """
-                   public sealed record PlainInfo(
+                   public sealed partial record PlainInfo(
                        [Key] int Id,
                        string Name,
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        [Length(2)]
                        FrozenDictionary<int, PlainInfo> Property,

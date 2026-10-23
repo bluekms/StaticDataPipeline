@@ -44,7 +44,7 @@ public sealed class GameStaticData(ILogger<GameStaticData> logger)
 
 ## StaticDataView の実装
 
-ビューは CRTP で自分自身を第1引数に入れ、**TableSet を1つだけ受け取る生成子** を持ちます。生成子の中で必要なインデックスや集計をあらかじめ作っておくのが標準パターンです。
+ビューは **TableSet を1つだけ受け取る生成子** を持ちます。生成子の中で必要なインデックスや集計をあらかじめ作っておくのが標準パターンです。
 
 ```csharp
 using Sdp.Table;
@@ -55,7 +55,7 @@ public sealed record EventBundle(
     IReadOnlyList<Equipment> Equipment);
 
 public sealed class EventBundleView(GameStaticData.TableSet tables)
-    : StaticDataView<EventBundleView, GameStaticData.TableSet>(tables)
+    : StaticDataView<GameStaticData.TableSet>(tables)
 {
     private readonly UniqueIndex<EventBundle, int> byEventId = Build(tables);
 
@@ -91,7 +91,7 @@ public sealed class EventBundleView(GameStaticData.TableSet tables)
 
 核心は次の3つです。
 
-1. **CRTP** — `StaticDataView<EventBundleView, GameStaticData.TableSet>` のように、自分自身と入力 TableSet を型引数として束ねる。
+1. `StaticDataView<GameStaticData.TableSet>` のように、入力 TableSet を型引数に宣言する。
 2. **TableSet だけを受け取る単一の生成子** — `ViewSetBuilder` がリフレクションでこの生成子を呼び出す。別のシグネチャがあると `ViewConstructorNotFound` で失敗する。
 3. **生成子の中でビルドを終わらせる** — 外部に可変状態を置かず、参照用のインデックス（`UniqueIndex`、`MultiIndex`）と事前生成されたコレクションだけを readonly で保持する。
 
@@ -103,7 +103,7 @@ public sealed class EventBundleView(GameStaticData.TableSet tables)
 
 ```csharp
 public sealed class EventBundleView(GameStaticData.TableSet tables)
-    : StaticDataView<EventBundleView, GameStaticData.TableSet>(tables)
+    : StaticDataView<GameStaticData.TableSet>(tables)
 {
     protected override void Validate()
     {
@@ -249,7 +249,7 @@ public sealed class EventController(
 ## まとめ
 
 - `StaticDataManager<TTableSet, TViewSet>` がビューの合成を担当する。
-- ビューは `StaticDataView<TSelf, TTableSet>` を継承し、TableSet を1つ受け取る生成子でビルドを終わらせる。
+- ビューは `StaticDataView<TTableSet>` を継承し、TableSet を1つ受け取る生成子でビルドを終わらせる。
 - 必要なら `Validate` を override してビュー自身の事後点検を置く。
 - ViewSet は non-nullable なビューを持つ record として置き、呼び出し側は `Current.Views` でアクセスする。
 - TableSet と ViewSet は1つの束として atomic に差し替えられるため、参照は常に整合した束を見る。

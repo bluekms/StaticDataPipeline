@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaCompatibilityTests.PrimitiveTypes;
 
-public class EnumKeyTests(ITestOutputHelper testOutputHelper)
+public partial class EnumKeyTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("1")]
@@ -27,7 +27,7 @@ public class EnumKeyTests(ITestOutputHelper testOutputHelper)
                    public enum ItemId { None = 0 }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Key] ItemId Id,
                    );
                    """;
@@ -63,7 +63,7 @@ public class EnumKeyTests(ITestOutputHelper testOutputHelper)
                    public enum ItemCategory { Consumable, Weapon, Armor }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        ItemCategory Category,
                    );
                    """;
@@ -99,7 +99,7 @@ public class EnumKeyTests(ITestOutputHelper testOutputHelper)
                    public enum ItemCategory { Consumable, Weapon, Armor }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        ItemCategory Category,
                    );
                    """;

@@ -28,6 +28,7 @@ public static class RecordScanner
         }
 
         var enumMemberCatalog = new EnumMemberCatalog(loadResults);
+
         return new(recordSchemaCatalog, enumMemberCatalog);
     }
 
@@ -50,6 +51,7 @@ public static class RecordScanner
         }
 
         var enumMemberCatalog = new EnumMemberCatalog(loadResults);
+
         return new(recordSchemaCatalog, enumMemberCatalog);
     }
 

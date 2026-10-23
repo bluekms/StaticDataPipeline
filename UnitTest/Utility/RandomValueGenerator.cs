@@ -17,6 +17,7 @@ public static class RandomValueGenerator
         if (type.IsEnum)
         {
             var values = Enum.GetValues(type);
+
             return (T)values.GetValue(Random.Shared.Next(values.Length))!;
         }
 
@@ -50,6 +51,7 @@ public static class RandomValueGenerator
         if (type.IsEnum)
         {
             var values = Enum.GetValues(type);
+
             return values.GetValue(Random.Shared.Next(values.Length))!;
         }
 
@@ -150,6 +152,7 @@ public static class RandomValueGenerator
         {
             var scale = (byte)Random.Shared.Next(29);
             var sign = Random.Shared.Next(2) == 1;
+
             return new decimal(Random.Shared.Next(), Random.Shared.Next(), Random.Shared.Next(), sign, scale);
         }
 

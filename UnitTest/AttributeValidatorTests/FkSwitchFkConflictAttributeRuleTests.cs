@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class FkSwitchFkConflictAttributeRuleTests(ITestOutputHelper testOutputHelper)
+public partial class FkSwitchFkConflictAttributeRuleTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void CanUseForeignKeyOnlyTest()
@@ -22,7 +22,7 @@ public class FkSwitchFkConflictAttributeRuleTests(ITestOutputHelper testOutputHe
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                        [ForeignKey("Other", "Id")]
                        int Reference,
@@ -49,7 +49,7 @@ public class FkSwitchFkConflictAttributeRuleTests(ITestOutputHelper testOutputHe
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                        [SwitchForeignKey("Id", "1", "Other", "Id")]
                        int Reference,
@@ -76,7 +76,7 @@ public class FkSwitchFkConflictAttributeRuleTests(ITestOutputHelper testOutputHe
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                        [ForeignKey("Other", "Id")]
                        [SwitchForeignKey("Id", "1", "Other", "Id")]

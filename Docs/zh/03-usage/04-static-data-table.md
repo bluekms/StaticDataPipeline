@@ -9,14 +9,13 @@ using System.Collections.Immutable;
 using Sdp.Table;
 
 public sealed class ItemTable(ImmutableArray<ItemRecord> records)
-    : StaticDataTable<ItemTable, ItemRecord>(records);
+    : StaticDataTable<ItemRecord>(records);
 ```
 
-只需记住三点。
+只需记住两点。
 
-1. 用 **CRTP** 将类自身放入第一个类型参数: `StaticDataTable<ItemTable, ItemRecord>`。
-2. 两个类型参数依次为 `TSelf`、`TRecord`。
-3. 必须提供一个仅接收一个 `ImmutableArray<TRecord>` 的构造函数。Sdp 会通过反射调用此构造函数。
+1. 类型参数是记录类型 `TRecord`: `StaticDataTable<ItemRecord>`。
+2. 必须提供一个仅接收一个 `ImmutableArray<TRecord>` 的构造函数。Sdp 会通过反射调用此构造函数。
 
 在此状态下，仅通过 `Records` 属性公开整体列表。
 
@@ -39,7 +38,7 @@ foreach (var item in table.Records)
 using System.Collections.Immutable;
 using Sdp.Table;
 
-public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
+public sealed class ItemTable : StaticDataTable<ItemRecord>
 {
     private readonly UniqueIndex<ItemRecord, int> byId;
 
@@ -79,7 +78,7 @@ if (table.TryGet(2, out var sword))
 大多数验证通过 `[Range]`、`[ForeignKey]`、`[RegularExpression]` 这类 Attribute 以声明式方式运作。如果有仅靠 Attribute 难以表达的特殊规则，可以 override `Validate` 来添加自定义验证逻辑。该方法在表创建之后立即被调用，并在 StaticDataManager 阶段的 FK 验证之前执行。
 
 ```csharp
-public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
+public sealed class ItemTable : StaticDataTable<ItemRecord>
 {
     public ItemTable(ImmutableArray<ItemRecord> records)
         : base(records)
@@ -114,7 +113,7 @@ public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
 
 ## 小结
 
-- 继承 `StaticDataTable<TSelf, TRecord>` 并提供 `ImmutableArray<TRecord>` 构造函数。
+- 继承 `StaticDataTable<TRecord>` 并提供 `ImmutableArray<TRecord>` 构造函数。
 - `Records` 维持 CSV 的行顺序。
 - 键查询或分组查询将 `UniqueIndex` / `MultiIndex` 作为成员持有，并通过 Getter 公开。
 - 实际的 CSV 加载由 `StaticDataManager` 负责。

@@ -43,7 +43,7 @@ flowchart TB
     Record["Record 定义 *.cs<br/>(记录作业者)"]
     Extractor["ExcelColumnExtractor<br/>(Roslyn 分析)"]
     Csv["CSV<br/>(仅需要的列)"]
-    Table["StaticDataTable&lt;TSelf, TRecord&gt;<br/>(加载到 ImmutableArray)"]
+    Table["StaticDataTable&lt;TRecord&gt;<br/>(加载到 ImmutableArray)"]
     Manager["StaticDataManager&lt;TTableSet&gt;<br/>(多张表 + FK 校验)"]
     App["应用程序查询<br/>(Get / TryGet)"]
 

@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class DateTimeFormatAttributeRuleTests(ITestOutputHelper testOutputHelper)
+public partial class DateTimeFormatAttributeRuleTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void RequireTest()
@@ -22,7 +22,7 @@ public class DateTimeFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
                        DateTime Property,
                    );
@@ -48,7 +48,7 @@ public class DateTimeFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        DateTime Property,
                    );
                    """;
@@ -73,7 +73,7 @@ public class DateTimeFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
                        int Property,
                    );
@@ -99,7 +99,7 @@ public class DateTimeFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd")]
                        [Length(2)]
                        ImmutableArray<DateTime> Property,
@@ -126,7 +126,7 @@ public class DateTimeFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2)]
                        ImmutableArray<DateTime> Property,
                    );
@@ -151,14 +151,14 @@ public class DateTimeFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
 
         // language=C#
         var code = """
-                   public sealed record EventInfo(
+                   public sealed partial record EventInfo(
                        [Key] int Id,
                        [DateTimeFormat("yyyy-MM-dd")]
                        DateTime EventTime,
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd")]
                        [Length(2)]
                        FrozenDictionary<int, EventInfo> Property,
@@ -184,13 +184,13 @@ public class DateTimeFormatAttributeRuleTests(ITestOutputHelper testOutputHelper
 
         // language=C#
         var code = """
-                   public sealed record PlainInfo(
+                   public sealed partial record PlainInfo(
                        [Key] int Id,
                        string Name,
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd")]
                        [Length(2)]
                        FrozenDictionary<int, PlainInfo> Property,

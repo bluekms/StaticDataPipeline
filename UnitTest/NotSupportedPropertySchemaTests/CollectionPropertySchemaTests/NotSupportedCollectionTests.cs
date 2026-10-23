@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.NotSupportedPropertyTypeSchemaTests.CollectionPropertySchemaTests;
 
-public class NotSupportedCollectionTests(ITestOutputHelper testOutputHelper)
+public partial class NotSupportedCollectionTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("Queue")]
@@ -35,7 +35,7 @@ public class NotSupportedCollectionTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         {collection}<int> Property,
                     );
                     """;

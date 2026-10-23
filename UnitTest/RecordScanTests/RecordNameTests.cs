@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.RecordScanTests;
 
-public class RecordNameTests(ITestOutputHelper testOutputHelper)
+public partial class RecordNameTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void RecordName_FromSymbol_ReturnsFullNamespace()
@@ -19,7 +19,7 @@ public class RecordNameTests(ITestOutputHelper testOutputHelper)
         var code = """
                    namespace Docs.TestRecord;
 
-                   public sealed record SimpleRecord(int Id, string Name);
+                   public sealed partial record SimpleRecord(int Id, string Name);
                    """;
 
         var syntaxTree = CSharpSyntaxTree.ParseText(code);
@@ -50,9 +50,9 @@ public class RecordNameTests(ITestOutputHelper testOutputHelper)
         var code = """
                    namespace Docs.TestRecord;
 
-                   public sealed record ParentRecord(int Id, ParentRecord.ChildRecord Child)
+                   public sealed partial record ParentRecord(int Id, ParentRecord.ChildRecord Child)
                    {
-                       public sealed record ChildRecord(string Name);
+                       public sealed partial record ChildRecord(string Name);
                    }
                    """;
 
@@ -92,10 +92,10 @@ public class RecordNameTests(ITestOutputHelper testOutputHelper)
 
                    namespace Docs.TestRecord;
 
-                   public sealed record ItemData([Key] int ItemId, string ItemName);
+                   public sealed partial record ItemData([Key] int ItemId, string ItemName);
 
                    [StaticDataRecord("Excel2", "DictionarySheet")]
-                   public sealed record DictionarySheet(
+                   public sealed partial record DictionarySheet(
                        int Id,
                        [Length(2)] FrozenDictionary<int, ItemData> Items);
                    """;
@@ -128,11 +128,11 @@ public class RecordNameTests(ITestOutputHelper testOutputHelper)
                    namespace Docs.TestRecord;
 
                    [StaticDataRecord("Excel2", "DictionarySheet")]
-                   public sealed record DictionarySheet(
+                   public sealed partial record DictionarySheet(
                        int Id,
                        [Length(2)] FrozenDictionary<int, DictionarySheet.ItemData> Items)
                    {
-                       public sealed record ItemData([Key] int ItemId, string ItemName);
+                       public sealed partial record ItemData([Key] int ItemId, string ItemName);
                    }
                    """;
 

@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.NotSupportedPropertySchemaTests;
 
-public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
+public partial class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("nint")]
@@ -22,7 +22,7 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         {type} Property,
                     );
                     """;

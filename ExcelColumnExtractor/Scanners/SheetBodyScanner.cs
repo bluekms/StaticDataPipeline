@@ -28,6 +28,7 @@ public class SheetBodyScanner
             excelSheetName.FullName,
             rows.Count);
         LogTrace(logger, msg, null);
+
         return new(rows.AsReadOnly());
     }
 

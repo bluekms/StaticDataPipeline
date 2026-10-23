@@ -4,7 +4,7 @@ using System.Resources;
 
 namespace UnitTest.LocalizationTests;
 
-public class MessagesLocalizationTests
+public partial class MessagesLocalizationTests
 {
     private static readonly string[] SupportedCultures = ["ko"];
 

@@ -85,6 +85,7 @@ internal partial class SchemaRuleValidator
         }
 
         var typeArgument = property.NamedTypeSymbol.TypeArguments.Single();
+
         return typeArgument.NullableAnnotation is NullableAnnotation.Annotated;
     }
 
@@ -96,6 +97,7 @@ internal partial class SchemaRuleValidator
         }
 
         var typeArgument = property.NamedTypeSymbol.TypeArguments.Single();
+
         return typeArgument.NullableAnnotation is NullableAnnotation.Annotated;
     }
 
@@ -107,6 +109,7 @@ internal partial class SchemaRuleValidator
         }
 
         var valueSymbol = (INamedTypeSymbol)property.NamedTypeSymbol.TypeArguments[1];
+
         return valueSymbol.NullableAnnotation is NullableAnnotation.Annotated;
     }
 
@@ -120,10 +123,12 @@ internal partial class SchemaRuleValidator
         if (MapTypeChecker.IsSupportedMapType(property.NamedTypeSymbol))
         {
             var valueSymbol = (INamedTypeSymbol)property.NamedTypeSymbol.TypeArguments[1];
+
             return valueSymbol.NullableAnnotation is not NullableAnnotation.Annotated;
         }
 
         var typeArgument = property.NamedTypeSymbol.TypeArguments.Single();
+
         return typeArgument.NullableAnnotation is not NullableAnnotation.Annotated;
     }
 }

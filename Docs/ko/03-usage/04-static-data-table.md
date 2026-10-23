@@ -9,14 +9,13 @@ using System.Collections.Immutable;
 using Sdp.Table;
 
 public sealed class ItemTable(ImmutableArray<ItemRecord> records)
-    : StaticDataTable<ItemTable, ItemRecord>(records);
+    : StaticDataTable<ItemRecord>(records);
 ```
 
-세 가지만 기억하면 됩니다.
+두 가지만 기억하면 됩니다.
 
-1. **CRTP** 로 자기 자신을 첫 번째 타입 인자에 넣는다: `StaticDataTable<ItemTable, ItemRecord>`.
-2. 타입 인자 두 개는 순서대로 `TSelf`, `TRecord`.
-3. 반드시 `ImmutableArray<TRecord>` 하나만 받는 생성자를 제공한다. Sdp 가 리플렉션으로 이 생성자를 호출한다.
+1. 타입 인자는 레코드 타입 `TRecord` 하나다: `StaticDataTable<ItemRecord>`.
+2. 반드시 `ImmutableArray<TRecord>` 하나만 받는 생성자를 제공한다. Sdp 가 리플렉션으로 이 생성자를 호출한다.
 
 이 상태에서는 `Records` 속성으로 전체 목록만 노출됩니다.
 
@@ -39,7 +38,7 @@ foreach (var item in table.Records)
 using System.Collections.Immutable;
 using Sdp.Table;
 
-public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
+public sealed class ItemTable : StaticDataTable<ItemRecord>
 {
     private readonly UniqueIndex<ItemRecord, int> byId;
 
@@ -79,7 +78,7 @@ if (table.TryGet(2, out var sword))
 대부분의 검증은 `[Range]`, `[ForeignKey]`, `[RegularExpression]` 같은 Attribute 로 선언적으로 동작합니다. Attribute 만으로 표현하기 어려운 특수한 규칙이 있다면 `Validate` 를 override 해서 사용자 검증 로직을 추가할 수 있습니다. 이 메서드는 테이블이 만들어진 직후 호출되며, StaticDataManager 단계의 FK 검증보다 앞서 실행됩니다.
 
 ```csharp
-public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
+public sealed class ItemTable : StaticDataTable<ItemRecord>
 {
     public ItemTable(ImmutableArray<ItemRecord> records)
         : base(records)
@@ -114,7 +113,7 @@ public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
 
 ## 요약
 
-- `StaticDataTable<TSelf, TRecord>` 를 상속하고 `ImmutableArray<TRecord>` 생성자를 제공한다.
+- `StaticDataTable<TRecord>` 를 상속하고 `ImmutableArray<TRecord>` 생성자를 제공한다.
 - `Records` 는 CSV 의 행 순서를 유지한다.
 - 키 조회나 그룹 조회는 `UniqueIndex` / `MultiIndex` 를 멤버로 두고 Getter 로 노출한다.
 - 실제 CSV 로드는 `StaticDataManager` 가 담당한다.

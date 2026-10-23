@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaCompatibilityTests.PrimitiveTypes;
 
-public class RangeAttributeDateTimeTests(ITestOutputHelper testOutputHelper)
+public partial class RangeAttributeDateTimeTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("2020-01-01")]
@@ -23,7 +23,7 @@ public class RangeAttributeDateTimeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd")]
                        [Range(typeof(DateTime), "2020-01-01", "2020-12-31")]
                        DateTime Property,
@@ -59,7 +59,7 @@ public class RangeAttributeDateTimeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd")]
                        [Range(typeof(DateTime), "2020-01-01", "2020-12-31")]
                        DateTime Property,
@@ -99,7 +99,7 @@ public class RangeAttributeDateTimeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd")]
                        [Range(typeof(DateTime), "2020-01-01", "2020-12-31")]
                        DateTime Property,
@@ -156,7 +156,7 @@ public class RangeAttributeDateTimeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd")]
                        [NullString("-")]
                        [Range(typeof(DateTime), "2020-01-01", "2020-12-31")]
@@ -191,7 +191,7 @@ public class RangeAttributeDateTimeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd")]
                        [NullString("-")]
                        [Range(typeof(DateTime), "2020-01-01", "2020-12-31")]

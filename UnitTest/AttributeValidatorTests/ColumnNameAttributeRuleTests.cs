@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class ColumnNameAttributeRuleTests(ITestOutputHelper testOutputHelper)
+public partial class ColumnNameAttributeRuleTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void PrimitiveProperty_ColumnNameUsedAsHeader()
@@ -19,7 +19,7 @@ public class ColumnNameAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [ColumnName("UserId")] int Id,
                        [ColumnName("UserName")] string Name,
                    );
@@ -49,7 +49,7 @@ public class ColumnNameAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [ColumnName("Tag")] [Length(3)] ImmutableArray<string> Items,
                    );
                    """;

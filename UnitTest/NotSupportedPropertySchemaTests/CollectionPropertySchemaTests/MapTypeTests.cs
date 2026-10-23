@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.NotSupportedPropertySchemaTests.CollectionPropertySchemaTests;
 
-public class MapTypeTests(ITestOutputHelper testOutputHelper)
+public partial class MapTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("List")]
@@ -23,7 +23,7 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         Dictionary<int, {collection}<int>> Property,
                     );
                     """;
@@ -45,7 +45,7 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        Dictionary<int, Dictionary<int, string>> Property,
                    );
                    """;
@@ -81,7 +81,7 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         [Length(3)] FrozenDictionary<int, {value}> Property
                     );
                     """;
@@ -106,7 +106,7 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
                    public enum ValueEnum { A, B, C }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)] FrozenDictionary<KeyEnum, ValueEnum> Property
                    );
                    """;
@@ -130,13 +130,13 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
                    public enum ItemIdA { None = 0 }
                    public enum ItemIdB { None = 0 }
 
-                   public sealed record ValueRecord(
+                   public sealed partial record ValueRecord(
                        [Key] ItemIdB Id,
                        string Name,
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2)] FrozenDictionary<ItemIdA, ValueRecord> Properties,
                    );
                    """;
@@ -162,13 +162,13 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
         var code = """
                    public enum ItemId { None = 0 }
 
-                   public sealed record ValueRecord(
+                   public sealed partial record ValueRecord(
                        [Key] ItemId Id,
                        string Name,
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(2)] FrozenDictionary<ItemId, ValueRecord> Properties,
                    );
                    """;
@@ -193,7 +193,7 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
                        [Length(3)]
                        FrozenDictionary<DateTime, DateTime> Property
@@ -217,7 +217,7 @@ public class MapTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        [Length(3)]
                        FrozenDictionary<TimeSpan, TimeSpan> Property

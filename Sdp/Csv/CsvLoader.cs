@@ -1,36 +1,36 @@
 using System.Collections.Immutable;
 using System.Globalization;
-using System.Reflection;
 using System.Text;
 using Sdp.Resources;
 
 namespace Sdp.Csv;
 
-internal static class CsvLoader
+public static class CsvLoader
 {
-    private static readonly MethodInfo BuildImmutableArrayGenericMethod = typeof(CsvLoader)
-        .GetMethod(nameof(BuildImmutableArrayTyped), BindingFlags.NonPublic | BindingFlags.Static)!;
-
-    public static async Task<object> LoadAsync(string filePath, Type recordType)
+    public static async Task<ImmutableArray<TRecord>> LoadAsync<TRecord>(
+        string filePath,
+        Func<CsvHeaderIndex, string[], TRecord> mapFromCsvRow)
     {
         var content = await File.ReadAllTextAsync(filePath);
-        return Parse(content, recordType, filePath);
+
+        return Parse(content, mapFromCsvRow, filePath);
     }
 
-    public static async Task<ImmutableArray<TRecord>> LoadAsync<TRecord>(string filePath)
-        where TRecord : notnull
-        => (ImmutableArray<TRecord>)await LoadAsync(filePath, typeof(TRecord));
-
-    private static object Parse(string csvContent, Type recordType, string? filePath = null)
+    public static ImmutableArray<TRecord> Parse<TRecord>(
+        string csvContent,
+        Func<CsvHeaderIndex, string[], TRecord> mapFromCsvRow,
+        string? filePath = null)
     {
-        var rows = ParseCsvContent(csvContent);
+        var rows = ParseCsvContent(csvContent, filePath);
         if (rows.Count == 0)
         {
-            return BuildEmptyArray(recordType);
+            return [];
         }
 
-        var headers = rows[0];
-        var records = new List<object>(rows.Count - 1);
+        var headers = new CsvHeaderIndex(rows[0], filePath);
+        var headerCellCount = rows[0].Length;
+
+        var builder = ImmutableArray.CreateBuilder<TRecord>(rows.Count - 1);
 
         for (var i = 1; i < rows.Count; i++)
         {
@@ -42,8 +42,17 @@ internal static class CsvLoader
 
             try
             {
-                var record = CsvRecordMapper.MapToRecord(recordType, headers, values);
-                records.Add(record);
+                // 필드가 부족한 경우
+                if (values.Length < headerCellCount)
+                {
+                    throw new InvalidOperationException(string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.CsvRowFieldCountShortage,
+                        values.Length,
+                        headerCellCount));
+                }
+
+                builder.Add(mapFromCsvRow(headers, values));
             }
             catch (Exception ex)
             {
@@ -67,24 +76,12 @@ internal static class CsvLoader
             }
         }
 
-        return BuildImmutableArray(recordType, records);
+        builder.Capacity = builder.Count;
+
+        return builder.MoveToImmutable();
     }
 
-    public static ImmutableArray<TRecord> Parse<TRecord>(string csvContent, string? filePath = null)
-        where TRecord : notnull
-        => (ImmutableArray<TRecord>)Parse(csvContent, typeof(TRecord), filePath);
-
-    private static object BuildImmutableArray(Type recordType, List<object> records)
-        => BuildImmutableArrayGenericMethod.MakeGenericMethod(recordType).Invoke(null, [records])!;
-
-    private static object BuildEmptyArray(Type recordType)
-    => BuildImmutableArrayGenericMethod.MakeGenericMethod(recordType).Invoke(null, [new List<object>()])!;
-
-    private static ImmutableArray<T> BuildImmutableArrayTyped<T>(List<object> records)
-        where T : notnull
-        => records.Cast<T>().ToImmutableArray();
-
-    private static List<string[]> ParseCsvContent(string content)
+    private static List<string[]> ParseCsvContent(string content, string? filePath)
     {
         var rows = new List<string[]>();
         var fields = new List<string>();
@@ -111,17 +108,9 @@ internal static class CsvLoader
                         i++;
                     }
                 }
-                else if (c == '\r')
-                {
-                    field.Append('\n');
-                    i++;
-                    if (i < content.Length && content[i] == '\n')
-                    {
-                        i++;
-                    }
-                }
                 else
                 {
+                    // 따옴표 안의 개행(CRLF 포함)은 RFC 4180 대로 원문 그대로 보존
                     field.Append(c);
                     i++;
                 }
@@ -165,6 +154,18 @@ internal static class CsvLoader
                     i++;
                 }
             }
+        }
+
+        // 따옴표가 닫히지 않은 채 끝난 경우
+        if (inQuotes)
+        {
+            var fileLabel = filePath is not null
+                ? string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.CsvFileLabel,
+                    Path.GetFileName(filePath))
+                : string.Empty;
+            throw new InvalidOperationException(fileLabel + Messages.CsvUnterminatedQuote);
         }
 
         if (field.Length > 0 || fields.Count > 0)

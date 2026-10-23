@@ -75,6 +75,7 @@ public class XunitTestLoggerTypeAnalyzer : DiagnosticAnalyzer
     private static string? ExtractGenericTypeArgument(string typeName)
     {
         var match = Regex.Match(typeName, @"<(.+)>");
+
         return match.Success ? match.Groups[1].Value : null;
     }
 }

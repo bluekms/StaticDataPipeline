@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.RecordFlattenerTests;
 
-public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
+public partial class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void SinglePrimitiveTypeTest()
@@ -19,7 +19,7 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id
                    );
                    """;
@@ -48,7 +48,7 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                        string Name,
                        double Score,
@@ -83,7 +83,7 @@ public class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [ColumnName("UserId")] int Id,
                        [ColumnName("UserName")] string Name
                    );

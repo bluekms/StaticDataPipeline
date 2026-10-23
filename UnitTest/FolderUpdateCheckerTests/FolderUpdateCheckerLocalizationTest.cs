@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.FolderUpdateCheckerTests;
 
-public class FolderUpdateCheckerLocalizationTest(ITestOutputHelper testOutputHelper)
+public partial class FolderUpdateCheckerLocalizationTest(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("en", "File added: Foo")]

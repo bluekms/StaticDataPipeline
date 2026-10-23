@@ -9,14 +9,13 @@ using System.Collections.Immutable;
 using Sdp.Table;
 
 public sealed class ItemTable(ImmutableArray<ItemRecord> records)
-    : StaticDataTable<ItemTable, ItemRecord>(records);
+    : StaticDataTable<ItemRecord>(records);
 ```
 
-There are only three things to remember.
+There are only two things to remember.
 
-1. Using **CRTP**, put the class itself as the first type argument: `StaticDataTable<ItemTable, ItemRecord>`.
-2. The two type arguments are, in order, `TSelf` and `TRecord`.
-3. You must provide a constructor that takes exactly one `ImmutableArray<TRecord>`. Sdp invokes this constructor via reflection.
+1. The type argument is the record type `TRecord`: `StaticDataTable<ItemRecord>`.
+2. You must provide a constructor that takes exactly one `ImmutableArray<TRecord>`. Sdp invokes this constructor via reflection.
 
 In this state, only the full list is exposed through the `Records` property.
 
@@ -39,7 +38,7 @@ If you need a lookup that retrieves a single row directly by primary key, create
 using System.Collections.Immutable;
 using Sdp.Table;
 
-public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
+public sealed class ItemTable : StaticDataTable<ItemRecord>
 {
     private readonly UniqueIndex<ItemRecord, int> byId;
 
@@ -79,7 +78,7 @@ If you need the same kind of lookup on another column, just add an index such as
 Most validation works declaratively through Attributes such as `[Range]`, `[ForeignKey]`, and `[RegularExpression]`. If you have a special rule that is hard to express with Attributes alone, you can override `Validate` to add custom validation logic. This method is invoked right after the table is created, and runs before the FK validation at the StaticDataManager stage.
 
 ```csharp
-public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
+public sealed class ItemTable : StaticDataTable<ItemRecord>
 {
     public ItemTable(ImmutableArray<ItemRecord> records)
         : base(records)
@@ -114,7 +113,7 @@ The validity of references between tables is usually cleaner to express with the
 
 ## Summary
 
-- Inherit from `StaticDataTable<TSelf, TRecord>` and provide an `ImmutableArray<TRecord>` constructor.
+- Inherit from `StaticDataTable<TRecord>` and provide an `ImmutableArray<TRecord>` constructor.
 - `Records` preserves the row order of the CSV.
 - For key lookups or group lookups, keep a `UniqueIndex` / `MultiIndex` as a member and expose it through a getter.
 - The actual CSV loading is handled by `StaticDataManager`.
