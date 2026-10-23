@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaCompatibilityTests.CollectionPropertySchemaTests.NullableTypes;
 
-public class SetTypeTests(ITestOutputHelper testOutputHelper)
+public partial class SetTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void PrimitiveSetTest()
@@ -22,7 +22,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        [Length(4)]
                        FrozenSet<int?> Property,
@@ -64,7 +64,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        [Length(5)]
                        FrozenSet<int?> Property,
@@ -110,7 +110,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
                    public enum MyEnum { A, B, C }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        [Length(3)]
                        FrozenSet<MyEnum?> Property,
@@ -151,7 +151,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
                        [NullString("-")]
                        [Length(3)]
@@ -193,7 +193,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [TimeSpanFormat("c")]
                        [NullString("-")]
                        [Length(2)]
@@ -234,7 +234,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("")]
                        [SingleColumnCollection(", ")]
                        FrozenSet<int?> Property,
@@ -275,7 +275,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
                    public enum MyEnum { A, B, C }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        [NullString("")]
                        FrozenSet<MyEnum?> Property,
@@ -314,7 +314,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        [NullString("")]
                        [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
@@ -354,7 +354,7 @@ public class SetTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        [TimeSpanFormat("c")]
                        [NullString("")]

@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class StaticDataRecordAttributeRuleTests(ITestOutputHelper testOutputHelper)
+public partial class StaticDataRecordAttributeRuleTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void RecordWithAttribute_IsIncludedInStaticDataSchemata()
@@ -21,7 +21,7 @@ public class StaticDataRecordAttributeRuleTests(ITestOutputHelper testOutputHelp
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                        string Name,
                    );
@@ -48,12 +48,12 @@ public class StaticDataRecordAttributeRuleTests(ITestOutputHelper testOutputHelp
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                        SubRecord Sub,
                    );
 
-                   public sealed record SubRecord(
+                   public sealed partial record SubRecord(
                        int Value,
                    );
                    """;
@@ -78,7 +78,7 @@ public class StaticDataRecordAttributeRuleTests(ITestOutputHelper testOutputHelp
 
         // language=C#
         var code = """
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int Id,
                        string Name,
                    );

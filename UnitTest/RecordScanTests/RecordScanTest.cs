@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.RecordScanTests;
 
-public class RecordScanTest(ITestOutputHelper testOutputHelper)
+public partial class RecordScanTest(ITestOutputHelper testOutputHelper)
 {
     private static readonly string[] RecordResourceFileNames =
     [

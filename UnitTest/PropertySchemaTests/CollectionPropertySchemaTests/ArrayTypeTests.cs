@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaTests.CollectionPropertySchemaTests;
 
-public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
+public partial class ArrayTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("bool")]
@@ -35,7 +35,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         [Length(3)] ImmutableArray<{type}> Property,
                     );
                     """;
@@ -75,7 +75,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         [NullString("")]
                         [Length(3)]
                         ImmutableArray<{type}> Property,
@@ -106,7 +106,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
                      public enum MyEnum { A, B, C }
 
                      [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
+                     public sealed partial record MyRecord(
                         [Length(3)] ImmutableArray<{{type}}> Property,
                      );
                      """;
@@ -133,7 +133,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
                         [Length(3)]
                         ImmutableArray<{type}> Property,
@@ -162,7 +162,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         [DateTimeFormat("yyyy-MM-dd HH:mm:ss.fff")]
                         [NullString("")]
                         [Length(3)]
@@ -192,7 +192,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         [TimeSpanFormat("c")]
                         [Length(3)]
                         ImmutableArray<{type}> Property,
@@ -221,7 +221,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = $"""
                     [StaticDataRecord("Test", "TestSheet")]
-                    public sealed record MyRecord(
+                    public sealed partial record MyRecord(
                         [TimeSpanFormat("c")]
                         [NullString("")]
                         [Length(3)]
@@ -250,7 +250,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        ImmutableArray<int> Property,
                    );
@@ -277,7 +277,7 @@ public class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
                        [Length(3)]
                        ImmutableArray<int> Property,

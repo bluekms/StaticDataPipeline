@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.PropertySchemaCompatibilityTests.RecordTypes;
 
-public class RecordTypeTests(ITestOutputHelper testOutputHelper)
+public partial class RecordTypeTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void InnerRecordTest()
@@ -22,11 +22,11 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        Identifier Id
                    )
                    {
-                      public record struct Identifier(int Value);
+                      public partial record struct Identifier(int Value);
                    }
                    """;
 
@@ -62,11 +62,11 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        MyData Data
                    );
 
-                   public record struct MyData(int Key, string Value);
+                   public partial record struct MyData(int Key, string Value);
                    """;
 
         var catalogs = CreateCatalogs(code, logger);
@@ -102,11 +102,11 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)] ImmutableArray<MyData> Data
                    );
 
-                   public record struct MyData(int Key, string Value);
+                   public partial record struct MyData(int Key, string Value);
                    """;
 
         var catalogs = CreateCatalogs(code, logger);
@@ -146,11 +146,11 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)] FrozenSet<MyData> Data
                    );
 
-                   public record struct MyData(int Key, string Value);
+                   public partial record struct MyData(int Key, string Value);
                    """;
 
         var catalogs = CreateCatalogs(code, logger);
@@ -190,11 +190,11 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)] FrozenDictionary<int, MyData> Data
                    );
 
-                   public record struct MyData([Key] int Id, string Value);
+                   public partial record struct MyData([Key] int Id, string Value);
                    """;
 
         var catalogs = CreateCatalogs(code, logger);
@@ -234,16 +234,16 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)] FrozenDictionary<KeyData, MyData> Data
                    );
 
-                   public record struct KeyData(InnerKey Inner, int Key1)
+                   public partial record struct KeyData(InnerKey Inner, int Key1)
                    {
-                       public record struct InnerKey(int X, int Y);
+                       public partial record struct InnerKey(int X, int Y);
                    }
 
-                   public record struct MyData([Key] KeyData Key, string Value);
+                   public partial record struct MyData([Key] KeyData Key, string Value);
                    """;
 
         var catalogs = CreateCatalogs(code, logger);
@@ -309,11 +309,11 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
                    }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)] ImmutableArray<NameScore> Data
                    );
 
-                   public record struct NameScore(string Name, [Length(2)] ImmutableArray<Grades> Grade);
+                   public partial record struct NameScore(string Name, [Length(2)] ImmutableArray<Grades> Grade);
                    """;
 
         var catalogs = CreateCatalogs(code, logger);
@@ -368,11 +368,11 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
                    }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)] FrozenSet<NameScore> Data
                    );
 
-                   public record struct NameScore(string Name, [Length(2)] ImmutableArray<Grades> Grade);
+                   public partial record struct NameScore(string Name, [Length(2)] ImmutableArray<Grades> Grade);
                    """;
 
         var catalogs = CreateCatalogs(code, logger);
@@ -426,11 +426,11 @@ public class RecordTypeTests(ITestOutputHelper testOutputHelper)
                    }
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Length(3)] FrozenDictionary<string, NameScore> Data
                    );
 
-                   public record struct NameScore([Key] string Name, [Length(2)] ImmutableArray<Grades> Grade);
+                   public partial record struct NameScore([Key] string Name, [Length(2)] ImmutableArray<Grades> Grade);
                    """;
 
         var catalogs = CreateCatalogs(code, logger);

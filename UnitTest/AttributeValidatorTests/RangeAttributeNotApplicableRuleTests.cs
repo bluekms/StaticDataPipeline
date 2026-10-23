@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class RangeAttributeNotApplicableRuleTests(ITestOutputHelper testOutputHelper)
+public partial class RangeAttributeNotApplicableRuleTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("byte", "0", "100")]
@@ -29,7 +29,7 @@ public class RangeAttributeNotApplicableRuleTests(ITestOutputHelper testOutputHe
         // language=C#
         var code = $$"""
                      [StaticDataRecord("Test", "TestSheet")]
-                     public sealed record MyRecord(
+                     public sealed partial record MyRecord(
                          [Range(typeof({{type}}), {{min}}, {{max}})]
                          {{type}} Property,
                      );
@@ -55,7 +55,7 @@ public class RangeAttributeNotApplicableRuleTests(ITestOutputHelper testOutputHe
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [Range(0, 1)] bool Property,
                    );
                    """;
@@ -80,7 +80,7 @@ public class RangeAttributeNotApplicableRuleTests(ITestOutputHelper testOutputHe
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("NULL")]
                        [Range(0, 1)] bool? Property,
                    );

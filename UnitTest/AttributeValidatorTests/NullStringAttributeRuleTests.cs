@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AttributeValidatorTests;
 
-public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
+public partial class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void RequireTest()
@@ -22,7 +22,7 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        int? Property
                    );
@@ -48,7 +48,7 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        [Length(3)]
                        ImmutableArray<int?> Property
@@ -75,7 +75,7 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        [Length(3)]
                        FrozenSet<int?> Property
@@ -102,7 +102,7 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        int? Property
                    );
                    """;
@@ -127,7 +127,7 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        ImmutableArray<int?> Property
                    );
                    """;
@@ -152,7 +152,7 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        FrozenSet<int?> Property
                    );
                    """;
@@ -176,14 +176,14 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record ValueRecord(
+                   public sealed partial record ValueRecord(
                        [Key]
                        int Id,
                        string? Name
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        FrozenDictionary<int, ValueRecord> Property
                    );
                    """;
@@ -208,11 +208,11 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        FrozenDictionary<int, MyRecord.ValueRecord> Property
                    )
                    {
-                       public sealed record ValueRecord(
+                       public sealed partial record ValueRecord(
                            [Key]
                            int Id,
                            string? Name
@@ -240,7 +240,7 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        int Property
                    );
@@ -266,7 +266,7 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        ImmutableArray<int> Property
                    );
@@ -292,7 +292,7 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        FrozenSet<int> Property
                    );
@@ -317,14 +317,14 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
 
         // language=C#
         var code = """
-                   public sealed record ValueRecord(
+                   public sealed partial record ValueRecord(
                        [Key]
                        int Id,
                        string Name
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        FrozenDictionary<int, ValueRecord> Property
                    );
@@ -350,12 +350,12 @@ public class NullStringAttributeRuleTests(ITestOutputHelper testOutputHelper)
         // language=C#
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
-                   public sealed record MyRecord(
+                   public sealed partial record MyRecord(
                        [NullString("-")]
                        FrozenDictionary<int, MyRecord.ValueRecord> Property
                    )
                    {
-                       public sealed record ValueRecord(
+                       public sealed partial record ValueRecord(
                            [Key]
                            int Id,
                            string Name

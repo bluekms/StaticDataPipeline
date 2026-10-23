@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.FolderUpdateCheckerTests;
 
-public class FolderUpdateCheckerTest : IDisposable
+public partial class FolderUpdateCheckerTest : IDisposable
 {
     private readonly ITestOutputHelper testOutputHelper;
     private readonly CultureInfo savedCulture;

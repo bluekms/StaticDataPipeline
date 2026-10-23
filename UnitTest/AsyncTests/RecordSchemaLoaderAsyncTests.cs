@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace UnitTest.AsyncTests;
 
-public class RecordSchemaLoaderAsyncTests(ITestOutputHelper testOutputHelper)
+public partial class RecordSchemaLoaderAsyncTests(ITestOutputHelper testOutputHelper)
 {
     private static readonly string[] RecordResourceFileNames =
     [
