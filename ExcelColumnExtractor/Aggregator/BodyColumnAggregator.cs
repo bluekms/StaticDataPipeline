@@ -35,13 +35,19 @@ public static class BodyColumnAggregator
                 var targetColumnData = requiredHeaderMap.Get(recordSchema);
 
                 var filteredRows = sheetBody.Rows
-                    .Select(row => new ExtractedRow(row.Data
-                        .Where((_, index) => targetColumnData.SheetHeaderIndexSet.Contains(index))
-                        .ToList()))
+                    .Select(row =>
+                    {
+                        var cells = targetColumnData.Headers
+                            .Select(header => row.Data[header.Index])
+                            .ToList();
+
+                        return new ExtractedRow(cells);
+                    })
                     .Where(row => row.Data.Any(cell => !string.IsNullOrEmpty(cell.Value)))
                     .ToList();
 
-                result.Add(recordSchema, new(targetColumnData.SheetHeaders, filteredRows));
+                var headers = targetColumnData.Headers.Select(header => header.Header).ToList();
+                result.Add(recordSchema, new(headers, filteredRows));
             }
             catch (Exception e)
             {

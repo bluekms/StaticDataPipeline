@@ -27,15 +27,6 @@
   <data name="FileUpdatedBeforeCapture" xml:space="preserve">
     <value>File {0} was updated before the last capture. {1} -> {2}</value>
   </data>
-  <data name="HeaderAndIndexCountMismatch" xml:space="preserve">
-    <value>Header and index count mismatch.</value>
-  </data>
-  <data name="HeadersLine" xml:space="preserve">
-    <value>Headers: {{ {0} }}</value>
-  </data>
-  <data name="IndexSetLine" xml:space="preserve">
-    <value>IndexSet: {{ {0} }}</value>
-  </data>
   <data name="RequiredHeaderNotFound" xml:space="preserve">
     <value>Header not found: {0}</value>
   </data>

@@ -45,15 +45,6 @@ internal static class Messages
     internal static string FileUpdatedBeforeCapture
         => ResourceManager.GetString("FileUpdatedBeforeCapture", Culture)!;
 
-    internal static string HeaderAndIndexCountMismatch
-        => ResourceManager.GetString("HeaderAndIndexCountMismatch", Culture)!;
-
-    internal static string HeadersLine
-        => ResourceManager.GetString("HeadersLine", Culture)!;
-
-    internal static string IndexSetLine
-        => ResourceManager.GetString("IndexSetLine", Culture)!;
-
     internal static string RequiredHeaderNotFound
         => ResourceManager.GetString("RequiredHeaderNotFound", Culture)!;
 
@@ -105,8 +96,6 @@ internal static class Messages
         internal static CompositeFormat SheetScanned => CompositeFormat.Parse(Messages.SheetScanned);
         internal static CompositeFormat FolderPathsDifferent => CompositeFormat.Parse(Messages.FolderPathsDifferent);
         internal static CompositeFormat FileUpdatedBeforeCapture => CompositeFormat.Parse(Messages.FileUpdatedBeforeCapture);
-        internal static CompositeFormat HeadersLine => CompositeFormat.Parse(Messages.HeadersLine);
-        internal static CompositeFormat IndexSetLine => CompositeFormat.Parse(Messages.IndexSetLine);
         internal static CompositeFormat RequiredHeaderNotFound => CompositeFormat.Parse(Messages.RequiredHeaderNotFound);
         internal static CompositeFormat SheetHeadersLine => CompositeFormat.Parse(Messages.SheetHeadersLine);
         internal static CompositeFormat RecordHeadersLine => CompositeFormat.Parse(Messages.RecordHeadersLine);
