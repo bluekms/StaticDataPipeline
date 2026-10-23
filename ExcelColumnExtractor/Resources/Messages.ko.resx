@@ -39,6 +39,9 @@
   <data name="HeaderCaseSensitivity" xml:space="preserve">
     <value>헤더 대소문자 구분: {0}</value>
   </data>
+  <data name="DuplicateRequiredHeader" xml:space="preserve">
+    <value>Record 헤더 '{0}' 와(과) '{1}' 이(가) 같은 시트 컬럼 '{2}' 을(를) 가리킵니다. [ColumnName] 이 중복되지 않았는지 확인하세요.</value>
+  </data>
   <data name="SheetNotFound" xml:space="preserve">
     <value>'{0}' 시트를 찾을 수 없습니다.</value>
   </data>

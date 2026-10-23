@@ -75,6 +75,7 @@ public static class RequiredHeadersChecker
     private static List<RequiredHeader> ComputeRequiredHeaders(IReadOnlyList<string> standardHeaders, IReadOnlyList<string> sheetHeaders)
     {
         var requiredHeaders = new List<RequiredHeader>();
+        var standardHeaderByIndex = new Dictionary<int, string>();
         foreach (var standardHeader in standardHeaders)
         {
             var index = IndexOf(sheetHeaders, standardHeader);
@@ -115,10 +116,17 @@ public static class RequiredHeadersChecker
                     standardHeader));
             }
 
-            if (requiredHeaders.All(x => x.Index != index))
+            if (!standardHeaderByIndex.TryAdd(index, standardHeader))
             {
-                requiredHeaders.Add(new(sheetHeader, index));
+                throw new ArgumentException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.DuplicateRequiredHeader,
+                    standardHeaderByIndex[index],
+                    standardHeader,
+                    sheetHeader));
             }
+
+            requiredHeaders.Add(new(sheetHeader, index));
         }
 
         return requiredHeaders;

@@ -57,6 +57,9 @@ internal static class Messages
     internal static string HeaderCaseSensitivity
         => ResourceManager.GetString("HeaderCaseSensitivity", Culture)!;
 
+    internal static string DuplicateRequiredHeader
+        => ResourceManager.GetString("DuplicateRequiredHeader", Culture)!;
+
     internal static string SheetNotFound
         => ResourceManager.GetString("SheetNotFound", Culture)!;
 
@@ -100,6 +103,7 @@ internal static class Messages
         internal static CompositeFormat SheetHeadersLine => CompositeFormat.Parse(Messages.SheetHeadersLine);
         internal static CompositeFormat RecordHeadersLine => CompositeFormat.Parse(Messages.RecordHeadersLine);
         internal static CompositeFormat HeaderCaseSensitivity => CompositeFormat.Parse(Messages.HeaderCaseSensitivity);
+        internal static CompositeFormat DuplicateRequiredHeader => CompositeFormat.Parse(Messages.DuplicateRequiredHeader);
         internal static CompositeFormat SheetNotFound => CompositeFormat.Parse(Messages.SheetNotFound);
         internal static CompositeFormat InvalidStartCellAddress => CompositeFormat.Parse(Messages.InvalidStartCellAddress);
         internal static CompositeFormat UnexpectedEndOfSheetWithStartCell => CompositeFormat.Parse(Messages.UnexpectedEndOfSheetWithStartCell);
