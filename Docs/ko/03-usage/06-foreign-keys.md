@@ -7,7 +7,7 @@ Sdp 는 두 종류의 외래 키 Attribute 를 제공합니다.
 - `[ForeignKey]` — 한 컬럼이 항상 같은 대상 테이블의 한 컬럼을 가리킬 때.
 - `[SwitchForeignKey]` — 같은 컬럼이 다른 컬럼 값에 따라 가리키는 대상이 달라질 때.
 
-두 Attribute 모두 같은 검증 흐름 (`LoadAsync` 안에서) 으로 처리됩니다.
+두 Attribute 모두 같은 흐름으로 처리됩니다. 선언의 구조는 빌드 시점에 소스 제너레이터가, 실제 참조 값은 `LoadAsync` 가 검증합니다.
 
 ## ForeignKey — 한 컬럼이 한 대상을 가리킨다
 
@@ -17,13 +17,13 @@ Sdp 는 두 종류의 외래 키 Attribute 를 제공합니다.
 using Sdp.Attributes;
 
 [StaticDataRecord("GameItems", "Categories")]
-public sealed record CategoryRecord(
+public sealed partial record CategoryRecord(
     int Id,
     string Name,
     bool IsConsumable);
 
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [ForeignKey("CategoryTable", "Id")] int CategoryId,
@@ -41,22 +41,47 @@ public sealed record ItemRecord(
 
 ## 검증 단계
 
-`LoadAsync` 의 ForeignKey 검증은 세 단계로 나뉘어 진행됩니다.
+ForeignKey 검증은 두 단계로 나뉩니다.
 
-1. **스키마 단계 — Record/TableSet 타입 분석만으로 확인 (테이블 로드 전)**
-   - `tableSetName` 이 실제 TableSet 파라미터에 존재하는가? (`FkTargetNotFound`)
-   - 대상이 `[SingleColumnCollection]` 으로 묶인 컬럼은 아닌가? (`FkTargetIsSingleColumnCollection`)
-   - 같은 파라미터에 `[ForeignKey]` 와 `[SwitchForeignKey]` 가 함께 붙어 있지 않은가? (`FkSwitchFkConflict`)
-   - `[SwitchForeignKey]` 의 같은 조건이 두 번 이상 등장하지 않는가? (`SwitchFkDuplicateConditionValue`)
-2. **타겟 해석 단계 — 테이블 로드 후, 값 검증 직전**
-   - `recordColumnName` 이 대상 Record 의 파라미터에 존재하는가? (`FkTargetColumnNotFound`)
-   - `[SwitchForeignKey]` 의 조건 컬럼이 같은 Record 안에 존재하는가? (`SwitchFkConditionColumnNotFound`)
+1. **빌드 시점 — 소스 제너레이터가 Record/TableSet 선언을 분석해 진단으로 보고**
+   - `tableSetName` 이 실제 TableSet 파라미터에 존재하는가? (`SDP0205`)
+   - `recordColumnName` 이 대상 Record 의 파라미터에 존재하는가? (`SDP0206`)
+   - 대상이 `[SingleColumnCollection]` 으로 묶인 컬럼은 아닌가? (`SDP0207`)
+   - 참조 컬럼과 대상 컬럼의 타입이 같은가? (`SDP0211`)
+   - 같은 파라미터에 `[ForeignKey]` 와 `[SwitchForeignKey]` 가 함께 붙어 있지 않은가? (`SDP0204`)
+   - 같은 파라미터에 같은 대상이 두 번 붙어 있지 않은가? (`SDP0226`)
+   - `[SwitchForeignKey]` 의 조건 컬럼이 같은 Record 안에 존재하는가? (`SDP0209`)
+   - `[SwitchForeignKey]` 의 같은 조건이 두 번 이상 등장하지 않는가? (`SDP0208`, 표기만 다른 같은 값은 `SDP0225`)
+2. **로드 시점 — `LoadAsync` 가 실제 값을 확인**
    - 대상 테이블이 `disabledTables` 로 빠지지 않았는가? (`FkTargetNotFound`)
-3. **값 단계 — 실제 참조 존재 여부**
    - 실제 CSV 값이 대상 테이블의 해당 컬럼 값 집합 안에 있는가? (`FkValueNotFound`)
    - `[SwitchForeignKey]` 의 조건 컬럼 값이 분기 조건 중 하나에 매칭되는가? (`SwitchFkConditionValueNotMatched`)
 
-각 단계는 순차적으로 진행되며, 한 단계에서 실패가 발견되면 그 단계에서 모은 실패를 `AggregateException(Messages.FkValidationFailed, ...)` 에 담아 즉시 throw 하고 다음 단계로 넘어가지 않습니다. 예를 들어 타겟 해석 단계(2)가 실패하면 값 단계(3)의 참조 검증은 실행되지 않습니다.
+빌드 시점 진단은 모두 오류라 그 자리에서 빌드가 멈춥니다. 로드 시점 실패는 모든 테이블의 실패를 모아 `AggregateException(Messages.FkValidationFailed, ...)` 로 한 번에 던집니다.
+
+</br></br></br>
+
+## FK 오류를 머지 전에 잡으려면
+
+위 표에서 보듯 **실제 참조 값이 존재하는지는 런타임 `LoadAsync` 에서만 검사** 됩니다. `ExcelColumnExtractor` 는 시트 하나씩 처리하므로 다른 시트의 값을 알지 못하고, 소스 제너레이터는 선언만 봅니다. 아무것도 하지 않으면 데이터 작업자가 잘못 적은 참조 ID 는 서버나 클라이언트를 실제로 띄울 때 처음 드러납니다.
+
+그 시점을 앞당기는 방법은 하나입니다. **추출된 CSV 로 `LoadAsync` 를 한 번 돌리는 테스트** 를 두고 CI 에서 실행합니다.
+
+```csharp
+[Fact]
+public async Task LoadAsync_WithExtractedCsv_Succeeds()
+{
+    var staticData = new GameStaticData(NullLogger<GameStaticData>.Instance);
+
+    await staticData.LoadAsync("./csv");
+
+    Assert.NotNull(staticData.Current.ItemTable);
+}
+```
+
+- `./csv` 는 같은 CI 실행에서 추출기가 방금 만든 폴더를 가리키게 합니다. 추출 스텝 → 빌드 스텝 → 이 테스트 순서로 두면 Excel 변경과 Record 변경 어느 쪽도 FK 를 깨뜨린 채 머지되지 않습니다.
+- 실패하면 `AggregateException.InnerExceptions` 에 어긋난 행이 하나씩 담기므로 (아래 절), 테스트 출력만으로 어느 시트의 어느 값을 고쳐야 하는지 알 수 있습니다.
+- 이 테스트는 FK 뿐 아니라 `Validate` 교차 검증과 뷰 빌드 ([3.7](./07-static-data-view.md)) 까지 함께 거칩니다. 런타임에서만 검사되는 것 전부가 한 번에 걸립니다.
 
 </br></br></br>
 
@@ -79,12 +104,12 @@ AggregateException: FK 검증에 실패했습니다.
 
 ```csharp
 [StaticDataRecord("GameItems", "Currencies")]
-public sealed record CurrencyRecord(
+public sealed partial record CurrencyRecord(
     int Id,
     string Name);
 
 [StaticDataRecord("GameItems", "Rewards")]
-public sealed record RewardRecord(
+public sealed partial record RewardRecord(
     int Id,
     [ForeignKey("ItemTable", "Id")]
     [ForeignKey("CurrencyTable", "Id")]
@@ -107,7 +132,7 @@ public enum RewardKind
 }
 
 [StaticDataRecord("GameItems", "Rewards")]
-public sealed record RewardRecord(
+public sealed partial record RewardRecord(
     int Id,
     RewardKind Kind,
 
@@ -132,7 +157,7 @@ public sealed record RewardRecord(
 
 조건에 매칭되는 `SwitchForeignKey` 가 하나도 없으면 (`Kind` 가 `Item`, `Currency` 가 아닌 값이라면) 해당 행의 검증이 실패합니다.
 
-같은 `(conditionColumnName, conditionValue)` 조합을 가진 `SwitchForeignKey` 를 한 Record 안에 두 번 이상 붙이면 추출 단계 또는 `LoadAsync` 의 스키마 단계에서 거부됩니다. 같은 조건에 대한 대상 테이블은 정확히 하나여야 하므로, 분기 표를 자기 자신과 충돌하게 작성한 경우 그 자리에서 잡습니다.
+같은 `(conditionColumnName, conditionValue)` 조합을 가진 `SwitchForeignKey` 를 한 Record 안에 두 번 이상 붙이면 추출 단계와 빌드 시점 (`SDP0208`) 양쪽에서 거부됩니다. 같은 조건에 대한 대상 테이블은 정확히 하나여야 하므로, 분기 표를 자기 자신과 충돌하게 작성한 경우 그 자리에서 잡습니다.
 
 </br></br></br>
 
@@ -142,18 +167,18 @@ public sealed record RewardRecord(
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     int Price);
 
 [StaticDataRecord("GameItems", "Currencies")]
-public sealed record CurrencyRecord(
+public sealed partial record CurrencyRecord(
     int Id,
     string Name);
 
 [StaticDataRecord("GameItems", "Rewards")]
-public sealed record RewardRecord(
+public sealed partial record RewardRecord(
     int Id,
     RewardKind Kind,
 
@@ -163,19 +188,19 @@ public sealed record RewardRecord(
 
     int Amount);
 
-public sealed class ItemTable(ImmutableArray<ItemRecord> records)
+public sealed partial class ItemTable(ImmutableArray<ItemRecord> records)
     : StaticDataTable<ItemRecord>(records);
 
-public sealed class CurrencyTable(ImmutableArray<CurrencyRecord> records)
+public sealed partial class CurrencyTable(ImmutableArray<CurrencyRecord> records)
     : StaticDataTable<CurrencyRecord>(records);
 
-public sealed class RewardTable(ImmutableArray<RewardRecord> records)
+public sealed partial class RewardTable(ImmutableArray<RewardRecord> records)
     : StaticDataTable<RewardRecord>(records);
 
-public sealed class GameStaticData(ILogger<GameStaticData> logger)
+public sealed partial class GameStaticData(ILogger<GameStaticData> logger)
     : StaticDataManager<GameStaticData.TableSet>(logger)
 {
-    public sealed record TableSet(
+    public sealed partial record TableSet(
         ItemTable? ItemTable,
         CurrencyTable? CurrencyTable,
         RewardTable? RewardTable);
@@ -215,7 +240,7 @@ Id,Kind,TargetId,Amount
 
 - `[ForeignKey(tableSet, column)]` — 단일 대상. 여러 번 붙이면 "어느 하나에 있으면 유효" 가 된다.
 - `[SwitchForeignKey(conditionColumn, conditionValue, tableSet, column)]` — 분기 대상. 같은 파라미터에 여러 번 붙여 분기 표를 만든다.
-- 검증은 `LoadAsync` 안에서 세 단계 — 스키마(타겟 존재 여부), 타겟 해석(컬럼/조건 컬럼 존재 여부), 값(실제 참조 존재) — 로 처리되며, 실패는 `AggregateException` 으로 한 번에 통보된다.
+- 선언의 구조 (타겟 테이블·컬럼 존재, 타입 일치, 조건 중복) 는 빌드 시점 진단으로, 실제 참조 값은 `LoadAsync` 에서 검증되며, 로드 시점 실패는 `AggregateException` 으로 한 번에 통보된다.
 - `disabledTables` 로 대상 테이블을 건너뛰면 그 테이블을 참조하는 ForeignKey 검증은 실패한다 — 독립된 그룹만 disable 하는 것이 안전하다.
 
 `[ForeignKey]` 와 `[SwitchForeignKey]` 자체의 Attribute 명세 (오사용 진단, 다중 허용 등) 는 [5.2 Attribute 카탈로그](../05-advanced/02-attributes.md) 에 정리되어 있습니다.

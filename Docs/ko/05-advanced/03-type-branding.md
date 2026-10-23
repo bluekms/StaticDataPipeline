@@ -30,7 +30,7 @@ GetItem(charId);   // 컴파일 에러 — CharId 를 ItemId 자리에 넣을 �
 
 ```csharp
 [StaticDataRecord("Game", "Heroes")]
-public sealed record HeroRecord(
+public sealed partial record HeroRecord(
     [Key] CharId Id,
     string Name);
 ```
@@ -66,18 +66,18 @@ enum 멤버에 정수 값을 명시해 두면, 그 값이 곧 CSV 셀에 적히�
 
 ### `[Key]` enum 의 멤버 검사 생략
 
-`[Key]` 로 사용된 enum 은 매핑 시 `Enum.IsDefined` 검사가 생략됩니다. 즉 enum 멤버로 정의되지 않은 정수 값 (`1004`, `9999` 등) 도 받아들여 `(SkillId)1004` 로 매핑됩니다.
+`[Key]` 로 사용된 enum 은 매핑 시 정의된 멤버인지 검사하지 않습니다. 즉 enum 멤버로 정의되지 않은 정수 값 (`1004`, `9999` 등) 도 받아들여 `(SkillId)1004` 로 매핑됩니다.
 
 이 동작 덕분에 enum 을 **닫힌 집합** 이 아닌 **ID 코드 공간** 으로 활용할 수 있습니다. 데이터 작업자가 새 스킬 ID 를 추가할 때마다 enum 멤버를 갱신할 필요 없이, 이미 알려진 일부 값만 명명해 두고 나머지는 데이터로 추가하면 됩니다.
 
 ```csharp
 [StaticDataRecord("Game", "Skills")]
-public sealed record SkillRecord(
+public sealed partial record SkillRecord(
     [Key] SkillId Id,   // (SkillId)9999 같은 미정의 값도 그대로 매핑
     string Name);
 ```
 
-> `[Key]` 가 아닌 일반 enum 파라미터는 `Enum.IsDefined` 가 적용되어 미정의 값을 거부합니다. 타입 브랜딩으로 enum 을 쓰려면 `[Key]` 위치에서 사용해야 합니다.
+> `[Key]` 가 아닌 일반 enum 파라미터는 정의된 멤버 이름 (또는 그 정수 값) 만 받고 미정의 값을 거부합니다. 타입 브랜딩으로 enum 을 쓰려면 `[Key]` 위치에서 사용해야 합니다.
 
 ---
 
@@ -105,12 +105,12 @@ public sealed record SkillRecord(
 public record struct CharId(int Value);
 
 [StaticDataRecord("Game", "Heroes")]
-public sealed record HeroRecord(
+public sealed partial record HeroRecord(
     [Key] CharId Id,
     string Name);
 
 [StaticDataRecord("Game", "Quests")]
-public sealed record QuestRecord(
+public sealed partial record QuestRecord(
     [Key] int Id,
     [ForeignKey("HeroTable", "Id")] CharId AssignedTo);
 ```

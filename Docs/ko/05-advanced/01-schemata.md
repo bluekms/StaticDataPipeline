@@ -63,11 +63,11 @@ flowchart TB
 
 `[ColumnName]`, `[Ignore]`, `[Key]`, `[ForeignKey]`, `[SwitchForeignKey]` 는 자리에 맞기만 하면 어떤 단일 값 타입에도 붙일 수 있으므로 각 항목의 "사용 가능한 Attribute" 에서는 따로 적지 않습니다. 자세한 명세와 사용 예는 [5.2](./02-attributes.md) 를 참고하세요.
 
-> **파싱 단계 보충** — 아래 항목의 "파싱" 표기는 추출 단계 (`ExcelColumnExtractor` 가 각 컬럼의 스키마로 셀 값을 검증) 기준입니다. 런타임 (`Sdp.Csv.CsvRecordMapper`) 은 검증된 CSV 의 문자열을 다음과 같이 변환합니다.
-> - `enum` — `Enum.Parse` 로 멤버 이름(또는 정수 문자열) 파싱 (대소문자 구별). `[Key]` 가 아니면 `Enum.IsDefined` 로 정의된 값만 통과.
+> **파싱 단계 보충** — 아래 항목의 "파싱" 표기는 추출 단계 (`ExcelColumnExtractor` 가 각 컬럼의 스키마로 셀 값을 검증) 기준입니다. 런타임은 소스 제너레이터가 Record 에 생성한 `MapFromCsvRow` 가 검증된 CSV 의 문자열을 다음과 같이 변환합니다.
+> - `enum` — 생성된 `switch` 로 멤버 이름(또는 정수 문자열) 을 매칭 (대소문자 구별). 정의되지 않은 값은 실패하며, `[Key]` enum 은 쉼표로 조합한 값도 받는다.
 > - `DateTime` / `TimeSpan` — `ParseExact` 를 `[DateTimeFormat]` / `[TimeSpanFormat]` 의 format 으로 호출.
 > - `string` — 셀 값을 그대로 사용 (별도 변환 없음).
-> - 그 외 단일 값 — `Convert.ChangeType(value, type, InvariantCulture)` 한 줄.
+> - 그 외 단일 값 — 타입별 `Parse(value, InvariantCulture)`.
 >
 > 변환을 마친 값에 [`[Range]`](./02-attributes.md#attr-range), [`[RegularExpression]`](./02-attributes.md#attr-regularexpression), [`[CountRange]`](./02-attributes.md#attr-countrange) 가 붙어 있으면, 런타임도 추출 단계와 같은 규칙으로 값을 다시 한번 검사합니다.
 >
@@ -337,10 +337,10 @@ flowchart TB
 
 ### `enum`
 
-- 파싱: 셀 값을 enum 멤버 이름으로 매칭 (대소문자 구별). 추출 단계에서 정의되지 않은 이름은 거부. 런타임은 `Enum.Parse` 호출이라 정수 문자열 (예: `"1"`) 도 받지만, `[Key]` 가 아니면 `Enum.IsDefined` 검사로 정의된 값만 통과.
+- 파싱: 셀 값을 enum 멤버 이름으로 매칭 (대소문자 구별). 추출 단계에서 정의되지 않은 이름은 거부. 런타임은 생성된 `switch` 로 멤버 이름과 그 정수 문자열 (예: `"1"`) 을 받고, `[Key]` 가 아니면 정의된 값만 통과.
 - 필수 Attribute: 없음
 - 사용 가능한 Attribute: [`[Range]`](./02-attributes.md#attr-range) (underlying integer 비교)
-- 비고: [`[Key]`](./02-attributes.md#attr-key) 와 함께 쓰면 `Enum.IsDefined` 검사가 생략되어 ID 코드 공간으로 활용 가능 (→ [5.3 타입 브랜딩 패턴](./03-type-branding.md)).
+- 비고: [`[Key]`](./02-attributes.md#attr-key) 와 함께 쓰면 정의된 멤버인지 검사하지 않아 ID 코드 공간으로 활용 가능 (→ [5.3 타입 브랜딩 패턴](./03-type-branding.md)).
 
 </br>
 
@@ -374,7 +374,7 @@ flowchart TB
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [Length(3)] ImmutableArray<string> Tags);
@@ -398,7 +398,7 @@ Id    Name    Tags[0]    Tags[1]    Tags[2]
 
 ```csharp
 [StaticDataRecord("Events", "Schedules")]
-public sealed record ScheduleRecord(
+public sealed partial record ScheduleRecord(
     int Id,
     string Title,
     [DateTimeFormat("yyyy-MM-dd")]
@@ -417,7 +417,7 @@ Id    Title    Period[0]    Period[1]
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [SingleColumnCollection(",")][CountRange(1, 5)] ImmutableArray<string> Tags);
@@ -447,7 +447,7 @@ Id    Name    Tags
 public sealed record SubjectScore(string Subject, int Score);
 
 [StaticDataRecord("StudentReport", "Grades")]
-public sealed record StudentRecord(
+public sealed partial record StudentRecord(
     int Id,
     string Name,
     [Length(3)] ImmutableArray<SubjectScore> Subjects);
@@ -481,7 +481,7 @@ public sealed record SubjectScore(
     int Score);
 
 [StaticDataRecord("StudentReport", "Grades")]
-public sealed record StudentRecord(
+public sealed partial record StudentRecord(
     int Id,
     string Name,
     [Length(3)] FrozenDictionary<string, SubjectScore> Scores);
@@ -514,7 +514,7 @@ public sealed record ItemStatus(
     int Power);
 
 [StaticDataRecord("GameData", "Items")]
-public sealed record InventoryRecord(
+public sealed partial record InventoryRecord(
     [Length(2)] FrozenDictionary<ItemKey, ItemStatus> Inventory);
 ```
 
@@ -557,7 +557,7 @@ Record 의 파라미터가 또 다른 Record 일 수 있습니다. 이때 내부
 public sealed record Position(int X, int Y);
 
 [StaticDataRecord("Spawn", "Spawns")]
-public sealed record SpawnPointRecord(
+public sealed partial record SpawnPointRecord(
     int Id,
     Position Point);
 ```

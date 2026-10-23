@@ -20,25 +20,26 @@ ViewSet 은 TableSet 과 같은 모양 — **각 뷰를 파라미터로 받는 r
 using Microsoft.Extensions.Logging;
 using Sdp.Manager;
 
-public sealed class GameStaticData(ILogger<GameStaticData> logger)
+public sealed partial class GameStaticData(ILogger<GameStaticData> logger)
     : StaticDataManager<GameStaticData.TableSet, GameStaticData.ViewSet>(logger)
 {
-    public sealed record TableSet(
+    public sealed partial record TableSet(
         EventTable? EventTable,
         WeaponTable? WeaponTable,
         ArmorTable? ArmorTable);
 
-    public sealed record ViewSet(
+    public sealed partial record ViewSet(
         EventBundleView EventBundleView,
         EventAttackTotalView EventAttackTotalView);
 }
 ```
 
-세 가지 규칙입니다.
+네 가지 규칙입니다.
 
 1. **2-제네릭 베이스 사용** — TableSet 만 다루는 경우의 베이스는 `StaticDataManager<TTableSet>` 이지만, 뷰까지 합성하려면 `StaticDataManager<TTableSet, TViewSet>` 베이스를 상속한다. `ILogger` 를 그대로 base 로 전달하는 부분은 동일.
-2. **각 뷰 파라미터는 non-nullable** — TableSet 은 `disabledTables` 옵션으로 일부가 빠질 수 있어 nullable 이지만, ViewSet 은 빌더가 모든 슬롯을 항상 채우므로 nullable 로 선언하면 `ViewSetMemberMustBeNonNullable` 로 거부된다.
+2. **각 뷰 파라미터는 non-nullable** — TableSet 은 `disabledTables` 옵션으로 일부가 빠질 수 있어 nullable 이지만, ViewSet 은 생성된 빌드 코드가 모든 슬롯을 항상 채우므로 nullable 로 선언하면 빌드 시 `SDP0302` 오류가 난다.
 3. **`Current` 한 곳만 외부에 노출한다.** `Current` 는 `TableAndViewSet(Tables, Views)` 묶음을 가리키며, 한 묶음으로 atomic 하게 교체된다. [3.5](./05-static-data-manager.md) 에서 봤듯이 매니저 서브클래스에서 뷰별 편의 프로퍼티를 풀어 두지 않는다 — 호출부에서 `var tables = staticData.Current;` 로 한 번 받아 그 안의 `Tables` / `Views` 로 꺼낸다.
+4. **Manager, TableSet, ViewSet, 각 View 를 모두 `partial` 로 선언한다.** 소스 제너레이터가 ViewSet 에는 각 View 를 만들어 조립하는 코드를, View 에는 팩토리를 생성한다. 빠뜨리면 빌드 시 `SDP0301` / `SDP0303` 오류가 난다.
 
 </br></br></br>
 
@@ -54,7 +55,7 @@ public sealed record EventBundle(
     EventRecord Event,
     IReadOnlyList<Equipment> Equipment);
 
-public sealed class EventBundleView(GameStaticData.TableSet tables)
+public sealed partial class EventBundleView(GameStaticData.TableSet tables)
     : StaticDataView<GameStaticData.TableSet>(tables)
 {
     private readonly UniqueIndex<EventBundle, int> byEventId = Build(tables);
@@ -89,20 +90,21 @@ public sealed class EventBundleView(GameStaticData.TableSet tables)
 }
 ```
 
-핵심은 다음 세 가지입니다.
+핵심은 다음 네 가지입니다.
 
-1. `StaticDataView<GameStaticData.TableSet>` 처럼 입력 TableSet 을 타입 인자로 선언한다.
-2. **TableSet 만 받는 단일 생성자** — `ViewSetBuilder` 가 리플렉션으로 이 생성자를 호출한다. 다른 시그니처가 있으면 `ViewConstructorNotFound` 로 실패한다.
-3. **생성자 안에서 빌드를 끝낸다** — 외부에 가변 상태를 두지 않고, 조회용 인덱스 (`UniqueIndex`, `MultiIndex`) 와 사전 생성된 컬렉션만 readonly 로 보관한다.
+1. `StaticDataView<GameStaticData.TableSet>` 처럼 입력 TableSet 을 타입 인자로 선언한다. 이 TableSet 은 매니저의 TableSet 과 같아야 한다 (`SDP0308`).
+2. **`partial` 로 선언한다** — 소스 제너레이터가 이 클래스에 TableSet 으로 뷰를 만드는 팩토리를 생성한다.
+3. **TableSet 만 받는 단일 생성자** — 생성된 팩토리가 이 생성자를 호출한다. 다른 시그니처면 빌드 시 `SDP0304` 오류가 난다.
+4. **생성자 안에서 빌드를 끝낸다** — 외부에 가변 상태를 두지 않고, 조회용 인덱스 (`UniqueIndex`, `MultiIndex`) 와 사전 생성된 컬렉션만 readonly 로 보관한다.
 
 </br></br></br>
 
 ## 뷰의 자기 검증
 
-테이블에 `Validate` 가 있는 것과 같은 방식으로, 뷰에도 `Validate` 를 override 해서 사용자 검증 로직을 둘 수 있습니다. 빌더가 뷰 인스턴스를 만든 직후 호출되며, 예외를 던지면 다른 뷰 빌드 결과와 함께 `ViewsFailedToBuild` 로 모입니다.
+테이블에 `Validate` 가 있는 것과 같은 방식으로, 뷰에도 `Validate` 를 override 해서 사용자 검증 로직을 둘 수 있습니다. 생성된 빌드 코드가 뷰 인스턴스를 만든 직후 호출하며, 예외를 던지면 다른 뷰 빌드 결과와 함께 `ViewsFailedToBuild` 로 모입니다.
 
 ```csharp
-public sealed class EventBundleView(GameStaticData.TableSet tables)
+public sealed partial class EventBundleView(GameStaticData.TableSet tables)
     : StaticDataView<GameStaticData.TableSet>(tables)
 {
     protected override void Validate()
@@ -156,23 +158,25 @@ private static UniqueIndex<EventBundle, int> Build(GameStaticData.TableSet t)
 
 `LoadAsync` 흐름은 [3.5](./05-static-data-manager.md) 의 단일 제네릭 StaticDataManager 와 거의 같고, **검증을 모두 통과한 뒤 ViewSet 빌드 단계가 추가** 됩니다.
 
-1. **스키마 단계 점검** — TableSet 단일 생성자 확인 및 FK 타겟 검증.
-2. **TableSet 병렬 로드** — 테이블별 `Trace` 로그 `LoadedTable`.
-3. **FK 값 검증** — 실제 FK 값 검증.
-4. **StaticDataManager 검증** — (override 했다면) `Validate(TTableSet)` 호출.
-5. **ViewSet 빌드** — `ViewSetBuilder.Build` 가 ViewSet 의 생성자 파라미터를 하나씩 훑어 각 뷰를 차례로 빌드. 인스턴스화 직후 그 뷰의 `Validate` 도 함께 호출. 뷰별 빌드 시간은 `Trace` 레벨로 기록 (메시지 키 `BuiltView`).
-6. **스냅샷 교체** — 새로 빌드된 `(TableSet, ViewSet)` 을 `volatile` 필드에 한 번에 교체하고, 전체 완료 시간을 `Information` 레벨로 기록.
+1. **TableSet 병렬 로드** — 테이블별 `Trace` 로그 `LoadedTable`.
+2. **FK 값 검증** — 실제 FK 값 검증.
+3. **StaticDataManager 검증** — (override 했다면) `Validate(TTableSet)` 호출.
+4. **ViewSet 빌드** — 생성된 `ViewSet.Build` 가 각 뷰를 차례로 빌드. 인스턴스화 직후 그 뷰의 `Validate` 도 함께 호출. 뷰별 빌드 시간은 `Trace` 레벨로 기록 (메시지 키 `BuiltView`).
+5. **스냅샷 교체** — 새로 빌드된 `(TableSet, ViewSet)` 을 `volatile` 필드에 한 번에 교체하고, 전체 완료 시간을 `Information` 레벨로 기록.
 
 뷰 빌드 도중 어느 하나라도 예외를 던지면 모든 뷰의 시도를 끝까지 모은 뒤 `AggregateException(Messages.ViewsFailedToBuild, ...)` 을 던집니다. 이 경우 `Current` 는 갱신되지 않으므로 직전 스냅샷 (또는 첫 로드라면 아직 비어 있는 상태) 이 유지됩니다.
 
-ViewSet 자체에 잘못된 파라미터가 있을 때의 진단도 정해져 있습니다.
+뷰의 생성자와 `Validate` 는 런타임에서만 실행됩니다. 뷰를 추가하거나 고쳤다면 [3.6 — FK 오류를 머지 전에 잡으려면](./06-foreign-keys.md#fk-오류를-머지-전에-잡으려면) 의 로드 테스트가 뷰 빌드까지 함께 거치므로, 그 테스트가 CI 에 있는지 확인해 둡니다.
 
-- 파라미터 타입이 `StaticDataView<,>` 서브타입이 아니면 `InvalidViewParameter`.
-- 파라미터가 nullable 이면 `ViewSetMemberMustBeNonNullable`.
-- TableSet 한 개만 받는 생성자가 없으면 `ViewConstructorNotFound`.
-- ViewSet record 에 생성자가 둘 이상이면 `ViewSetMustHaveSingleConstructor`.
+ViewSet 자체에 잘못된 파라미터가 있으면 소스 제너레이터가 빌드 시점에 진단으로 보고합니다.
 
-모두 빌드 단계에서 `AggregateException(Messages.ViewsFailedToBuild, ...)` 의 inner 로 들어갑니다.
+- 파라미터 타입이 `StaticDataView<>` 서브타입이 아니면 `SDP0305`.
+- 파라미터가 nullable 이면 `SDP0302`.
+- TableSet 한 개만 받는 생성자가 없으면 `SDP0304`.
+- View 가 매니저와 다른 TableSet 을 대상으로 하면 `SDP0308`.
+- ViewSet record 에 주 생성자가 없거나 둘 이상이면 `SDP0006`.
+
+모두 오류 진단이라 그 자리에서 빌드가 멈춥니다.
 
 </br></br></br>
 
@@ -180,7 +184,7 @@ ViewSet 자체에 잘못된 파라미터가 있을 때의 진단도 정해져 �
 
 동시성 보장은 [3.5](./05-static-data-manager.md#loadasync-의-동시성) 의 TableSet 과 같습니다. `LoadAsync` 동시 진입 가드와 `Current` 의 atomic 교체가 그대로 적용되고, 여기에 TableSet 과 ViewSet 이 한 묶음으로 함께 교체된다는 점이 더해집니다.
 
-`Current` 가 가리키는 `TableAndViewSet(Tables, Views)` 는 한 묶음으로 atomic 하게 교체됩니다. 조회 중인 스레드가 있을 때 다른 스레드가 `LoadAsync` 를 다시 호출해도, 조회 측은 항상 **TableSet 과 ViewSet 이 정합한 한 묶음** 을 봅니다. 한쪽만 새 값으로 바뀌어 있는 중간 상태는 노출되지 않습니다. 이 보장의 전제는 ViewSet 이 단일 생성자를 가진 record 라는 점이며, `ViewSetMustHaveSingleConstructor` 가 그 전제를 강제합니다.
+`Current` 가 가리키는 `TableAndViewSet(Tables, Views)` 는 한 묶음으로 atomic 하게 교체됩니다. 조회 중인 스레드가 있을 때 다른 스레드가 `LoadAsync` 를 다시 호출해도, 조회 측은 항상 **TableSet 과 ViewSet 이 정합한 한 묶음** 을 봅니다. 한쪽만 새 값으로 바뀌어 있는 중간 상태는 노출되지 않습니다. 이 보장의 전제는 ViewSet 이 단일 주 생성자를 가진 record 라는 점이며, `SDP0006` 이 빌드 시점에 그 전제를 강제합니다.
 
 호출부 패턴은 [3.5](./05-static-data-manager.md#일관된-스냅샷으로-조회하기) 와 동일합니다. 같은 작업 안에서 여러 테이블이나 뷰를 함께 다룰 때는 **`Current` 를 변수에 한 번만 받아** 그 안에서 꺼내 씁니다.
 
@@ -249,7 +253,7 @@ public sealed class EventController(
 ## 요약
 
 - `StaticDataManager<TTableSet, TViewSet>` 가 뷰 합성을 담당한다.
-- 뷰는 `StaticDataView<TTableSet>` 를 상속하고 TableSet 한 개를 받는 생성자에서 빌드를 끝낸다.
+- 뷰는 `StaticDataView<TTableSet>` 를 상속하는 `partial` 클래스로 두고 TableSet 한 개를 받는 생성자에서 빌드를 끝낸다.
 - 필요하면 `Validate` 를 override 해서 뷰 자신의 사후 점검을 둔다.
 - ViewSet 은 non-nullable 뷰들을 가진 record 로 두고, 호출부는 `Current.Views` 로 접근한다.
 - TableSet 과 ViewSet 은 한 묶음으로 atomic 교체되므로 조회는 항상 정합한 묶음을 본다.

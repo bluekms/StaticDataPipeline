@@ -8,14 +8,15 @@ Record 는 "한 행의 모양" 이고, `StaticDataTable` 은 "그 Record 들을 
 using System.Collections.Immutable;
 using Sdp.Table;
 
-public sealed class ItemTable(ImmutableArray<ItemRecord> records)
+public sealed partial class ItemTable(ImmutableArray<ItemRecord> records)
     : StaticDataTable<ItemRecord>(records);
 ```
 
-두 가지만 기억하면 됩니다.
+세 가지만 기억하면 됩니다.
 
 1. 타입 인자는 레코드 타입 `TRecord` 하나다: `StaticDataTable<ItemRecord>`.
-2. 반드시 `ImmutableArray<TRecord>` 하나만 받는 생성자를 제공한다. Sdp 가 리플렉션으로 이 생성자를 호출한다.
+2. `partial` 로 선언한다. 소스 제너레이터가 CSV 파일에서 테이블을 만드는 코드를 이 클래스에 생성한다. 빠뜨리면 빌드 시 `SDP0203` 오류가 난다.
+3. 반드시 `ImmutableArray<TRecord>` 하나만 받는 생성자를 제공한다. 생성된 로드 코드가 이 생성자를 호출한다.
 
 이 상태에서는 `Records` 속성으로 전체 목록만 노출됩니다.
 
@@ -38,7 +39,7 @@ foreach (var item in table.Records)
 using System.Collections.Immutable;
 using Sdp.Table;
 
-public sealed class ItemTable : StaticDataTable<ItemRecord>
+public sealed partial class ItemTable : StaticDataTable<ItemRecord>
 {
     private readonly UniqueIndex<ItemRecord, int> byId;
 
@@ -78,7 +79,7 @@ if (table.TryGet(2, out var sword))
 대부분의 검증은 `[Range]`, `[ForeignKey]`, `[RegularExpression]` 같은 Attribute 로 선언적으로 동작합니다. Attribute 만으로 표현하기 어려운 특수한 규칙이 있다면 `Validate` 를 override 해서 사용자 검증 로직을 추가할 수 있습니다. 이 메서드는 테이블이 만들어진 직후 호출되며, StaticDataManager 단계의 FK 검증보다 앞서 실행됩니다.
 
 ```csharp
-public sealed class ItemTable : StaticDataTable<ItemRecord>
+public sealed partial class ItemTable : StaticDataTable<ItemRecord>
 {
     public ItemTable(ImmutableArray<ItemRecord> records)
         : base(records)
@@ -107,13 +108,13 @@ public sealed class ItemTable : StaticDataTable<ItemRecord>
 
 ## CSV 로드는 어떻게?
 
-`ItemTable` 자체에는 CSV 로더가 들어 있지 않습니다. 단일 테이블도, 여러 테이블 묶음도, 모두 `StaticDataManager` 를 통해 로드합니다 ([3.5](./05-static-data-manager.md)). 이 장에서는 "테이블 클래스의 모양" 까지만 다룹니다.
+테이블의 CSV 로드 코드는 소스 제너레이터가 생성하고, 그 호출은 `StaticDataManager` 가 맡습니다. 단일 테이블도, 여러 테이블 묶음도, 모두 `StaticDataManager` 를 통해 로드합니다 ([3.5](./05-static-data-manager.md)). 이 장에서는 "테이블 클래스의 모양" 까지만 다룹니다.
 
 </br></br></br>
 
 ## 요약
 
-- `StaticDataTable<TRecord>` 를 상속하고 `ImmutableArray<TRecord>` 생성자를 제공한다.
+- `StaticDataTable<TRecord>` 를 상속하는 `partial` 클래스로 두고 `ImmutableArray<TRecord>` 생성자를 제공한다.
 - `Records` 는 CSV 의 행 순서를 유지한다.
 - 키 조회나 그룹 조회는 `UniqueIndex` / `MultiIndex` 를 멤버로 두고 Getter 로 노출한다.
 - 실제 CSV 로드는 `StaticDataManager` 가 담당한다.

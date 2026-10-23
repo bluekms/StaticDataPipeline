@@ -10,13 +10,13 @@
 using Sdp.Attributes;
 
 [StaticDataRecord("GameItems", "Categories")]
-public sealed record CategoryRecord(
+public sealed partial record CategoryRecord(
     int Id,
     string Name,
     bool IsConsumable);
 
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     int CategoryId,
@@ -29,10 +29,10 @@ public sealed record ItemRecord(
 using System.Collections.Immutable;
 using Sdp.Table;
 
-public sealed class CategoryTable(ImmutableArray<CategoryRecord> records)
+public sealed partial class CategoryTable(ImmutableArray<CategoryRecord> records)
     : StaticDataTable<CategoryRecord>(records);
 
-public sealed class ItemTable(ImmutableArray<ItemRecord> records)
+public sealed partial class ItemTable(ImmutableArray<ItemRecord> records)
     : StaticDataTable<ItemRecord>(records);
 ```
 
@@ -46,22 +46,23 @@ public sealed class ItemTable(ImmutableArray<ItemRecord> records)
 using Microsoft.Extensions.Logging;
 using Sdp.Manager;
 
-public sealed class GameStaticData(ILogger<GameStaticData> logger)
+public sealed partial class GameStaticData(ILogger<GameStaticData> logger)
     : StaticDataManager<GameStaticData.TableSet>(logger)
 {
-    public sealed record TableSet(
+    public sealed partial record TableSet(
         CategoryTable? CategoryTable,
         ItemTable? ItemTable);
 }
 ```
 
-세 가지 규칙이 있습니다.
+네 가지 규칙이 있습니다.
 
 1. **TableSet record 의 파라미터 이름이 곧 TableSet 속성 이름** 이 된다. FK 가 도입되면 이 이름이 `[ForeignKey]` 의 첫 번째 인자와 일치해야 한다 ([3.6](./06-foreign-keys.md)).
 2. **각 테이블은 nullable 로 선언한다.** 매 로드마다 모든 테이블이 들어 있을 거라 가정하지 않기 때문이다. 뒤에서 설명하는 `disabledTables` 옵션으로 일부 테이블을 건너뛰면 그 자리는 `null` 이 된다.
 3. **`StaticDataManager<TTableSet>` 는 `ILogger` 를 생성자 인자로 요구한다.** 서브클래스에서 base 로 그대로 전달한다. 로드 진행 상황 (전체 완료, 테이블별 완료) 이 이 로거로 기록된다.
+4. **Manager 와 TableSet 모두 `partial` 로 선언한다.** 소스 제너레이터가 TableSet 에는 로드와 FK 검증 코드를, Manager 에는 그것을 연결하는 코드를 생성한다. 빠뜨리면 빌드 시 `SDP0219` / `SDP0202` 오류가 난다.
 
-추가로 **TableSet 은 생성자가 정확히 하나여야 한다.** 로더가 리플렉션으로 그 생성자를 호출하기 때문에, 둘 이상이면 `LoadAsync` 시작 시점에 `TableSetMustHaveSingleConstructor` 메시지로 거부된다. record 로 선언하면 자연스럽게 한 개가 된다. ViewSet 도 같은 규칙을 따른다 ([3.7](./07-static-data-view.md)).
+추가로 **TableSet 은 주 생성자가 정확히 하나여야 한다.** 생성된 로드 코드가 그 생성자로 TableSet 을 조립하기 때문에, 없거나 둘 이상이면 빌드 시 `SDP0006` 오류가 난다. record 로 선언하면 자연스럽게 한 개가 된다. ViewSet 도 같은 규칙을 따른다 ([3.7](./07-static-data-view.md)).
 
 StaticDataManager 는 **`Current` 한 곳만 외부에 노출** 합니다. StaticDataManager 안에서 `CategoryTable => Current.CategoryTable!` 처럼 테이블을 풀어 두면 호출부가 짧아지지만, **같은 작업 안에서 두 번 호출하면 서로 다른 스냅샷을 볼 수 있다** 는 함정이 생깁니다. 다음 절에서 자세히 봅니다.
 
@@ -82,15 +83,39 @@ foreach (var item in tables.ItemTable!.Records)
 
 `Current` 를 한 번 받아 변수에 담아 두는 점이 중요합니다. 호출부는 그 변수 안의 테이블들로만 일을 합니다. 왜 한 번만 받아야 하는지는 아래 [LoadAsync 의 동시성](#loadasync-의-동시성) 과 [일관된 스냅샷으로 조회하기](#일관된-스냅샷으로-조회하기) 에서 자세히 다룹니다.
 
-`LoadAsync` 는 다음 순서로 동작합니다.
+TableSet 의 구조 — 주 생성자, 각 멤버가 `StaticDataTable` 인지, `[ForeignKey]` / `[SwitchForeignKey]` 의 타겟이 TableSet 과 Record 에 존재하는지 — 는 소스 제너레이터가 빌드 시점에 검사합니다. 그래서 `LoadAsync` 는 구조 검사 없이 바로 로드에 들어가며, 다음 순서로 동작합니다.
 
-1. **스키마 단계 점검** — TableSet 이 생성자를 정확히 하나 가지는지 확인하고 (둘 이상이면 `TableSetMustHaveSingleConstructor` 로 거부), `[ForeignKey]` / `[SwitchForeignKey]` 의 타겟이 TableSet 에 존재하는지, 가리키는 컬럼이 스칼라인지 확인. FK 가 없으면 FK 타겟 검사는 스킵.
-2. **TableSet 병렬 로드** — TableSet 의 생성자 파라미터를 하나씩 훑어 각 테이블의 CSV 를 병렬 로드. 각 테이블 인스턴스화 직후 `StaticDataTable.Validate()` 가 호출되며, 테이블별 로드 시간은 `Trace` 레벨로 기록. 하나라도 실패하면 모든 실패를 모아 `AggregateException(Messages.TablesFailedToLoad, ...)` 으로 throw.
-3. **FK 값 검증** — 모두 성공하면 TableSet 을 조립하고, FK 가 있다면 실제 값 검증. 검증 실패가 있으면 `AggregateException(Messages.FkValidationFailed, ...)` 으로 throw.
-4. **StaticDataManager 검증** — (override 했다면) StaticDataManager 의 `Validate(TTableSet)` 가 호출됨. 예외를 던지면 그대로 throw.
-5. **스냅샷 교체** — 모두 통과하면 `StaticDataManager.Current` 에 한 번에 교체하고, 전체 로드 시간을 `Information` 레벨로 기록.
+1. **TableSet 병렬 로드** — 생성된 로드 코드가 각 테이블의 CSV 를 병렬 로드. 각 테이블 인스턴스화 직후 `StaticDataTable.Validate()` 가 호출되며, 테이블별 로드 시간은 `Trace` 레벨로 기록. 하나라도 실패하면 모든 실패를 모아 `AggregateException(Messages.TablesFailedToLoad, ...)` 으로 throw.
+2. **FK 값 검증** — 모두 성공하면 TableSet 을 조립하고, FK 가 있다면 실제 값 검증. 검증 실패가 있으면 `AggregateException(Messages.FkValidationFailed, ...)` 으로 throw.
+3. **StaticDataManager 검증** — (override 했다면) StaticDataManager 의 `Validate(TTableSet)` 가 호출됨. 예외를 던지면 그대로 throw.
+4. **스냅샷 교체** — 모두 통과하면 `StaticDataManager.Current` 에 한 번에 교체하고, 전체 로드 시간을 `Information` 레벨로 기록.
 
 로드가 실패한 경우 `Current` 는 갱신되지 않고 직전 상태가 유지됩니다 (첫 로드 중이라면 아직 `null`).
+
+누가 무엇을 하는지로 다시 그리면 다음과 같습니다. 진입 가드와 스냅샷 교체는 `Sdp.dll` 이, 테이블 로드와 FK 검증은 빌드 때 어셈블리에 들어간 생성 코드가, `Validate` 는 사용자가 override 한 코드가 맡습니다.
+
+```mermaid
+sequenceDiagram
+    participant App as 응용 코드
+    participant M as StaticDataManager<br/>(Sdp.dll)
+    participant G as 생성 코드<br/>(TableSet 로더)
+    participant T as 각 Table
+    App->>M: LoadAsync(csvDir, disabledTables)
+    M->>M: 진입 가드 (로딩 중이면 예외)
+    M->>G: LoadTableSetAsync
+    par 테이블별 병렬
+        G->>T: CSV 읽기 → MapFromCsvRow → 생성자 → Validate()
+        T-->>G: Table (또는 예외)
+    end
+    G-->>M: TableSet (실패는 AggregateException 으로 모음)
+    M->>G: ValidateForeignKeys(tableSet)
+    G-->>M: 통과 (또는 AggregateException)
+    M->>M: Validate(tableSet) — 사용자 override
+    M->>M: current = tableSet (volatile 한 번 쓰기)
+    M-->>App: 완료 (Information 로그)
+```
+
+런타임에 필요한 입력은 CSV 폴더 하나뿐입니다. Excel, Record 소스, 추출기, 소스 제너레이터는 런타임에 존재하지 않습니다.
 
 </br></br></br>
 
@@ -103,7 +128,7 @@ await staticData.LoadAsync("./csv", disabledTables: ["ItemTable"]);
 ```
 
 - 파라미터 이름 기준으로 매칭합니다. `"ItemTable"` 은 TableSet 의 파라미터 `ItemTable` 에 대응합니다.
-- 해당 테이블은 로드되지 않고 TableSet 속성에 `null` 이 들어갑니다.
+- 해당 테이블은 로드되지 않고 TableSet 속성에 `null` 이 들어갑니다. non-nullable 로 선언한 테이블을 disable 하면 `NonNullableTableDisabled` 로 로드가 실패합니다.
 - 해당 테이블을 대상으로 한 FK 가 다른 테이블에 있다면 검증이 실패합니다 — 대상이 없는데 참조할 수 없기 때문입니다. 따라서 실제로는 서로 독립된 그룹 단위로만 disable 하는 것이 안전합니다.
 
 각 테이블이 TableSet 에서 nullable 로 선언된 가장 큰 이유가 이 옵션의 존재입니다. `null` 가능성이 타입에 드러나 있어야 disable 된 자리를 읽지 않고 넘어가는 코드를 짤 수 있습니다.
@@ -128,10 +153,10 @@ await staticData.LoadAsync("./csv", disabledTables: ["ItemTable"]);
 `StaticDataManager.Validate(TTableSet)` 를 override 하면 모든 FK 검증이 끝난 뒤 한 번 호출됩니다. 테이블 간 교차 제약 (예: "무기 카테고리의 아이템은 최소 한 개는 있어야 한다") 처럼 개별 테이블에서 표현하기 어려운 규칙을 여기에서 점검합니다. 앞에서 정의한 `GameStaticData` 안에 `Validate` 를 override 해 둡니다.
 
 ```csharp
-public sealed class GameStaticData(ILogger<GameStaticData> logger)
+public sealed partial class GameStaticData(ILogger<GameStaticData> logger)
     : StaticDataManager<GameStaticData.TableSet>(logger)
 {
-    public sealed record TableSet(
+    public sealed partial record TableSet(
         CategoryTable? CategoryTable,
         ItemTable? ItemTable);
 
@@ -147,6 +172,8 @@ public sealed class GameStaticData(ILogger<GameStaticData> logger)
 ## LoadAsync 의 동시성
 
 `LoadAsync` 는 동시 진입을 가드합니다. 이미 로딩 중일 때 다른 스레드에서 호출하면 즉시 `InvalidOperationException` 으로 거부됩니다. 로딩이 끝난 뒤의 `Current` 교체는 `volatile` 필드 한 번의 쓰기로 이루어지므로, 조회 측이 부분 갱신된 중간 상태를 보는 일은 없습니다.
+
+같은 이유로 **데이터를 다시 읽어 들이는 것도 `LoadAsync` 를 한 번 더 부르는 것** 이 전부입니다. 새 CSV 폴더 (또는 같은 폴더) 로 호출하면 위 순서를 처음부터 다시 거쳐 새 스냅샷으로 교체되고, 이미 `Current` 를 받아 둔 쪽은 옛 스냅샷을 끝까지 봅니다. 언제 다시 부를지 (운영 명령, 파일 변경 감지, 배포 훅 등) 는 Sdp 가 정하지 않으며 응용 측의 책임입니다.
 
 </br></br></br>
 

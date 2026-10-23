@@ -2,7 +2,7 @@
 
 Sdp 가 제공하는 Attribute 를 사전순으로 정리합니다.
 
-각 Attribute 의 검증 시점 표기 중 "**스캐너**" 는 `SchemaInfoScanner` (Roslyn 분석), "**추출**" 은 `ExcelColumnExtractor` 의 셀 값 검증 단계, "**로드**" 는 `StaticDataManager.LoadAsync` 런타임을 뜻합니다.
+각 Attribute 의 검증 시점 표기 중 "**스캐너**" 는 `SchemaInfoScanner` (Roslyn 분석), "**빌드**" 는 Record 를 포함한 프로젝트를 컴파일할 때 동작하는 소스 제너레이터 진단 (`SDPxxxx`), "**추출**" 은 `ExcelColumnExtractor` 의 셀 값 검증 단계, "**로드**" 는 `StaticDataManager.LoadAsync` 런타임을 뜻합니다.
 
 ## 목차
 
@@ -40,7 +40,7 @@ Sdp 가 제공하는 Attribute 를 사전순으로 정리합니다.
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     [ColumnName("ItemName")] string Name,
     [ColumnName("Scores")]
@@ -70,7 +70,7 @@ public sealed record ItemRecord(
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [SingleColumnCollection(",")][CountRange(1, 5)] ImmutableArray<string> Tags);
@@ -98,7 +98,7 @@ public sealed record ItemRecord(
 
 ```csharp
 [StaticDataRecord("Events", "Schedules")]
-public sealed record ScheduleRecord(
+public sealed partial record ScheduleRecord(
     int Id,
     string Title,
     [DateTimeFormat("yyyy-MM-dd")] DateTime StartAt);
@@ -116,27 +116,30 @@ public sealed record ScheduleRecord(
 |대상|Record 파라미터|
 |인자|`tableSetName` — TableSet 의 속성 (= 생성자 파라미터) 이름. `recordColumnName` — 대상 Record 의 속성 이름.|
 |다중 허용|O (`AllowMultiple = true`) — "여러 대상 중 하나라도 일치하면 유효" 방식|
-|검증 시점|스캐너 (FK/SFK 동시 부착 차단) + 로드 (FK/SFK 동시 부착 재확인, 타겟 검증, 참조 검증)|
-|`[SwitchForeignKey]` 와 동시 부착|스캐너와 로드 양쪽이 `FkSwitchFkConflict` 진단으로 거부|
-|타겟이 TableSet 에 없음|로드 시 `FkTargetNotFound` 예외를 발생|
-|타겟이 `[SingleColumnCollection]` 컬럼|로드 시 `FkTargetIsSingleColumnCollection` 예외를 발생|
-|타겟 컬럼명이 존재하지 않음|테이블 로드 후 타겟 해석 단계에서 `FkTargetColumnNotFound` 예외를 발생|
+|검증 시점|스캐너 (FK/SFK 동시 부착 차단) + 빌드 (타겟 테이블·컬럼 존재, 타입 일치, 중복 타겟) + 로드 (참조 값 검증)|
+|`[SwitchForeignKey]` 와 동시 부착|스캐너는 `FkSwitchFkConflict`, 빌드는 `SDP0204` 로 거부|
+|타겟이 TableSet 에 없음|빌드 시 `SDP0205`|
+|타겟이 `[SingleColumnCollection]` 컬럼|빌드 시 `SDP0207`|
+|타겟 컬럼명이 존재하지 않음|빌드 시 `SDP0206`|
+|참조 컬럼과 타겟 컬럼의 타입이 다름|빌드 시 `SDP0211`|
+|같은 타겟을 두 번 지정|빌드 시 `SDP0226`|
+|타겟 테이블이 `disabledTables` 로 빠짐|로드 시 `FkTargetNotFound` 예외를 발생|
 |값 검증 실패|`AggregateException(FkValidationFailed, ...)` 내부에 `FkValueNotFound` 예외를 발생|
 
-위 로드 단계 진단은 단독으로 던져지지 않습니다 — `FkTargetNotFound`, `FkTargetIsSingleColumnCollection`, `FkTargetColumnNotFound`, `FkValueNotFound` 모두 `AggregateException(FkValidationFailed, ...)` 의 `InnerExceptions` 로 모여 한 번에 통보됩니다.
+로드 단계 예외는 단독으로 던져지지 않습니다 — `FkTargetNotFound`, `FkValueNotFound` 모두 `AggregateException(FkValidationFailed, ...)` 의 `InnerExceptions` 로 모여 한 번에 통보됩니다.
 
 자세한 흐름과 예제는 [3.6 외래 키](../03-usage/06-foreign-keys.md) 를 참고하세요.
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [ForeignKey("CategoryTable", "Id")] int CategoryId);
 
 // 여러 대상 중 하나라도 일치하면 유효
 [StaticDataRecord("GameItems", "Rewards")]
-public sealed record RewardRecord(
+public sealed partial record RewardRecord(
     int Id,
     [ForeignKey("ItemTable", "Id")]
     [ForeignKey("CurrencyTable", "Id")]
@@ -162,10 +165,10 @@ public sealed record RewardRecord(
 ```csharp
 [Ignore]
 [StaticDataRecord("GameItems", "Items")]
-public sealed record DraftItemRecord(int Id, string Name);
+public sealed partial record DraftItemRecord(int Id, string Name);
 
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [Ignore] int InternalCacheKey);
@@ -194,7 +197,7 @@ public sealed record ItemRecord(
 
 - Record 전체로 `[Key]` 는 최대 하나입니다 (스캐너가 `StaticDataRecordMustHaveAtMostOneKey` 예외를 발생).
 - `[Key]` 가 붙은 파라미터는 non-nullable 이어야 합니다 (스캐너가 `KeyAttributeMustBeNonNullable` 예외를 발생).
-- enum 파라미터에 `[Key]` 를 붙이면 매핑 시 `Enum.IsDefined` 검사가 생략됩니다 — [5.3 타입 브랜딩 패턴](./03-type-branding.md) 참고.
+- enum 파라미터에 `[Key]` 를 붙이면 매핑 시 정의된 멤버인지 검사하지 않습니다 — [5.3 타입 브랜딩 패턴](./03-type-branding.md) 참고.
 
 ---
 
@@ -216,7 +219,7 @@ Excel 헤더가 `Col[0]`, `Col[1]`, ..., `Col[length-1]` 로 펼쳐지는 다중
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [Length(3)] ImmutableArray<string> Tags);
@@ -244,7 +247,7 @@ CSV 셀 값이 이 문자열과 일치하면 `null` 로 해석합니다. 흔히 
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [NullString("NULL")] string? Description);
@@ -268,13 +271,13 @@ public sealed record ItemRecord(
 |적용 불가 타입에 부착|스캐너가 `RangeAttributeNotApplicable` 예외를 발생 (예: `bool` / `bool?` / 컬렉션 / record)|
 |누락 시|범위 검사 없이 진행|
 
-`System.ComponentModel.DataAnnotations.RangeAttribute` 를 상속한 타입입니다. 값이 범위를 벗어나면 `ExcelColumnExtractor` 의 셀 호환성 검사와 런타임 로드 양쪽에서 `ArgumentOutOfRangeException` 으로 실패합니다. 두 단계는 같은 경계 해석 규칙 — `string` 은 사전순 (`CompareOrdinal`), `DateTime` / `TimeSpan` 은 `[DateTimeFormat]` / `[TimeSpanFormat]` 의 포맷, `enum` 은 underlying 정수 — 을 사용하므로 검사 결과가 일치합니다.
+값이 범위를 벗어나면 `ExcelColumnExtractor` 의 셀 호환성 검사와 런타임 로드 양쪽에서 `ArgumentOutOfRangeException` 으로 실패합니다. 두 단계는 같은 경계 해석 규칙 — `string` 은 사전순 (`CompareOrdinal`), `DateTime` / `TimeSpan` 은 `[DateTimeFormat]` / `[TimeSpanFormat]` 의 포맷, `enum` 은 underlying 정수 — 을 사용하므로 검사 결과가 일치합니다.
 
 숫자형은 두 인자 오버로드를 그대로 씁니다.
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [Range(0, 1_000_000)] int Price);
@@ -325,11 +328,11 @@ Nullable 변형 (`int?`, `DateTime?`, `string?`, `Tier?` 등) 도 그대로 지�
 |누락 시|정규식 검사 없이 진행|
 |오사용|`string` / `string?` 외의 타입에 붙이면 스캐너가 `RegularExpressionAttributeOnlyForString` 예외를 발생|
 
-`System.ComponentModel.DataAnnotations.RegularExpressionAttribute` 상속. 패턴과 일치하지 않는 값이 있으면 `ExcelColumnExtractor` 의 셀 호환성 검사와 런타임 로드 양쪽에서 실패합니다. `string?` 에 붙은 경우, 셀 값이 `[NullString]` 으로 매칭되면 `null` 로 해석되어 패턴 검사를 건너뜁니다.
+패턴과 일치하지 않는 값이 있으면 `ExcelColumnExtractor` 의 셀 호환성 검사와 런타임 로드 양쪽에서 실패합니다. `string?` 에 붙은 경우, 셀 값이 `[NullString]` 으로 매칭되면 `null` 로 해석되어 패턴 검사를 건너뜁니다.
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [RegularExpression(@"^icons/[a-z]+\.png$")] string IconPath);
@@ -356,7 +359,7 @@ public sealed record ItemRecord(
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [SingleColumnCollection(",")] ImmutableArray<string> Tags);
@@ -375,13 +378,13 @@ public sealed record ItemRecord(
 |인자|`excelFileName` (확장자 제외), `sheetName`, `startCell` (선택, 기본 `null`)|
 |다중 허용|X|
 |검증 시점|스캐너 / 추출 / 로드 각 단계에서 요구됨|
-|누락 시|`ExcelColumnExtractor` 는 추출 대상 Record 가 하나도 없을 때 `StaticDataRecordAttributeNotFound` 로 종료. CSV 로드 시 대상 테이블의 Record 에 없으면 `StaticDataRecordAttributeRequired` 예외를 발생.|
+|누락 시|`ExcelColumnExtractor` 는 추출 대상 Record 가 하나도 없을 때 `StaticDataRecordAttributeNotFound` 로 종료. `StaticDataTable<TRecord>` 의 Record 에 없으면 빌드 시 `SDP0215`.|
 
 이 Attribute 가 없는 Record 는 "정적 데이터 테이블 대상이 아닌 보조 Record" 로 간주되어 추출/로드 대상에서 제외됩니다.
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(int Id, string Name);
+public sealed partial record ItemRecord(int Id, string Name);
 ```
 
 세 번째 인자 `startCell` 은 이 Record 가 대응하는 시트의 헤더 시작 셀을 Record 단위로 지정합니다. 지정하면 `ExcelColumnExtractor` 의 `--start-cell` 옵션보다 우선합니다. 한 프로젝트 안에서 대부분의 시트가 같은 시작 셀을 쓰되 일부만 다른 자리에서 시작할 때 유용합니다.
@@ -389,7 +392,7 @@ public sealed record ItemRecord(int Id, string Name);
 ```csharp
 // 다른 시트와 달리 이 시트만 B3 에서 헤더가 시작
 [StaticDataRecord("GameItems", "Quests", "B3")]
-public sealed record QuestRecord(int Id, string Title);
+public sealed partial record QuestRecord(int Id, string Title);
 ```
 
 ---
@@ -404,23 +407,25 @@ public sealed record QuestRecord(int Id, string Title);
 |대상|Record 파라미터|
 |인자|`conditionColumnName`, `conditionValue`, `tableSetName`, `recordColumnName`|
 |다중 허용|O (`AllowMultiple = true`)|
-|검증 시점|스캐너 (FK/SFK 동시 부착 차단, 중복 조건 차단) + 로드 (FK/SFK 동시 부착 재확인, 중복 조건 재확인, 타겟 검증, 참조 검증)|
-|`[ForeignKey]` 와 동시 부착|스캐너와 로드 양쪽이 `FkSwitchFkConflict` 진단으로 거부|
-|같은 `(conditionColumnName, conditionValue)` 가 두 번 이상 부착|스캐너는 `SwitchForeignKeyDuplicateCondition`, 로드는 `SwitchFkDuplicateConditionValue` 진단으로 거부 (메시지 키가 서로 다름)|
-|타겟이 TableSet 에 없음|로드 시 `FkTargetNotFound` 예외를 발생|
-|타겟이 `[SingleColumnCollection]` 컬럼|로드 시 `FkTargetIsSingleColumnCollection` 예외를 발생|
-|`conditionColumnName` 이 같은 Record 안에 없음|테이블 로드 후 타겟 해석 단계에서 `SwitchFkConditionColumnNotFound` 예외를 발생|
-|타겟 컬럼명이 존재하지 않음|테이블 로드 후 타겟 해석 단계에서 `FkTargetColumnNotFound` 예외를 발생|
+|검증 시점|스캐너 (FK/SFK 동시 부착 차단, 중복 조건 차단) + 빌드 (조건 컬럼·타겟 존재, 조건값 형식, 중복 조건) + 로드 (조건 매칭, 참조 값 검증)|
+|`[ForeignKey]` 와 동시 부착|스캐너는 `FkSwitchFkConflict`, 빌드는 `SDP0204` 로 거부|
+|같은 `(conditionColumnName, conditionValue)` 가 두 번 이상 부착|스캐너는 `SwitchForeignKeyDuplicateCondition`, 빌드는 `SDP0208` 로 거부. 표기만 다른 같은 값 (예: `1` 과 `01`) 은 `SDP0225`|
+|타겟이 TableSet 에 없음|빌드 시 `SDP0205`|
+|타겟이 `[SingleColumnCollection]` 컬럼|빌드 시 `SDP0207`|
+|`conditionColumnName` 이 같은 Record 안에 없음|빌드 시 `SDP0209`|
+|타겟 컬럼명이 존재하지 않음|빌드 시 `SDP0206`|
+|`conditionValue` 가 조건 컬럼 타입으로 해석되지 않음|빌드 시 `SDP0212` (정수·bool·char·Guid 는 `SDP0220` ~ `SDP0223`)|
+|타겟 테이블이 `disabledTables` 로 빠짐|로드 시 `FkTargetNotFound` 예외를 발생|
 |조건 컬럼 값이 어느 분기에도 매칭되지 않음|값 검증 단계에서 `SwitchFkConditionValueNotMatched` 예외를 발생|
 |값 검증 실패|`AggregateException(FkValidationFailed, ...)` 내부에 `FkValueNotFound` (조건값 포함) 예외를 발생|
 
 같은 파라미터 값이 **다른 컬럼의 값에 따라 다른 테이블을 참조** 해야 할 때 씁니다. 자세한 흐름과 예제는 [3.6 외래 키](../03-usage/06-foreign-keys.md) 를 참고하세요.
 
-위 로드 단계 진단도 단독으로 던져지지 않습니다 — `FkTargetNotFound`, `FkTargetIsSingleColumnCollection`, `SwitchFkConditionColumnNotFound`, `FkTargetColumnNotFound`, `SwitchFkConditionValueNotMatched`, `FkValueNotFound` 모두 `AggregateException(FkValidationFailed, ...)` 의 `InnerExceptions` 로 모여 한 번에 통보됩니다.
+로드 단계 예외도 단독으로 던져지지 않습니다 — `FkTargetNotFound`, `SwitchFkConditionValueNotMatched`, `FkValueNotFound` 모두 `AggregateException(FkValidationFailed, ...)` 의 `InnerExceptions` 로 모여 한 번에 통보됩니다.
 
 ```csharp
 [StaticDataRecord("GameItems", "Rewards")]
-public sealed record RewardRecord(
+public sealed partial record RewardRecord(
     int Id,
     string Kind, // "Item" | "Currency"
 
@@ -449,7 +454,7 @@ public sealed record RewardRecord(
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [TimeSpanFormat(@"hh\:mm\:ss")] TimeSpan Cooldown);

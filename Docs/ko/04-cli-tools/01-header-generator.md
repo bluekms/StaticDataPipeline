@@ -6,6 +6,8 @@
 
 이 챕터는 도구 자체의 사용법 — 명령 형태, 옵션 전체, 출력 형식, bat 예제 — 에 집중합니다.
 
+네 자리 중에서는 **빌드** 자리의 도구입니다. 입력은 레코드 작업자의 Record `.cs` 폴더, 출력은 데이터 작업자가 받아 가는 Markdown 한 파일입니다. 실행하는 쪽은 CI 또는 레코드 작업자이고, 데이터 작업자는 결과만 소비합니다.
+
 </br></br></br>
 
 ## 명령 구조
@@ -94,7 +96,7 @@ using System.Collections.Immutable;
 using Sdp.Attributes;
 
 [StaticDataRecord("StudentReport", "Grades")]
-public sealed record StudentRecord(
+public sealed partial record StudentRecord(
     int Id,
     string Name,
     [Length(3)] ImmutableArray<SubjectScore> Subjects);
@@ -102,7 +104,7 @@ public sealed record StudentRecord(
 public sealed record SubjectScore(string Subject, int Score);
 
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     int Price,
