@@ -1,20 +1,30 @@
 namespace Sdp.Attributes;
 
 [AttributeUsage(AttributeTargets.Parameter)]
-public class RangeAttribute : System.ComponentModel.DataAnnotations.RangeAttribute
+public class RangeAttribute : Attribute
 {
     public RangeAttribute(double minimum, double maximum)
-        : base(minimum, maximum)
     {
+        Minimum = minimum;
+        Maximum = maximum;
     }
 
     public RangeAttribute(int minimum, int maximum)
-        : base(minimum, maximum)
     {
+        Minimum = minimum;
+        Maximum = maximum;
     }
 
     public RangeAttribute(Type type, string minimum, string maximum)
-        : base(type, minimum, maximum)
     {
+        OperandType = type;
+        Minimum = minimum;
+        Maximum = maximum;
     }
+
+    public object Minimum { get; }
+
+    public object Maximum { get; }
+
+    public Type? OperandType { get; }
 }
