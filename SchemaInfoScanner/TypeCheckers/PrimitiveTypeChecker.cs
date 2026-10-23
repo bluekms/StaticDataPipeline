@@ -61,6 +61,7 @@ internal static class PrimitiveTypeChecker
     public static bool IsClrPrimitiveType(ITypeSymbol symbol)
     {
         var name = GetLastName(symbol);
+
         return ClrPrimitiveTypes.Contains(name);
     }
 
@@ -68,6 +69,7 @@ internal static class PrimitiveTypeChecker
     {
         var fullName = symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var lastDot = fullName.LastIndexOf('.');
+
         return lastDot >= 0 ? fullName[(lastDot + 1)..] : fullName;
     }
 

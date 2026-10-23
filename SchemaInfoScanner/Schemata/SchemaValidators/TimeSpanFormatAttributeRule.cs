@@ -68,6 +68,7 @@ internal partial class SchemaRuleValidator
         }
 
         var typeArgument = property.NamedTypeSymbol.TypeArguments.Single();
+
         return PrimitiveTypeChecker.IsTimeSpanType(typeArgument);
     }
 }

@@ -63,6 +63,7 @@ public class RecordName : IEquatable<RecordName>
         }
 
         parts.Reverse();
+
         return string.Join(".", parts);
     }
 

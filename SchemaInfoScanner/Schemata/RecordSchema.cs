@@ -21,6 +21,7 @@ public sealed record RecordSchema(
         {
             var ns = NamedTypeSymbol.ContainingNamespace.Name;
             var typeNames = GetContainingTypeNames(NamedTypeSymbol);
+
             return $"{ns}.{string.Join(".", typeNames)}";
         }
     }

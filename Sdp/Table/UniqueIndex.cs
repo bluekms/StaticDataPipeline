@@ -52,6 +52,7 @@ public sealed class UniqueIndex<TRecord, TKey>
         }
 
         record = default;
+
         return false;
     }
 }

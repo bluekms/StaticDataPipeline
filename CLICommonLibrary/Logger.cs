@@ -28,6 +28,7 @@ public static class Logger
             .CreateLogger();
 
         var loggerFactory = new LoggerFactory().AddSerilog();
+
         return loggerFactory.CreateLogger<T>();
     }
 
@@ -41,6 +42,7 @@ public static class Logger
         Log.Logger = loggerConfiguration.CreateLogger();
 
         var loggerFactory = new LoggerFactory().AddSerilog();
+
         return loggerFactory.CreateLogger<T>();
     }
 }

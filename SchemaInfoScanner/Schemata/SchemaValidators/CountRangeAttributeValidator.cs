@@ -28,6 +28,7 @@ internal partial class SchemaRuleValidator
     private static bool HasPositiveMinCount(PropertySchemaBase property)
     {
         var minCount = property.GetAttributeValue<CountRangeAttribute, int>(0);
+
         return minCount > 0;
     }
 }
