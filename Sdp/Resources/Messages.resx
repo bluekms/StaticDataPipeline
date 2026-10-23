@@ -9,17 +9,11 @@
   <data name="TablesFailedToLoad" xml:space="preserve">
     <value>One or more tables failed to load.</value>
   </data>
-  <data name="InvalidTableParameter" xml:space="preserve">
-    <value>Parameter '{0}' of type '{1}' is not a StaticDataTable&lt;,&gt; subtype.</value>
-  </data>
-  <data name="TableConstructorNotFound" xml:space="preserve">
-    <value>{0} must have a constructor accepting ImmutableArray&lt;{1}&gt;.</value>
+  <data name="NonNullableTableDisabled" xml:space="preserve">
+    <value>Table '{0}' is non-nullable and cannot be disabled; declare the TableSet member as nullable to allow disabling it.</value>
   </data>
   <data name="FkTargetNotFound" xml:space="preserve">
-    <value>FK target '{0}' not found or disabled.</value>
-  </data>
-  <data name="FkTargetColumnNotFound" xml:space="preserve">
-    <value>Column '{0}' not found on {1}.</value>
+    <value>{0}: FK target '{1}' not loaded or disabled.</value>
   </data>
   <data name="FkValueNotFound" xml:space="preserve">
     <value>{0}.{1}({2}) not found in any of: [{3}]</value>
@@ -27,23 +21,8 @@
   <data name="FkValidationFailed" xml:space="preserve">
     <value>FK validation failed.</value>
   </data>
-  <data name="SwitchFkConditionColumnNotFound" xml:space="preserve">
-    <value>Switch FK condition column '{0}' not found on {1}.</value>
-  </data>
-  <data name="FkTargetIsSingleColumnCollection" xml:space="preserve">
-    <value>FK target column '{0}' on {1} is a SingleColumnCollection; FK targets must be scalar columns.</value>
-  </data>
-  <data name="SwitchFkDuplicateConditionValue" xml:space="preserve">
-    <value>Switch FK on '{0}.{1}' has duplicate condition (Column={2}, Value={3}). Each condition value must map to a single target.</value>
-  </data>
   <data name="SwitchFkConditionValueNotMatched" xml:space="preserve">
     <value>Switch FK on '{0}.{1}' has no matching condition for '{2}={3}'.</value>
-  </data>
-  <data name="FkSwitchFkConflict" xml:space="preserve">
-    <value>{0}.{1}: [ForeignKey] and [SwitchForeignKey] cannot be used together on the same parameter.</value>
-  </data>
-  <data name="StaticDataRecordAttributeRequired" xml:space="preserve">
-    <value>{0} requires [StaticDataRecord] attribute.</value>
   </data>
   <data name="DuplicateKey" xml:space="preserve">
     <value>Duplicate key '{0}' in {1}.</value>
@@ -60,20 +39,20 @@
   <data name="CsvRowParseError" xml:space="preserve">
     <value>{0}: {1}</value>
   </data>
+  <data name="CsvDuplicateHeader" xml:space="preserve">
+    <value>Duplicate CSV header '{0}' at column {1} (already defined at column {2}).</value>
+  </data>
+  <data name="CsvUnterminatedQuote" xml:space="preserve">
+    <value>CSV ends inside a quoted field (unterminated quote).</value>
+  </data>
+  <data name="CsvRowFieldCountShortage" xml:space="preserve">
+    <value>Row has {0} fields but the header defines {1}.</value>
+  </data>
   <data name="CsvHeaderNotFound" xml:space="preserve">
-    <value>Header '{0}' not found in CSV</value>
+    <value>Header '{0}' not found in CSV.</value>
   </data>
-  <data name="EnumValueNotDefined" xml:space="preserve">
-    <value>'{0}' is not a defined value of enum '{1}'</value>
-  </data>
-  <data name="UnknownCollectionType" xml:space="preserve">
-    <value>Unknown collection type: {0}</value>
-  </data>
-  <data name="KeyAttributeRequired" xml:space="preserve">
-    <value>Value type '{0}' must have a parameter with [Key] attribute.</value>
-  </data>
-  <data name="KeyPropertyNotFound" xml:space="preserve">
-    <value>Property '{0}' not found on type '{1}'.</value>
+  <data name="CsvFileLabel" xml:space="preserve">
+    <value>[{0}] </value>
   </data>
   <data name="LoadedTable" xml:space="preserve">
     <value>Loaded table {Name} in {ElapsedMs} ms</value>
@@ -84,37 +63,28 @@
   <data name="BuiltView" xml:space="preserve">
     <value>Built view {Name} in {ElapsedMs} ms</value>
   </data>
-  <data name="InvalidViewParameter" xml:space="preserve">
-    <value>Parameter '{0}' of type '{1}' is not a StaticDataView&lt;,&gt; subtype.</value>
+  <data name="LoadAsyncAlreadyInProgress" xml:space="preserve">
+    <value>LoadAsync is already in progress; concurrent loads are not supported.</value>
   </data>
   <data name="ViewConstructorNotFound" xml:space="preserve">
     <value>{0} must have a constructor accepting {1}.</value>
   </data>
-  <data name="ViewsFailedToBuild" xml:space="preserve">
-    <value>One or more views failed to build.</value>
-  </data>
-  <data name="TableSetMustHaveSingleConstructor" xml:space="preserve">
-    <value>{0} must have exactly one constructor. Use a record to keep members init-only and preserve atomic-swap safety.</value>
-  </data>
-  <data name="ViewSetMustHaveSingleConstructor" xml:space="preserve">
-    <value>{0} must have exactly one constructor. Use a record to keep members init-only and preserve atomic-swap safety.</value>
-  </data>
   <data name="ViewSetMemberMustBeNonNullable" xml:space="preserve">
     <value>Parameter '{0}' of type '{1}' must be non-nullable; ViewSet members are always populated.</value>
   </data>
-  <data name="LoadAsyncAlreadyInProgress" xml:space="preserve">
-    <value>LoadAsync is already in progress; concurrent loads are not supported.</value>
+  <data name="ViewsFailedToBuild" xml:space="preserve">
+    <value>One or more views failed to build.</value>
   </data>
-  <data name="ValueOutOfRange" xml:space="preserve">
-    <value>Column '{0}' value ({1}) must be between {2} and {3}.</value>
+  <data name="ViewTargetsDifferentTableSet" xml:space="preserve">
+    <value>View '{0}' targets TableSet '{1}'; the manager's TableSet is '{2}'.</value>
   </data>
-  <data name="PatternMismatch" xml:space="preserve">
-    <value>Column '{0}' value '{1}' does not match pattern '{2}'.</value>
+  <data name="ViewMustBePartial" xml:space="preserve">
+    <value>View type '{0}' must be declared partial.</value>
   </data>
-  <data name="CountOutOfRange" xml:space="preserve">
-    <value>Column '{0}' has {1} item(s), but must have between {2} and {3}.</value>
+  <data name="ViewContainingTypeMustBePartial" xml:space="preserve">
+    <value>All containing types of view '{0}' must be declared partial.</value>
   </data>
-  <data name="DuplicateValueInSet" xml:space="preserve">
-    <value>Column '{0}' contains a duplicate value '{1}'; a set does not allow duplicates.</value>
+  <data name="CannotEmitDueToDiagnostics" xml:space="preserve">
+    <value>Sdp.SourceGenerator: '{0}' cannot be built due to SDP diagnostics. Check the SDP diagnostics in the build output.</value>
   </data>
 </root>

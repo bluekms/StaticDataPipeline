@@ -9,17 +9,11 @@
   <data name="TablesFailedToLoad" xml:space="preserve">
     <value>하나 이상의 테이블 로드에 실패했습니다.</value>
   </data>
-  <data name="InvalidTableParameter" xml:space="preserve">
-    <value>'{0}' 파라미터의 타입 '{1}'이(가) StaticDataTable&lt;,&gt; 서브타입이 아닙니다.</value>
-  </data>
-  <data name="TableConstructorNotFound" xml:space="preserve">
-    <value>{0}에는 ImmutableArray&lt;{1}&gt;를 받는 생성자가 필요합니다.</value>
+  <data name="NonNullableTableDisabled" xml:space="preserve">
+    <value>테이블 '{0}'은(는) non-nullable이라 비활성화할 수 없습니다. 비활성화하려면 TableSet 멤버를 nullable로 선언하세요.</value>
   </data>
   <data name="FkTargetNotFound" xml:space="preserve">
-    <value>FK 타겟 '{0}'을(를) 찾을 수 없거나 비활성화되어 있습니다.</value>
-  </data>
-  <data name="FkTargetColumnNotFound" xml:space="preserve">
-    <value>'{1}'에 '{0}' 컬럼이 존재하지 않습니다.</value>
+    <value>{0}: FK 타겟 '{1}'이(가) 로드되지 않았거나 비활성화되어 있습니다.</value>
   </data>
   <data name="FkValueNotFound" xml:space="preserve">
     <value>{0}.{1}({2})이(가) [{3}] 중 어디에도 존재하지 않습니다.</value>
@@ -27,23 +21,8 @@
   <data name="FkValidationFailed" xml:space="preserve">
     <value>FK 검증에 실패했습니다.</value>
   </data>
-  <data name="SwitchFkConditionColumnNotFound" xml:space="preserve">
-    <value>Switch FK 조건 컬럼 '{0}'을(를) {1}에서 찾을 수 없습니다.</value>
-  </data>
-  <data name="FkTargetIsSingleColumnCollection" xml:space="preserve">
-    <value>FK 타겟 컬럼 '{0}'({1})은(는) SingleColumnCollection입니다. FK 타겟은 스칼라 컬럼이어야 합니다.</value>
-  </data>
-  <data name="SwitchFkDuplicateConditionValue" xml:space="preserve">
-    <value>'{0}.{1}'의 Switch FK에 중복된 조건이 있습니다 (Column={2}, Value={3}). 각 조건 값은 단일 타겟에만 매핑되어야 합니다.</value>
-  </data>
   <data name="SwitchFkConditionValueNotMatched" xml:space="preserve">
     <value>'{0}.{1}'의 Switch FK 조건 '{2}={3}'에 대응하는 분기가 없습니다.</value>
-  </data>
-  <data name="FkSwitchFkConflict" xml:space="preserve">
-    <value>{0}.{1}: 같은 파라미터에 [ForeignKey]와 [SwitchForeignKey]를 함께 사용할 수 없습니다.</value>
-  </data>
-  <data name="StaticDataRecordAttributeRequired" xml:space="preserve">
-    <value>{0}에 [StaticDataRecord] 어트리뷰트가 필요합니다.</value>
   </data>
   <data name="DuplicateKey" xml:space="preserve">
     <value>{1}에 중복된 키 '{0}'이(가) 있습니다.</value>
@@ -60,20 +39,20 @@
   <data name="CsvRowParseError" xml:space="preserve">
     <value>{0}: {1}</value>
   </data>
+  <data name="CsvDuplicateHeader" xml:space="preserve">
+    <value>CSV에 중복된 헤더 '{0}'이(가) {1}번 열에 있습니다 (이미 {2}번 열에 정의됨).</value>
+  </data>
+  <data name="CsvUnterminatedQuote" xml:space="preserve">
+    <value>CSV가 따옴표가 닫히지 않은 채로 끝났습니다.</value>
+  </data>
+  <data name="CsvRowFieldCountShortage" xml:space="preserve">
+    <value>행의 필드 수({0})가 헤더의 필드 수({1})보다 적습니다.</value>
+  </data>
   <data name="CsvHeaderNotFound" xml:space="preserve">
     <value>CSV에서 '{0}' 헤더를 찾을 수 없습니다.</value>
   </data>
-  <data name="EnumValueNotDefined" xml:space="preserve">
-    <value>'{0}'은(는) '{1}' 열거형의 정의된 값이 아닙니다.</value>
-  </data>
-  <data name="UnknownCollectionType" xml:space="preserve">
-    <value>지원하지 않는 컬렉션 타입입니다: {0}</value>
-  </data>
-  <data name="KeyAttributeRequired" xml:space="preserve">
-    <value>값 타입 '{0}'의 생성자에 [Key] 어트리뷰트가 있는 파라미터가 필요합니다.</value>
-  </data>
-  <data name="KeyPropertyNotFound" xml:space="preserve">
-    <value>타입 '{1}'에서 '{0}' 프로퍼티를 찾을 수 없습니다.</value>
+  <data name="CsvFileLabel" xml:space="preserve">
+    <value>[{0}] </value>
   </data>
   <data name="LoadedTable" xml:space="preserve">
     <value>테이블 {Name} 로드 완료 ({ElapsedMs}ms)</value>
@@ -84,37 +63,28 @@
   <data name="BuiltView" xml:space="preserve">
     <value>뷰 {Name} 빌드 완료 ({ElapsedMs}ms)</value>
   </data>
-  <data name="InvalidViewParameter" xml:space="preserve">
-    <value>'{0}' 파라미터의 타입 '{1}'이(가) StaticDataView&lt;,&gt; 서브타입이 아닙니다.</value>
+  <data name="LoadAsyncAlreadyInProgress" xml:space="preserve">
+    <value>LoadAsync가 이미 실행 중입니다. 동시 로드는 지원하지 않습니다.</value>
   </data>
   <data name="ViewConstructorNotFound" xml:space="preserve">
     <value>{0}에는 {1}을(를) 받는 생성자가 필요합니다.</value>
   </data>
-  <data name="ViewsFailedToBuild" xml:space="preserve">
-    <value>하나 이상의 뷰 빌드에 실패했습니다.</value>
-  </data>
-  <data name="TableSetMustHaveSingleConstructor" xml:space="preserve">
-    <value>{0}에는 정확히 하나의 생성자가 필요합니다. atomic-swap 안전성을 위해 init-only 멤버를 보장하는 record 사용을 권장합니다.</value>
-  </data>
-  <data name="ViewSetMustHaveSingleConstructor" xml:space="preserve">
-    <value>{0}에는 정확히 하나의 생성자가 필요합니다. atomic-swap 안전성을 위해 init-only 멤버를 보장하는 record 사용을 권장합니다.</value>
-  </data>
   <data name="ViewSetMemberMustBeNonNullable" xml:space="preserve">
     <value>'{0}' 파라미터의 타입 '{1}'은(는) non-nullable이어야 합니다. ViewSet 멤버는 항상 빌더가 채웁니다.</value>
   </data>
-  <data name="LoadAsyncAlreadyInProgress" xml:space="preserve">
-    <value>LoadAsync가 이미 실행 중입니다. 동시 로드는 지원하지 않습니다.</value>
+  <data name="ViewsFailedToBuild" xml:space="preserve">
+    <value>하나 이상의 뷰 빌드에 실패했습니다.</value>
   </data>
-  <data name="ValueOutOfRange" xml:space="preserve">
-    <value>'{0}' 컬럼의 값({1})은 {2}과(와) {3} 사이여야 합니다.</value>
+  <data name="ViewTargetsDifferentTableSet" xml:space="preserve">
+    <value>View '{0}'은(는) TableSet '{1}'을(를) 대상으로 하지만, 매니저의 TableSet은 '{2}'입니다.</value>
   </data>
-  <data name="PatternMismatch" xml:space="preserve">
-    <value>'{0}' 컬럼의 값 '{1}'이(가) 패턴 '{2}'과(와) 일치하지 않습니다.</value>
+  <data name="ViewMustBePartial" xml:space="preserve">
+    <value>'{0}' 뷰 타입은 partial로 선언되어야 합니다.</value>
   </data>
-  <data name="CountOutOfRange" xml:space="preserve">
-    <value>'{0}' 컬럼에 {1}개의 값이 있지만 {2}~{3}개여야 합니다.</value>
+  <data name="ViewContainingTypeMustBePartial" xml:space="preserve">
+    <value>'{0}' 뷰 타입을 감싸는 모든 타입은 partial로 선언되어야 합니다.</value>
   </data>
-  <data name="DuplicateValueInSet" xml:space="preserve">
-    <value>'{0}' 컬럼에 중복된 값 '{1}'이(가) 있습니다. 집합은 중복을 허용하지 않습니다.</value>
+  <data name="CannotEmitDueToDiagnostics" xml:space="preserve">
+    <value>Sdp.SourceGenerator: '{0}'은(는) SDP 진단에 의해 빌드할 수 없습니다. 빌드 출력의 SDP 진단을 확인하세요.</value>
   </data>
 </root>

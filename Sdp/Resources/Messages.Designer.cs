@@ -27,17 +27,11 @@ internal static class Messages
     internal static string TablesFailedToLoad
         => ResourceManager.GetString("TablesFailedToLoad", Culture)!;
 
-    internal static string InvalidTableParameter
-        => ResourceManager.GetString("InvalidTableParameter", Culture)!;
-
-    internal static string TableConstructorNotFound
-        => ResourceManager.GetString("TableConstructorNotFound", Culture)!;
+    internal static string NonNullableTableDisabled
+        => ResourceManager.GetString("NonNullableTableDisabled", Culture)!;
 
     internal static string FkTargetNotFound
         => ResourceManager.GetString("FkTargetNotFound", Culture)!;
-
-    internal static string FkTargetColumnNotFound
-        => ResourceManager.GetString("FkTargetColumnNotFound", Culture)!;
 
     internal static string FkValueNotFound
         => ResourceManager.GetString("FkValueNotFound", Culture)!;
@@ -45,23 +39,8 @@ internal static class Messages
     internal static string FkValidationFailed
         => ResourceManager.GetString("FkValidationFailed", Culture)!;
 
-    internal static string SwitchFkConditionColumnNotFound
-        => ResourceManager.GetString("SwitchFkConditionColumnNotFound", Culture)!;
-
-    internal static string FkTargetIsSingleColumnCollection
-        => ResourceManager.GetString("FkTargetIsSingleColumnCollection", Culture)!;
-
-    internal static string SwitchFkDuplicateConditionValue
-        => ResourceManager.GetString("SwitchFkDuplicateConditionValue", Culture)!;
-
     internal static string SwitchFkConditionValueNotMatched
         => ResourceManager.GetString("SwitchFkConditionValueNotMatched", Culture)!;
-
-    internal static string FkSwitchFkConflict
-        => ResourceManager.GetString("FkSwitchFkConflict", Culture)!;
-
-    internal static string StaticDataRecordAttributeRequired
-        => ResourceManager.GetString("StaticDataRecordAttributeRequired", Culture)!;
 
     internal static string DuplicateKey
         => ResourceManager.GetString("DuplicateKey", Culture)!;
@@ -78,20 +57,20 @@ internal static class Messages
     internal static string CsvRowParseError
         => ResourceManager.GetString("CsvRowParseError", Culture)!;
 
+    internal static string CsvDuplicateHeader
+        => ResourceManager.GetString("CsvDuplicateHeader", Culture)!;
+
+    internal static string CsvUnterminatedQuote
+        => ResourceManager.GetString("CsvUnterminatedQuote", Culture)!;
+
+    internal static string CsvRowFieldCountShortage
+        => ResourceManager.GetString("CsvRowFieldCountShortage", Culture)!;
+
     internal static string CsvHeaderNotFound
         => ResourceManager.GetString("CsvHeaderNotFound", Culture)!;
 
-    internal static string EnumValueNotDefined
-        => ResourceManager.GetString("EnumValueNotDefined", Culture)!;
-
-    internal static string UnknownCollectionType
-        => ResourceManager.GetString("UnknownCollectionType", Culture)!;
-
-    internal static string KeyAttributeRequired
-        => ResourceManager.GetString("KeyAttributeRequired", Culture)!;
-
-    internal static string KeyPropertyNotFound
-        => ResourceManager.GetString("KeyPropertyNotFound", Culture)!;
+    internal static string CsvFileLabel
+        => ResourceManager.GetString("CsvFileLabel", Culture)!;
 
     internal static string LoadedTable
         => ResourceManager.GetString("LoadedTable", Culture)!;
@@ -102,70 +81,74 @@ internal static class Messages
     internal static string BuiltView
         => ResourceManager.GetString("BuiltView", Culture)!;
 
-    internal static string TableSetMustHaveSingleConstructor
-        => ResourceManager.GetString("TableSetMustHaveSingleConstructor", Culture)!;
-
-    internal static string InvalidViewParameter
-        => ResourceManager.GetString("InvalidViewParameter", Culture)!;
+    internal static string LoadAsyncAlreadyInProgress
+        => ResourceManager.GetString("LoadAsyncAlreadyInProgress", Culture)!;
 
     internal static string ViewConstructorNotFound
         => ResourceManager.GetString("ViewConstructorNotFound", Culture)!;
 
-    internal static string ViewsFailedToBuild
-        => ResourceManager.GetString("ViewsFailedToBuild", Culture)!;
-
-    internal static string ViewSetMustHaveSingleConstructor
-        => ResourceManager.GetString("ViewSetMustHaveSingleConstructor", Culture)!;
-
     internal static string ViewSetMemberMustBeNonNullable
         => ResourceManager.GetString("ViewSetMemberMustBeNonNullable", Culture)!;
 
-    internal static string LoadAsyncAlreadyInProgress
-        => ResourceManager.GetString("LoadAsyncAlreadyInProgress", Culture)!;
+    internal static string ViewsFailedToBuild
+        => ResourceManager.GetString("ViewsFailedToBuild", Culture)!;
 
-    internal static string ValueOutOfRange
-        => ResourceManager.GetString("ValueOutOfRange", Culture)!;
+    internal static string ViewTargetsDifferentTableSet
+        => ResourceManager.GetString("ViewTargetsDifferentTableSet", Culture)!;
 
-    internal static string PatternMismatch
-        => ResourceManager.GetString("PatternMismatch", Culture)!;
+    internal static string ViewMustBePartial
+        => ResourceManager.GetString("ViewMustBePartial", Culture)!;
 
-    internal static string CountOutOfRange
-        => ResourceManager.GetString("CountOutOfRange", Culture)!;
+    internal static string ViewContainingTypeMustBePartial
+        => ResourceManager.GetString("ViewContainingTypeMustBePartial", Culture)!;
 
-    internal static string DuplicateValueInSet
-        => ResourceManager.GetString("DuplicateValueInSet", Culture)!;
+    internal static string CannotEmitDueToDiagnostics
+        => ResourceManager.GetString("CannotEmitDueToDiagnostics", Culture)!;
 
     internal static class Composite
     {
-        internal static CompositeFormat InvalidTableParameter => CompositeFormat.Parse(Messages.InvalidTableParameter);
-        internal static CompositeFormat TableConstructorNotFound => CompositeFormat.Parse(Messages.TableConstructorNotFound);
+#if NET8_0_OR_GREATER
+        internal static CompositeFormat NonNullableTableDisabled => CompositeFormat.Parse(Messages.NonNullableTableDisabled);
         internal static CompositeFormat FkTargetNotFound => CompositeFormat.Parse(Messages.FkTargetNotFound);
-        internal static CompositeFormat FkTargetColumnNotFound => CompositeFormat.Parse(Messages.FkTargetColumnNotFound);
         internal static CompositeFormat FkValueNotFound => CompositeFormat.Parse(Messages.FkValueNotFound);
-        internal static CompositeFormat SwitchFkConditionColumnNotFound => CompositeFormat.Parse(Messages.SwitchFkConditionColumnNotFound);
-        internal static CompositeFormat FkTargetIsSingleColumnCollection => CompositeFormat.Parse(Messages.FkTargetIsSingleColumnCollection);
-        internal static CompositeFormat SwitchFkDuplicateConditionValue => CompositeFormat.Parse(Messages.SwitchFkDuplicateConditionValue);
         internal static CompositeFormat SwitchFkConditionValueNotMatched => CompositeFormat.Parse(Messages.SwitchFkConditionValueNotMatched);
-        internal static CompositeFormat FkSwitchFkConflict => CompositeFormat.Parse(Messages.FkSwitchFkConflict);
-        internal static CompositeFormat StaticDataRecordAttributeRequired => CompositeFormat.Parse(Messages.StaticDataRecordAttributeRequired);
         internal static CompositeFormat DuplicateKey => CompositeFormat.Parse(Messages.DuplicateKey);
         internal static CompositeFormat KeyNotFound => CompositeFormat.Parse(Messages.KeyNotFound);
         internal static CompositeFormat CsvRowWithFile => CompositeFormat.Parse(Messages.CsvRowWithFile);
         internal static CompositeFormat CsvRowWithoutFile => CompositeFormat.Parse(Messages.CsvRowWithoutFile);
         internal static CompositeFormat CsvRowParseError => CompositeFormat.Parse(Messages.CsvRowParseError);
+        internal static CompositeFormat CsvDuplicateHeader => CompositeFormat.Parse(Messages.CsvDuplicateHeader);
+        internal static CompositeFormat CsvRowFieldCountShortage => CompositeFormat.Parse(Messages.CsvRowFieldCountShortage);
         internal static CompositeFormat CsvHeaderNotFound => CompositeFormat.Parse(Messages.CsvHeaderNotFound);
-        internal static CompositeFormat EnumValueNotDefined => CompositeFormat.Parse(Messages.EnumValueNotDefined);
-        internal static CompositeFormat UnknownCollectionType => CompositeFormat.Parse(Messages.UnknownCollectionType);
-        internal static CompositeFormat KeyAttributeRequired => CompositeFormat.Parse(Messages.KeyAttributeRequired);
-        internal static CompositeFormat KeyPropertyNotFound => CompositeFormat.Parse(Messages.KeyPropertyNotFound);
-        internal static CompositeFormat TableSetMustHaveSingleConstructor => CompositeFormat.Parse(Messages.TableSetMustHaveSingleConstructor);
-        internal static CompositeFormat InvalidViewParameter => CompositeFormat.Parse(Messages.InvalidViewParameter);
+        internal static CompositeFormat CsvFileLabel => CompositeFormat.Parse(Messages.CsvFileLabel);
         internal static CompositeFormat ViewConstructorNotFound => CompositeFormat.Parse(Messages.ViewConstructorNotFound);
-        internal static CompositeFormat ViewSetMustHaveSingleConstructor => CompositeFormat.Parse(Messages.ViewSetMustHaveSingleConstructor);
         internal static CompositeFormat ViewSetMemberMustBeNonNullable => CompositeFormat.Parse(Messages.ViewSetMemberMustBeNonNullable);
-        internal static CompositeFormat ValueOutOfRange => CompositeFormat.Parse(Messages.ValueOutOfRange);
-        internal static CompositeFormat PatternMismatch => CompositeFormat.Parse(Messages.PatternMismatch);
-        internal static CompositeFormat CountOutOfRange => CompositeFormat.Parse(Messages.CountOutOfRange);
-        internal static CompositeFormat DuplicateValueInSet => CompositeFormat.Parse(Messages.DuplicateValueInSet);
+        internal static CompositeFormat ViewTargetsDifferentTableSet => CompositeFormat.Parse(Messages.ViewTargetsDifferentTableSet);
+        internal static CompositeFormat ViewMustBePartial => CompositeFormat.Parse(Messages.ViewMustBePartial);
+        internal static CompositeFormat ViewContainingTypeMustBePartial => CompositeFormat.Parse(Messages.ViewContainingTypeMustBePartial);
+        internal static CompositeFormat CannotEmitDueToDiagnostics => CompositeFormat.Parse(Messages.CannotEmitDueToDiagnostics);
+#else
+        // netstandard2.1 에는 CompositeFormat 이 없어 원본 포맷 문자열을 그대로 노출한다.
+        // 호출부의 string.Format 은 string 오버로드로 동일하게 동작한다.
+        internal static string NonNullableTableDisabled => Messages.NonNullableTableDisabled;
+        internal static string FkTargetNotFound => Messages.FkTargetNotFound;
+        internal static string FkValueNotFound => Messages.FkValueNotFound;
+        internal static string SwitchFkConditionValueNotMatched => Messages.SwitchFkConditionValueNotMatched;
+        internal static string DuplicateKey => Messages.DuplicateKey;
+        internal static string KeyNotFound => Messages.KeyNotFound;
+        internal static string CsvRowWithFile => Messages.CsvRowWithFile;
+        internal static string CsvRowWithoutFile => Messages.CsvRowWithoutFile;
+        internal static string CsvRowParseError => Messages.CsvRowParseError;
+        internal static string CsvDuplicateHeader => Messages.CsvDuplicateHeader;
+        internal static string CsvRowFieldCountShortage => Messages.CsvRowFieldCountShortage;
+        internal static string CsvHeaderNotFound => Messages.CsvHeaderNotFound;
+        internal static string CsvFileLabel => Messages.CsvFileLabel;
+        internal static string ViewConstructorNotFound => Messages.ViewConstructorNotFound;
+        internal static string ViewSetMemberMustBeNonNullable => Messages.ViewSetMemberMustBeNonNullable;
+        internal static string ViewTargetsDifferentTableSet => Messages.ViewTargetsDifferentTableSet;
+        internal static string ViewMustBePartial => Messages.ViewMustBePartial;
+        internal static string ViewContainingTypeMustBePartial => Messages.ViewContainingTypeMustBePartial;
+        internal static string CannotEmitDueToDiagnostics => Messages.CannotEmitDueToDiagnostics;
+#endif
     }
 }
