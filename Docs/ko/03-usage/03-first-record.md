@@ -28,7 +28,7 @@ public enum ItemCategory
 }
 
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [ColumnName("Cost")][Range(0, 1_000_000)] int Price,
@@ -36,6 +36,10 @@ public sealed record ItemRecord(
 ```
 
 짧지만 필요한 정보가 모두 들어 있습니다. 하나씩 보겠습니다.
+
+### `partial`
+
+Record 는 `partial` 로 선언합니다. 소스 제너레이터가 같은 타입에 CSV 한 행을 Record 로 바꾸는 코드를 생성해 넣기 때문입니다. 빠뜨리면 빌드 시 `SDP0001` 오류가 납니다. Record 가 다른 타입 안에 중첩되어 있다면 바깥 타입도 `partial` 이어야 합니다.
 
 ### `[StaticDataRecord("GameItems", "Items")]`
 
@@ -52,13 +56,13 @@ public sealed record ItemRecord(
 
 `[ColumnName(name)]` 은 Excel 헤더 이름과 C# 파라미터 이름이 다를 때 그 매핑을 알려 줍니다. 위 시트의 헤더는 `Cost` 이고 Record 파라미터는 `Price` 이므로, `[ColumnName("Cost")]` 로 둘을 연결합니다. 헤더와 파라미터 이름이 같으면 굳이 적지 않아도 됩니다.
 
-`[Range(min, max)]` 는 값이 지정된 범위 안에 있는지 검사합니다. `System.ComponentModel.DataAnnotations.RangeAttribute` 를 상속한 Attribute 입니다. 범위를 벗어난 값은 추출 단계와 런타임 로드 양쪽에서 걸러집니다.
+`[Range(min, max)]` 는 값이 지정된 범위 안에 있는지 검사합니다. 범위를 벗어난 값은 추출 단계와 런타임 로드 양쪽에서 걸러집니다.
 
 > `1_000_000` 은 C# 의 [숫자 리터럴 구분자](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/integral-numeric-types#integer-literals) 표기로, `1000000` 과 같은 값입니다. 가독성 보조용일 뿐이므로 `[Range(0, 1000000)]` 로 적어도 됩니다.
 
 ### `ItemCategory Category`
 
-`enum` 은 **문자열로 매칭** 됩니다. CSV 셀에 `Consumable` 이라고 적혀 있어야 `ItemCategory.Consumable` 로 파싱됩니다. 정수 값이 아니며, 대소문자도 정확히 일치해야 합니다 (`consumable`, `CONSUMABLE` 은 실패). 정의되지 않은 이름도 마찬가지로 로드 실패입니다.
+`enum` 은 **문자열로 매칭** 됩니다. CSV 셀에 `Consumable` 이라고 적혀 있어야 `ItemCategory.Consumable` 로 파싱됩니다. 추출기는 enum 멤버 이름만 허용합니다. 로드 시 생성된 매퍼는 멤버 이름과 멤버의 정수 값 문자열(예: `1`) 을 모두 받습니다. 대소문자는 구분합니다. `[Key]` 가 붙은 enum 은 추출기가 멤버 검사를 건너뛰고, 로드 시에도 정의되지 않은 값이 캐스트로 통과합니다.
 
 </br></br></br>
 
@@ -77,7 +81,7 @@ ExcelColumnExtractor.exe ^
 - `--excel-path` — Excel 파일들이 있는 폴더
 - `--output-path` — 결과 CSV 가 만들어질 폴더
 
-시작 셀 위치가 `A1` 이 아니라면 `--start-cell` 로 알려 줍니다. 빌드 버전별 산출물 분리 (`--version`), 인코딩 변경 (`--encoding`), 로그 설정 같은 옵션 전체는 [4.2 ExcelColumnExtractor](../04-cli-tools/02-column-extractor.md) 에 정리되어 있습니다.
+시작 셀 위치가 `A1` 이 아니라면 `--start-cell` 로 알려 줍니다. 빌드 버전별 산출물 분리 (`--version`), 로그 설정 같은 옵션 전체는 [4.2 ExcelColumnExtractor](../04-cli-tools/02-column-extractor.md) 에 정리되어 있습니다.
 
 </br></br>
 
@@ -96,6 +100,8 @@ CSV 파일 이름은 **`{파일}.{시트}.csv`** 규칙입니다. `GameItems.xls
 
 CSV 의 헤더는 시트의 원본 헤더(`Cost`) 를 그대로 유지합니다. 로드 단계에서 `[ColumnName("Cost")]` 가 `Cost` 컬럼을 Record 의 `Price` 파라미터로 연결해 줍니다.
 
+로드 시 CSV 헤더는 다음 규칙으로 매칭됩니다. 헤더 이름은 대소문자를 구분하고, 컬럼 순서는 상관없으며, 빈 헤더 셀은 무시됩니다. 같은 헤더가 둘 이상이거나 Record 가 요구하는 헤더가 없으면 예외가 납니다. 빈 줄은 건너뛰고, 헤더보다 필드가 적은 행은 오류입니다.
+
 원본 시트에 있던 `Memo` 는 Record 가 요구하지 않으므로 CSV 에 포함되지 않습니다. 같은 Excel 을 서버, 클라이언트, 툴이 각자 다른 Record 정의로 소비할 수 있는 이유가 여기에 있습니다.
 
 </br></br>
@@ -104,8 +110,8 @@ CSV 의 헤더는 시트의 원본 헤더(`Cost`) 를 그대로 유지합니다.
 
 추출기는 단순히 셀을 옮겨 적기만 하지 않고 다음을 함께 검사합니다.
 
-- **Record 측 스키마 자체의 결함** — 추출기가 Roslyn 으로 `.cs` 파일을 파싱해 잘못된 Attribute 사용 등을 잡습니다 (IDE 분석기가 아니라 추출기 실행 시점에 동작).
-- **Record 가 요구하는 컬럼이 시트에 있는지** — 없으면 실패하고 어느 시트의 어느 컬럼인지 보고합니다.
+- **Record 측 스키마 자체의 결함** — 추출기가 Roslyn 으로 `.cs` 파일을 파싱해 잘못된 Attribute 사용 등을 잡습니다. 같은 결함 대부분은 Record 를 포함한 프로젝트를 빌드할 때 소스 제너레이터 진단 (`SDP00xx`) 으로도 드러납니다.
+- **Record 가 요구하는 컬럼이 시트에 있는지** — 없으면 실패하고 어느 시트의 어느 컬럼인지 보고합니다. Record 의 헤더 두 개가 같은 시트 컬럼을 가리켜도 (두 파라미터에 같은 `[ColumnName]` 을 붙인 경우 등) 실패합니다.
 - **셀 값이 타입과 호환되는지** — 숫자 컬럼에 문자가 들어 있거나, 정해진 길이를 벗어난 컬렉션, `[Range]` / `[RegularExpression]` / 포맷 위반 등을 추출 시점에 검사합니다.
 - **Primary Key 중복** — `[Key]` 가 붙은 컬럼의 값이 시트 안에서 중복되면 실패합니다. `[Key]` 는 필수가 아니며, PK 가 없는 데이터 테이블도 허용합니다 (이 경우 중복 검사 자체가 생략됩니다).
 
@@ -115,11 +121,36 @@ CSV 의 헤더는 시트의 원본 헤더(`Cost`) 를 그대로 유지합니다.
 
 ## 권장 작업 흐름
 
-1. Record `.cs` 와 Excel 시트의 컬럼 구성, 시작 셀 위치를 데이터 작업자와 합의합니다.
-2. 빌드 파이프라인 (또는 로컬 bat) 에 `ExcelColumnExtractor` 호출을 한 단계로 둡니다. Record 가 바뀔 때마다 이 단계만 돌리면 됩니다.
-3. 산출 CSV 는 런타임 빌드 출력으로 복사되어 `StaticDataManager.LoadAsync` 가 읽습니다 ([3.5](./05-static-data-manager.md)).
+레코드 작업자의 한 사이클은 다음과 같습니다. 선언 하나를 추가하거나 바꿀 때마다 같은 순서를 반복합니다.
 
-추출기 호출을 CI 단계로 두면, 헤더 누락이나 타입 불일치처럼 추출 단계에서 걸러지는 오류가 사람이 매번 수동으로 돌리지 않아도 머지 전에 자동으로 드러납니다.
+```mermaid
+flowchart LR
+    A["1. 합의"] --> B["2. Record · Table ·<br/>TableSet · Manager 선언"]
+    B --> C["3. dotnet build<br/>SDPxxxx 진단"]
+    C -->|오류| B
+    C -->|통과| D["4. 표준 헤더 공유<br/>(all-header)"]
+    C -->|통과| E["5. 추출기 로컬 실행"]
+    E -->|실패| B
+    E -->|통과| F["6. 로드 테스트<br/>(FK · Validate)"]
+    F -->|실패| B
+    F -->|통과| G["7. 커밋 · 푸시"]
+```
+
+1. **합의** — Record `.cs` 와 Excel 시트의 컬럼 구성, 파일·시트 이름, 시작 셀 위치를 데이터 작업자와 합의합니다 ([3.1 — 시작하기 전에 합의할 것](./01-record-to-excel.md#시작하기-전에-합의할-것)).
+2. **선언** — Record 를 쓰고, 그에 대응하는 Table ([3.4](./04-static-data-table.md)) 을 만들고, TableSet 과 Manager ([3.5](./05-static-data-manager.md)) 에 등록합니다. TableSet 의 파라미터가 Table 인스턴스이므로 순서는 Record → Table → TableSet → Manager 입니다. 네 가지는 모두 같은 프로젝트 (컴파일레이션) 에 있어야 합니다 ([3.5](./05-static-data-manager.md#manager-와-tableset-정의)).
+3. **빌드** — `dotnet build` 가 첫 검증 게이트입니다. `partial` 누락, FK 타겟 오타, 주 생성자 개수 같은 선언 결함은 여기서 `SDPxxxx` 오류로 멈춥니다 ([5.6](../05-advanced/06-diagnostics.md)). Excel 이나 CSV 가 없어도 통과해야 합니다.
+4. **표준 헤더 공유** — 헤더가 길어지는 시트가 있다면 `StaticDataHeaderGenerator all-header` 결과를 데이터 작업자가 받는 자리에 올립니다 ([4.1](../04-cli-tools/01-header-generator.md#권장-워크플로우)). CI 가 대신 돌려 주는 구성이 가장 편합니다.
+5. **추출기 로컬 실행** — 현재 시트에서 내 Record 가 추출되는지 확인합니다. 헤더 누락과 셀 값 결함은 여기서 드러납니다.
+6. **로드 테스트** — 추출된 CSV 로 `LoadAsync` 를 한 번 돌리는 테스트를 둡니다. 추출기가 검사하지 않는 FK 값 무결성과 `Validate` 교차 검증이 머지 전에 걸리는 유일한 자리입니다 ([3.6 — FK 오류를 머지 전에 잡으려면](./06-foreign-keys.md#fk-오류를-머지-전에-잡으려면)).
+7. **커밋·푸시** — CI 가 3, 5, 6 을 다시 실행하도록 스텝을 둡니다 ([4.2](../04-cli-tools/02-column-extractor.md#권장-워크플로우)).
+
+### 컬럼을 바꿀 때의 순서
+
+Record 와 Excel 은 서로 다른 사람이 다른 시점에 고치므로, 어느 쪽이 먼저 머지되어도 깨지지 않는 순서가 필요합니다.
+
+- **Excel 이 먼저, Record 가 나중** 이 기본입니다. 시트에 컬럼이 먼저 생기면 Record 가 아직 요구하지 않으므로 추출기는 그 컬럼을 무시하고 지나갑니다. 반대로 Record 가 먼저 컬럼을 요구하면 시트에 없어서 추출이 실패합니다.
+- 반대 순서가 불가피하면 (Record 를 먼저 올려야 하는 경우) 그 테이블만 `disabledTables` 로 임시 제외해 로드를 통과시킵니다 ([3.5 — 특정 테이블 건너뛰기](./05-static-data-manager.md#특정-테이블-건너뛰기)).
+- 파일 이름, 시트 이름, 컬럼 이름 변경은 양쪽이 동시에 바뀌어야 하는 변경이라 한 PR 로 묶거나 `disabledTables` 로 잠시 우회합니다.
 
 </br></br></br>
 

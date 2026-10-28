@@ -18,4 +18,4 @@ StaticDataPipeline은 **MIT 라이선스** 로 배포됩니다.
 
 ---
 
-[← 이전: 5.4 유효성 검사 개요](./05-advanced/04-validation.md) | [목차](./README.md)
+[← 이전: 5.6 진단 코드 목록](./05-advanced/06-diagnostics.md) | [목차](./README.md)

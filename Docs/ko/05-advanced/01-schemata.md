@@ -55,6 +55,14 @@ flowchart TB
     Single -.-> Nullable["Nullable&lt;T&gt; 형태 지원"]
 ```
 
+다음 타입은 소스 제너레이터가 매퍼를 생성하고 생성 코드도 컴파일되지만, 추출기 (스캐너) 가 "지원하지 않는 property 타입" 으로 거부하므로 **추출기 미지원 (로드 전용)** 입니다. 정상 파이프라인 (추출기를 거친 CSV) 에서는 쓸 수 없습니다.
+
+|타입|빌드 요구 사항|비고|
+|-|-|-|
+|`Guid`|없음|추출기 미지원 (로드 전용)|
+|`DateTimeOffset`|[`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat) 필수 (없으면 `SDP0004`)|추출기 미지원 (로드 전용)|
+|`DateOnly`, `TimeOnly`|[`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat) 필수 (없으면 `SDP0004`)|추출기 미지원 (로드 전용). netstandard2.1 에 없는 타입이라 유니티 (사전 생성 반입) 에서는 컴파일되지 않음|
+
 각 항목은 다음 양식으로 정리합니다.
 
 - **파싱**: CSV 셀 값을 읽어 들이는 방식
@@ -63,11 +71,14 @@ flowchart TB
 
 `[ColumnName]`, `[Ignore]`, `[Key]`, `[ForeignKey]`, `[SwitchForeignKey]` 는 자리에 맞기만 하면 어떤 단일 값 타입에도 붙일 수 있으므로 각 항목의 "사용 가능한 Attribute" 에서는 따로 적지 않습니다. 자세한 명세와 사용 예는 [5.2](./02-attributes.md) 를 참고하세요.
 
-> **파싱 단계 보충** — 아래 항목의 "파싱" 표기는 추출 단계 (`ExcelColumnExtractor` 가 각 컬럼의 스키마로 셀 값을 검증) 기준입니다. 런타임 (`Sdp.Csv.CsvRecordMapper`) 은 검증된 CSV 의 문자열을 다음과 같이 변환합니다.
-> - `enum` — `Enum.Parse` 로 멤버 이름(또는 정수 문자열) 파싱 (대소문자 구별). `[Key]` 가 아니면 `Enum.IsDefined` 로 정의된 값만 통과.
+> **파싱 단계 보충** — 아래 항목의 "파싱" 표기는 추출 단계 (`ExcelColumnExtractor` 가 각 컬럼의 스키마로 셀 값을 검증) 기준입니다. 런타임은 소스 제너레이터가 Record 에 생성한 `MapFromCsvRow` 가 검증된 CSV 의 문자열을 다음과 같이 변환합니다.
+> - `enum` — 생성된 `switch` 로 멤버 이름(또는 정수 문자열) 을 매칭 (대소문자 구별). 정의되지 않은 값은 실패하며, `[Key]` enum 은 쉼표로 조합한 값도 받는다.
 > - `DateTime` / `TimeSpan` — `ParseExact` 를 `[DateTimeFormat]` / `[TimeSpanFormat]` 의 format 으로 호출.
 > - `string` — 셀 값을 그대로 사용 (별도 변환 없음).
-> - 그 외 단일 값 — `Convert.ChangeType(value, type, InvariantCulture)` 한 줄.
+> - 정수 타입 (`byte` ~ `ulong`) — `Parse(value, NumberStyles.Integer, InvariantCulture)`. 추출기도 같은 스타일로 검사하므로 셀 `1,000` 이나 `1.0` 은 추출 단계에서 거부됩니다. 정수 컬럼에는 자릿수 구분 기호와 소수점 없이 적어야 합니다.
+> - `float` / `double` — `Parse(value, NumberStyles.Float | NumberStyles.AllowThousands, InvariantCulture)`. 추출기와 같은 스타일.
+> - `decimal` — `Parse(value, NumberStyles.Number, InvariantCulture)`. 추출기와 같은 스타일.
+> - 그 외 단일 값 — 타입별 `Parse(value, InvariantCulture)`.
 >
 > 변환을 마친 값에 [`[Range]`](./02-attributes.md#attr-range), [`[RegularExpression]`](./02-attributes.md#attr-regularexpression), [`[CountRange]`](./02-attributes.md#attr-countrange) 가 붙어 있으면, 런타임도 추출 단계와 같은 규칙으로 값을 다시 한번 검사합니다.
 >
@@ -337,10 +348,10 @@ flowchart TB
 
 ### `enum`
 
-- 파싱: 셀 값을 enum 멤버 이름으로 매칭 (대소문자 구별). 추출 단계에서 정의되지 않은 이름은 거부. 런타임은 `Enum.Parse` 호출이라 정수 문자열 (예: `"1"`) 도 받지만, `[Key]` 가 아니면 `Enum.IsDefined` 검사로 정의된 값만 통과.
+- 파싱: 추출기는 enum 멤버 이름만 허용합니다 (정수 `1`, 대소문자가 다른 `weapon` 모두 추출 실패). 로드 시 생성된 매퍼는 멤버 이름과 멤버의 정수 값 문자열 (예: `1`) 을 모두 받습니다. 대소문자는 구분합니다. `[Key]` 가 아니면 정의된 값만 통과.
 - 필수 Attribute: 없음
 - 사용 가능한 Attribute: [`[Range]`](./02-attributes.md#attr-range) (underlying integer 비교)
-- 비고: [`[Key]`](./02-attributes.md#attr-key) 와 함께 쓰면 `Enum.IsDefined` 검사가 생략되어 ID 코드 공간으로 활용 가능 (→ [5.3 타입 브랜딩 패턴](./03-type-branding.md)).
+- 비고: [`[Key]`](./02-attributes.md#attr-key) 와 함께 쓰면 추출기는 멤버 검사를 아예 건너뛰고 (`zzz` 같은 문자열도 추출 통과), 로드 매퍼는 멤버 이름·정수 문자열을 받되 미정의 정수 값은 캐스트로 통과시킵니다 (정수로 해석되지 않는 문자열은 로드 실패). 이 덕분에 ID 코드 공간으로 활용 가능 (→ [5.3 타입 브랜딩 패턴](./03-type-branding.md)).
 
 </br>
 
@@ -358,7 +369,7 @@ flowchart TB
 
 세 가지 컬렉션 타입이 지원됩니다.
 
-|컬렉션 형태|고정 크기 표시|
+|컬렉션 형태|길이 고정 (선택)|
 |-|-|
 |`ImmutableArray<T>`|[`[Length(n)]`](./02-attributes.md#attr-length)|
 |`FrozenSet<T>`|[`[Length(n)]`](./02-attributes.md#attr-length)|
@@ -366,15 +377,17 @@ flowchart TB
 
 `ImmutableArray<T>` 와 `FrozenSet<T>` 의 원소가 원시 단일 값일 때만 추가로 **단일 컬럼 모드** ([`[SingleColumnCollection]`](./02-attributes.md#attr-singlecolumncollection)) 를 쓸 수 있습니다. 분할된 원소 개수에 제약이 필요하면 [`[CountRange]`](./02-attributes.md#attr-countrange) 를 함께 붙입니다 (선택).
 
-원소가 nullable 인 컬렉션 (`ImmutableArray<int?>`, `FrozenSet<DateTime?>`, `FrozenDictionary<int, string?>` 등) 은 컬렉션 파라미터 자리에 [`[NullString]`](./02-attributes.md#attr-nullstring) 이 필수입니다. 어느 모드 (Length / SingleColumnCollection) 인지와 무관합니다.
+원소가 nullable 인 Array / Set (`ImmutableArray<int?>`, `FrozenSet<DateTime?>`, `ImmutableArray<string?>` 등) 은 컬렉션 파라미터 자리에 [`[NullString]`](./02-attributes.md#attr-nullstring) 이 필수입니다. 어느 모드 (Length / SingleColumnCollection) 인지와 무관합니다.
+
+Map (`FrozenDictionary<K, V>`) 의 Value 는 record 만 가능합니다. `FrozenDictionary<int, string>` 처럼 원시 값을 두면 스캐너가 "지원하지 않는 property 타입" 으로, 빌드가 `SDP0004` 로 거부하고, `FrozenDictionary<int, string?>` 은 스캐너가 "딕셔너리 값 타입은 nullable이 아니어야 합니다" 로 거부합니다. Map 파라미터에 `[NullString]` 을 붙이면 빌드 시 `SDP0016` 입니다.
 
 ### 기본 Array / Set
 
-원소 타입 `T` 가 `bool`, `int`, `string`, `DateTime`, enum 등 단일 값인 경우입니다. **다중 컬럼 방식** — `[Length(n)]` 으로 고정 크기. 헤더가 `Col[0]`, `Col[1]`, ... `Col[n-1]` 로 펼쳐집니다.
+원소 타입 `T` 가 `bool`, `int`, `string`, `DateTime`, enum 등 단일 값인 경우입니다. **다중 컬럼 방식** — `[Length(n)]` 을 붙이면 길이가 고정되고, 생략하면 시트가 길이를 정합니다. 헤더가 `Col[0]`, `Col[1]`, ... `Col[n-1]` 로 펼쳐집니다.
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [Length(3)] ImmutableArray<string> Tags);
@@ -394,11 +407,15 @@ Id    Name    Tags[0]    Tags[1]    Tags[2]
 | **2** | 1     | Potion | heal      | consumable    | small     |
 | **3** | 2     | Sword  | melee     | iron          | starter   |
 
+`[Length(n)]` 은 상한이기도 합니다. CSV 헤더에 `Tags[0]`, `Tags[1]`, `Tags[2]` 처럼 선언한 길이를 넘는 인덱스가 있으면 로드가 `Column 'Tags[2]' exceeds declared length 2` 로 실패합니다.
+
+`[Length]` 는 선택입니다. 없으면 길이는 시트가 정합니다. 표준 헤더 생성기는 첫 묶음(`Tags[0]`)만 제시하고 데이터 작업자가 `Tags[1]`, `Tags[2]`, … 를 필요한 만큼 덧붙이며, 추출기는 시트에서 인덱스가 0 부터 이어지는 만큼을 읽고(0 개도 가능), 로드 매퍼도 CSV 헤더의 인덱스를 그대로 따릅니다. 모든 행의 길이를 고정하고 초과 인덱스를 막고 싶을 때 `[Length(n)]` 을 붙입니다. 단일 컬럼 방식에서 정확히 n 개를 요구하려면 `[CountRange(n, n)]` 으로 적습니다.
+
 원소가 `DateTime` / `TimeSpan` 이면 컬렉션 파라미터에 각각 [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat) / [`[TimeSpanFormat]`](./02-attributes.md#attr-timespanformat) 이 필수입니다.
 
 ```csharp
 [StaticDataRecord("Events", "Schedules")]
-public sealed record ScheduleRecord(
+public sealed partial record ScheduleRecord(
     int Id,
     string Title,
     [DateTimeFormat("yyyy-MM-dd")]
@@ -417,7 +434,7 @@ Id    Title    Period[0]    Period[1]
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [SingleColumnCollection(",")][CountRange(1, 5)] ImmutableArray<string> Tags);
@@ -437,17 +454,25 @@ Id    Name    Tags
 | **2** | 1     | Potion | heal,consumable,small  |
 | **3** | 2     | Sword  | melee,iron             |
 
+셀 값을 분할하는 규칙은 추출 단계와 로드 단계가 같습니다.
+
+- 구분자로 나눈 각 조각의 앞뒤 공백을 제거합니다. `Weapon, Armor` 는 `Weapon`, `Armor` 두 개입니다.
+- 비어 있거나 공백뿐인 조각(`a,,b`, `a, ,b`)은 추출 실패입니다.
+- 빈 셀은 원소 0개 컬렉션입니다.
+
+빈 셀은 두 단계 모두 원소 0개 컬렉션입니다. 항목이 반드시 있어야 하는 컬렉션은 `[CountRange(1, n)]` 처럼 하한을 두어 추출·로드 양쪽에서 거부하게 합니다. 원소가 nullable 이고 `[NullString("")]` 인 경우에는 빈 셀이 `null` 원소 하나로 읽힙니다.
+
 이 모드와 `[Length]` 는 함께 쓸 수 없습니다 (둘 중 하나만 골라야 합니다). 원소가 Record 인 컬렉션과 Map (`FrozenDictionary`) 에는 적용되지 않습니다.
 
 ### Record Array / Set
 
-원소가 또 다른 Record 인 경우입니다. **`[Length(n)]` 만 가능** 합니다. 헤더는 `Col[i].Field1`, `Col[i].Field2`, ... 로 펼쳐집니다. 원소 Record 의 각 파라미터는 자기 타입의 규칙을 재귀적으로 따릅니다. 이 정도부터 헤더가 길어지므로 [3.2 표준 헤더 생성기](../03-usage/02-header-generator.md) 를 함께 쓰면 손으로 맞출 부담이 줄어듭니다.
+원소가 또 다른 Record 인 경우입니다. **다중 컬럼 방식만 가능** 합니다 (`[Length(n)]` 은 선택). 헤더는 `Col[i].Field1`, `Col[i].Field2`, ... 로 펼쳐집니다. 원소 Record 의 각 파라미터는 자기 타입의 규칙을 재귀적으로 따릅니다. 이 정도부터 헤더가 길어지므로 [3.2 표준 헤더 생성기](../03-usage/02-header-generator.md) 를 함께 쓰면 손으로 맞출 부담이 줄어듭니다.
 
 ```csharp
 public sealed record SubjectScore(string Subject, int Score);
 
 [StaticDataRecord("StudentReport", "Grades")]
-public sealed record StudentRecord(
+public sealed partial record StudentRecord(
     int Id,
     string Name,
     [Length(3)] ImmutableArray<SubjectScore> Subjects);
@@ -469,7 +494,7 @@ Id    Name    Subjects[0].Subject    Subjects[0].Score    Subjects[1].Subject   
 
 ### Map (`FrozenDictionary`)
 
-**`[Length(n)]` 만 사용 가능합니다.** [`[SingleColumnCollection]`](./02-attributes.md#attr-singlecolumncollection) 은 Map 에 적용할 수 없습니다.
+**다중 컬럼 방식만 사용 가능합니다 (`[Length(n)]` 은 선택).** [`[SingleColumnCollection]`](./02-attributes.md#attr-singlecolumncollection) 은 Map 에 적용할 수 없습니다.
 
 Map 의 Value 는 **`[Key]` 가 정확히 하나 붙은 Record** 여야 합니다. Dictionary 의 키는 Value Record 의 `[Key]` 파라미터에서 추출됩니다. 그래서 헤더에는 별도 `Key` 컬럼이 없고, Value Record 의 `[Key]` 파라미터 이름이 그 자리를 차지합니다.
 
@@ -481,7 +506,7 @@ public sealed record SubjectScore(
     int Score);
 
 [StaticDataRecord("StudentReport", "Grades")]
-public sealed record StudentRecord(
+public sealed partial record StudentRecord(
     int Id,
     string Name,
     [Length(3)] FrozenDictionary<string, SubjectScore> Scores);
@@ -514,7 +539,7 @@ public sealed record ItemStatus(
     int Power);
 
 [StaticDataRecord("GameData", "Items")]
-public sealed record InventoryRecord(
+public sealed partial record InventoryRecord(
     [Length(2)] FrozenDictionary<ItemKey, ItemStatus> Inventory);
 ```
 
@@ -530,7 +555,7 @@ Inventory[0].Key.Id    Inventory[0].Key.Type    Inventory[0].Level    Inventory[
 
 |Key 타입|지원|비고|
 |-|-|-|
-|원시 단일 값 (`int`, `string`, `DateTime`, enum, ...)|O|`DateTime` / `TimeSpan` 은 [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat) / [`[TimeSpanFormat]`](./02-attributes.md#attr-timespanformat) 필요|
+|원시 단일 값 (`int`, `string`, `DateTime`, enum, ...)|O|`DateTime` / `TimeSpan` 은 [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat) / [`[TimeSpanFormat]`](./02-attributes.md#attr-timespanformat) 필요. Map 파라미터가 아니라 **Value Record 의 `[Key]` 파라미터** 에 붙입니다 (키는 Value Record 를 매핑한 뒤 그 `[Key]` 값에서 꺼내므로)|
 |Nullable (`K?`)|X|Map 의 Key 는 nullable 일 수 없음|
 |Record (단일/다중 필드)|O|Value 의 `[Key]` 파라미터 타입과 동일한 record 여야 함|
 
@@ -557,7 +582,7 @@ Record 의 파라미터가 또 다른 Record 일 수 있습니다. 이때 내부
 public sealed record Position(int X, int Y);
 
 [StaticDataRecord("Spawn", "Spawns")]
-public sealed record SpawnPointRecord(
+public sealed partial record SpawnPointRecord(
     int Id,
     Position Point);
 ```

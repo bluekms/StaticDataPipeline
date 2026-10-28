@@ -6,6 +6,8 @@
 
 이 챕터는 도구 자체의 사용법 — 명령 형태, 옵션 전체, 출력 형식, bat 예제 — 에 집중합니다.
 
+네 자리 중에서는 **빌드** 자리의 도구입니다. 입력은 레코드 작업자의 Record `.cs` 폴더, 출력은 데이터 작업자가 받아 가는 Markdown 한 파일입니다. 실행하는 쪽은 CI 또는 레코드 작업자이고, 데이터 작업자는 결과만 소비합니다.
+
 </br></br></br>
 
 ## 명령 구조
@@ -17,10 +19,10 @@ StaticDataHeaderGenerator.exe header [옵션...]
 StaticDataHeaderGenerator.exe all-header [옵션...]
 ```
 
-- `header` — **Record 하나** 의 표준 헤더를 생성합니다. `--record-name` 으로 대상을 지정해야 합니다.
+- `header` — **Record 하나** 의 표준 헤더를 생성합니다. `--record-name` 으로 대상을 지정해야 합니다. 대상 하나만 처리하더라도 `--record-path` 폴더 전체를 로드하므로, 다른 Record 의 선언 결함으로도 실패합니다.
 - `all-header` — `--record-path` 폴더 아래 모든 `[StaticDataRecord]` Record 의 표준 헤더를 한꺼번에 생성합니다.
 
-`header` 는 결과 Markdown 을 콘솔에 출력하며, `--output-file` 을 지정하면 그 파일로도 저장합니다 (콘솔 출력은 그대로 유지). `all-header` 는 폴더 전체를 처리해 출력량이 많을 수 있으므로 콘솔에는 출력하지 않고, `--output-file` 로 지정한 파일에만 저장합니다.
+`header` 는 결과 Markdown 을 콘솔에 출력하며, `--output-file` 을 지정하면 그 파일로도 저장합니다 (콘솔 출력은 그대로 유지). 콘솔 출력은 `2026-10-28 16:42:26 [Information] ` 같은 접두가 붙는 Information 레벨 로그이므로, `--min-log-level Warning` 이상을 주면 아무것도 출력되지 않습니다. `all-header` 는 폴더 전체를 처리해 출력량이 많을 수 있으므로 콘솔에는 출력하지 않고, `--output-file` 로 지정한 파일에만 저장합니다.
 
 </br></br></br>
 
@@ -31,7 +33,7 @@ StaticDataHeaderGenerator.exe all-header [옵션...]
 |옵션|의미|기본값|
 |-|-|-|
 |`-r`, `--record-path`|Record `.cs` 파일 또는 디렉터리 경로|필수|
-|`-n`, `--record-name`|대상 Record 이름 (클래스 이름, 예: `StudentRecord`)|필수|
+|`-n`, `--record-name`|대상 Record 이름 (네임스페이스 없는 클래스 이름, 예: `StudentRecord`). `A.ItemRecord` 처럼 네임스페이스를 붙이면 찾지 못해 실패하고, 같은 이름의 Record 가 두 네임스페이스에 있으면 `Sequence contains more than one matching element` 로 실패합니다|필수|
 |`-s`, `--separator`|Code block 안 헤더 사이에 들어갈 구분자|`\t` (탭)|
 |`-o`, `--output-file`|출력 파일 경로 (없으면 콘솔)|없음|
 |`-l`, `--log-path`|로그 디렉터리 경로 (그 아래 일자별 `log<날짜>.txt` 가 생성됨)|없음|
@@ -50,6 +52,8 @@ StaticDataHeaderGenerator.exe all-header [옵션...]
 `all-header` 에는 `--record-name` 이 없습니다. 폴더 전체를 처리하므로 대상 지정이 필요하지 않습니다.
 
 `--output-file` 에 확장자를 빼고 경로만 주면 자동으로 `.md` 가 붙습니다. 확장자를 지정해도 출력 내용은 항상 Markdown 입니다.
+
+`--record-path` 에 디렉터리를 주면 최상위의 `*.cs` 만 읽습니다. 하위 폴더는 읽지 않습니다.
 
 </br></br></br>
 
@@ -83,6 +87,16 @@ Id<sep>Name<sep>...
 
 `--separator` 가 영향을 주는 자리는 **`### Headers` 섹션의 라벨과 그 아래 코드 블록 안의 한 줄** 뿐입니다. 라벨은 탭이면 `(TSV)`, 쉼표면 `(CSV)`, 그 외엔 괄호 없이 `### Headers` 로 결정됩니다. 헤더 목록 (List) 과 다른 메타 정보는 그대로 유지됩니다.
 
+헤더 이름은 Record 파라미터를 다음 규칙으로 평탄화해 만듭니다. 타입별 상세는 [5.1 지원 타입](../05-advanced/01-schemata.md) 을 참고하세요.
+
+- 단일 값 파라미터는 파라미터 이름 (`[ColumnName]` 이 있으면 그 값) 그대로.
+- 원시 값 하나만 가진 record 파라미터는 내부로 펼치지 않고 한 컬럼으로 축약.
+- 중첩 record 는 `Parent.Child` 처럼 `.` 으로 이어 붙임.
+- 컬렉션은 `[Length]` 횟수만큼 `Name[0]`, `Name[1]` … 로, 항목이 record 면 `Name[0].내부` 로 이어짐. `[Length]` 가 없으면 첫 묶음 `Name[0]` 만 제시하며 시트에서 `[1]`, `[2]`, … 를 필요한 만큼 덧붙인다. `[SingleColumnCollection]` 은 한 컬럼.
+- Map 은 `Name[i].내부` 로 value record 의 파라미터를 펼침.
+- `[Ignore]` 가 붙은 파라미터는 헤더에서 빠집니다. 추출기도 그 컬럼을 요구하지 않습니다.
+- `all-header` 의 Record 섹션 순서는 Record FullName 의 오름차순.
+
 </br></br></br>
 
 ## 실행 예시
@@ -94,7 +108,7 @@ using System.Collections.Immutable;
 using Sdp.Attributes;
 
 [StaticDataRecord("StudentReport", "Grades")]
-public sealed record StudentRecord(
+public sealed partial record StudentRecord(
     int Id,
     string Name,
     [Length(3)] ImmutableArray<SubjectScore> Subjects);
@@ -102,7 +116,7 @@ public sealed record StudentRecord(
 public sealed record SubjectScore(string Subject, int Score);
 
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     int Price,
@@ -157,7 +171,7 @@ StaticDataHeaderGenerator.exe header ^
   --record-name StudentRecord
 ```
 
-`--output-file` 을 생략하면 위 Markdown 문서가 콘솔에만 출력됩니다.
+`--output-file` 을 생략하면 위 Markdown 문서가 콘솔에만 출력됩니다. 이 출력은 로그 접두가 붙은 Information 로그이므로 `--min-log-level Warning` 이상이면 출력되지 않습니다.
 
 </br></br>
 

@@ -24,13 +24,13 @@ using Sdp.Table;
 // A record describes one Excel row. The Attribute names the file and sheet.
 // [Range] is validated automatically — at extraction and at load time.
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     [Range(0, 1_000_000)] int Price);
 
 // A table holds the loaded rows. UniqueIndex enables lookup by key.
-public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
+public sealed partial class ItemTable : StaticDataTable<ItemRecord>
 {
     private readonly UniqueIndex<ItemRecord, int> byId;
 
@@ -44,12 +44,19 @@ public sealed class ItemTable : StaticDataTable<ItemTable, ItemRecord>
 }
 
 // A manager owns the tables and loads them together.
-public sealed class GameStaticData(ILogger<GameStaticData> logger)
+public sealed partial class GameStaticData(ILogger<GameStaticData> logger)
     : StaticDataManager<GameStaticData.TableSet>(logger)
 {
-    public sealed record TableSet(ItemTable? ItemTable);
+    public sealed partial record TableSet(ItemTable? ItemTable);
 }
 ```
+
+Every record, table, table set, and manager is declared `partial`: the
+`Sdp.SourceGenerator` analyzer fills in the CSV mapping, table loading, and
+table set assembly code at compile time, so the consuming project must
+reference it as an analyzer alongside `Sdp`. See
+[5.5 Source Generator](./Docs/ko/05-advanced/05-source-generator.md) for
+what is generated and how to reference it.
 
 ```csharp
 // Load every sheet, then query from an immutable, thread-safe snapshot.
