@@ -54,15 +54,15 @@ FK 값, 사용자 `Validate`, 뷰 빌드는 **로드에서만** 검사됩니다.
 
 |검사 항목|선언 검사|추출|로드|비고|
 |-|-|-|-|-|
-|`[Length]` 정합성|—|O|O|생략 가능. 있으면 추출·로드가 초과 인덱스를 거부하고, 없으면 시트/CSV 의 `이름[i]` 헤더 수가 길이|
+|`[Length]` 정합성|O|O|O|생략 가능. 선언 검사와 빌드(`SDP0014`/`SDP0016`)가 1 이상·컬렉션 여부를 확인. 있으면 로드가 초과 인덱스를 거부하고(추출기는 선언 범위 밖 컬럼을 무시), 없으면 시트/CSV 의 `이름[i]` 헤더 수가 길이|
 |`[NullString]` 필수·오사용|O|—|—|nullable 필수, non-nullable 금지|
 |`[DateTimeFormat]` 필수·오사용|O|—|—|`DateTime` 필수, 비-DateTime 금지|
 |`[TimeSpanFormat]` 필수·오사용|O|—|—|`TimeSpan` 필수, 비-TimeSpan 금지|
 |`[RegularExpression]` 타입|O|—|—|`string` / `string?` 전용|
 |`[Range]` 적용 가능 타입|O|—|—|`bool`·컬렉션·record 금지|
-|`[CountRange]` 정합성|O|—|—|`[SingleColumnCollection]` 필요, `[Length]` 배타, minCount ≥ 0 (빌드는 `SDP0007` / `SDP0005` / `SDP0019`)|
+|`[CountRange]` 정합성|O|—|—|`[SingleColumnCollection]` 필요, `[Length]` 배타, minCount ≥ 0, minCount ≤ maxCount (빌드는 `SDP0007` / `SDP0005` / `SDP0019` / `SDP0015`)|
 |`[SingleColumnCollection]` 정합성|O|—|—|Map 불가, 원소 primitive 만, `[Length]` 배타 (빌드는 `SDP0013`)|
-|`[Key]` 정합성|O|—|—|Record 당 최대 1개·non-nullable 은 선언 검사 / Map Value 의 `[Key]` 존재는 선언 검사와 빌드 시 `SDP0017` — 로드는 Key 존재를 검사하지 않고 Map 키 중복만 검사|
+|`[Key]` 정합성|O|—|—|Record 당 최대 1개·non-nullable·컬렉션 불가는 선언 검사 / Map Value 의 `[Key]` 정확히 하나는 선언 검사와 빌드 시 `SDP0017` — 로드는 Key 존재를 검사하지 않고 Map 키 중복만 검사|
 |`[StaticDataRecord]` 존재|O|O|—|선언 검사 대상 식별 / 추출 대상 0개 시 종료 / 테이블의 Record 에 없으면 빌드 시 `SDP0215`|
 
 ### C. 셀 값

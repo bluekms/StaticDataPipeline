@@ -65,7 +65,7 @@ public sealed partial record ItemRecord(
 |`[SingleColumnCollection]` 누락|스캐너가 `CountRangeAttributeOnlyForSingleColumnCollection` 예외를 발생. 빌드 시 `SDP0007`|
 |`[Length]` 동시 부착|스캐너가 `CountRangeAndLengthMutuallyExclusive` 예외를 발생. 빌드 시 `SDP0005`|
 |`minCount` 가 음수|스캐너가 `CountRangeMinMustBeNonNegative` 예외를 발생. 빌드 시 `SDP0019`. `minCount = 0` 은 빈 셀 (원소 0개) 을 허용한다는 뜻|
-|`minCount > maxCount`|빌드 시 `SDP0015`|
+|`minCount > maxCount`|스캐너가 `CountRangeMinMustNotExceedMax` 예외를 발생. 빌드 시 `SDP0015`|
 
 단일 컬럼 모드 컬렉션의 분할된 원소 개수가 `[minCount, maxCount]` 범위 안에 있어야 합니다. 분할 개수는 추출 단계와 런타임 로드 양쪽에서 검사합니다.
 
@@ -206,6 +206,7 @@ public sealed partial record ItemRecord(
 
 - Record 전체로 `[Key]` 는 최대 하나입니다 (스캐너가 `StaticDataRecordMustHaveAtMostOneKey` 예외를 발생. 빌드 시 `SDP0003`).
 - `[Key]` 가 붙은 파라미터는 non-nullable 이어야 합니다 (스캐너가 `KeyAttributeMustBeNonNullable` 예외를 발생).
+- `[Key]` 는 컬렉션에 붙일 수 없습니다 (스캐너가 `KeyAttributeNotForCollection` 예외를 발생). 멤버가 여럿인 record 를 키로 쓰면 추출기의 중복 검사는 평탄화된 컬럼 전부를 묶어 비교합니다.
 - enum 파라미터에 `[Key]` 를 붙이면 매핑 시 정의된 멤버인지 검사하지 않습니다 — [5.3 타입 브랜딩 패턴](./03-type-branding.md) 참고.
 
 ---
@@ -223,7 +224,7 @@ public sealed partial record ItemRecord(
 |검증 시점|스캐너, 빌드|
 |누락 시|허용. 시트/CSV 에서 `이름[0]`, `이름[1]`, … 가 이어지는 만큼이 길이가 된다 (표준 헤더 생성기는 `이름[0]` 만 제시). 번호가 0 부터 이어지지 않으면(`[1]` 부터 시작, 중간 번호 누락) 추출이 실패한다. 초과 인덱스 거부는 `[Length]` 가 있을 때만|
 |배타 관계|`[SingleColumnCollection]` 동시 부착은 스캐너가 `LengthAndSingleColumnCollectionMutuallyExclusive`, 빌드가 `SDP0013`. `[CountRange]` 동시 부착은 스캐너가 `CountRangeAndLengthMutuallyExclusive`, 빌드가 `SDP0005`|
-|오사용|컬렉션이 아닌 파라미터에 붙이면 빌드 시 `SDP0016`. `length` 가 1 미만이면 빌드 시 `SDP0014`|
+|오사용|컬렉션이 아닌 파라미터에 붙이면 스캐너가 `LengthAttributeNotApplicable`, 빌드 시 `SDP0016`. `length` 가 1 미만이면 스캐너가 `LengthMustBePositive`, 빌드 시 `SDP0014`|
 
 Excel 헤더가 `Col[0]`, `Col[1]`, ..., `Col[length-1]` 로 펼쳐지는 다중 컬럼 방식입니다. 선언한 길이를 넘는 인덱스 헤더가 CSV 에 있으면 로드가 실패합니다.
 
