@@ -17,7 +17,7 @@
 |`SDP0009`|`FrozenDictionary` 에 `[SingleColumnCollection]` 이 붙어 있다|`[Length]` 로 바꾼다|
 |`SDP0010`|`[Range]` 경계값이 파라미터 타입의 표현 범위를 벗어나거나, `typeof` 형식의 경계 문자열을 해당 타입·포맷으로 파싱하지 못한다|경계값을 타입 범위 안으로 조정하거나 타입·포맷에 맞는 표기로 고친다|
 |`SDP0011`|`byte`·`sbyte`·`short`·`ushort`·`int`·`uint`·`float`·`double` 타입에 `typeof` 형식의 `[Range]` 를 썼다|`[Range(min, max)]` 숫자 형식으로 쓴다. `long`·`ulong`·`decimal` 은 두 형식 모두 허용된다|
-|`SDP0012`|`[StaticDataRecord]` record 가 제네릭이거나 제네릭 타입 안에 있다|제네릭을 제거한다|
+|`SDP0012`|생성 대상(Record·Table·TableSet·Manager·View·ViewSet)이 제네릭이거나 제네릭 타입 안에 있다|제네릭을 제거한다|
 |`SDP0013`|`[Length]` 와 `[SingleColumnCollection]` 이 함께 붙어 있다|둘 중 하나만 둔다|
 |`SDP0014`|`[Length]` 값이 1 미만이다|1 이상으로 고친다|
 |`SDP0015`|`[Range]` 또는 `[CountRange]` 의 최솟값이 최댓값보다 크다|순서를 바로잡는다|
