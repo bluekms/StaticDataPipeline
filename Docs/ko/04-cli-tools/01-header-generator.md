@@ -22,7 +22,7 @@ StaticDataHeaderGenerator.exe all-header [옵션...]
 - `header` — **Record 하나** 의 표준 헤더를 생성합니다. `--record-name` 으로 대상을 지정해야 합니다. 대상 하나만 처리하더라도 `--record-path` 폴더 전체를 로드하므로, 다른 Record 의 선언 결함으로도 실패합니다.
 - `all-header` — `--record-path` 폴더 아래 모든 `[StaticDataRecord]` Record 의 표준 헤더를 한꺼번에 생성합니다.
 
-`header` 는 결과 Markdown 을 콘솔에 출력하며, `--output-file` 을 지정하면 그 파일로도 저장합니다 (콘솔 출력은 그대로 유지). 콘솔 출력은 `2026-10-28 16:42:26 [Information] ` 같은 접두가 붙는 Information 레벨 로그이므로, `--min-log-level Warning` 이상을 주면 아무것도 출력되지 않습니다. `all-header` 는 폴더 전체를 처리해 출력량이 많을 수 있으므로 콘솔에는 출력하지 않고, `--output-file` 로 지정한 파일에만 저장합니다.
+`header` 는 결과 Markdown 을 콘솔에 출력하며, `--output-file` 을 지정하면 그 파일로도 저장합니다 (콘솔 출력은 그대로 유지). 콘솔 출력은 `2026-10-28 16:42:26 [Information] ` 같은 접두가 붙는 Information 레벨 로그이므로, `--min-log-level Warning` 이상을 주면 아무것도 출력되지 않습니다. `all-header` 도 같은 방식으로 콘솔에 출력하고, `--output-file` 을 지정하면 그 파일로도 저장합니다.
 
 </br></br></br>
 
@@ -45,7 +45,7 @@ StaticDataHeaderGenerator.exe all-header [옵션...]
 |-|-|-|
 |`-r`, `--record-path`|Record `.cs` 파일 또는 디렉터리 경로|필수|
 |`-s`, `--separator`|Code block 안 헤더 사이에 들어갈 구분자|`\t` (탭)|
-|`-o`, `--output-file`|출력 파일 경로 (`all-header` 는 콘솔 출력이 없어 생략하면 결과가 파일로 남지 않음)|없음|
+|`-o`, `--output-file`|출력 파일 경로. 생략하면 콘솔에만 출력|없음|
 |`-l`, `--log-path`|로그 디렉터리 경로 (그 아래 일자별 `log<날짜>.txt` 가 생성됨)|없음|
 |`-m`, `--min-log-level`|최소 로그 레벨|Information|
 
