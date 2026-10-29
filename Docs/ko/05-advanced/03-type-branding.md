@@ -15,7 +15,13 @@ public record struct CharId(int Value);
 public record struct ItemId(int Value);
 ```
 
-같은 `int` 를 감싸도 record struct 타입이 다르므로 잘못된 대입이 컴파일 에러로 잡힙니다.
+같은 `int` 를 감싸도 record struct 타입이 다르므로 잘못된 대입이 컴파일 에러로 잡힙니다. `record struct` 대신 `record` (참조 타입) 로 선언해도 동일하게 동작합니다.
+
+브랜딩 타입 자체를 nullable (`CharId?`) 로 선언할 수는 없습니다 (스캐너 `NullableRecordNotSupported`, 빌드 `SDP0004`). "값 없음" 이 필요하면 내부 파라미터를 `int?` 로 두고 [`[NullString]`](./02-attributes.md#attr-nullstring) 을 내부 파라미터에 붙입니다.
+
+```csharp
+public record struct OptionalCharId([NullString("")] int? Value);
+```
 
 ```csharp
 void GetItem(ItemId id) { ... }
@@ -30,7 +36,7 @@ GetItem(charId);   // 컴파일 에러 — CharId 를 ItemId 자리에 넣을 �
 
 ```csharp
 [StaticDataRecord("Game", "Heroes")]
-public sealed record HeroRecord(
+public sealed partial record HeroRecord(
     [Key] CharId Id,
     string Name);
 ```
@@ -41,7 +47,11 @@ public sealed record HeroRecord(
 Id    Name
 ```
 
-CSV 셀에 `100` 만 적으면 `new CharId(100)` 으로 매핑됩니다. 또한 [`[Key]`](./02-attributes.md#attr-key) 가 붙어 있으므로 `ExcelColumnExtractor` 가 추출 단계에서 이 컬럼의 값 중복을 함께 검사합니다.
+CSV 셀에 `100` 만 적으면 `new CharId(100)` 으로 매핑됩니다. 또한 [`[Key]`](./02-attributes.md#attr-key) 가 붙어 있으므로 `ExcelColumnExtractor` 가 추출 단계에서 이 컬럼의 값 중복을 함께 검사합니다. 이 중복 검사는 셀 문자열을 ordinal 비교하므로 `01` 과 `1` 은 서로 다른 키로 취급되어 통과합니다 (로드 시에는 둘 다 `1` 로 파싱됩니다).
+
+헤더는 축약형 `Id` 와 전체 확장형 `Id.Value` 를 추출기와 런타임 매퍼 모두 허용합니다. 표준 헤더 생성기는 축약형 `Id` 를 출력하고, 시트에 `Id.Value` 가 있어도 그대로 받습니다.
+
+브랜딩 타입이 중첩 Record 안에 있을 때는 **마지막 스칼라 세그먼트만** 축약할 수 있습니다. 예를 들어 `record Middle(Inner Inner)`, `record Inner(long Value)` 를 `Middle Middle` 파라미터로 쓰면 헤더는 `Middle.Inner` 또는 `Middle.Inner.Value` 두 가지만 유효하고, `Middle` 하나로 줄이면 로드에 실패합니다.
 
 ---
 
@@ -66,18 +76,18 @@ enum 멤버에 정수 값을 명시해 두면, 그 값이 곧 CSV 셀에 적히�
 
 ### `[Key]` enum 의 멤버 검사 생략
 
-`[Key]` 로 사용된 enum 은 매핑 시 `Enum.IsDefined` 검사가 생략됩니다. 즉 enum 멤버로 정의되지 않은 정수 값 (`1004`, `9999` 등) 도 받아들여 `(SkillId)1004` 로 매핑됩니다.
+`[Key]` 로 사용된 enum 은 매핑 시 정의된 멤버인지 검사하지 않습니다. 즉 enum 멤버로 정의되지 않은 정수 값 (`1004`, `9999` 등) 도 받아들여 `(SkillId)1004` 로 매핑됩니다.
 
 이 동작 덕분에 enum 을 **닫힌 집합** 이 아닌 **ID 코드 공간** 으로 활용할 수 있습니다. 데이터 작업자가 새 스킬 ID 를 추가할 때마다 enum 멤버를 갱신할 필요 없이, 이미 알려진 일부 값만 명명해 두고 나머지는 데이터로 추가하면 됩니다.
 
 ```csharp
 [StaticDataRecord("Game", "Skills")]
-public sealed record SkillRecord(
+public sealed partial record SkillRecord(
     [Key] SkillId Id,   // (SkillId)9999 같은 미정의 값도 그대로 매핑
     string Name);
 ```
 
-> `[Key]` 가 아닌 일반 enum 파라미터는 `Enum.IsDefined` 가 적용되어 미정의 값을 거부합니다. 타입 브랜딩으로 enum 을 쓰려면 `[Key]` 위치에서 사용해야 합니다.
+> `[Key]` 가 아닌 일반 enum 파라미터는 미정의 값을 거부합니다. 추출기는 enum 멤버 이름만 허용합니다 (정수 `1`, 대소문자가 다른 `fireball` 모두 추출 실패). 로드 시 생성된 매퍼는 멤버 이름과 멤버의 정수 값 문자열 (예: `1001`) 을 모두 받습니다. 대소문자는 구분합니다. 타입 브랜딩으로 enum 을 쓰려면 `[Key]` 위치에서 사용해야 합니다.
 
 ---
 
@@ -105,17 +115,45 @@ public sealed record SkillRecord(
 public record struct CharId(int Value);
 
 [StaticDataRecord("Game", "Heroes")]
-public sealed record HeroRecord(
+public sealed partial record HeroRecord(
     [Key] CharId Id,
     string Name);
 
 [StaticDataRecord("Game", "Quests")]
-public sealed record QuestRecord(
+public sealed partial record QuestRecord(
     [Key] int Id,
     [ForeignKey("HeroTable", "Id")] CharId AssignedTo);
 ```
 
 `AssignedTo` 가 `CharId` 타입이므로 다른 ID 와 섞일 일이 없고, 동시에 `HeroTable.Id` 컬럼에 실제 값이 존재하는지 로드 시점에 검증됩니다.
+
+---
+
+</br></br></br>
+
+## Attribute 부착 위치
+
+브랜딩 record 는 바깥 파라미터 (`CharId Id`) 와 내부 파라미터 (`int Value`) 두 자리가 있으므로, Attribute 가 어느 자리에 붙어야 하는지 구분해야 합니다.
+
+|Attribute|부착 위치|잘못 붙였을 때|
+|-|-|-|
+|[`[Range]`](./02-attributes.md#attr-range) (숫자 형태), [`[NullString]`](./02-attributes.md#attr-nullstring), [`[RegularExpression]`](./02-attributes.md#attr-regularexpression), [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat), [`[TimeSpanFormat]`](./02-attributes.md#attr-timespanformat)|내부 파라미터 (`Value`)|바깥 파라미터에 붙이면 빌드 시 `SDP0016` (예: `파라미터 'Id'의 타입에는 [Range]를 적용할 수 없습니다`)|
+|[`[Range]`](./02-attributes.md#attr-range) (`typeof` 형태)|내부 파라미터 (`Value`)|바깥 파라미터에 붙이면 빌드 시 `SDP0004`|
+|`[Key]` 의 enum 멤버 검사 생략|내부 파라미터 (`Value`)|바깥 파라미터의 `[Key]` 만으로는 내부 enum 의 멤버 검사가 생략되지 않음|
+|[`[Key]`](./02-attributes.md#attr-key) (추출기 중복 검사, Map 의 키), [`[ForeignKey]`](./02-attributes.md#attr-foreignkey), [`[SwitchForeignKey]`](./02-attributes.md#attr-switchforeignkey), [`[ColumnName]`](./02-attributes.md#attr-columnname)|바깥 파라미터 (`Id`)|—|
+
+값 검증·변환 Attribute 는 실제로 셀 값을 읽는 내부 파라미터에, 컬럼 단위 의미 (헤더 이름, 키, 외래 키) 를 갖는 Attribute 는 바깥 파라미터에 붙입니다.
+
+```csharp
+public record struct CharId([Range(1, 100_000)] int Value);
+
+public record struct SkillKey([Key] SkillId Value);   // enum 멤버 검사 생략은 내부 [Key] 기준
+
+[StaticDataRecord("Game", "Heroes")]
+public sealed partial record HeroRecord(
+    [Key] [ColumnName("HeroId")] CharId Id,
+    [ForeignKey("SkillTable", "Id")] SkillKey MainSkill);
+```
 
 ---
 

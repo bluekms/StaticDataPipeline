@@ -10,7 +10,7 @@
 
 ```csharp
 [StaticDataRecord("GameItems", "Items")]
-public sealed record ItemRecord(
+public sealed partial record ItemRecord(
     int Id,
     string Name,
     int Price,
@@ -33,7 +33,7 @@ public sealed record ItemRecord(
 
 ```csharp
 [StaticDataRecord("StudentReport", "Grades")]
-public sealed record StudentRecord(
+public sealed partial record StudentRecord(
     int Id,
     string Name,
     [Length(3)] ImmutableArray<SubjectScore> Subjects);
@@ -140,6 +140,32 @@ Excel 에 실제로 붙여넣을 줄은 **`### Headers (TSV)` 코드 블록 안�
 3. 레코드 작업자가 Record 를 확정하면 `StaticDataHeaderGenerator` 를 돌려 표준 헤더를 받아옵니다.
 4. 그 결과를 `B3` 에 붙여넣습니다. 임시 헤더는 그대로 둬도 되고, 깔끔하게 지워도 됩니다.
 5. 이후 추출은 `ExcelColumnExtractor --start-cell B3` 으로 진행됩니다 (CI 에서 자동 실행을 권장).
+
+```mermaid
+sequenceDiagram
+    participant D as 데이터 작업자
+    participant R as 레코드 작업자
+    participant B as 빌드 (CI)
+    D->>R: 컬럼 구성 · 시작 셀 합의
+    par 병렬 진행
+        D->>D: 임시 헤더 + 데이터 입력
+        R->>R: Record .cs 작성 · 빌드
+    end
+    R->>B: Record 커밋
+    B->>B: StaticDataHeaderGenerator all-header
+    B-->>D: 표준 헤더 Markdown
+    D->>D: TSV 한 줄을 B3 에 붙여넣기
+    D->>B: Excel 커밋
+    B->>B: ExcelColumnExtractor --start-cell B3
+```
+
+### 표준 헤더를 받는 경로
+
+3번에서 생성기를 **누가** 돌리는지는 팀마다 다를 수 있지만, 데이터 작업자가 실행 파일과 `.cs` 폴더를 직접 다루지 않아도 되는 다음 방식을 권장합니다.
+
+- 레코드 작업자 (또는 CI) 가 Record 가 바뀔 때마다 `all-header` 로 전체 헤더를 한 Markdown 파일에 뽑아 정해진 자리에 올려 둡니다 ([4.1 — 권장 워크플로우](../04-cli-tools/01-header-generator.md#권장-워크플로우)).
+- 데이터 작업자는 그 파일에서 자기 시트의 섹션만 찾아 붙여넣습니다.
+- 컬럼이 추가되거나 이름이 바뀌거나 반복 횟수 (`[Length]`) 가 달라지면 헤더 줄도 바뀝니다. 레코드 작업자가 변경을 알리면 같은 자리에서 갱신된 Markdown 을 다시 받아 붙여넣습니다.
 
 </br></br></br>
 
