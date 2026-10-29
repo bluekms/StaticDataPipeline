@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Text;
 using ExcelColumnExtractor.Aggregator;
 using ExcelColumnExtractor.Exceptions;
 using ExcelColumnExtractor.Mappings;
@@ -17,7 +15,7 @@ public static class DataBodyChecker
         ExtractedTableMap extractedTableMap,
         ILogger<Program> logger)
     {
-        var sb = new StringBuilder();
+        var failures = new List<ExtractionException.Failure>();
 
         foreach (var (recordSchema, table) in extractedTableMap.SortedTables)
         {
@@ -27,14 +25,14 @@ public static class DataBodyChecker
             }
             catch (Exception e)
             {
-                sb.AppendLine(CultureInfo.InvariantCulture, $"{recordSchema}: {e.Message}");
+                failures.Add(new(recordSchema, e));
                 LogError(logger, recordSchema, e.Message, e);
             }
         }
 
-        if (sb.Length > 0)
+        if (failures.Count > 0)
         {
-            throw new DataBodyCheckerException(sb.ToString());
+            throw new ExtractionException(failures);
         }
     }
 

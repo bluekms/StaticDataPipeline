@@ -2,6 +2,7 @@ using System.Globalization;
 using CLICommonLibrary;
 using ExcelColumnExtractor.Aggregator;
 using ExcelColumnExtractor.Checkers;
+using ExcelColumnExtractor.Exceptions;
 using ExcelColumnExtractor.Scanners;
 using Microsoft.Extensions.Logging;
 using UnitTest.Utility;
@@ -122,7 +123,7 @@ public class ColumnOrderTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public void TwoHeadersReferToSameSheetColumn_Throws()
     {
-        var exception = Assert.Throws<AggregateException>(() => Extract(
+        var exception = Assert.Throws<ExtractionException>(() => Extract(
             DuplicateColumnNameRecordSource,
             sheetHeaders: ["Id", "Price"],
             sheetRows:

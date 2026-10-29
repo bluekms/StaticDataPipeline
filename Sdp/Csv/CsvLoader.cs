@@ -9,17 +9,19 @@ public static class CsvLoader
 {
     public static async Task<ImmutableArray<TRecord>> LoadAsync<TRecord>(
         string filePath,
-        Func<CsvHeaderIndex, string[], TRecord> mapFromCsvRow)
+        Func<CsvHeaderIndex, string[], TRecord> mapFromCsvRow,
+        Func<CsvHeaderIndex, string[], bool>? isEmptyRow = null)
     {
         var content = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
 
-        return Parse(content, mapFromCsvRow, filePath);
+        return Parse(content, mapFromCsvRow, filePath, isEmptyRow);
     }
 
     public static ImmutableArray<TRecord> Parse<TRecord>(
         string csvContent,
         Func<CsvHeaderIndex, string[], TRecord> mapFromCsvRow,
-        string? filePath = null)
+        string? filePath = null,
+        Func<CsvHeaderIndex, string[], bool>? isEmptyRow = null)
     {
         var rows = ParseCsvContent(csvContent, filePath);
         if (rows.Count == 0)
@@ -52,6 +54,11 @@ public static class CsvLoader
                         headerCellCount));
                 }
 
+                if (isEmptyRow is not null && isEmptyRow(headers, values))
+                {
+                    continue;
+                }
+
                 builder.Add(mapFromCsvRow(headers, values));
             }
             catch (Exception ex)
@@ -79,6 +86,44 @@ public static class CsvLoader
         builder.Capacity = builder.Count;
 
         return builder.MoveToImmutable();
+    }
+
+    // 추출기(BodyColumnAggregator)가 record 의 열이 모두 빈 행을 버리는 규칙과 같아야 한다.
+    public static bool IsEmptyRow(CsvHeaderIndex headers, string[] values, string[] columns, string[] columnPrefixes)
+    {
+        var anyColumnPresent = false;
+        foreach (var column in columns)
+        {
+            if (!headers.Contains(column))
+            {
+                continue;
+            }
+
+            anyColumnPresent = true;
+            if (values[headers[column]].Length > 0)
+            {
+                return false;
+            }
+        }
+
+        foreach (var prefix in columnPrefixes)
+        {
+            foreach (var name in headers.ColumnNames)
+            {
+                if (!name.StartsWith(prefix, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                anyColumnPresent = true;
+                if (values[headers[name]].Length > 0)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return anyColumnPresent;
     }
 
     private static List<string[]> ParseCsvContent(string content, string? filePath)

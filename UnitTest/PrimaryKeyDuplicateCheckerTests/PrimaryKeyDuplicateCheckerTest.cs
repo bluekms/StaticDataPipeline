@@ -40,7 +40,7 @@ public partial class PrimaryKeyDuplicateCheckerTest(ITestOutputHelper testOutput
     }
 
     [Fact]
-    public void DuplicateKey_ThrowsDataBodyCheckerException()
+    public void DuplicateKey_ThrowsExtractionException()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         var logger = factory.CreateLogger<ExcelColumnExtractor.Program>();
@@ -60,11 +60,11 @@ public partial class PrimaryKeyDuplicateCheckerTest(ITestOutputHelper testOutput
             [recordSchema] = table,
         });
 
-        Assert.Throws<DataBodyCheckerException>(() => PrimaryKeyDuplicateChecker.Check(map, logger));
+        Assert.Throws<ExtractionException>(() => PrimaryKeyDuplicateChecker.Check(map, logger));
     }
 
     [Fact]
-    public void KeyHeaderMissing_ThrowsDataBodyCheckerException()
+    public void KeyHeaderMissing_ThrowsExtractionException()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         var logger = factory.CreateLogger<ExcelColumnExtractor.Program>();
@@ -82,7 +82,7 @@ public partial class PrimaryKeyDuplicateCheckerTest(ITestOutputHelper testOutput
             [recordSchema] = table,
         });
 
-        Assert.Throws<DataBodyCheckerException>(() => PrimaryKeyDuplicateChecker.Check(map, logger));
+        Assert.Throws<ExtractionException>(() => PrimaryKeyDuplicateChecker.Check(map, logger));
     }
 
     [Fact]

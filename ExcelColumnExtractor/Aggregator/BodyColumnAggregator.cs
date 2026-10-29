@@ -1,4 +1,3 @@
-using System.Text;
 using ExcelColumnExtractor.Exceptions;
 using ExcelColumnExtractor.Extensions;
 using ExcelColumnExtractor.Mappings;
@@ -24,7 +23,7 @@ public static class BodyColumnAggregator
     {
         var result = new Dictionary<RecordSchema, ExtractedTable>();
 
-        var sb = new StringBuilder();
+        var failures = new List<ExtractionException.Failure>();
         foreach (var recordSchema in recordSchemaList)
         {
             try
@@ -51,13 +50,13 @@ public static class BodyColumnAggregator
             }
             catch (Exception e)
             {
-                sb.AppendLine(e.Message);
+                failures.Add(new(recordSchema, e));
                 LogError(logger, recordSchema, e.Message, e);
             }
         }
 
-        return sb.Length > 0
-            ? throw new BodyColumnAggregatorException(sb.ToString())
+        return failures.Count > 0
+            ? throw new ExtractionException(failures)
             : new(result);
     }
 

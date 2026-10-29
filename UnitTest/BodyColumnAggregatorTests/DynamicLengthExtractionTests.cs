@@ -56,7 +56,7 @@ public class DynamicLengthExtractionTests(ITestOutputHelper testOutputHelper)
     {
         var ex = Record.Exception(() => Extract(PrimitiveArraySource, ["Id", "Scores[0]", "Name"], [["1", "not-a-number", "Potion"]]));
 
-        Assert.IsType<DataBodyCheckerException>(ex);
+        Assert.IsType<ExtractionException>(ex);
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class DynamicLengthExtractionTests(ITestOutputHelper testOutputHelper)
         Assert.Equal(headers, table.Headers);
 
         var ex = Record.Exception(() => Extract(SameNameNestedSource, headers, [["1", "1", "2", "3", "4", "5", "oops"]]));
-        Assert.IsType<DataBodyCheckerException>(ex);
+        Assert.IsType<ExtractionException>(ex);
     }
 
     [Fact]
@@ -97,7 +97,7 @@ public class DynamicLengthExtractionTests(ITestOutputHelper testOutputHelper)
     {
         var ex = Record.Exception(() => Extract(PrimitiveArraySource, ["Id", "Scores[0]", "Scores[2]", "Name"], [["1", "10", "30", "Potion"]]));
 
-        Assert.IsType<AggregateException>(ex);
+        Assert.IsType<ExtractionException>(ex);
         Assert.Contains("Scores[2]", ex!.Message, StringComparison.Ordinal);
     }
 

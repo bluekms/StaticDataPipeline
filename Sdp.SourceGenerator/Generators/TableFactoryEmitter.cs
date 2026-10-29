@@ -58,7 +58,8 @@ internal static class TableFactoryEmitter
         sb.Append(indent).Append("    var path = global::System.IO.Path.Combine(csvDir, ").Append(fileNameLit).AppendLine(");");
         sb.Append(indent).Append("    var records = await global::Sdp.Csv.CsvLoader.LoadAsync<")
             .Append(analysis.FullyQualifiedRecordName).Append(">(path, ")
-            .Append(analysis.FullyQualifiedRecordName).AppendLine(".MapFromCsvRow).ConfigureAwait(false);");
+            .Append(analysis.FullyQualifiedRecordName).Append(".MapFromCsvRow, ")
+            .Append(analysis.FullyQualifiedRecordName).AppendLine(".IsEmptyCsvRow).ConfigureAwait(false);");
         sb.Append(indent).Append("    var __table = new ").Append(analysis.FullyQualifiedTypeName).AppendLine("(records);");
         sb.Append(indent).AppendLine("    __table.Validate();");
         sb.Append(indent).AppendLine("    return __table;");

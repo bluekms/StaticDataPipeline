@@ -145,6 +145,42 @@ public partial class GenerationTargetDiagnosticsTests(ITestOutputHelper testOutp
         Assert.Empty(logger.Logs);
     }
 
+    [Fact]
+    public void CsvMapper_ListsColumnsAndPrefixesForEmptyRowCheck()
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        const string source =
+            """
+            public sealed partial record Pos(int X, int Y);
+            public sealed partial record ItemId(long Value);
+            public sealed partial record Tag(string Name);
+
+            [StaticDataRecord("Shape", "S")]
+            public sealed partial record ShapeRec(
+                int Id,
+                [ColumnName("Nm")] string Name,
+                Pos Pos,
+                ItemId Key,
+                [Length(2)] ImmutableArray<int> Scores,
+                ImmutableArray<Tag> Tags,
+                [SingleColumnCollection(",")] ImmutableArray<int> Flags,
+                [Ignore] int Cache);
+
+            public sealed partial class ShapeTable : StaticDataTable<ShapeRec>;
+            """;
+
+        var run = SourceGeneratorTestHelper.Run(Header + source);
+        var mapper = SourceGeneratorTestHelper.GetSingleTree(run, "ShapeRec.CsvMapper.g.cs").ToString();
+        var tableFactory = SourceGeneratorTestHelper.GetSingleTree(run, "ShapeTable.TableFactory.g.cs").ToString();
+
+        Assert.Contains("__csvColumns = new string[] { \"Id\", \"Nm\", \"Pos.X\", \"Pos.Y\", \"Key\", \"Key.Value\", \"Flags\" };", mapper, StringComparison.Ordinal);
+        Assert.Contains("__csvColumnPrefixes = new string[] { \"Scores[\", \"Tags[\" };", mapper, StringComparison.Ordinal);
+        Assert.Contains(".MapFromCsvRow, global::Test.ShapeRec.IsEmptyCsvRow).ConfigureAwait(false);", tableFactory, StringComparison.Ordinal);
+        Assert.Empty(logger.Logs);
+    }
+
     private static List<Diagnostic> RunDiagnostics(string consumerSource)
         => SourceGeneratorTestHelper.Run(Header + consumerSource)
             .Results

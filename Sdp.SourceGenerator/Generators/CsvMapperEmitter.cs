@@ -28,6 +28,7 @@ internal static partial class CsvMapperEmitter
             {
                 var nestedTokens = BuildNestedTokenMap(csvMapper.Parameters);
                 EmitCsvMapper(sb, csvMapper, memberIndent, nestedTokens);
+                EmitEmptyRowCheck(sb, csvMapper.Parameters, memberIndent);
                 EmitHelpers(sb, csvMapper.Parameters, memberIndent, nestedTokens);
                 break;
             }
@@ -55,6 +56,11 @@ internal static partial class CsvMapperEmitter
         sb.Append(indent).Append("    throw new global::System.NotSupportedException(\"")
             .Append("Sdp.SourceGenerator: '").Append(analysis.FullyQualifiedTypeName)
             .AppendLine("' has parameter type(s) not yet supported by the CSV mapper.\");");
+        sb.Append(indent).AppendLine("}");
+        sb.AppendLine();
+        sb.Append(indent).AppendLine("internal static bool IsEmptyCsvRow(global::Sdp.Csv.CsvHeaderIndex headers, string[] values)");
+        sb.Append(indent).AppendLine("{");
+        sb.Append(indent).AppendLine("    return false;");
         sb.Append(indent).AppendLine("}");
     }
 

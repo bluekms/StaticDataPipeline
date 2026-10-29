@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using ExcelColumnExtractor.Exceptions;
 using ExcelColumnExtractor.Extensions;
 using ExcelColumnExtractor.Mappings;
 using ExcelColumnExtractor.NameObjects;
@@ -26,7 +27,7 @@ public static class RequiredHeadersChecker
     {
         var result = new Dictionary<RecordSchema, RequiredHeaderMapping>(recordSchemaCatalog.StaticDataRecordSchemata.Count);
 
-        var sb = new StringBuilder();
+        var failures = new List<ExtractionException.Failure>();
         foreach (var recordSchema in recordSchemaCatalog.StaticDataRecordSchemata)
         {
             try
@@ -45,14 +46,13 @@ public static class RequiredHeadersChecker
             }
             catch (Exception e)
             {
-                var msg = $"{recordSchema.RecordName.FullName}: {e.Message}";
-                sb.AppendLine(msg);
-                LogError(logger, recordSchema, msg, e);
+                failures.Add(new(recordSchema, e));
+                LogError(logger, recordSchema, e.Message, e);
             }
         }
 
-        return sb.Length > 0
-            ? throw new AggregateException(sb.ToString())
+        return failures.Count > 0
+            ? throw new ExtractionException(failures)
             : new(result);
     }
 
