@@ -76,7 +76,7 @@ ExcelColumnExtractor.exe ^
 | `GameItems.xlsx` | `Items` | `GameItems.Items.csv` |
 | `Heroes.xlsx` | `BaseStats` | `Heroes.BaseStats.csv` |
 
-같은 파일·시트를 가리키는 Record 가 여럿이면 추출 결과(컬럼과 행)가 같을 때만 그 CSV 를 한 번 쓰고, 다르면 추출이 실패합니다.
+같은 파일·시트를 가리키는 Record 가 여럿이면 CSV 는 하나만 만들어지고 Record 들이 나눠 씁니다. 컬럼은 각 Record 가 요구한 컬럼의 합집합(먼저 처리된 Record 의 컬럼 순서 뒤에 다른 Record 의 새 컬럼)이고, 행은 어느 Record 에든 비어 있지 않은 행의 합집합입니다. 한 Record 에게만 비어 있는 행은 그 Record 의 컬럼이 빈 값으로 들어가며, 로드할 때 그 Record 는 자기 컬럼이 모두 빈 행을 건너뜁니다. 추출기가 Record 마다 적용하는 빈 행 제외 규칙과 같은 규칙입니다.
 
 CSV 의 헤더는 시트의 **원본 헤더** 를 그대로 유지합니다. Record 측에서 `[ColumnName("Cost")]` 로 다른 파라미터 이름에 매핑하더라도 CSV 에는 시트의 `Cost` 가 들어갑니다. 매핑은 로드 단계에서 처리됩니다.
 
