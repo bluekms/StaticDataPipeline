@@ -87,6 +87,7 @@ public static class CsvLoader
         var fields = new List<string>();
         var field = new StringBuilder();
         var inQuotes = false;
+        var rowHasQuotedField = false;
         var i = 0;
 
         while (i < content.Length)
@@ -106,6 +107,13 @@ public static class CsvLoader
                     {
                         inQuotes = false;
                         i++;
+                        if (i < content.Length && content[i] is not (',' or '\r' or '\n'))
+                        {
+                            throw new InvalidOperationException(FileLabel(filePath) + string.Format(
+                                CultureInfo.CurrentCulture,
+                                Messages.Composite.CsvTextAfterClosingQuote,
+                                rows.Count + 1));
+                        }
                     }
                 }
                 else
@@ -119,7 +127,16 @@ public static class CsvLoader
             {
                 if (c == '"')
                 {
+                    if (field.Length > 0)
+                    {
+                        throw new InvalidOperationException(FileLabel(filePath) + string.Format(
+                            CultureInfo.CurrentCulture,
+                            Messages.Composite.CsvQuoteInUnquotedField,
+                            rows.Count + 1));
+                    }
+
                     inQuotes = true;
+                    rowHasQuotedField = true;
                     i++;
                 }
                 else if (c == ',')
@@ -134,6 +151,7 @@ public static class CsvLoader
                     rows.Add(fields.ToArray());
                     fields.Clear();
                     field.Clear();
+                    rowHasQuotedField = false;
                     i++;
                     if (i < content.Length && content[i] == '\n')
                     {
@@ -146,6 +164,7 @@ public static class CsvLoader
                     rows.Add(fields.ToArray());
                     fields.Clear();
                     field.Clear();
+                    rowHasQuotedField = false;
                     i++;
                 }
                 else
@@ -159,21 +178,25 @@ public static class CsvLoader
         // 따옴표가 닫히지 않은 채 끝난 경우
         if (inQuotes)
         {
-            var fileLabel = filePath is not null
-                ? string.Format(
-                    CultureInfo.CurrentCulture,
-                    Messages.Composite.CsvFileLabel,
-                    Path.GetFileName(filePath))
-                : string.Empty;
-            throw new InvalidOperationException(fileLabel + Messages.CsvUnterminatedQuote);
+            throw new InvalidOperationException(FileLabel(filePath) + Messages.CsvUnterminatedQuote);
         }
 
-        if (field.Length > 0 || fields.Count > 0)
+        if (field.Length > 0 || fields.Count > 0 || rowHasQuotedField)
         {
             fields.Add(field.ToString());
             rows.Add(fields.ToArray());
         }
 
         return rows;
+    }
+
+    private static string FileLabel(string? filePath)
+    {
+        if (filePath is null)
+        {
+            return string.Empty;
+        }
+
+        return string.Format(CultureInfo.CurrentCulture, Messages.Composite.CsvFileLabel, Path.GetFileName(filePath));
     }
 }

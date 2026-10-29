@@ -63,6 +63,12 @@ internal static class Messages
     internal static string CsvUnterminatedQuote
         => ResourceManager.GetString("CsvUnterminatedQuote", Culture)!;
 
+    internal static string CsvQuoteInUnquotedField
+        => ResourceManager.GetString("CsvQuoteInUnquotedField", Culture)!;
+
+    internal static string CsvTextAfterClosingQuote
+        => ResourceManager.GetString("CsvTextAfterClosingQuote", Culture)!;
+
     internal static string CsvRowFieldCountShortage
         => ResourceManager.GetString("CsvRowFieldCountShortage", Culture)!;
 
@@ -119,6 +125,8 @@ internal static class Messages
         internal static CompositeFormat CsvRowParseError => CompositeFormat.Parse(Messages.CsvRowParseError);
         internal static CompositeFormat CsvDuplicateHeader => CompositeFormat.Parse(Messages.CsvDuplicateHeader);
         internal static CompositeFormat CsvRowFieldCountShortage => CompositeFormat.Parse(Messages.CsvRowFieldCountShortage);
+        internal static CompositeFormat CsvQuoteInUnquotedField => CompositeFormat.Parse(Messages.CsvQuoteInUnquotedField);
+        internal static CompositeFormat CsvTextAfterClosingQuote => CompositeFormat.Parse(Messages.CsvTextAfterClosingQuote);
         internal static CompositeFormat CsvHeaderNotFound => CompositeFormat.Parse(Messages.CsvHeaderNotFound);
         internal static CompositeFormat CsvFileLabel => CompositeFormat.Parse(Messages.CsvFileLabel);
         internal static CompositeFormat ViewConstructorNotFound => CompositeFormat.Parse(Messages.ViewConstructorNotFound);
@@ -141,6 +149,8 @@ internal static class Messages
         internal static string CsvRowParseError => Messages.CsvRowParseError;
         internal static string CsvDuplicateHeader => Messages.CsvDuplicateHeader;
         internal static string CsvRowFieldCountShortage => Messages.CsvRowFieldCountShortage;
+        internal static string CsvQuoteInUnquotedField => Messages.CsvQuoteInUnquotedField;
+        internal static string CsvTextAfterClosingQuote => Messages.CsvTextAfterClosingQuote;
         internal static string CsvHeaderNotFound => Messages.CsvHeaderNotFound;
         internal static string CsvFileLabel => Messages.CsvFileLabel;
         internal static string ViewConstructorNotFound => Messages.ViewConstructorNotFound;

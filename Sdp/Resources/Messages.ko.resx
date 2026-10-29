@@ -45,6 +45,12 @@
   <data name="CsvUnterminatedQuote" xml:space="preserve">
     <value>CSV가 따옴표가 닫히지 않은 채로 끝났습니다.</value>
   </data>
+  <data name="CsvQuoteInUnquotedField" xml:space="preserve">
+    <value>CSV {0}행: 따옴표로 감싸지 않은 필드 안에 따옴표가 있습니다.</value>
+  </data>
+  <data name="CsvTextAfterClosingQuote" xml:space="preserve">
+    <value>CSV {0}행: 닫는 따옴표 뒤에 예상하지 못한 텍스트가 있습니다.</value>
+  </data>
   <data name="CsvRowFieldCountShortage" xml:space="preserve">
     <value>행의 필드 수({0})가 헤더의 필드 수({1})보다 적습니다.</value>
   </data>
