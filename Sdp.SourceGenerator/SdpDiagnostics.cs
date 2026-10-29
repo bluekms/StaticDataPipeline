@@ -358,6 +358,22 @@ internal static class SdpDiagnostics
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
+    public static readonly DiagnosticDescriptor SwitchForeignKeyConditionColumnTypeNotSupported = new(
+        id: "SDP0227",
+        title: "SwitchForeignKey condition column must be a single-value type",
+        messageFormat: "record '{0}'의 [SwitchForeignKey] 조건 컬럼 '{1}' (type '{2}')은 단일 값 타입이 아니라 조건으로 사용할 수 없습니다",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor SwitchForeignKeyConditionValueNotParsable = new(
+        id: "SDP0228",
+        title: "SwitchForeignKey condition value cannot be parsed as the condition column type",
+        messageFormat: "record '{0}'의 [SwitchForeignKey] ConditionValue '{1}'은 조건 컬럼 '{2}' (type '{3}')의 값으로 해석될 수 없어 런타임에 절대 매칭되지 않습니다. 날짜·시간은 조건 컬럼의 포맷 attribute 와 같은 표기로 적습니다.",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     public static readonly DiagnosticDescriptor ViewSetRecordMustBePartial = new(
         id: "SDP0301",
         title: "ViewSet record must be partial",

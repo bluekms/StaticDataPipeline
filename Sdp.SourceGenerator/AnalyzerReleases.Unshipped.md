@@ -49,6 +49,8 @@ SDP0223 | Sdp.SourceGenerator | Error | SwitchForeignKey condition value can nev
 SDP0224 | Sdp.SourceGenerator | Error | SwitchForeignKey condition column must not be a collection
 SDP0225 | Sdp.SourceGenerator | Error | SwitchForeignKey equivalent condition value
 SDP0226 | Sdp.SourceGenerator | Error | ForeignKey duplicate target
+SDP0227 | Sdp.SourceGenerator | Error | SwitchForeignKey condition column must be a single-value type
+SDP0228 | Sdp.SourceGenerator | Error | SwitchForeignKey condition value cannot be parsed as the condition column type
 SDP0301 | Sdp.SourceGenerator | Error | ViewSet record must be partial
 SDP0302 | Sdp.SourceGenerator | Error | ViewSet member must be non-nullable
 SDP0303 | Sdp.SourceGenerator | Error | StaticDataView subclass must be partial

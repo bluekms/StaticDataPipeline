@@ -10,7 +10,8 @@ internal sealed record RecordFkInfo(
 
 internal sealed record FkParameter(
     string PropertyName,
-    ITypeSymbol PropertyType,
+    ITypeSymbol ValueType,
+    bool IsCollection,
     ImmutableArray<FkBranch> Branches);
 
 internal sealed record FkBranch(
@@ -19,7 +20,7 @@ internal sealed record FkBranch(
     bool IsSwitch,
     string? ConditionColumn,
     string? ConditionValue,
-    ITypeSymbol? ConditionType)
+    string? ConditionLiteral)
 {
     public static FkBranch ForeignKey(string tableSetMember, string targetColumn)
     {
@@ -29,7 +30,7 @@ internal sealed record FkBranch(
             IsSwitch: false,
             ConditionColumn: null,
             ConditionValue: null,
-            ConditionType: null);
+            ConditionLiteral: null);
     }
 
     public static FkBranch SwitchForeignKey(
@@ -37,7 +38,7 @@ internal sealed record FkBranch(
         string targetColumn,
         string conditionColumn,
         string conditionValue,
-        ITypeSymbol conditionType)
+        string conditionLiteral)
     {
         return new FkBranch(
             tableSetMember,
@@ -45,6 +46,6 @@ internal sealed record FkBranch(
             IsSwitch: true,
             conditionColumn,
             conditionValue,
-            conditionType);
+            conditionLiteral);
     }
 }

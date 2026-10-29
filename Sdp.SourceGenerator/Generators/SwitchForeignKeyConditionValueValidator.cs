@@ -37,6 +37,18 @@ internal static class SwitchForeignKeyConditionValueValidator
             return;
         }
 
+        if (!SwitchForeignKeyConditionLiteralBuilder.IsScalarConditionType(conditionType))
+        {
+            diagnostics.Add(Diagnostic.Create(
+                SdpDiagnostics.SwitchForeignKeyConditionColumnTypeNotSupported,
+                ParameterLocation(param),
+                recordType.Name,
+                conditionColumn,
+                conditionType.ToDisplayString()));
+
+            return;
+        }
+
         if (conditionType.TypeKind == TypeKind.Enum && conditionType is INamedTypeSymbol enumType)
         {
             if (HasFlagsAttribute(enumType))
@@ -66,6 +78,44 @@ internal static class SwitchForeignKeyConditionValueValidator
         else if (TypeClassifier.ClassifyScalar(conditionType) == ScalarKind.Guid)
         {
             ValidateGuidConditionValue(recordType, param, switchFkAttrs, conditionColumn, diagnostics);
+        }
+        else
+        {
+            ValidateParsableConditionValue(recordType, param, switchFkAttrs, conditionColumn, conditionType, diagnostics);
+        }
+    }
+
+    private static void ValidateParsableConditionValue(
+        INamedTypeSymbol recordType,
+        IParameterSymbol param,
+        List<AttributeData> switchFkAttrs,
+        string conditionColumn,
+        ITypeSymbol conditionType,
+        List<Diagnostic> diagnostics)
+    {
+        SwitchForeignKeyConditionLiteralBuilder.ReadFormats(recordType, conditionColumn, out var dateTimeFormat, out var timeSpanFormat);
+
+        foreach (var attr in switchFkAttrs)
+        {
+            var args = attr.ConstructorArguments;
+            if (args.Length < 2 || args[1].Value is not string conditionValue)
+            {
+                continue;
+            }
+
+            var literal = SwitchForeignKeyConditionLiteralBuilder.TryBuild(conditionType, conditionValue, dateTimeFormat, timeSpanFormat);
+            if (literal is not null)
+            {
+                continue;
+            }
+
+            diagnostics.Add(Diagnostic.Create(
+                SdpDiagnostics.SwitchForeignKeyConditionValueNotParsable,
+                ParameterLocation(param),
+                recordType.Name,
+                conditionValue,
+                conditionColumn,
+                conditionType.ToDisplayString()));
         }
     }
 

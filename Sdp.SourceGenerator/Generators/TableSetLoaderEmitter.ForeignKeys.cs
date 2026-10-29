@@ -27,28 +27,9 @@ internal static partial class TableSetLoaderEmitter
 
             var fkSetVariables = EmitFkTargetSets(sb, recordFkInfo, indent + "        ");
 
-            var usesMissingReportedFlags = new bool[recordFkInfo.Parameters.Length];
             for (var parameterIndex = 0; parameterIndex < recordFkInfo.Parameters.Length; parameterIndex++)
             {
-                var usesMissingReportedFlag = UsesMissingReportedFlag(recordFkInfo.Parameters[parameterIndex], fkSetVariables);
-                usesMissingReportedFlags[parameterIndex] = usesMissingReportedFlag;
-                if (usesMissingReportedFlag)
-                {
-                    sb.Append(indent).Append("        var __fkMissingReported").Append(parameterIndex).AppendLine(" = false;");
-                }
-            }
-
-            sb.AppendLine();
-            for (var parameterIndex = 0; parameterIndex < recordFkInfo.Parameters.Length; parameterIndex++)
-            {
-                EmitFkTargetsNotLoadedGuard(
-                    sb,
-                    recordFkInfo.Parameters[parameterIndex],
-                    parameterIndex,
-                    usesMissingReportedFlags[parameterIndex],
-                    recordFkInfo,
-                    fkSetVariables,
-                    indent + "        ");
+                sb.Append(indent).Append("        var __fkMissingReported").Append(parameterIndex).AppendLine(" = false;");
             }
 
             sb.AppendLine();
@@ -83,7 +64,7 @@ internal static partial class TableSetLoaderEmitter
 
         foreach (var fkParameter in recordFkInfo.Parameters)
         {
-            var propertyTypeFullyQualifiedName = fkParameter.PropertyType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var propertyTypeFullyQualifiedName = fkParameter.ValueType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             foreach (var branch in fkParameter.Branches)
             {
                 var setKey = new FkTargetSetKey(branch.TableSetMember, branch.TargetColumn, propertyTypeFullyQualifiedName);
@@ -115,61 +96,6 @@ internal static partial class TableSetLoaderEmitter
         return setVariables;
     }
 
-    private static bool UsesMissingReportedFlag(
-        FkParameter fkParameter,
-        Dictionary<FkTargetSetKey, string> fkSetVariables)
-    {
-        var propertyTypeFullyQualifiedName = fkParameter.PropertyType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-        var hasSwitchBranch = fkParameter.Branches.Any(static branch => branch.IsSwitch);
-        var fkSetVariableCount = fkParameter.Branches
-            .Where(static branch => !branch.IsSwitch)
-            .Select(branch => fkSetVariables[new FkTargetSetKey(branch.TableSetMember, branch.TargetColumn, propertyTypeFullyQualifiedName)])
-            .Distinct()
-            .Count();
-
-        return hasSwitchBranch || fkSetVariableCount > 1;
-    }
-
-    private static void EmitFkTargetsNotLoadedGuard(
-        StringBuilder sb,
-        FkParameter fkParameter,
-        int parameterIndex,
-        bool usesMissingReportedFlag,
-        RecordFkInfo recordFkInfo,
-        Dictionary<FkTargetSetKey, string> fkSetVariables,
-        string indent)
-    {
-        var propertyTypeFullyQualifiedName = fkParameter.PropertyType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-        var setVariables = new List<string>();
-        foreach (var branch in fkParameter.Branches)
-        {
-            var setKey = new FkTargetSetKey(branch.TableSetMember, branch.TargetColumn, propertyTypeFullyQualifiedName);
-            var setVariable = fkSetVariables[setKey];
-            if (!setVariables.Contains(setVariable))
-            {
-                setVariables.Add(setVariable);
-            }
-        }
-
-        var condition = string.Join(" && ", setVariables.Select(static setVariable => setVariable + " is null"));
-        var missingReportedVariable = "__fkMissingReported" + parameterIndex.ToString(CultureInfo.InvariantCulture);
-        var sourceLiteral = SymbolDisplay.FormatLiteral(
-            recordFkInfo.RecordSymbol.Name + "." + fkParameter.PropertyName, quote: true);
-        var targetMembers = string.Join(", ", fkParameter.Branches.Select(static branch => branch.TableSetMember).Distinct());
-        var targetLiteral = SymbolDisplay.FormatLiteral(targetMembers, quote: true);
-
-        sb.Append(indent).Append("if (").Append(condition).AppendLine(")");
-        sb.Append(indent).AppendLine("{");
-        if (usesMissingReportedFlag)
-        {
-            sb.Append(indent).Append("    ").Append(missingReportedVariable).AppendLine(" = true;");
-        }
-
-        sb.Append(indent).Append("    __errors.Add(global::Sdp.Manager.TableSetLoaderHelper.FkTargetNotLoadedError(")
-            .Append(sourceLiteral).Append(", ").Append(targetLiteral).AppendLine("));");
-        sb.Append(indent).AppendLine("}");
-    }
-
     private static void EmitFkParameterCheck(
         StringBuilder sb,
         FkParameter fkParameter,
@@ -178,7 +104,7 @@ internal static partial class TableSetLoaderEmitter
         Dictionary<FkTargetSetKey, string> fkSetVariables,
         string indent)
     {
-        var propertyTypeFullyQualifiedName = fkParameter.PropertyType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        var propertyTypeFullyQualifiedName = fkParameter.ValueType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var keyParameter = FindKeyParameter(recordFkInfo.RecordSymbol);
         var keyClause = keyParameter is null
             ? string.Empty
@@ -191,18 +117,29 @@ internal static partial class TableSetLoaderEmitter
             recordFkInfo.RecordSymbol.Name + "." + fkParameter.PropertyName, quote: true);
         var missingReportedVariable = "__fkMissingReported" + parameterIndex.ToString(CultureInfo.InvariantCulture);
 
-        var isNullable = TypeClassifier.IsNullable(fkParameter.PropertyType);
+        var isNullable = TypeClassifier.IsNullable(fkParameter.ValueType);
 
         sb.Append(indent).AppendLine("{");
-        sb.Append(indent).Append("    var __v = __r.")
-            .Append(EmitHelper.EscapeIdentifier(fkParameter.PropertyName)).AppendLine(";");
-
         var body = indent;
-        if (isNullable)
+        if (fkParameter.IsCollection)
         {
-            sb.Append(indent).AppendLine("    if (__v is not null)");
+            sb.Append(indent).Append("    foreach (var __v in __r.")
+                .Append(EmitHelper.EscapeIdentifier(fkParameter.PropertyName)).AppendLine(")");
             sb.Append(indent).AppendLine("    {");
             body = indent + "    ";
+        }
+        else
+        {
+            sb.Append(indent).Append("    var __v = __r.")
+                .Append(EmitHelper.EscapeIdentifier(fkParameter.PropertyName)).AppendLine(";");
+        }
+
+        var nullGuardIndent = body;
+        if (isNullable)
+        {
+            sb.Append(nullGuardIndent).AppendLine("    if (__v is not null)");
+            sb.Append(nullGuardIndent).AppendLine("    {");
+            body = nullGuardIndent + "    ";
         }
 
         sb.Append(body).AppendLine("    var __ok = false;");
@@ -274,20 +211,17 @@ internal static partial class TableSetLoaderEmitter
             AppendValueNotFoundError(body + "            ", "{__v}", fkTargets);
             sb.Append(body).AppendLine("        }");
 
-            if (parameterSetVariables.Count > 1)
+            sb.Append(body).AppendLine("        else");
+            sb.Append(body).AppendLine("        {");
+            foreach (var setVariable in parameterSetVariables)
             {
-                sb.Append(body).AppendLine("        else");
-                sb.Append(body).AppendLine("        {");
-                foreach (var setVariable in parameterSetVariables)
-                {
-                    sb.Append(body).Append("            if (").Append(setVariable).AppendLine(" is null)");
-                    sb.Append(body).AppendLine("            {");
-                    AppendTargetNotLoadedError(body + "                ", targetMemberBySetVariable[setVariable]);
-                    sb.Append(body).AppendLine("            }");
-                }
-
-                sb.Append(body).AppendLine("        }");
+                sb.Append(body).Append("            if (").Append(setVariable).AppendLine(" is null)");
+                sb.Append(body).AppendLine("            {");
+                AppendTargetNotLoadedError(body + "                ", targetMemberBySetVariable[setVariable]);
+                sb.Append(body).AppendLine("            }");
             }
+
+            sb.Append(body).AppendLine("        }");
 
             sb.Append(body).AppendLine("    }");
         }
@@ -297,43 +231,16 @@ internal static partial class TableSetLoaderEmitter
             var conditionColumn = switchBranches[0].ConditionColumn!;
             var conditionColumnAccess = EmitHelper.EscapeIdentifier(conditionColumn);
 
-            var conditionPropertyType = switchBranches[0].ConditionType!;
-            var conditionType = TypeClassifier.UnwrapNullable(conditionPropertyType);
-            var typedLiterals = TryBuildTypedConditionLiterals(conditionType, switchBranches);
-            if (typedLiterals.Count == 0)
-            {
-                var useInvariant = IsFormattable(conditionPropertyType);
-                var isNonNullableValue = conditionPropertyType.IsValueType
-                    && conditionPropertyType.NullableAnnotation != NullableAnnotation.Annotated;
-                var conditionalOperator = isNonNullableValue ? "." : "?.";
-
-                string conditionInitializer;
-                if (useInvariant)
-                {
-                    var castType = isNonNullableValue ? "global::System.IFormattable" : "global::System.IFormattable?";
-                    conditionInitializer = "((" + castType + ")__r." + conditionColumnAccess + ")" + conditionalOperator
-                        + "ToString(null, global::System.Globalization.CultureInfo.InvariantCulture)";
-                }
-                else
-                {
-                    conditionInitializer = "__r." + conditionColumnAccess + conditionalOperator + "ToString()";
-                }
-
-                sb.Append(body).Append("    var __cond = ").Append(conditionInitializer).AppendLine(";");
-            }
-
             sb.Append(body).AppendLine("    var __matched = false;");
             sb.Append(body).AppendLine("    var __switchTargetLoaded = false;");
 
-            var conditionDisplay = typedLiterals.Count > 0 ? "{__r." + conditionColumnAccess + "}" : "{__cond}";
+            var conditionDisplay = "{__r." + conditionColumnAccess + "}";
             var conditionSuffix = " (when " + conditionColumn + "=" + conditionDisplay + ")";
 
             for (var branchIndex = 0; branchIndex < switchBranches.Count; branchIndex++)
             {
                 var branch = switchBranches[branchIndex];
-                var conditionExpression = typedLiterals.Count > 0
-                    ? "__r." + conditionColumnAccess + " == " + typedLiterals[branchIndex]
-                    : "__cond == " + SymbolDisplay.FormatLiteral(branch.ConditionValue!, quote: true);
+                var conditionExpression = "__r." + conditionColumnAccess + " == " + branch.ConditionLiteral!;
 
                 var setKey = new FkTargetSetKey(branch.TableSetMember, branch.TargetColumn, propertyTypeFullyQualifiedName);
                 var setVariable = fkSetVariables[setKey];
@@ -376,6 +283,11 @@ internal static partial class TableSetLoaderEmitter
         }
 
         if (isNullable)
+        {
+            sb.Append(nullGuardIndent).AppendLine("    }");
+        }
+
+        if (fkParameter.IsCollection)
         {
             sb.Append(indent).AppendLine("    }");
         }
