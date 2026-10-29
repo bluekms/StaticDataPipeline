@@ -19,16 +19,17 @@ public sealed record NullablePrimitiveSetPropertySchema(
         for (var i = 0; i < length; i++)
         {
             var result = NullStringAttributeChecker.Check(this, keyContext.Current.Value);
+            keyContext.BeginKeyScope();
             if (result.IsNull)
             {
                 keyContext.ConsumeNull();
             }
             else
             {
-                keyContext.BeginKeyScope();
                 GenericArgumentSchema.CheckCompatibility(keyContext);
-                keyContext.EndKeyScope();
             }
+
+            keyContext.EndKeyScope();
         }
 
         keyContext.ValidateNoDuplicates();

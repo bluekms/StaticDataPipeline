@@ -132,7 +132,7 @@ public sealed class CompatibilityContext
     public void ConsumeNull()
     {
         Position++;
-        duplicateCandidates.Add(null);
+        Collect(null);
     }
 
     public void Skip(int count = 1)

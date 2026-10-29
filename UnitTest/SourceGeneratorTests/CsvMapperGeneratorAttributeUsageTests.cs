@@ -218,6 +218,29 @@ public class CsvMapperGeneratorAttributeUsageTests(ITestOutputHelper testOutputH
     }
 
     [Fact]
+    public void Reports_SDP0010_once_per_nested_record_declaration_at_first_path()
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        const string source = """
+            using System.Collections.Immutable;
+            using Sdp.Attributes;
+            namespace Test;
+
+            public sealed record Contact(string Name, [Range(0, 300)] byte Level);
+
+            [StaticDataRecord("File", "Sheet")]
+            public sealed partial record Hero(int Id, Contact Home, Contact Work, [Length(2)] ImmutableArray<Contact> Others);
+            """;
+
+        var result = SourceGeneratorTestHelper.Run(source);
+        var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0010");
+        Assert.Contains("Home.Level", diagnostic.GetMessage(CultureInfo.InvariantCulture));
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
     public void Reports_SDP0008_for_nested_nullable_collection()
     {
         var logger = CreateLogger();

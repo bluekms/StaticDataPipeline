@@ -47,14 +47,16 @@ public sealed record SingleColumnNullablePrimitiveSetPropertySchema(
         foreach (var nestedCell in nestedCells)
         {
             var result = NullStringAttributeChecker.Check(this, nestedCell.Value);
+            nestedContext.BeginKeyScope();
             if (result.IsNull)
             {
                 nestedContext.ConsumeNull();
-                continue;
+            }
+            else
+            {
+                GenericArgumentSchema.CheckCompatibility(nestedContext);
             }
 
-            nestedContext.BeginKeyScope();
-            GenericArgumentSchema.CheckCompatibility(nestedContext);
             nestedContext.EndKeyScope();
         }
 
