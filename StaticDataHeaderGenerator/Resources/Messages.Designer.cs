@@ -36,8 +36,8 @@ internal static class Messages
     internal static string RecordNameNotFound
         => ResourceManager.GetString("RecordNameNotFound", Culture)!;
 
-    internal static string NoRecordsFound
-        => ResourceManager.GetString("NoRecordsFound", Culture)!;
+    internal static string RecordNameAmbiguous
+        => ResourceManager.GetString("RecordNameAmbiguous", Culture)!;
 
     internal static string ParseErrorCount
         => ResourceManager.GetString("ParseErrorCount", Culture)!;
@@ -50,6 +50,7 @@ internal static class Messages
         internal static CompositeFormat HeadersGenerated => CompositeFormat.Parse(Messages.HeadersGenerated);
         internal static CompositeFormat HeaderFileSaved => CompositeFormat.Parse(Messages.HeaderFileSaved);
         internal static CompositeFormat RecordNameNotFound => CompositeFormat.Parse(Messages.RecordNameNotFound);
+        internal static CompositeFormat RecordNameAmbiguous => CompositeFormat.Parse(Messages.RecordNameAmbiguous);
         internal static CompositeFormat ParseErrorCount => CompositeFormat.Parse(Messages.ParseErrorCount);
         internal static CompositeFormat HeaderContainsSeparator => CompositeFormat.Parse(Messages.HeaderContainsSeparator);
     }
