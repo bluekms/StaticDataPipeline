@@ -65,6 +65,65 @@ public class XUnitTestLoggerAnalyzerTests
         await CSharpAnalyzerVerifier<XunitTestLoggerLogsAnalyzer, DefaultVerifier>.VerifyAnalyzerAsync(code, expected);
     }
 
+    [Fact]
+    public async Task LogsAccessedThroughLocalAlias_IsNotReported()
+    {
+        // language=C#
+        var test = """
+                   using System;
+
+                   public class Foo
+                   {
+                       [Fact]
+                       public void TestMethod(ITestOutputHelper testOutputHelper)
+                       {
+                           var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Trace);
+                           if (factory.CreateLogger<Foo>() is not TestOutputLogger<Foo> logger)
+                           {
+                               throw new InvalidOperationException("Logger creation failed.");
+                           }
+
+                           var logs = logger.Logs;
+                           Check(logs.Count);
+                       }
+
+                       private static void Check(int count) { }
+                   }
+                   """;
+
+        var code = test + XUnitTestPreferenceString;
+        await CSharpAnalyzerVerifier<XunitTestLoggerLogsAnalyzer, DefaultVerifier>.VerifyAnalyzerAsync(code);
+    }
+
+    [Fact]
+    public async Task QualifiedTypeArgument_IsNotReported()
+    {
+        // language=C#
+        var test = """
+                   using System;
+
+                   public class Foo
+                   {
+                       [Fact]
+                       public void TestMethod(ITestOutputHelper testOutputHelper)
+                       {
+                           var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Trace);
+                           if (factory.CreateLogger<Foo>() is not TestOutputLogger<global::Foo> logger)
+                           {
+                               throw new InvalidOperationException("Logger creation failed.");
+                           }
+
+                           Check(logger.Logs.Count);
+                       }
+
+                       private static void Check(int count) { }
+                   }
+                   """;
+
+        var code = test + XUnitTestPreferenceString;
+        await CSharpAnalyzerVerifier<XunitTestLoggerTypeAnalyzer, DefaultVerifier>.VerifyAnalyzerAsync(code);
+    }
+
     private const string XUnitTestPreferenceString = """
                                                      public class TestOutputLoggerFactory
                                                      {
