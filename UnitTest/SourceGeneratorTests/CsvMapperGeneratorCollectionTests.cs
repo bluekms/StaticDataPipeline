@@ -37,8 +37,7 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__MapArray_Departments emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -68,8 +67,7 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("Array helper for int emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -100,8 +98,7 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__MapSet_Grades emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -140,8 +137,7 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__MapDict_Items emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -168,8 +164,7 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         Assert.Contains("NotSupportedException", mapperTree.ToString());
-
-        logger.LogInformation("NotSupportedException fallback emitted: {FilePath}", mapperTree.FilePath);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -198,8 +193,7 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         Assert.Contains("NotSupportedException", mapperTree.ToString());
-
-        logger.LogInformation("NotSupportedException fallback emitted: {FilePath}", mapperTree.FilePath);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -233,13 +227,12 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("Nested collection emitted via basePath, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<CsvMapperGeneratorCollectionTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CsvMapperGeneratorCollectionTests>()
             is not TestOutputLogger<CsvMapperGeneratorCollectionTests> logger)
         {

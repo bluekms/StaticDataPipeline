@@ -33,8 +33,7 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("DateTime.ParseExact emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -62,8 +61,7 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("DateTimeOffset.ParseExact emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -91,8 +89,7 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("TimeSpan.ParseExact emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -115,8 +112,7 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         Assert.Contains("NotSupportedException", mapperTree.ToString());
-
-        logger.LogInformation("NotSupportedException fallback emitted: {FilePath}", mapperTree.FilePath);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -139,13 +135,12 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         Assert.Contains("NotSupportedException", mapperTree.ToString());
-
-        logger.LogInformation("NotSupportedException fallback emitted: {FilePath}", mapperTree.FilePath);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<CsvMapperGeneratorDateTimeTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CsvMapperGeneratorDateTimeTests>()
             is not TestOutputLogger<CsvMapperGeneratorDateTimeTests> logger)
         {

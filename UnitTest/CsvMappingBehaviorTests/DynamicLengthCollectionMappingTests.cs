@@ -24,11 +24,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         Assert.Equal(10, record.Scores[0]);
         Assert.Equal(20, record.Scores[1]);
         Assert.Equal(30, record.Scores[2]);
-        logger.LogInformation(
-            "Scores mapped: [{S0}, {S1}, {S2}]",
-            record.Scores[0],
-            record.Scores[1],
-            record.Scores[2]);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -41,7 +37,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         Assert.Equal(2, record.Scores.Length);
         Assert.Equal(10, record.Scores[0]);
         Assert.Equal(20, record.Scores[1]);
-        logger.LogInformation("Scores length follows header count: {Count}", record.Scores.Length);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -52,7 +48,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var csv = "Scores[0],Scores[2]\n10,30";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, BareIntArrayRecord.MapFromCsvRow));
         Assert.IsType<ArgumentException>(ex.InnerException);
-        logger.LogInformation("Non-contiguous index threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("DynamicArray", "Mixed")]
@@ -73,11 +69,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         Assert.Equal(10, record.Values[0]);
         Assert.Equal(20, record.Values[1]);
         Assert.Equal("Test", record.Name);
-        logger.LogInformation(
-            "Mixed record mapped: Id={Id}, Values={Count}, Name={Name}",
-            record.Id,
-            record.Values.Length,
-            record.Name);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("DynamicSet", "Int")]
@@ -95,7 +87,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var ids = record.Ids.ToArray();
         Assert.Contains(5, ids);
         Assert.Contains(7, ids);
-        logger.LogInformation("Id set mapped with {Count} elements", record.Ids.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -106,7 +98,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var csv = "Ids[0],Ids[1]\n5,5";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, BareIntSetRecord.MapFromCsvRow));
         Assert.IsType<ArgumentException>(ex.InnerException);
-        logger.LogInformation("Duplicate set value threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record InventoryItem([Key] int Id, string Name);
@@ -124,7 +116,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         Assert.Equal(2, record.Items.Count);
         Assert.Equal("First", record.Items[1].Name);
         Assert.Equal("Second", record.Items[2].Name);
-        logger.LogInformation("Item dictionary mapped with {Count} entries", record.Items.Count);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record Point(int X, int Y);
@@ -144,7 +136,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         Assert.Equal(2, record.Points[0].Y);
         Assert.Equal(3, record.Points[1].X);
         Assert.Equal(4, record.Points[1].Y);
-        logger.LogInformation("Points mapped: [{P0}, {P1}]", record.Points[0], record.Points[1]);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("DynamicSet", "Records")]
@@ -162,7 +154,7 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var points = record.Points.ToArray();
         Assert.Contains(new Point(1, 2), points);
         Assert.Contains(new Point(3, 4), points);
-        logger.LogInformation("Point set mapped with {Count} elements", record.Points.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -173,12 +165,12 @@ public partial class DynamicLengthCollectionMappingTests(ITestOutputHelper testO
         var csv = "Points[0].X,Points[0].Y,Points[1].X,Points[1].Y\n1,2,1,2";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, BareRecordSetRecord.MapFromCsvRow));
         Assert.IsType<ArgumentException>(ex.InnerException);
-        logger.LogInformation("Duplicate record set value threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<DynamicLengthCollectionMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<DynamicLengthCollectionMappingTests>()
             is not TestOutputLogger<DynamicLengthCollectionMappingTests> logger)
         {

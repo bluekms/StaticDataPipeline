@@ -28,8 +28,7 @@ public class CsvMapperGeneratorAttributeUsageTests(ITestOutputHelper testOutputH
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0014");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
-
-        logger.LogInformation("Diagnostic {Id} reported: {Message}", diagnostic.Id, diagnostic.GetMessage(CultureInfo.InvariantCulture));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -51,8 +50,7 @@ public class CsvMapperGeneratorAttributeUsageTests(ITestOutputHelper testOutputH
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0015");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
-
-        logger.LogInformation("Diagnostic {Id} reported: {Message}", diagnostic.Id, diagnostic.GetMessage(CultureInfo.InvariantCulture));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -75,8 +73,7 @@ public class CsvMapperGeneratorAttributeUsageTests(ITestOutputHelper testOutputH
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0015");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
-
-        logger.LogInformation("Diagnostic {Id} reported: {Message}", diagnostic.Id, diagnostic.GetMessage(CultureInfo.InvariantCulture));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -99,8 +96,7 @@ public class CsvMapperGeneratorAttributeUsageTests(ITestOutputHelper testOutputH
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0019");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
-
-        logger.LogInformation("Diagnostic {Id} reported: {Message}", diagnostic.Id, diagnostic.GetMessage(CultureInfo.InvariantCulture));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -123,8 +119,7 @@ public class CsvMapperGeneratorAttributeUsageTests(ITestOutputHelper testOutputH
         var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0016");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
         Assert.Contains("SingleColumnCollection", diagnostic.GetMessage(CultureInfo.InvariantCulture));
-
-        logger.LogInformation("Diagnostic {Id} reported: {Message}", diagnostic.Id, diagnostic.GetMessage(CultureInfo.InvariantCulture));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -147,8 +142,7 @@ public class CsvMapperGeneratorAttributeUsageTests(ITestOutputHelper testOutputH
         var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0016");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
         Assert.Contains("NullString", diagnostic.GetMessage(CultureInfo.InvariantCulture));
-
-        logger.LogInformation("Diagnostic {Id} reported: {Message}", diagnostic.Id, diagnostic.GetMessage(CultureInfo.InvariantCulture));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -171,8 +165,7 @@ public class CsvMapperGeneratorAttributeUsageTests(ITestOutputHelper testOutputH
         var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0016");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
         Assert.Contains("RegularExpression", diagnostic.GetMessage(CultureInfo.InvariantCulture));
-
-        logger.LogInformation("Diagnostic {Id} reported: {Message}", diagnostic.Id, diagnostic.GetMessage(CultureInfo.InvariantCulture));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -195,8 +188,7 @@ public class CsvMapperGeneratorAttributeUsageTests(ITestOutputHelper testOutputH
         var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0016");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
         Assert.Contains("DateTimeFormat", diagnostic.GetMessage(CultureInfo.InvariantCulture));
-
-        logger.LogInformation("Diagnostic {Id} reported: {Message}", diagnostic.Id, diagnostic.GetMessage(CultureInfo.InvariantCulture));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -222,8 +214,7 @@ public class CsvMapperGeneratorAttributeUsageTests(ITestOutputHelper testOutputH
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         Assert.Contains("NotSupportedException", mapperTree.ToString());
-
-        logger.LogInformation("Diagnostic {Id} reported: {Message}", diagnostic.Id, diagnostic.GetMessage(CultureInfo.InvariantCulture));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -247,8 +238,7 @@ public class CsvMapperGeneratorAttributeUsageTests(ITestOutputHelper testOutputH
         var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0008");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
         Assert.Contains("Data.Tags", diagnostic.GetMessage(CultureInfo.InvariantCulture));
-
-        logger.LogInformation("Diagnostic {Id} reported: {Message}", diagnostic.Id, diagnostic.GetMessage(CultureInfo.InvariantCulture));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -274,13 +264,12 @@ public class CsvMapperGeneratorAttributeUsageTests(ITestOutputHelper testOutputH
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("Ignored parameter emitted as default!, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<CsvMapperGeneratorAttributeUsageTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CsvMapperGeneratorAttributeUsageTests>()
             is not TestOutputLogger<CsvMapperGeneratorAttributeUsageTests> logger)
         {

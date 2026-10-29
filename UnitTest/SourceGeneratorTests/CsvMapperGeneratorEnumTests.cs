@@ -38,8 +38,7 @@ public class CsvMapperGeneratorEnumTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("Enum switch for Kind emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -68,8 +67,7 @@ public class CsvMapperGeneratorEnumTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("Comma combination mapping emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -100,8 +98,7 @@ public class CsvMapperGeneratorEnumTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("Null branch for nullable enum emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -128,13 +125,12 @@ public class CsvMapperGeneratorEnumTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("unchecked long cast emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<CsvMapperGeneratorEnumTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CsvMapperGeneratorEnumTests>()
             is not TestOutputLogger<CsvMapperGeneratorEnumTests> logger)
         {

@@ -89,11 +89,10 @@ public partial class SetTypeTests(ITestOutputHelper testOutputHelper)
             foreach (var propertySchema in recordSchema.PropertySchemata)
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => propertySchema.CheckCompatibility(context));
-                logger.LogError(ex, ex.Message);
             }
         }
 
-        Assert.Single(logger.Logs);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]

@@ -31,8 +31,7 @@ public class StaticDataTableGeneratorTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(output.Final);
         Assert.Empty(errors);
-
-        logger.LogInformation("Generated factory:\n{Generated}", generated);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -61,8 +60,7 @@ public class StaticDataTableGeneratorTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(output.Final);
         Assert.Empty(errors);
-
-        logger.LogInformation("Generated factory:\n{Generated}", generated);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -96,13 +94,12 @@ public class StaticDataTableGeneratorTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(output.Final);
         Assert.Empty(errors);
-
-        logger.LogInformation("Generated factory:\n{Generated}", generated);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<StaticDataTableGeneratorTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<StaticDataTableGeneratorTests>()
             is not TestOutputLogger<StaticDataTableGeneratorTests> logger)
         {

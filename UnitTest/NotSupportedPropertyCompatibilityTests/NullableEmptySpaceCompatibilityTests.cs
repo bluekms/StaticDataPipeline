@@ -47,11 +47,10 @@ public partial class NullableEmptySpaceCompatibilityTests(ITestOutputHelper test
             foreach (var propertySchema in recordSchema.PropertySchemata)
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => propertySchema.CheckCompatibility(context));
-                logger.LogError(ex, ex.Message);
             }
         }
 
-        Assert.Single(logger.Logs);
+        Assert.Empty(logger.Logs);
     }
 
     private static MetadataCatalogs CreateCatalogs(string code, ILogger logger)

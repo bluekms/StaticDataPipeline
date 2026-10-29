@@ -25,7 +25,7 @@ public partial class NestedRecordMappingTests(ITestOutputHelper testOutputHelper
         Assert.Equal("Alice", record.Name);
         Assert.Equal("Seoul", record.Address.City);
         Assert.Equal("Gangnam", record.Address.Street);
-        logger.LogInformation("Person mapped: Name={Name}, Address={Address}", record.Name, record.Address);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record Contact(string Email, string Phone);
@@ -50,7 +50,7 @@ public partial class NestedRecordMappingTests(ITestOutputHelper testOutputHelper
         Assert.Equal("150-0001", record.Address.ZipCode);
         Assert.Equal("bob@example.com", record.Contact.Email);
         Assert.Equal("123-456", record.Contact.Phone);
-        logger.LogInformation("Employee mapped: Address={Address}, Contact={Contact}", record.Address, record.Contact);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Nested", "Outer")]
@@ -72,10 +72,7 @@ public partial class NestedRecordMappingTests(ITestOutputHelper testOutputHelper
         Assert.Equal(1, record.Id);
         Assert.Equal("Test", record.MyMiddle.Name);
         Assert.Equal(999, record.MyMiddle.Inner.Value);
-        logger.LogInformation(
-            "Deeply nested record mapped: Middle.Name={Name}, Inner.Value={Value}",
-            record.MyMiddle.Name,
-            record.MyMiddle.Inner.Value);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record AddressWithColumnName(
@@ -99,15 +96,12 @@ public partial class NestedRecordMappingTests(ITestOutputHelper testOutputHelper
         Assert.Equal("철수", record.Name);
         Assert.Equal("서울", record.Address.City);
         Assert.Equal("강남대로", record.Address.Street);
-        logger.LogInformation(
-            "Korean column record mapped: Name={Name}, Address={Address}",
-            record.Name,
-            record.Address);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<NestedRecordMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<NestedRecordMappingTests>() is not TestOutputLogger<NestedRecordMappingTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");

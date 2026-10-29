@@ -23,11 +23,7 @@ public partial class ImmutableArrayMappingTests(ITestOutputHelper testOutputHelp
         Assert.Equal(10, record.Scores[0]);
         Assert.Equal(20, record.Scores[1]);
         Assert.Equal(30, record.Scores[2]);
-        logger.LogInformation(
-            "Scores mapped: [{S0}, {S1}, {S2}]",
-            record.Scores[0],
-            record.Scores[1],
-            record.Scores[2]);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Array", "String")]
@@ -43,7 +39,7 @@ public partial class ImmutableArrayMappingTests(ITestOutputHelper testOutputHelp
         Assert.Equal(2, record.Names.Length);
         Assert.Equal("Alice", record.Names[0]);
         Assert.Equal("Bob", record.Names[1]);
-        logger.LogInformation("Names mapped: [{N0}, {N1}]", record.Names[0], record.Names[1]);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Array", "ColumnName")]
@@ -61,7 +57,7 @@ public partial class ImmutableArrayMappingTests(ITestOutputHelper testOutputHelp
         Assert.Equal(100, record.Scores[0]);
         Assert.Equal(200, record.Scores[1]);
         Assert.Equal(300, record.Scores[2]);
-        logger.LogInformation("Column-renamed scores mapped with {Count} elements", record.Scores.Length);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Array", "Mixed")]
@@ -82,11 +78,7 @@ public partial class ImmutableArrayMappingTests(ITestOutputHelper testOutputHelp
         Assert.Equal(10, record.Values[0]);
         Assert.Equal(20, record.Values[1]);
         Assert.Equal("Test", record.Name);
-        logger.LogInformation(
-            "Mixed record mapped: Id={Id}, Values={Count}, Name={Name}",
-            record.Id,
-            record.Values.Length,
-            record.Name);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Array", "NullableInt")]
@@ -104,11 +96,7 @@ public partial class ImmutableArrayMappingTests(ITestOutputHelper testOutputHelp
         Assert.Equal(10, record.Scores[0]);
         Assert.Null(record.Scores[1]);
         Assert.Equal(30, record.Scores[2]);
-        logger.LogInformation(
-            "Nullable scores mapped: [{S0}, {S1}, {S2}]",
-            record.Scores[0],
-            record.Scores[1],
-            record.Scores[2]);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record InnerRecord(int Id, string Name);
@@ -128,12 +116,12 @@ public partial class ImmutableArrayMappingTests(ITestOutputHelper testOutputHelp
         Assert.Equal("First", record.Items[0].Name);
         Assert.Equal(2, record.Items[1].Id);
         Assert.Equal("Second", record.Items[1].Name);
-        logger.LogInformation("Record items mapped: [{I0}, {I1}]", record.Items[0], record.Items[1]);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<ImmutableArrayMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<ImmutableArrayMappingTests>()
             is not TestOutputLogger<ImmutableArrayMappingTests> logger)
         {

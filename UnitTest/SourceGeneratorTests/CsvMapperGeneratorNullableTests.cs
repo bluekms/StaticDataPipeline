@@ -32,8 +32,7 @@ public class CsvMapperGeneratorNullableTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("Nullable string null branch emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -61,8 +60,7 @@ public class CsvMapperGeneratorNullableTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("Null branch for nullable int emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -86,8 +84,7 @@ public class CsvMapperGeneratorNullableTests(ITestOutputHelper testOutputHelper)
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         Assert.Contains("NotSupportedException", mapperTree.ToString());
-
-        logger.LogInformation("NotSupportedException fallback emitted: {FilePath}", mapperTree.FilePath);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -112,13 +109,12 @@ public class CsvMapperGeneratorNullableTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("Escaped NullString literal compiled, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<CsvMapperGeneratorNullableTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CsvMapperGeneratorNullableTests>()
             is not TestOutputLogger<CsvMapperGeneratorNullableTests> logger)
         {

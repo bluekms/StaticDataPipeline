@@ -24,7 +24,7 @@ public partial class ChainedTypeBrandingMappingTests(ITestOutputHelper testOutpu
         var record = Assert.Single(CsvLoader.Parse(csv, ChainedRecord.MapFromCsvRow));
         Assert.Equal(1, record.Id);
         Assert.Equal(12345L, record.Middle.Inner.Value);
-        logger.LogInformation("Expanded header mapped: Value={Value}", record.Middle.Inner.Value);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public partial class ChainedTypeBrandingMappingTests(ITestOutputHelper testOutpu
         var record = Assert.Single(CsvLoader.Parse(csv, ChainedRecord.MapFromCsvRow));
         Assert.Equal(1, record.Id);
         Assert.Equal(12345L, record.Middle.Inner.Value);
-        logger.LogInformation("Branded leaf header mapped: Value={Value}", record.Middle.Inner.Value);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public partial class ChainedTypeBrandingMappingTests(ITestOutputHelper testOutpu
 
         var csv = "Id,Middle\n1,12345";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, ChainedRecord.MapFromCsvRow));
-        logger.LogInformation("Fully collapsed header threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record Wrap(Middle Middle);
@@ -63,7 +63,7 @@ public partial class ChainedTypeBrandingMappingTests(ITestOutputHelper testOutpu
         var record = Assert.Single(CsvLoader.Parse(csv, DeepChainedRecord.MapFromCsvRow));
         Assert.Equal(1, record.Id);
         Assert.Equal(777L, record.Wrap.Middle.Inner.Value);
-        logger.LogInformation("Three-level branded leaf mapped: Value={Value}", record.Wrap.Middle.Inner.Value);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -73,12 +73,12 @@ public partial class ChainedTypeBrandingMappingTests(ITestOutputHelper testOutpu
 
         var csv = "Id,Wrap.Middle\n1,777";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, DeepChainedRecord.MapFromCsvRow));
-        logger.LogInformation("Intermediate collapse threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<ChainedTypeBrandingMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<ChainedTypeBrandingMappingTests>() is not TestOutputLogger<ChainedTypeBrandingMappingTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");

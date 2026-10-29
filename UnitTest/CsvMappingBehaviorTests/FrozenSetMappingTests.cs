@@ -25,7 +25,7 @@ public partial class FrozenSetMappingTests(ITestOutputHelper testOutputHelper)
         Assert.Contains(1, array);
         Assert.Contains(2, array);
         Assert.Contains(3, array);
-        logger.LogInformation("Int set mapped with {Count} elements", record.Ids.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Set", "String")]
@@ -43,7 +43,7 @@ public partial class FrozenSetMappingTests(ITestOutputHelper testOutputHelper)
         var array = record.Tags.ToArray();
         Assert.Contains("important", array);
         Assert.Contains("urgent", array);
-        logger.LogInformation("String set mapped with {Count} elements", record.Tags.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Set", "ColumnName")]
@@ -63,7 +63,7 @@ public partial class FrozenSetMappingTests(ITestOutputHelper testOutputHelper)
         Assert.Contains("a", array);
         Assert.Contains("b", array);
         Assert.Contains("c", array);
-        logger.LogInformation("Column-renamed set mapped with {Count} elements", record.Tags.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Set", "Mixed")]
@@ -87,16 +87,12 @@ public partial class FrozenSetMappingTests(ITestOutputHelper testOutputHelper)
         Assert.Contains(200, array);
 
         Assert.Equal("Test", record.Name);
-        logger.LogInformation(
-            "Mixed record mapped: Id={Id}, Values={Count}, Name={Name}",
-            record.Id,
-            record.Values.Count,
-            record.Name);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<FrozenSetMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<FrozenSetMappingTests>() is not TestOutputLogger<FrozenSetMappingTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");

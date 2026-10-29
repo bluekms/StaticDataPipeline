@@ -33,11 +33,7 @@ public partial class CollectionEnumMappingTests(ITestOutputHelper testOutputHelp
         Assert.Equal(Color.Red, record.Colors[0]);
         Assert.Equal(Color.Green, record.Colors[1]);
         Assert.Equal(Color.Blue, record.Colors[2]);
-        logger.LogInformation(
-            "Colors mapped: [{C0}, {C1}, {C2}]",
-            record.Colors[0],
-            record.Colors[1],
-            record.Colors[2]);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -48,7 +44,7 @@ public partial class CollectionEnumMappingTests(ITestOutputHelper testOutputHelp
         var csv = "Id,Colors[0],Colors[1],Colors[2]\n1,Red,99,Blue";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, FixedEnumArrayRecord.MapFromCsvRow));
         Assert.IsType<ArgumentException>(ex.InnerException);
-        logger.LogInformation("Undefined enum element threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("CollectionEnum", "SingleColumn")]
@@ -67,11 +63,7 @@ public partial class CollectionEnumMappingTests(ITestOutputHelper testOutputHelp
         Assert.Equal(Color.Red, record.Colors[0]);
         Assert.Equal(Color.Green, record.Colors[1]);
         Assert.Equal(Color.Blue, record.Colors[2]);
-        logger.LogInformation(
-            "Colors mapped: [{C0}, {C1}, {C2}]",
-            record.Colors[0],
-            record.Colors[1],
-            record.Colors[2]);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("CollectionEnum", "Set")]
@@ -89,12 +81,12 @@ public partial class CollectionEnumMappingTests(ITestOutputHelper testOutputHelp
         Assert.Equal(2, record.Colors.Count);
         Assert.Contains(Color.Red, (IEnumerable<Color>)record.Colors);
         Assert.Contains(Color.Blue, (IEnumerable<Color>)record.Colors);
-        logger.LogInformation("Color set mapped with {Count} elements", record.Colors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<CollectionEnumMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CollectionEnumMappingTests>()
             is not TestOutputLogger<CollectionEnumMappingTests> logger)
         {

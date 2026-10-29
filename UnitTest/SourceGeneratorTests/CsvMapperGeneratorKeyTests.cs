@@ -25,10 +25,7 @@ public class CsvMapperGeneratorKeyTests(ITestOutputHelper testOutputHelper)
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.Contains(diagnostics, d => d.Id == "SDP0003");
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -50,10 +47,7 @@ public class CsvMapperGeneratorKeyTests(ITestOutputHelper testOutputHelper)
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0003");
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -73,15 +67,12 @@ public class CsvMapperGeneratorKeyTests(ITestOutputHelper testOutputHelper)
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0003");
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<CsvMapperGeneratorKeyTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CsvMapperGeneratorKeyTests>()
             is not TestOutputLogger<CsvMapperGeneratorKeyTests> logger)
         {

@@ -25,7 +25,7 @@ public partial class ErrorHandlingMappingTests(ITestOutputHelper testOutputHelpe
         var csv = "Id,Status\n1,InvalidStatus";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, StatusRecord.MapFromCsvRow));
         Assert.IsType<ArgumentException>(ex.InnerException);
-        logger.LogInformation("Invalid enum value threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Error", "Simple")]
@@ -39,7 +39,7 @@ public partial class ErrorHandlingMappingTests(ITestOutputHelper testOutputHelpe
         var csv = "Id,Name\nnot_a_number,Test";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, SimpleRecord.MapFromCsvRow));
         Assert.IsType<FormatException>(ex.InnerException);
-        logger.LogInformation("Invalid integer value threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public partial class ErrorHandlingMappingTests(ITestOutputHelper testOutputHelpe
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, SimpleRecord.MapFromCsvRow));
         Assert.IsType<InvalidOperationException>(ex.InnerException);
         Assert.Contains("'Name'", ex.Message);
-        logger.LogInformation("Missing header threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Error", "Double")]
@@ -65,12 +65,12 @@ public partial class ErrorHandlingMappingTests(ITestOutputHelper testOutputHelpe
         var csv = "Value\nnot_a_double";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, RecordWithDoubleRecord.MapFromCsvRow));
         Assert.IsType<FormatException>(ex.InnerException);
-        logger.LogInformation("Invalid double value threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<ErrorHandlingMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<ErrorHandlingMappingTests>() is not TestOutputLogger<ErrorHandlingMappingTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");

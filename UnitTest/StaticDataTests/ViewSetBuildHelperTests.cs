@@ -21,12 +21,13 @@ public class ViewSetBuildHelperTests(ITestOutputHelper testOutputHelper)
         {
             var ex = ViewSetBuildHelper.ViewConstructorNotFoundError("BadCtorView", "TableSet");
             Assert.Equal(expected, ex.Message);
-            logger.LogInformation("ViewConstructorNotFoundError [{Locale}]: {Message}", locale, ex.Message);
         }
         finally
         {
             CultureInfo.CurrentUICulture = savedCulture;
         }
+
+        Assert.Empty(logger.Logs);
     }
 
     [Theory]
@@ -42,17 +43,18 @@ public class ViewSetBuildHelperTests(ITestOutputHelper testOutputHelper)
         {
             var ex = ViewSetBuildHelper.NullableViewMemberError("Member", "NullableMemberView");
             Assert.Equal(expected, ex.Message);
-            logger.LogInformation("NullableViewMemberError [{Locale}]: {Message}", locale, ex.Message);
         }
         finally
         {
             CultureInfo.CurrentUICulture = savedCulture;
         }
+
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<ViewSetBuildHelperTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<ViewSetBuildHelperTests>() is not TestOutputLogger<ViewSetBuildHelperTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");

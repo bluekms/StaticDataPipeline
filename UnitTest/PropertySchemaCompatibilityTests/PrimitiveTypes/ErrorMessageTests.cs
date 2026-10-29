@@ -61,9 +61,8 @@ public partial class ErrorMessageTests(ITestOutputHelper testOutputHelper)
             }
         });
 
-        logger.LogError(ex, ex.Message);
         Assert.StartsWith($"Invalid value 'invalid_value' in cell A1.", ex.Message);
-        Assert.Single(logger.Logs);
+        Assert.Empty(logger.Logs);
     }
 
     [Theory]
@@ -105,9 +104,8 @@ public partial class ErrorMessageTests(ITestOutputHelper testOutputHelper)
             }
         });
 
-        logger.LogError(ex, ex.Message);
         Assert.StartsWith($"Invalid value 'invalid_value' in cell A1.", ex.Message);
-        Assert.Single(logger.Logs);
+        Assert.Empty(logger.Logs);
     }
 
     [Theory]
@@ -150,9 +148,8 @@ public partial class ErrorMessageTests(ITestOutputHelper testOutputHelper)
             }
         });
 
-        logger.LogError(ex, ex.Message);
         Assert.StartsWith($"Invalid value 'invalid_value' in cell A1.", ex.Message);
-        Assert.Single(logger.Logs);
+        Assert.Empty(logger.Logs);
     }
 
     [Theory]
@@ -194,9 +191,8 @@ public partial class ErrorMessageTests(ITestOutputHelper testOutputHelper)
             }
         });
 
-        logger.LogError(ex, ex.Message);
         Assert.StartsWith($"Invalid value 'invalid_value' in cell A1.", ex.Message);
-        Assert.Single(logger.Logs);
+        Assert.Empty(logger.Logs);
     }
 
     [Theory]
@@ -238,9 +234,8 @@ public partial class ErrorMessageTests(ITestOutputHelper testOutputHelper)
             }
         });
 
-        logger.LogError(ex, ex.Message);
         Assert.StartsWith($"Invalid value 'invalid_value' in cell A1.", ex.Message);
-        Assert.Single(logger.Logs);
+        Assert.Empty(logger.Logs);
     }
 
     private static MetadataCatalogs CreateCatalogs(string code, ILogger logger)

@@ -78,8 +78,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0204");
-
-        logger.LogInformation("SDP0204 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -106,8 +105,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0205");
-
-        logger.LogInformation("SDP0205 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -134,8 +132,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0206");
-
-        logger.LogInformation("SDP0206 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -162,8 +159,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0207");
-
-        logger.LogInformation("SDP0207 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -193,8 +189,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0208");
-
-        logger.LogInformation("SDP0208 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -221,8 +216,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0209");
-
-        logger.LogInformation("SDP0209 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -253,8 +247,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0210");
-
-        logger.LogInformation("SDP0210 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -281,8 +274,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0211");
-
-        logger.LogInformation("SDP0211 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -313,8 +305,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0225");
-
-        logger.LogInformation("SDP0225 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -343,8 +334,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0226");
-
-        logger.LogInformation("SDP0226 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -499,7 +489,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
 
     private TestOutputLogger<ForeignKeyDiagnosticsTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<ForeignKeyDiagnosticsTests>()
             is not TestOutputLogger<ForeignKeyDiagnosticsTests> logger)
         {

@@ -27,11 +27,7 @@ public partial class NestedCollectionMappingTests(ITestOutputHelper testOutputHe
         Assert.Equal(2, record.Data.Values.Length);
         Assert.Equal(10, record.Data.Values[0]);
         Assert.Equal(20, record.Data.Values[1]);
-        logger.LogInformation(
-            "Nested collection mapped: Data.Id={DataId}, Values=[{V0}, {V1}]",
-            record.Data.Id,
-            record.Data.Values[0],
-            record.Data.Values[1]);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record Item(int Id, string Name);
@@ -49,7 +45,7 @@ public partial class NestedCollectionMappingTests(ITestOutputHelper testOutputHe
         Assert.Equal(2, record.Items.Count);
         Assert.Contains(new Item(1, "First"), (IEnumerable<Item>)record.Items);
         Assert.Contains(new Item(2, "Second"), (IEnumerable<Item>)record.Items);
-        logger.LogInformation("Record set mapped with {Count} elements", record.Items.Count);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record TagSet(
@@ -72,12 +68,7 @@ public partial class NestedCollectionMappingTests(ITestOutputHelper testOutputHe
         Assert.Equal(10, record.Data.Tags[0]);
         Assert.Equal(20, record.Data.Tags[1]);
         Assert.Equal(30, record.Data.Tags[2]);
-        logger.LogInformation(
-            "Nested single-column collection mapped: Data.Id={DataId}, Tags=[{T0}, {T1}, {T2}]",
-            record.Data.Id,
-            record.Data.Tags[0],
-            record.Data.Tags[1],
-            record.Data.Tags[2]);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record ScoreValue([Key] int Subject, int Point);
@@ -105,16 +96,12 @@ public partial class NestedCollectionMappingTests(ITestOutputHelper testOutputHe
         Assert.True(record.Book.Scores.ContainsKey(200));
         Assert.Equal(90, record.Book.Scores[100].Point);
         Assert.Equal(80, record.Book.Scores[200].Point);
-        logger.LogInformation(
-            "Nested dictionary mapped: Book.Id={BookId}, Scores={Count}, [100]={Point}",
-            record.Book.Id,
-            record.Book.Scores.Count,
-            record.Book.Scores[100].Point);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<NestedCollectionMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<NestedCollectionMappingTests>()
             is not TestOutputLogger<NestedCollectionMappingTests> logger)
         {

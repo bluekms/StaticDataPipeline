@@ -27,8 +27,7 @@ public class CsvMapperGeneratorScalarTests(ITestOutputHelper testOutputHelper)
         Assert.Contains("global::Test.Foo", code);
         Assert.Contains("int.Parse(values[headers[\"Id\"]]", code);
         Assert.Contains("values[headers[\"Name\"]]", code);
-
-        logger.LogInformation("Mapper generated ({Length} chars): {FilePath}", code.Length, mapperTree.FilePath);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -66,11 +65,7 @@ public class CsvMapperGeneratorScalarTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation(
-            "Generated trees: {Count}, compilation errors: {ErrorCount}",
-            result.GeneratedTrees.Length,
-            errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -94,13 +89,12 @@ public class CsvMapperGeneratorScalarTests(ITestOutputHelper testOutputHelper)
         var code = mapperTree.ToString();
         Assert.Contains("headers[\"이름\"]", code);
         Assert.DoesNotContain("headers[\"Name\"]", code);
-
-        logger.LogInformation("Mapper uses ColumnName header '이름' instead of 'Name': {FilePath}", mapperTree.FilePath);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<CsvMapperGeneratorScalarTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CsvMapperGeneratorScalarTests>()
             is not TestOutputLogger<CsvMapperGeneratorScalarTests> logger)
         {

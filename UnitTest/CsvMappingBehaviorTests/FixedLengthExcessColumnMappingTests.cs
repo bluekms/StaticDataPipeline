@@ -23,7 +23,7 @@ public partial class FixedLengthExcessColumnMappingTests(ITestOutputHelper testO
         Assert.Equal(2, record.Ids.Length);
         Assert.Equal(10, record.Ids[0]);
         Assert.Equal(20, record.Ids[1]);
-        logger.LogInformation("Exact columns mapped: [{V0}, {V1}]", record.Ids[0], record.Ids[1]);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public partial class FixedLengthExcessColumnMappingTests(ITestOutputHelper testO
         var csv = "Id,Ids[0],Ids[1],Ids[2]\n1,10,20,30";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, FixedArrayRecord.MapFromCsvRow));
         Assert.IsType<ArgumentException>(ex.InnerException);
-        logger.LogInformation("Excess array column threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public partial class FixedLengthExcessColumnMappingTests(ITestOutputHelper testO
         var csv = "Id,Ids[0],Ids[1],IdsBackup[5]\n1,10,20,99";
         var record = Assert.Single(CsvLoader.Parse(csv, FixedArrayRecord.MapFromCsvRow));
         Assert.Equal(2, record.Ids.Length);
-        logger.LogInformation("Similar-named column ignored, {Count} elements mapped", record.Ids.Length);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("ExcessColumn", "Set")]
@@ -59,7 +59,7 @@ public partial class FixedLengthExcessColumnMappingTests(ITestOutputHelper testO
         var csv = "Id,Ids[0],Ids[1],Ids[2]\n1,10,20,30";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, FixedSetRecord.MapFromCsvRow));
         Assert.IsType<ArgumentException>(ex.InnerException);
-        logger.LogInformation("Excess set column threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record ItemValue([Key] int Key, string Name);
@@ -76,12 +76,12 @@ public partial class FixedLengthExcessColumnMappingTests(ITestOutputHelper testO
                 + "1,1,A,2,B,3,C";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, FixedDictRecord.MapFromCsvRow));
         Assert.IsType<ArgumentException>(ex.InnerException);
-        logger.LogInformation("Excess dictionary group threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<FixedLengthExcessColumnMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<FixedLengthExcessColumnMappingTests>()
             is not TestOutputLogger<FixedLengthExcessColumnMappingTests> logger)
         {

@@ -28,8 +28,7 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("char.Parse emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -56,8 +55,7 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("DateOnly.ParseExact emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -84,8 +82,7 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("TimeOnly.ParseExact emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -108,8 +105,7 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         Assert.Contains("NotSupportedException", mapperTree.ToString());
-
-        logger.LogInformation("NotSupportedException fallback emitted: {FilePath}", mapperTree.FilePath);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -140,8 +136,7 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__MapElementEnum_1_Color emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -170,8 +165,7 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__ValidateRange_Scores emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -194,8 +188,7 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0005");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
-
-        logger.LogInformation("Diagnostic {Id} reported with severity {Severity}.", diagnostic.Id, diagnostic.Severity);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -218,8 +211,7 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0007");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
-
-        logger.LogInformation("Diagnostic {Id} reported with severity {Severity}.", diagnostic.Id, diagnostic.Severity);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -242,15 +234,12 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
         var result = SourceGeneratorTestHelper.Run(source);
         Assert.DoesNotContain(result.Diagnostics, d => d.Id == "SDP0005");
         Assert.DoesNotContain(result.Diagnostics, d => d.Id == "SDP0007");
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", result.Diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<CsvMapperGeneratorAdditionalScalarTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CsvMapperGeneratorAdditionalScalarTests>()
             is not TestOutputLogger<CsvMapperGeneratorAdditionalScalarTests> logger)
         {

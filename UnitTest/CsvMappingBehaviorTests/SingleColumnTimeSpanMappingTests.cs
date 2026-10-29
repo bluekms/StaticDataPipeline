@@ -24,12 +24,12 @@ public partial class SingleColumnTimeSpanMappingTests(ITestOutputHelper testOutp
         Assert.Equal(2, record.Cooldowns.Length);
         Assert.Equal(TimeSpan.FromSeconds(30), record.Cooldowns[0]);
         Assert.Equal(TimeSpan.FromHours(1), record.Cooldowns[1]);
-        logger.LogInformation("Cooldowns mapped: [{C0}, {C1}]", record.Cooldowns[0], record.Cooldowns[1]);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<SingleColumnTimeSpanMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<SingleColumnTimeSpanMappingTests>()
             is not TestOutputLogger<SingleColumnTimeSpanMappingTests> logger)
         {

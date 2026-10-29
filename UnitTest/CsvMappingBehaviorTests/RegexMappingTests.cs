@@ -23,7 +23,7 @@ public partial class RegexMappingTests(ITestOutputHelper testOutputHelper)
         var csv = $"Id,IconPath\n1,{cell}";
         var record = Assert.Single(CsvLoader.Parse(csv, IconRecord.MapFromCsvRow));
         Assert.Equal(cell, record.IconPath);
-        logger.LogInformation("Matching cell mapped to {IconPath}", record.IconPath);
+        Assert.Empty(logger.Logs);
     }
 
     [Theory]
@@ -37,7 +37,7 @@ public partial class RegexMappingTests(ITestOutputHelper testOutputHelper)
         var csv = $"Id,IconPath\n1,{cell}";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, IconRecord.MapFromCsvRow));
         Assert.IsType<ArgumentException>(ex.InnerException);
-        logger.LogInformation("Non-matching cell '{Cell}' threw: {Message}", cell, ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Regex", "NullableIcon")]
@@ -53,12 +53,12 @@ public partial class RegexMappingTests(ITestOutputHelper testOutputHelper)
         var csv = "Id,IconPath\n1,-";
         var record = Assert.Single(CsvLoader.Parse(csv, NullableIconRecord.MapFromCsvRow));
         Assert.Null(record.IconPath);
-        logger.LogInformation("Null string cell skipped pattern validation and mapped to null");
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<RegexMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<RegexMappingTests>() is not TestOutputLogger<RegexMappingTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");

@@ -22,7 +22,7 @@ public partial class NumericRangeMappingTests(ITestOutputHelper testOutputHelper
         var csv = $"Id,Score\n1,{cell}";
         var record = Assert.Single(CsvLoader.Parse(csv, IntRangeRecord.MapFromCsvRow));
         Assert.Equal(expected, record.Score);
-        logger.LogInformation("In-range cell '{Cell}' mapped to {Score}", cell, record.Score);
+        Assert.Empty(logger.Logs);
     }
 
     [Theory]
@@ -35,7 +35,7 @@ public partial class NumericRangeMappingTests(ITestOutputHelper testOutputHelper
         var csv = $"Id,Score\n1,{cell}";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, IntRangeRecord.MapFromCsvRow));
         Assert.IsType<ArgumentOutOfRangeException>(ex.InnerException);
-        logger.LogInformation("Out-of-range cell '{Cell}' threw: {Message}", cell, ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Range", "NullableInt")]
@@ -51,7 +51,7 @@ public partial class NumericRangeMappingTests(ITestOutputHelper testOutputHelper
         var csv = "Id,Score\n1,-";
         var record = Assert.Single(CsvLoader.Parse(csv, NullableIntRangeRecord.MapFromCsvRow));
         Assert.Null(record.Score);
-        logger.LogInformation("Null string cell skipped range validation and mapped to null");
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Range", "Float")]
@@ -65,12 +65,12 @@ public partial class NumericRangeMappingTests(ITestOutputHelper testOutputHelper
         var csv = "Id,Ratio\n1,0.1";
         var record = Assert.Single(CsvLoader.Parse(csv, FloatRangeRecord.MapFromCsvRow));
         Assert.Equal(0.1f, record.Ratio);
-        logger.LogInformation("Upper boundary value mapped to {Ratio}", record.Ratio);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<NumericRangeMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<NumericRangeMappingTests>() is not TestOutputLogger<NumericRangeMappingTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");
