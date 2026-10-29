@@ -38,7 +38,7 @@ public static class SheetNameScanner
             throw new ArgumentException(string.Format(
                 CultureInfo.CurrentCulture,
                 Messages.Composite.FileOrDirectoryNotExist,
-                nameof(excelPath)));
+                excelPath));
         }
 
         return new(sheetNames);

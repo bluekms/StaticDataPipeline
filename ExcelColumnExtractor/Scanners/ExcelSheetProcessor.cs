@@ -126,7 +126,7 @@ public sealed class ExcelSheetProcessor
 
             var headerCells = cells
                 .Skip(startAddress.Column - 1)
-                .Select(x => x?.ToString() ?? string.Empty)
+                .Select(FormatCellValue)
                 .ToList();
 
             processHeader(new(headerCells));
@@ -181,13 +181,15 @@ public sealed class ExcelSheetProcessor
             null => string.Empty,
             DateTime dt when dt.TimeOfDay == TimeSpan.Zero => dt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             DateTime dt => dt.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+            IFormattable formattable => formattable.ToString(null, CultureInfo.InvariantCulture),
             _ => value.ToString() ?? string.Empty,
         };
     }
 
     private static CellAddress ParseStartCell(string startCell)
     {
-        if (string.IsNullOrEmpty(startCell) || !IsValidCellAddress(startCell))
+        var normalized = startCell.Trim().ToUpperInvariant();
+        if (!IsValidCellAddress(normalized))
         {
             throw new ArgumentException(string.Format(
                 CultureInfo.CurrentCulture,
@@ -195,15 +197,15 @@ public sealed class ExcelSheetProcessor
                 startCell));
         }
 
-        return ParseCellAddress(startCell);
+        return ParseCellAddress(normalized);
     }
 
     private static bool IsValidCellAddress(string cellAddress)
     {
-        var regex = new Regex(@"^[A-Z]+[0-9]+$", RegexOptions.IgnoreCase);
-
-        return regex.IsMatch(cellAddress);
+        return CellAddressPattern.IsMatch(cellAddress);
     }
+
+    private static readonly Regex CellAddressPattern = new(@"^[A-Z]+[1-9][0-9]*$", RegexOptions.CultureInvariant);
 
     private static CellAddress ParseCellAddress(string cellAddress)
     {
