@@ -1,8 +1,5 @@
-using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SchemaInfoScanner.Resources;
-using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.RecordTypes;
 
@@ -14,23 +11,18 @@ public sealed record RecordSetPropertySchema(
 {
     protected override void OnCheckCompatibility(CompatibilityContext context)
     {
-        if (!TryGetAttributeValue<LengthAttribute, int>(out var length))
-        {
-            throw new InvalidOperationException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.ParameterCannotHaveLengthAttributeWithContext,
-                PropertyName,
-                context));
-        }
+        var length = ResolveLength(context);
 
         var startPosition = context.Position;
-        var keyContext = CompatibilityContext.CreateCollectKey(context.MetadataCatalogs, context.Cells, startPosition);
+        var keyContext = CompatibilityContext.CreateCollectKey(context.MetadataCatalogs, context.Cells, startPosition, context.PathPrefix);
 
         for (var i = 0; i < length; i++)
         {
+            var previousPath = keyContext.EnterPath(FormattableString.Invariant($"{ColumnName}[{i}]."));
             keyContext.BeginKeyScope();
             GenericArgumentSchema.CheckCompatibility(keyContext);
             keyContext.EndKeyScope();
+            keyContext.RestorePath(previousPath);
         }
 
         keyContext.ValidateNoDuplicates();

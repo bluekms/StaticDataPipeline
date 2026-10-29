@@ -16,21 +16,7 @@ public sealed record SingleColumnPrimitiveArrayPropertySchema(
     protected override void OnCheckCompatibility(CompatibilityContext context)
     {
         var cell = context.Consume();
-        var parts = cell.Value.Split(Separator);
-
-        if (TryGetAttributeValue<LengthAttribute, int>(out var length))
-        {
-            if (parts.Length != length)
-            {
-                throw new InvalidOperationException(string.Format(
-                    CultureInfo.CurrentCulture,
-                    Messages.Composite.SingleColumnCellCountMismatch,
-                    cell.Address,
-                    parts.Length,
-                    PropertyName,
-                    length));
-            }
-        }
+        var parts = string.IsNullOrWhiteSpace(cell.Value) ? Array.Empty<string>() : cell.Value.Split(Separator);
 
         if (TryGetAttributeValue<CountRangeAttribute, int>(out var minCount) &&
             TryGetAttributeValue<CountRangeAttribute, int>(out var maxCount, 1))
@@ -51,8 +37,9 @@ public sealed record SingleColumnPrimitiveArrayPropertySchema(
             }
         }
 
-        foreach (var part in parts)
+        foreach (var rawPart in parts)
         {
+            var part = rawPart.Trim();
             if (string.IsNullOrWhiteSpace(part))
             {
                 throw new InvalidOperationException(string.Format(

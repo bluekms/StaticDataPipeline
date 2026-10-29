@@ -30,6 +30,10 @@ internal partial class SchemaRuleValidator
                         Messages.Composite.SingleColumnCollectionNotForMap,
                         x.PropertyName.FullName,
                         x.GetType().FullName));
+
+            RuleFor(x => x)
+                .Must(x => !x.HasAttribute<LengthAttribute>())
+                .WithMessage(_ => Messages.LengthAndSingleColumnCollectionMutuallyExclusive);
         });
     }
 }

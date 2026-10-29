@@ -38,7 +38,7 @@ public static class BodyColumnAggregator
                     .Select(row =>
                     {
                         var cells = targetColumnData.Headers
-                            .Select(header => row.Data[header.Index])
+                            .Select(header => row.Data[header.Index] with { Header = header.Header })
                             .ToList();
 
                         return new ExtractedRow(cells);

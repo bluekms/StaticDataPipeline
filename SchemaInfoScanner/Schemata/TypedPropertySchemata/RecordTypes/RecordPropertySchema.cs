@@ -13,6 +13,13 @@ public sealed record RecordPropertySchema(
 {
     protected override void OnCheckCompatibility(CompatibilityContext context)
     {
+        var previousPath = context.EnterPath(ColumnName + ".");
+        CheckMembers(context);
+        context.RestorePath(previousPath);
+    }
+
+    public void CheckMembers(CompatibilityContext context)
+    {
         foreach (var schema in MemberSchemata)
         {
             schema.CheckCompatibility(context);

@@ -1,9 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata;
+using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata;
 
@@ -27,6 +29,53 @@ public abstract record PropertySchemaBase(
     public bool IsNullable()
     {
         return NamedTypeSymbol.OriginalDefinition.SpecialType is SpecialType.System_Nullable_T;
+    }
+
+    protected int ResolveLength(CompatibilityContext context)
+    {
+        var hasLength = TryGetAttributeValue<LengthAttribute, int>(out var length);
+        if (hasLength)
+        {
+            return length;
+        }
+
+        var indexedPrefix = context.PathPrefix + ColumnName + "[";
+        var indices = new HashSet<int>();
+        for (var offset = 0; ; offset++)
+        {
+            var header = context.PeekHeader(offset);
+            if (header is null || !header.StartsWith(indexedPrefix, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            var close = header.IndexOf(']', indexedPrefix.Length);
+            if (close < 0)
+            {
+                break;
+            }
+
+            var indexText = header.Substring(indexedPrefix.Length, close - indexedPrefix.Length);
+            var isIndex = int.TryParse(indexText, NumberStyles.None, CultureInfo.InvariantCulture, out var index);
+            if (!isIndex)
+            {
+                break;
+            }
+
+            indices.Add(index);
+        }
+
+        return indices.Count;
+    }
+
+    protected string ColumnName
+    {
+        get
+        {
+            TryGetAttributeValue<ColumnNameAttribute, string>(out var declaredColumnName);
+
+            return declaredColumnName ?? PropertyName.Name;
+        }
     }
 
     public bool TryGetAttributeValue<TAttribute, TValue>(

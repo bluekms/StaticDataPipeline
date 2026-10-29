@@ -19,7 +19,7 @@ public sealed record SBytePropertySchema(
     {
         var cell = context.Consume();
 
-        if (!sbyte.TryParse(cell.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
+        if (!sbyte.TryParse(cell.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
         {
             throw new InvalidOperationException(
                 string.Format(

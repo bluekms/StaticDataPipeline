@@ -1,8 +1,5 @@
-using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SchemaInfoScanner.Resources;
-using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.RecordTypes;
 
@@ -14,18 +11,13 @@ public sealed record RecordArrayPropertySchema(
 {
     protected override void OnCheckCompatibility(CompatibilityContext context)
     {
-        if (!TryGetAttributeValue<LengthAttribute, int>(out var length))
-        {
-            throw new InvalidOperationException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.ParameterCannotHaveLengthAttributeWithContext,
-                PropertyName,
-                context));
-        }
+        var length = ResolveLength(context);
 
         for (var i = 0; i < length; i++)
         {
+            var previousPath = context.EnterPath(FormattableString.Invariant($"{ColumnName}[{i}]."));
             GenericArgumentSchema.CheckCompatibility(context);
+            context.RestorePath(previousPath);
         }
     }
 }

@@ -20,15 +20,15 @@ internal partial class SchemaRuleValidator
                 .WithMessage(_ => Messages.CountRangeAndLengthMutuallyExclusive);
 
             RuleFor(x => x)
-                .Must(HasPositiveMinCount)
-                .WithMessage(_ => Messages.CountRangeMinMustBePositive);
+                .Must(HasNonNegativeMinCount)
+                .WithMessage(_ => Messages.CountRangeMinMustBeNonNegative);
         });
     }
 
-    private static bool HasPositiveMinCount(PropertySchemaBase property)
+    private static bool HasNonNegativeMinCount(PropertySchemaBase property)
     {
         var minCount = property.GetAttributeValue<CountRangeAttribute, int>(0);
 
-        return minCount > 0;
+        return minCount >= 0;
     }
 }

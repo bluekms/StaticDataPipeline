@@ -61,7 +61,7 @@ public partial class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOu
         var code = """
                    public sealed partial record Subject(
                        string Name,
-                       [SingleColumnCollection(", ")][Length(4)] ImmutableArray<int> QuarterScore
+                       [SingleColumnCollection(", ")] ImmutableArray<int> QuarterScore
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]
@@ -102,7 +102,7 @@ public partial class RecordSchemaParameterFlattenerTest(ITestOutputHelper testOu
         var code = """
                    public sealed partial record Subject(
                        string Name,
-                       [SingleColumnCollection(", ")][ColumnName("QuarterScores")][Length(4)] ImmutableArray<int> QuarterScore
+                       [SingleColumnCollection(", ")][ColumnName("QuarterScores")] ImmutableArray<int> QuarterScore
                    );
 
                    [StaticDataRecord("Test", "TestSheet")]

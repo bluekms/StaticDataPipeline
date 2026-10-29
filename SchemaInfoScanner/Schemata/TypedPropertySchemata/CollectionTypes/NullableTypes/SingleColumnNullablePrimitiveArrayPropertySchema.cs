@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.AttributeCheckers;
 using Sdp.Attributes;
@@ -17,21 +18,9 @@ public sealed record SingleColumnNullablePrimitiveArrayPropertySchema(
     protected override void OnCheckCompatibility(CompatibilityContext context)
     {
         var cell = context.Consume();
-        var parts = cell.Value.Split(Separator);
-
-        if (TryGetAttributeValue<LengthAttribute, int>(out var length))
-        {
-            if (parts.Length != length)
-            {
-                throw new InvalidOperationException(string.Format(
-                    CultureInfo.CurrentCulture,
-                    Messages.Composite.SingleColumnCellCountMismatch,
-                    cell.Address,
-                    parts.Length,
-                    PropertyName,
-                    length));
-            }
-        }
+        var parts = string.IsNullOrWhiteSpace(cell.Value) && !EmptyCellMeansNullElement()
+            ? Array.Empty<string>()
+            : cell.Value.Split(Separator);
 
         if (TryGetAttributeValue<CountRangeAttribute, int>(out var minCount) &&
             TryGetAttributeValue<CountRangeAttribute, int>(out var maxCount, 1))
@@ -52,8 +41,9 @@ public sealed record SingleColumnNullablePrimitiveArrayPropertySchema(
             }
         }
 
-        foreach (var part in parts)
+        foreach (var rawPart in parts)
         {
+            var part = rawPart.Trim();
             var result = NullStringAttributeChecker.Check(this, part);
 
             if (result.IsNull)
@@ -70,5 +60,12 @@ public sealed record SingleColumnNullablePrimitiveArrayPropertySchema(
                 GenericArgumentSchema.CheckCompatibility(nestedContext);
             }
         }
+    }
+
+    private bool EmptyCellMeansNullElement()
+    {
+        var hasNullString = this.TryGetAttributeValue<NullStringAttribute, string>(0, out var nullString);
+
+        return hasNullString && nullString is { Length: 0 };
     }
 }

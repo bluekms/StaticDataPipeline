@@ -19,7 +19,7 @@ public sealed record BytePropertySchema(
     {
         var cell = context.Consume();
 
-        if (!byte.TryParse(cell.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
+        if (!byte.TryParse(cell.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
         {
             throw new InvalidOperationException(
                 string.Format(

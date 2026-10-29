@@ -2,12 +2,10 @@ using System.Globalization;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Exceptions;
-using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 using SchemaInfoScanner.Schemata.SchemaValidators;
-using Sdp.Attributes;
 
 namespace SchemaInfoScanner.TypeCheckers;
 
@@ -20,17 +18,6 @@ internal static class SupportedTypeChecker
         HashSet<RecordName> visiting,
         ILogger logger)
     {
-        if (property.HasAttribute<IgnoreAttribute>())
-        {
-            var msg = string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.Ignored,
-                property.PropertyName.FullName);
-            LogTrace(logger, msg, null);
-
-            return;
-        }
-
         LogTrace(logger, property.PropertyName.FullName, null);
 
         var validator = new SchemaRuleValidator();

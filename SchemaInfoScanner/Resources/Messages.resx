@@ -69,12 +69,6 @@
   <data name="ValueOutOfRange" xml:space="preserve">
     <value>Value({0}) must be between {1} and {2}.</value>
   </data>
-  <data name="ParameterCannotHaveLengthAttribute" xml:space="preserve">
-    <value>Parameter {0} cannot have LengthAttribute</value>
-  </data>
-  <data name="ParameterCannotHaveLengthAttributeWithContext" xml:space="preserve">
-    <value>Parameter {0} cannot have LengthAttribute in the argument: {1}</value>
-  </data>
   <data name="DuplicateKeyInContext" xml:space="preserve">
     <value>Parameter {0} has duplicate key: {1} in context {2}.</value>
   </data>
@@ -174,9 +168,6 @@
   <data name="DateTimeFormatAttributeRequired" xml:space="preserve">
     <value>{0}({1}): DateTime type must use DateTimeFormatAttribute.</value>
   </data>
-  <data name="LengthAttributeRequired" xml:space="preserve">
-    <value>{0}({1}): collection type must use LengthAttribute.</value>
-  </data>
   <data name="NullStringAttributeRequiredForNullable" xml:space="preserve">
     <value>{0}({1}): nullable type must use NullStringAttribute.</value>
   </data>
@@ -207,8 +198,11 @@
   <data name="CountRangeAndLengthMutuallyExclusive" xml:space="preserve">
     <value>CountRangeAttribute and LengthAttribute cannot be used together.</value>
   </data>
-  <data name="CountRangeMinMustBePositive" xml:space="preserve">
-    <value>CountRangeAttribute MinCount must be greater than 0. A MinCount of 0 imposes no lower-bound constraint.</value>
+  <data name="LengthAndSingleColumnCollectionMutuallyExclusive" xml:space="preserve">
+    <value>LengthAttribute and SingleColumnCollectionAttribute cannot be used together. Use CountRangeAttribute to constrain the item count of a single-column collection.</value>
+  </data>
+  <data name="CountRangeMinMustBeNonNegative" xml:space="preserve">
+    <value>CountRangeAttribute MinCount must be 0 or greater.</value>
   </data>
   <data name="CountOutOfRange" xml:space="preserve">
     <value>Cell {0} contains {1} item(s), but {2} expects between {3} and {4}.</value>
@@ -237,11 +231,11 @@
   <data name="InvalidCellValueForEnum" xml:space="preserve">
     <value>Invalid value '{0}' in cell {1}. Expected a member of {2}.</value>
   </data>
-  <data name="SingleColumnCellCountMismatch" xml:space="preserve">
-    <value>Cell {0} contains {1} value(s), but {2} expects {3}.</value>
-  </data>
   <data name="SingleColumnCellEmptyValue" xml:space="preserve">
     <value>Cell {0} contains an empty value for {1}.</value>
+  </data>
+  <data name="IndexedHeadersNotContiguous" xml:space="preserve">
+    <value>Indexed headers for '{0}' must run contiguously from [0]: only {1} contiguous group(s) found, but '{2}' exists.</value>
   </data>
   <data name="CompileErrorsOccurred" xml:space="preserve">
     <value>{0} compile errors occurred.</value>

@@ -1,9 +1,6 @@
-using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.AttributeCheckers;
-using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.CollectionTypes.NullableTypes;
 
@@ -15,14 +12,7 @@ public sealed record NullablePrimitiveSetPropertySchema(
 {
     protected override void OnCheckCompatibility(CompatibilityContext context)
     {
-        if (!TryGetAttributeValue<LengthAttribute, int>(out var length))
-        {
-            throw new InvalidOperationException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.ParameterCannotHaveLengthAttributeWithContext,
-                PropertyName,
-                context));
-        }
+        var length = ResolveLength(context);
 
         var startPosition = context.Position;
         var keyContext = CompatibilityContext.CreateCollectKey(context.MetadataCatalogs, context.Cells, startPosition);

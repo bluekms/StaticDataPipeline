@@ -16,14 +16,7 @@ public sealed record RecordKeyRecordValueMapSchema(
 {
     protected override void OnCheckCompatibility(CompatibilityContext context)
     {
-        if (!TryGetAttributeValue<LengthAttribute, int>(out var length))
-        {
-            throw new InvalidOperationException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.ParameterCannotHaveLengthAttributeWithContext,
-                PropertyName,
-                context));
-        }
+        var length = ResolveLength(context);
 
         if (ValueGenericArgumentSchema.NestedSchema is not RecordPropertySchema valueRecordSchema)
         {
@@ -45,10 +38,11 @@ public sealed record RecordKeyRecordValueMapSchema(
         }
 
         var startPosition = context.Position;
-        var keyContext = CompatibilityContext.CreateCollectKey(context.MetadataCatalogs, context.Cells, startPosition);
+        var keyContext = CompatibilityContext.CreateCollectKey(context.MetadataCatalogs, context.Cells, startPosition, context.PathPrefix);
 
         for (var i = 0; i < length; i++)
         {
+            var previousPath = keyContext.EnterPath(FormattableString.Invariant($"{ColumnName}[{i}]."));
             foreach (var memberSchema in valueRecordSchema.MemberSchemata)
             {
                 if (memberSchema == keyMemberSchema)
@@ -62,6 +56,8 @@ public sealed record RecordKeyRecordValueMapSchema(
                     memberSchema.CheckCompatibility(keyContext);
                 }
             }
+
+            keyContext.RestorePath(previousPath);
         }
 
         keyContext.ValidateNoDuplicates();

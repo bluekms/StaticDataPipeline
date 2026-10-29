@@ -2,7 +2,6 @@ using Microsoft.Extensions.Logging;
 using SchemaInfoScanner;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Collectors;
-using SchemaInfoScanner.Exceptions;
 using UnitTest.Utility;
 using Xunit.Abstractions;
 
@@ -63,7 +62,7 @@ public partial class LengthAttributeRuleTests(ITestOutputHelper testOutputHelper
     }
 
     [Fact]
-    public void MustUseTest()
+    public void CanOmitTest()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<LengthAttributeRuleTests>() is not TestOutputLogger<LengthAttributeRuleTests> logger)
@@ -83,7 +82,7 @@ public partial class LengthAttributeRuleTests(ITestOutputHelper testOutputHelper
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
         var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
 
-        Assert.Throws<InvalidAttributeUsageException>(() => RecordComplianceChecker.Check(recordSchemaCatalog, logger));
-        Assert.Single(logger.Logs);
+        RecordComplianceChecker.Check(recordSchemaCatalog, logger);
+        Assert.Empty(logger.Logs);
     }
 }

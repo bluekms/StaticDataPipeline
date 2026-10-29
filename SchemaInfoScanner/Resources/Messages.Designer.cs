@@ -87,12 +87,6 @@ internal static class Messages
     internal static string ValueOutOfRange
         => ResourceManager.GetString("ValueOutOfRange", Culture)!;
 
-    internal static string ParameterCannotHaveLengthAttribute
-        => ResourceManager.GetString("ParameterCannotHaveLengthAttribute", Culture)!;
-
-    internal static string ParameterCannotHaveLengthAttributeWithContext
-        => ResourceManager.GetString("ParameterCannotHaveLengthAttributeWithContext", Culture)!;
-
     internal static string DuplicateKeyInContext
         => ResourceManager.GetString("DuplicateKeyInContext", Culture)!;
 
@@ -192,9 +186,6 @@ internal static class Messages
     internal static string DateTimeFormatAttributeRequired
         => ResourceManager.GetString("DateTimeFormatAttributeRequired", Culture)!;
 
-    internal static string LengthAttributeRequired
-        => ResourceManager.GetString("LengthAttributeRequired", Culture)!;
-
     internal static string NullStringAttributeRequiredForNullable
         => ResourceManager.GetString("NullStringAttributeRequiredForNullable", Culture)!;
 
@@ -225,8 +216,11 @@ internal static class Messages
     internal static string CountRangeAndLengthMutuallyExclusive
         => ResourceManager.GetString("CountRangeAndLengthMutuallyExclusive", Culture)!;
 
-    internal static string CountRangeMinMustBePositive
-        => ResourceManager.GetString("CountRangeMinMustBePositive", Culture)!;
+    internal static string LengthAndSingleColumnCollectionMutuallyExclusive
+        => ResourceManager.GetString("LengthAndSingleColumnCollectionMutuallyExclusive", Culture)!;
+
+    internal static string CountRangeMinMustBeNonNegative
+        => ResourceManager.GetString("CountRangeMinMustBeNonNegative", Culture)!;
 
     internal static string CountOutOfRange
         => ResourceManager.GetString("CountOutOfRange", Culture)!;
@@ -252,11 +246,11 @@ internal static class Messages
     internal static string InvalidCellValueForEnum
         => ResourceManager.GetString("InvalidCellValueForEnum", Culture)!;
 
-    internal static string SingleColumnCellCountMismatch
-        => ResourceManager.GetString("SingleColumnCellCountMismatch", Culture)!;
-
     internal static string SingleColumnCellEmptyValue
         => ResourceManager.GetString("SingleColumnCellEmptyValue", Culture)!;
+
+    internal static string IndexedHeadersNotContiguous
+        => ResourceManager.GetString("IndexedHeadersNotContiguous", Culture)!;
 
     internal static string CompileErrorsOccurred
         => ResourceManager.GetString("CompileErrorsOccurred", Culture)!;
@@ -340,8 +334,6 @@ internal static class Messages
         internal static CompositeFormat NullStringAttributeNotFound => CompositeFormat.Parse(Messages.NullStringAttributeNotFound);
         internal static CompositeFormat ValueOutOfRange => CompositeFormat.Parse(Messages.ValueOutOfRange);
         internal static CompositeFormat EnumMemberNotFound => CompositeFormat.Parse(Messages.EnumMemberNotFound);
-        internal static CompositeFormat ParameterCannotHaveLengthAttribute => CompositeFormat.Parse(Messages.ParameterCannotHaveLengthAttribute);
-        internal static CompositeFormat ParameterCannotHaveLengthAttributeWithContext => CompositeFormat.Parse(Messages.ParameterCannotHaveLengthAttributeWithContext);
         internal static CompositeFormat DuplicateKeyInContext => CompositeFormat.Parse(Messages.DuplicateKeyInContext);
         internal static CompositeFormat InvalidDataLength => CompositeFormat.Parse(Messages.InvalidDataLength);
         internal static CompositeFormat InvalidCellValue => CompositeFormat.Parse(Messages.InvalidCellValue);
@@ -370,7 +362,6 @@ internal static class Messages
         internal static CompositeFormat StaticDataRecordMustHaveAtMostOneKey => CompositeFormat.Parse(Messages.StaticDataRecordMustHaveAtMostOneKey);
         internal static CompositeFormat DateTimeFormatAttributeNotApplicable => CompositeFormat.Parse(Messages.DateTimeFormatAttributeNotApplicable);
         internal static CompositeFormat DateTimeFormatAttributeRequired => CompositeFormat.Parse(Messages.DateTimeFormatAttributeRequired);
-        internal static CompositeFormat LengthAttributeRequired => CompositeFormat.Parse(Messages.LengthAttributeRequired);
         internal static CompositeFormat NullStringAttributeRequiredForNullable => CompositeFormat.Parse(Messages.NullStringAttributeRequiredForNullable);
         internal static CompositeFormat NullStringAttributeRequiredForNullableArray => CompositeFormat.Parse(Messages.NullStringAttributeRequiredForNullableArray);
         internal static CompositeFormat NullStringAttributeRequiredForNullableSet => CompositeFormat.Parse(Messages.NullStringAttributeRequiredForNullableSet);
@@ -388,8 +379,8 @@ internal static class Messages
         internal static CompositeFormat TimeSpanFormatAttributeNotApplicable => CompositeFormat.Parse(Messages.TimeSpanFormatAttributeNotApplicable);
         internal static CompositeFormat TimeSpanFormatAttributeRequired => CompositeFormat.Parse(Messages.TimeSpanFormatAttributeRequired);
         internal static CompositeFormat InvalidCellValueForEnum => CompositeFormat.Parse(Messages.InvalidCellValueForEnum);
-        internal static CompositeFormat SingleColumnCellCountMismatch => CompositeFormat.Parse(Messages.SingleColumnCellCountMismatch);
         internal static CompositeFormat SingleColumnCellEmptyValue => CompositeFormat.Parse(Messages.SingleColumnCellEmptyValue);
+        internal static CompositeFormat IndexedHeadersNotContiguous => CompositeFormat.Parse(Messages.IndexedHeadersNotContiguous);
         internal static CompositeFormat CompileErrorsOccurred => CompositeFormat.Parse(Messages.CompileErrorsOccurred);
         internal static CompositeFormat NotSupportedRecordType => CompositeFormat.Parse(Messages.NotSupportedRecordType);
         internal static CompositeFormat NotSupportedRecordTypeWithMessage => CompositeFormat.Parse(Messages.NotSupportedRecordTypeWithMessage);

@@ -82,7 +82,7 @@ public partial class ArrayTypeTests(ITestOutputHelper testOutputHelper)
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
                    public sealed partial record MyRecord(
-                       [SingleColumnCollection(",")][Length(3)] ImmutableArray<int> Scores
+                       [SingleColumnCollection(",")] ImmutableArray<int> Scores
                    );
                    """;
 

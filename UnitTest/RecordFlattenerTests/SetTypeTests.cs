@@ -81,7 +81,7 @@ public partial class SetTypeTests(ITestOutputHelper testOutputHelper)
         var code = """
                    [StaticDataRecord("Test", "TestSheet")]
                    public sealed partial record MyRecord(
-                       [SingleColumnCollection(",")][Length(3)] FrozenSet<string> Tags
+                       [SingleColumnCollection(",")] FrozenSet<string> Tags
                    );
                    """;
 

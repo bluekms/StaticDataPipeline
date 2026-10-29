@@ -67,7 +67,8 @@ public static class RequiredHeadersChecker
         var standardHeaders = RecordFlattener.Flatten(
             recordSchema,
             recordSchemaCatalog,
-            logger);
+            logger,
+            sheetHeaders);
 
         return new(ComputeRequiredHeaders(standardHeaders, sheetHeaders));
     }

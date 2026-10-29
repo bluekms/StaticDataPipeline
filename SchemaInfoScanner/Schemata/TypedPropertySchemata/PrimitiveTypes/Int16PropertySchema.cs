@@ -19,7 +19,7 @@ public sealed record Int16PropertySchema(
     {
         var cell = context.Consume();
 
-        if (!short.TryParse(cell.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
+        if (!short.TryParse(cell.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
         {
             throw new InvalidOperationException(
                 string.Format(

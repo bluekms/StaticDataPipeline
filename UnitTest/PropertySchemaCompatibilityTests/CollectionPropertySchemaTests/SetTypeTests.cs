@@ -309,7 +309,7 @@ public partial class SetTypeTests(ITestOutputHelper testOutputHelper)
                    [StaticDataRecord("Test", "TestSheet")]
                    public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
-                       [Length(4)]
+                       [CountRange(4, 4)]
                        FrozenSet<int> Property,
                    );
                    """;

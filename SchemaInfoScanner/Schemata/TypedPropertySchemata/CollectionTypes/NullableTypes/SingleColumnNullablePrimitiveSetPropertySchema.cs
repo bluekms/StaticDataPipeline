@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.AttributeCheckers;
 using Sdp.Attributes;
@@ -17,21 +18,9 @@ public sealed record SingleColumnNullablePrimitiveSetPropertySchema(
     protected override void OnCheckCompatibility(CompatibilityContext context)
     {
         var cell = context.Consume();
-        var arguments = cell.Value.Split(Separator);
-
-        if (TryGetAttributeValue<LengthAttribute, int>(out var length))
-        {
-            if (arguments.Length != length)
-            {
-                throw new InvalidOperationException(string.Format(
-                    CultureInfo.CurrentCulture,
-                    Messages.Composite.SingleColumnCellCountMismatch,
-                    cell.Address,
-                    arguments.Length,
-                    PropertyName,
-                    length));
-            }
-        }
+        var arguments = string.IsNullOrWhiteSpace(cell.Value) && !EmptyCellMeansNullElement()
+            ? Array.Empty<string>()
+            : cell.Value.Split(Separator);
 
         if (TryGetAttributeValue<CountRangeAttribute, int>(out var minCount) &&
             TryGetAttributeValue<CountRangeAttribute, int>(out var maxCount, 1))
@@ -52,8 +41,9 @@ public sealed record SingleColumnNullablePrimitiveSetPropertySchema(
             }
         }
 
-        foreach (var argument in arguments)
+        foreach (var rawArgument in arguments)
         {
+            var argument = rawArgument.Trim();
             var result = NullStringAttributeChecker.Check(this, argument);
             if (result.IsNull)
             {
@@ -71,5 +61,12 @@ public sealed record SingleColumnNullablePrimitiveSetPropertySchema(
         }
 
         context.ValidateNoDuplicates();
+    }
+
+    private bool EmptyCellMeansNullElement()
+    {
+        var hasNullString = this.TryGetAttributeValue<NullStringAttribute, string>(0, out var nullString);
+
+        return hasNullString && nullString is { Length: 0 };
     }
 }

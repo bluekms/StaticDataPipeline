@@ -2,10 +2,12 @@ using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
+using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 using SchemaInfoScanner.Schemata.TypedPropertySchemaFactories;
+using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Collectors;
 
@@ -85,6 +87,11 @@ public sealed class RecordSchemaSet
         {
             var propertySymbol = result.ParameterNamedTypeSymbolCollector[propertyName];
             var attributes = result.ParameterAttributeCollector[propertyName];
+            if (AttributeAccessors.HasAttribute<IgnoreAttribute>(attributes))
+            {
+                continue;
+            }
+
             var parentRecordSymbol = result.RecordNamedTypeSymbolCollector[propertyName.RecordName];
 
             var parameterSchema = TypedPropertySchemaFactory.Create(

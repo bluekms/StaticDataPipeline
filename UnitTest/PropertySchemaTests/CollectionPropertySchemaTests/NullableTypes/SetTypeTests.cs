@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using SchemaInfoScanner;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Collectors;
+using SchemaInfoScanner.Exceptions;
 using UnitTest.Utility;
 using Xunit.Abstractions;
 
@@ -167,7 +168,7 @@ public partial class SetTypeTests(ITestOutputHelper testOutputHelper)
     }
 
     [Fact]
-    public void SingleColumnWithLengthArrayTest()
+    public void SingleColumnWithLengthIsRejectedTest()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<SetTypeTests>() is not TestOutputLogger<SetTypeTests> logger)
@@ -190,8 +191,7 @@ public partial class SetTypeTests(ITestOutputHelper testOutputHelper)
 
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
         var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
-        RecordComplianceChecker.Check(recordSchemaCatalog, logger);
-
-        Assert.Empty(logger.Logs);
+        Assert.Throws<InvalidAttributeUsageException>(() => RecordComplianceChecker.Check(recordSchemaCatalog, logger));
+        Assert.Single(logger.Logs);
     }
 }
