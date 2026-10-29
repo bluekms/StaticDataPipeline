@@ -72,6 +72,21 @@ internal static class StaticDataManagerAnalyzer
             return null;
         }
 
+        if (SymbolResolver.IsGenericOrNestedInGeneric(symbol))
+        {
+            var diagnostic = SymbolResolver.CreateGenericTargetDiagnostic(symbol, classDecl.Identifier.GetLocation());
+
+            return StaticDataManagerAnalysis.DiagnosticsOnly(symbol, new[] { diagnostic });
+        }
+
+        if (SymbolResolver.IsGenericOrNestedInGeneric(tableSetType))
+        {
+            var location = tableSetType.Locations.FirstOrDefault() ?? Location.None;
+            var diagnostic = SymbolResolver.CreateGenericTargetDiagnostic(tableSetType, location);
+
+            return StaticDataManagerAnalysis.DiagnosticsOnly(symbol, new[] { diagnostic });
+        }
+
         var diagnostics = new List<Diagnostic>();
         var tableSetSyntax = SymbolResolver.FindRecordDeclaration(tableSetType);
 

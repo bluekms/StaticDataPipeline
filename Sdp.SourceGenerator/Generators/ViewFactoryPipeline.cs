@@ -77,6 +77,13 @@ internal static class ViewFactoryPipeline
             return null;
         }
 
+        if (SymbolResolver.IsGenericOrNestedInGeneric(symbol))
+        {
+            var diagnostic = SymbolResolver.CreateGenericTargetDiagnostic(symbol, classDecl.Identifier.GetLocation());
+
+            return new StaticDataViewAnalysis.DiagnosticsOnly(symbol, tableSetType, new[] { diagnostic });
+        }
+
         var isPartial = classDecl.Modifiers.Any(static modifier => modifier.IsKind(SyntaxKind.PartialKeyword));
 
         var hasValidCtor = SymbolResolver.HasSingleTableSetConstructor(symbol, tableSetType);

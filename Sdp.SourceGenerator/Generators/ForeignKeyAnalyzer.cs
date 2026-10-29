@@ -85,7 +85,7 @@ internal static class ForeignKeyAnalyzer
                          args[2].Value is string switchTableSetName &&
                          args[3].Value is string switchColumnName)
                 {
-                    var conditionProperty = recordType.GetMembers(conditionColumn).OfType<IPropertySymbol>().FirstOrDefault();
+                    var conditionProperty = SwitchForeignKeyConditionLiteralBuilder.FindConditionParameter(recordType, conditionColumn);
                     if (conditionProperty is null)
                     {
                         continue;

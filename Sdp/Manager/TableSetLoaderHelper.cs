@@ -22,7 +22,7 @@ public static class TableSetLoaderHelper
 
         var stopwatch = Stopwatch.StartNew();
 
-        var table = await loadAsync(csvDir, logger);
+        var table = await loadAsync(csvDir, logger).ConfigureAwait(false);
 
         stopwatch.Stop();
         logger.LogTrace(Messages.LoadedTable, tableName, stopwatch.ElapsedMilliseconds);

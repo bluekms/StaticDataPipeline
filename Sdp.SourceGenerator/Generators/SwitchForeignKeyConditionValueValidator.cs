@@ -17,7 +17,7 @@ internal static class SwitchForeignKeyConditionValueValidator
             return;
         }
 
-        var conditionProperty = recordType.GetMembers(conditionColumn).OfType<IPropertySymbol>().FirstOrDefault();
+        var conditionProperty = SwitchForeignKeyConditionLiteralBuilder.FindConditionParameter(recordType, conditionColumn);
         if (conditionProperty is null)
         {
             return;

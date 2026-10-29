@@ -73,7 +73,7 @@ internal static partial class TableSetLoaderEmitter
             sb.Append("__t").Append(i);
         }
 
-        sb.AppendLine(");");
+        sb.AppendLine(").ConfigureAwait(false);");
         sb.Append(indent).AppendLine("    }");
 
         sb.Append(indent).AppendLine("    catch (global::System.Exception)");

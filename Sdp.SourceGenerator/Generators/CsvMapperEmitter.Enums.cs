@@ -105,10 +105,9 @@ internal static partial class CsvMapperEmitter
             return null;
         }
 
-        if (constantValue is ulong unsignedValue && unsignedValue > long.MaxValue)
+        if (constantValue is ulong unsignedValue)
         {
-            throw new InvalidOperationException(FormattableString.Invariant(
-                $"Enum member value {unsignedValue} exceeds long.MaxValue."));
+            return unsignedValue.ToString(CultureInfo.InvariantCulture);
         }
 
         var value = Convert.ToInt64(constantValue, CultureInfo.InvariantCulture);

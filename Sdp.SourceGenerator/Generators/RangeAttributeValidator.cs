@@ -198,7 +198,7 @@ internal sealed class RangeAttributeValidator(
             ScalarKind.Int64 => !ParsesAsInt64(minimum) || !ParsesAsInt64(maximum),
             ScalarKind.UInt64 => !ParsesAsUInt64(minimum) || !ParsesAsUInt64(maximum),
             ScalarKind.Decimal => !ParsesAsDecimal(minimum) || !ParsesAsDecimal(maximum),
-            ScalarKind.DateTime => param.DateTimeFormat is { } dateTimeFormat
+            ScalarKind.DateTime or ScalarKind.DateOnly or ScalarKind.TimeOnly => param.DateTimeFormat is { } dateTimeFormat
                 && (!ParsesAsDateTime(minimum, dateTimeFormat) || !ParsesAsDateTime(maximum, dateTimeFormat)),
             ScalarKind.DateTimeOffset => param.DateTimeFormat is { } dateTimeOffsetFormat
                 && (!ParsesAsDateTimeOffset(minimum, dateTimeOffsetFormat)
@@ -344,6 +344,8 @@ internal sealed class RangeAttributeValidator(
                     && decimal.TryParse(maxText, NumberStyles.Number, CultureInfo.InvariantCulture, out var decimalMax)
                     && decimalMin > decimalMax;
             case ScalarKind.DateTime:
+            case ScalarKind.DateOnly:
+            case ScalarKind.TimeOnly:
                 return param.DateTimeFormat is { } dateTimeFormat
                     && DateTime.TryParseExact(minText, dateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTimeMin)
                     && DateTime.TryParseExact(maxText, dateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTimeMax)

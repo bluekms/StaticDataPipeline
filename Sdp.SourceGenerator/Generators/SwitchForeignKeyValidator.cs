@@ -66,7 +66,7 @@ internal static class SwitchForeignKeyValidator
             return;
         }
 
-        var conditionProperty = recordType.GetMembers(conditionColumn).OfType<IPropertySymbol>().FirstOrDefault();
+        var conditionProperty = SwitchForeignKeyConditionLiteralBuilder.FindConditionParameter(recordType, conditionColumn);
         if (conditionProperty is null)
         {
             return;
@@ -139,7 +139,7 @@ internal static class SwitchForeignKeyValidator
                 continue;
             }
 
-            var conditionProperty = recordType.GetMembers(conditionColumn).OfType<IPropertySymbol>().FirstOrDefault();
+            var conditionProperty = SwitchForeignKeyConditionLiteralBuilder.FindConditionParameter(recordType, conditionColumn);
             if (conditionProperty is not null)
             {
                 continue;

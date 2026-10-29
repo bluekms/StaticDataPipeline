@@ -40,7 +40,7 @@ internal static class CsvMapperPipeline
         var symbol = (INamedTypeSymbol)attributeContext.TargetSymbol;
         var syntax = (RecordDeclarationSyntax)attributeContext.TargetNode;
 
-        if (IsGenericOrNestedInGeneric(symbol))
+        if (SymbolResolver.IsGenericOrNestedInGeneric(symbol))
         {
             diagnostics.Add(Diagnostic.Create(
                 SdpDiagnostics.RecordCannotBeGeneric,
@@ -130,24 +130,6 @@ internal static class CsvMapperPipeline
         }
 
         return new RecordAnalysis.CsvMapper(symbol, diagnostics, parameters);
-    }
-
-    private static bool IsGenericOrNestedInGeneric(INamedTypeSymbol symbol)
-    {
-        if (symbol.IsGenericType)
-        {
-            return true;
-        }
-
-        for (var type = symbol.ContainingType; type is not null; type = type.ContainingType)
-        {
-            if (type.IsGenericType)
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private static List<QualifiedParameter> FlattenParameters(ImmutableArray<ParameterAnalysis> parameters)

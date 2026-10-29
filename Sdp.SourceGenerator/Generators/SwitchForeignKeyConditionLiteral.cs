@@ -18,6 +18,17 @@ internal static class SwitchForeignKeyConditionLiteralBuilder
         return TypeClassifier.ClassifyScalar(conditionType) != ScalarKind.Unsupported;
     }
 
+    public static IParameterSymbol? FindConditionParameter(INamedTypeSymbol recordType, string conditionColumn)
+    {
+        var primaryConstructor = SymbolResolver.FindPrimaryConstructor(recordType);
+        if (primaryConstructor is null)
+        {
+            return null;
+        }
+
+        return primaryConstructor.Parameters.FirstOrDefault(param => string.Equals(param.Name, conditionColumn, StringComparison.Ordinal));
+    }
+
     public static void ReadFormats(
         INamedTypeSymbol recordType,
         string conditionColumn,

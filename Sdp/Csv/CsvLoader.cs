@@ -11,7 +11,7 @@ public static class CsvLoader
         string filePath,
         Func<CsvHeaderIndex, string[], TRecord> mapFromCsvRow)
     {
-        var content = await File.ReadAllTextAsync(filePath);
+        var content = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
 
         return Parse(content, mapFromCsvRow, filePath);
     }

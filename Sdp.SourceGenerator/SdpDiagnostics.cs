@@ -96,8 +96,8 @@ internal static class SdpDiagnostics
 
     public static readonly DiagnosticDescriptor RecordCannotBeGeneric = new(
         id: "SDP0012",
-        title: "StaticDataRecord cannot be generic",
-        messageFormat: "[StaticDataRecord]를 부착한 '{0}'은 제네릭 타입이거나 제네릭 타입 안에 중첩될 수 없습니다",
+        title: "Generation target cannot be generic",
+        messageFormat: "생성 대상 '{0}'은 제네릭 타입이거나 제네릭 타입 안에 중첩될 수 없습니다",
         category: Category,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
