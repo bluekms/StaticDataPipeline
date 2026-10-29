@@ -14,7 +14,7 @@ public sealed class ParameterNamedTypeSymbolCollector(SemanticModel semanticMode
 
     public INamedTypeSymbol this[PropertyName propertyName] => namedTypeSymbolDictionary[propertyName];
 
-    public void Collect(RecordDeclarationSyntax recordDeclaration, ParameterSyntax parameter)
+    public void Collect(RecordName recordName, ParameterSyntax parameter)
     {
         if (parameter.Type is null)
         {
@@ -27,7 +27,7 @@ public sealed class ParameterNamedTypeSymbolCollector(SemanticModel semanticMode
             throw new NotSupportedException();
         }
 
-        var recordPropertyName = new PropertyName(new RecordName(recordDeclaration), parameter);
+        var recordPropertyName = new PropertyName(recordName, parameter);
         namedTypeSymbolDictionary.Add(recordPropertyName, namedTypeSymbol);
     }
 }

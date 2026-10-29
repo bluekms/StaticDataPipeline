@@ -12,16 +12,10 @@ namespace SchemaInfoScanner.TypeCheckers;
 
 internal static class ArrayTypeChecker
 {
-    private static readonly HashSet<string> SupportedTypeNames =
-    [
-        "ImmutableArray<>",
-    ];
-
     public static void Check(
         PropertySchemaBase property,
         RecordSchemaCatalog recordSchemaCatalog,
         HashSet<RecordName> visited,
-        HashSet<RecordName> visiting,
         ILogger logger)
     {
         if (!IsSupportedArrayType(property.NamedTypeSymbol))
@@ -56,7 +50,7 @@ internal static class ArrayTypeChecker
         }
 
         var innerRecordSchema = property.FindInnerRecordSchema(recordSchemaCatalog);
-        RecordTypeChecker.Check(innerRecordSchema, recordSchemaCatalog, visited, visiting, logger);
+        RecordTypeChecker.Check(innerRecordSchema, recordSchemaCatalog, visited, logger);
     }
 
     public static bool IsSupportedArrayType(INamedTypeSymbol symbol)
@@ -67,11 +61,7 @@ internal static class ArrayTypeChecker
             return false;
         }
 
-        var genericTypeDefinitionName = symbol
-            .ConstructUnboundGenericType()
-            .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-        return SupportedTypeNames.Contains(genericTypeDefinitionName);
+        return symbol.Name == "ImmutableArray" && symbol.Arity == 1;
     }
 
     public static bool IsPrimitiveArrayType(INamedTypeSymbol symbol)

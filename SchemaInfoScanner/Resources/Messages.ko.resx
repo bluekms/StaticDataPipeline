@@ -204,6 +204,18 @@
   <data name="CountRangeMinMustBeNonNegative" xml:space="preserve">
     <value>CountRangeAttribute의 MinCount는 0 이상이어야 합니다.</value>
   </data>
+  <data name="CountRangeMinMustNotExceedMax" xml:space="preserve">
+    <value>CountRangeAttribute의 MinCount는 MaxCount보다 클 수 없습니다.</value>
+  </data>
+  <data name="LengthAttributeNotApplicable" xml:space="preserve">
+    <value>{0}({1}): LengthAttribute는 다중 컬럼 컬렉션에만 사용할 수 있습니다.</value>
+  </data>
+  <data name="LengthMustBePositive" xml:space="preserve">
+    <value>LengthAttribute 값은 1 이상이어야 합니다.</value>
+  </data>
+  <data name="KeyAttributeNotForCollection" xml:space="preserve">
+    <value>{0}({1}): KeyAttribute는 컬렉션에 사용할 수 없습니다.</value>
+  </data>
   <data name="CountOutOfRange" xml:space="preserve">
     <value>셀 {0}에는 {1}개의 값이 있지만, {2}는 {3}~{4}개를 기대합니다.</value>
   </data>

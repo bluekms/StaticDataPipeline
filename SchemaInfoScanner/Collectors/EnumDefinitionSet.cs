@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using SchemaInfoScanner.NameObjects;
 
 namespace SchemaInfoScanner.Collectors;
@@ -24,7 +26,13 @@ public class EnumDefinitionSet
     {
         foreach (var enumDeclaration in loadResult.EnumDeclarationList)
         {
-            var enumName = new EnumName(enumDeclaration);
+            var enumSymbol = loadResult.SemanticModel.GetDeclaredSymbol(enumDeclaration);
+            if (enumSymbol is null)
+            {
+                throw new NotSupportedException(enumDeclaration.Identifier.ValueText);
+            }
+
+            var enumName = new EnumName(enumSymbol);
             var members = enumDeclaration.Members.Select(x => x.Identifier.ValueText).ToList();
             enumDictionary.Add(enumName, members);
         }

@@ -1,6 +1,5 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.TypedPropertySchemaFactories.PrimitiveTypes;
@@ -15,8 +14,9 @@ public static class PrimitiveKeyRecordValueMapPropertySchemaFactory
     public static PropertySchemaBase Create(
         PropertyName propertyName,
         INamedTypeSymbol propertySymbol,
-        IReadOnlyList<AttributeSyntax> attributeList,
-        INamedTypeSymbol parentRecordSymbol)
+        IReadOnlyList<AttributeInfo> attributeList,
+        INamedTypeSymbol parentRecordSymbol,
+        SchemaFactoryContext context)
     {
         var keySymbol = (INamedTypeSymbol)propertySymbol.TypeArguments[0];
         if (!PrimitiveTypeChecker.IsSupportedPrimitiveType(keySymbol))
@@ -44,7 +44,7 @@ public static class PrimitiveKeyRecordValueMapPropertySchemaFactory
 
         var valueSchema = new RecordTypeGenericArgumentSchema(
             RecordTypeGenericArgumentSchema.CollectionKind.DictionaryValue,
-            RecordPropertySchemaFactory.Create(propertyName, valueSymbol, attributeList, parentRecordSymbol));
+            RecordPropertySchemaFactory.Create(propertyName, valueSymbol, attributeList, parentRecordSymbol, context));
 
         return new PrimitiveKeyRecordValueMapSchema(keySchema, valueSchema, propertySymbol, attributeList);
     }

@@ -13,16 +13,10 @@ namespace SchemaInfoScanner.TypeCheckers;
 
 public static class MapTypeChecker
 {
-    private static readonly HashSet<string> SupportedTypeNames =
-    [
-        "FrozenDictionary<, >"
-    ];
-
     public static void Check(
         PropertySchemaBase property,
         RecordSchemaCatalog recordSchemaCatalog,
         HashSet<RecordName> visited,
-        HashSet<RecordName> visiting,
         ILogger logger)
     {
         if (!IsSupportedMapType(property.NamedTypeSymbol))
@@ -51,12 +45,13 @@ public static class MapTypeChecker
             throw new NotSupportedException(Messages.DictionaryValueMustBeNonNullable);
         }
 
-        var valueRecordSchema = RecordTypeChecker.CheckAndGetSchema(valueSymbol, recordSchemaCatalog, visited, visiting, logger);
+        var valueRecordSchema = RecordTypeChecker.CheckAndGetSchema(valueSymbol, recordSchemaCatalog, visited, logger);
 
-        var valueRecordKeyParameterSchema = valueRecordSchema.PropertySchemata
-            .SingleOrDefault(x => x.HasAttribute<KeyAttribute>());
+        var valueRecordKeyParameterSchemata = valueRecordSchema.PropertySchemata
+            .Where(x => x.HasAttribute<KeyAttribute>())
+            .ToList();
 
-        if (valueRecordKeyParameterSchema is null)
+        if (valueRecordKeyParameterSchemata.Count == 0)
         {
             throw new InvalidAttributeUsageException(string.Format(
                 CultureInfo.CurrentCulture,
@@ -65,9 +60,19 @@ public static class MapTypeChecker
                 property.PropertyName.FullName));
         }
 
+        if (valueRecordKeyParameterSchemata.Count > 1)
+        {
+            throw new InvalidAttributeUsageException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.StaticDataRecordMustHaveAtMostOneKey,
+                valueRecordSchema.RecordName.FullName));
+        }
+
+        var valueRecordKeyParameterSchema = valueRecordKeyParameterSchemata[0];
+
         if (RecordTypeChecker.IsSupportedRecordType(keySymbol))
         {
-            var keyRecordSchema = RecordTypeChecker.CheckAndGetSchema(keySymbol, recordSchemaCatalog, visited, visiting, logger);
+            var keyRecordSchema = RecordTypeChecker.CheckAndGetSchema(keySymbol, recordSchemaCatalog, visited, logger);
 
             var valueRecordKeyParameterRecordName = new RecordName(valueRecordKeyParameterSchema.NamedTypeSymbol);
             if (!keyRecordSchema.RecordName.Equals(valueRecordKeyParameterRecordName))
@@ -89,11 +94,7 @@ public static class MapTypeChecker
             return false;
         }
 
-        var genericTypeDefinitionName = symbol
-            .ConstructUnboundGenericType()
-            .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-        return SupportedTypeNames.Contains(genericTypeDefinitionName);
+        return symbol.Name == "FrozenDictionary" && symbol.Arity == 2;
     }
 
     public static bool IsPrimitiveKeyRecordValueMapType(INamedTypeSymbol symbol)
@@ -202,6 +203,12 @@ public static class MapTypeChecker
     {
         if (keySymbol.SpecialType is not SpecialType.None &&
             keySymbol.SpecialType == valueSymbol.SpecialType)
+        {
+            return;
+        }
+
+        if (SymbolEqualityComparer.Default.Equals(keySymbol, valueSymbol) ||
+            PrimitiveTypeChecker.GetLastName(keySymbol) == PrimitiveTypeChecker.GetLastName(valueSymbol))
         {
             return;
         }

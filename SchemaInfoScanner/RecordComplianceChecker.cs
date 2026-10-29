@@ -36,12 +36,11 @@ public static class RecordComplianceChecker
 
             CheckKeyAttributeCount(recordSchema, logger);
 
-            var visiting = new HashSet<RecordName> { recordSchema.RecordName };
             foreach (var propertySchema in recordSchema.PropertySchemata)
             {
                 try
                 {
-                    SupportedTypeChecker.Check(propertySchema, recordSchemaCatalog, visited, visiting, logger);
+                    SupportedTypeChecker.Check(propertySchema, recordSchemaCatalog, visited, logger);
                 }
                 catch (Exception e)
                 {
@@ -82,12 +81,11 @@ public static class RecordComplianceChecker
                 exceptionCount += 1;
             }
 
-            var visiting = new HashSet<RecordName> { recordSchema.RecordName };
             foreach (var recordParameter in recordSchema.PropertySchemata)
             {
                 try
                 {
-                    SupportedTypeChecker.Check(recordParameter, recordSchemaCatalog, visited, visiting, logger);
+                    SupportedTypeChecker.Check(recordParameter, recordSchemaCatalog, visited, logger);
                 }
                 catch (Exception e)
                 {

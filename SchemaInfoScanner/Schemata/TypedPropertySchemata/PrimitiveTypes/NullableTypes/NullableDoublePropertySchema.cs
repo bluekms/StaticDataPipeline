@@ -1,5 +1,4 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Schemata.AttributeCheckers;
 
@@ -8,7 +7,7 @@ namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes.Nullab
 public sealed record NullableDoublePropertySchema(
     PropertyName PropertyName,
     INamedTypeSymbol NamedTypeSymbol,
-    IReadOnlyList<AttributeSyntax> AttributeList)
+    IReadOnlyList<AttributeInfo> AttributeList)
     : PropertySchemaBase(PropertyName, NamedTypeSymbol, AttributeList)
 {
     protected override void OnCheckCompatibility(CompatibilityContext context)

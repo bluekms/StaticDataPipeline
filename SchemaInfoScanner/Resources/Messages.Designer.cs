@@ -222,6 +222,18 @@ internal static class Messages
     internal static string CountRangeMinMustBeNonNegative
         => ResourceManager.GetString("CountRangeMinMustBeNonNegative", Culture)!;
 
+    internal static string CountRangeMinMustNotExceedMax
+        => ResourceManager.GetString("CountRangeMinMustNotExceedMax", Culture)!;
+
+    internal static string LengthAttributeNotApplicable
+        => ResourceManager.GetString("LengthAttributeNotApplicable", Culture)!;
+
+    internal static string LengthMustBePositive
+        => ResourceManager.GetString("LengthMustBePositive", Culture)!;
+
+    internal static string KeyAttributeNotForCollection
+        => ResourceManager.GetString("KeyAttributeNotForCollection", Culture)!;
+
     internal static string CountOutOfRange
         => ResourceManager.GetString("CountOutOfRange", Culture)!;
 
@@ -380,6 +392,8 @@ internal static class Messages
         internal static CompositeFormat TimeSpanFormatAttributeRequired => CompositeFormat.Parse(Messages.TimeSpanFormatAttributeRequired);
         internal static CompositeFormat InvalidCellValueForEnum => CompositeFormat.Parse(Messages.InvalidCellValueForEnum);
         internal static CompositeFormat SingleColumnCellEmptyValue => CompositeFormat.Parse(Messages.SingleColumnCellEmptyValue);
+        internal static CompositeFormat LengthAttributeNotApplicable => CompositeFormat.Parse(Messages.LengthAttributeNotApplicable);
+        internal static CompositeFormat KeyAttributeNotForCollection => CompositeFormat.Parse(Messages.KeyAttributeNotForCollection);
         internal static CompositeFormat IndexedHeadersNotContiguous => CompositeFormat.Parse(Messages.IndexedHeadersNotContiguous);
         internal static CompositeFormat CompileErrorsOccurred => CompositeFormat.Parse(Messages.CompileErrorsOccurred);
         internal static CompositeFormat NotSupportedRecordType => CompositeFormat.Parse(Messages.NotSupportedRecordType);

@@ -1,26 +1,25 @@
 using System.Collections;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.NameObjects;
+using SchemaInfoScanner.Schemata;
 
 namespace SchemaInfoScanner.Collectors;
 
-public class RecordAttributeCollector : IEnumerable<KeyValuePair<RecordName, IReadOnlyList<AttributeSyntax>>>
+public class RecordAttributeCollector : IEnumerable<KeyValuePair<RecordName, IReadOnlyList<AttributeInfo>>>
 {
-    private readonly Dictionary<RecordName, IReadOnlyList<AttributeSyntax>> attributesDictionary = [];
+    private readonly Dictionary<RecordName, IReadOnlyList<AttributeInfo>> attributesDictionary = [];
 
     public int Count => attributesDictionary.Count;
 
-    public void Collect(RecordDeclarationSyntax recordDeclaration)
+    public void Collect(RecordName recordName, RecordDeclarationSyntax recordDeclaration, SemanticModel semanticModel)
     {
-        var attributeList = recordDeclaration.AttributeLists
-            .SelectMany(x => x.Attributes)
-            .ToList()
-            .AsReadOnly();
+        var attributeList = AttributeInfoReader.Read(recordDeclaration.AttributeLists, semanticModel);
 
-        attributesDictionary.Add(new RecordName(recordDeclaration), attributeList);
+        attributesDictionary.Add(recordName, attributeList);
     }
 
-    public IEnumerator<KeyValuePair<RecordName, IReadOnlyList<AttributeSyntax>>> GetEnumerator()
+    public IEnumerator<KeyValuePair<RecordName, IReadOnlyList<AttributeInfo>>> GetEnumerator()
     {
         return attributesDictionary.GetEnumerator();
     }

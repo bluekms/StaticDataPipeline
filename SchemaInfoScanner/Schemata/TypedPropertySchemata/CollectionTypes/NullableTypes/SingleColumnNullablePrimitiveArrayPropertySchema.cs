@@ -1,7 +1,5 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.AttributeCheckers;
 using Sdp.Attributes;
@@ -11,7 +9,7 @@ namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.CollectionTypes.Nulla
 public sealed record SingleColumnNullablePrimitiveArrayPropertySchema(
     PrimitiveTypeGenericArgumentSchema GenericArgumentSchema,
     INamedTypeSymbol NamedTypeSymbol,
-    IReadOnlyList<AttributeSyntax> AttributeList,
+    IReadOnlyList<AttributeInfo> AttributeList,
     string Separator)
     : PropertySchemaBase(GenericArgumentSchema.PropertyName, NamedTypeSymbol, AttributeList)
 {
@@ -45,27 +43,14 @@ public sealed record SingleColumnNullablePrimitiveArrayPropertySchema(
         {
             var part = rawPart.Trim();
             var result = NullStringAttributeChecker.Check(this, part);
-
             if (result.IsNull)
             {
-                context.ConsumeNull();
+                continue;
             }
-            else
-            {
-                var nestedCells = new[] { new CellData(cell.Address, part) };
-                var nestedContext = CompatibilityContext.CreateNoCollect(
-                    context.MetadataCatalogs,
-                    nestedCells);
 
-                GenericArgumentSchema.CheckCompatibility(nestedContext);
-            }
+            var nestedCells = new[] { new CellData(cell.Address, part) };
+            var nestedContext = CompatibilityContext.CreateNoCollect(context.MetadataCatalogs, nestedCells);
+            GenericArgumentSchema.CheckCompatibility(nestedContext);
         }
-    }
-
-    private bool EmptyCellMeansNullElement()
-    {
-        var hasNullString = this.TryGetAttributeValue<NullStringAttribute, string>(0, out var nullString);
-
-        return hasNullString && nullString is { Length: 0 };
     }
 }

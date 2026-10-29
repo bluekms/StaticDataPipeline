@@ -18,6 +18,17 @@ internal static class PrimitiveTypeChecker
         }
     }
 
+    // 생성기의 TypeClassifier.IsNullable 과 같은 규칙이어야 한다.
+    public static bool IsNullablePrimitiveType(ITypeSymbol symbol)
+    {
+        if (symbol.OriginalDefinition.SpecialType is SpecialType.System_Nullable_T)
+        {
+            return true;
+        }
+
+        return symbol.SpecialType is SpecialType.System_String && symbol.NullableAnnotation is NullableAnnotation.Annotated;
+    }
+
     public static bool IsSupportedPrimitiveType(INamedTypeSymbol symbol)
     {
         var isNullable = symbol.OriginalDefinition.SpecialType is SpecialType.System_Nullable_T;

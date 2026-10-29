@@ -71,7 +71,7 @@ public partial class KeyAttributeRuleTests(ITestOutputHelper testOutputHelper)
     }
 
     [Fact]
-    public void FrozenDictionary_ValueWithMultipleKeyAttributes_ThrowsInvalidOperationException()
+    public void FrozenDictionary_ValueWithMultipleKeyAttributes_ThrowsInvalidAttributeUsageException()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<KeyAttributeRuleTests>() is not TestOutputLogger<KeyAttributeRuleTests> logger)
@@ -96,7 +96,7 @@ public partial class KeyAttributeRuleTests(ITestOutputHelper testOutputHelper)
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
         var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
 
-        Assert.Throws<InvalidOperationException>(() => RecordComplianceChecker.Check(recordSchemaCatalog, logger));
+        Assert.Throws<InvalidAttributeUsageException>(() => RecordComplianceChecker.Check(recordSchemaCatalog, logger));
         Assert.Single(logger.Logs);
     }
 

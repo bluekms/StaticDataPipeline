@@ -1,6 +1,5 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes;
@@ -14,7 +13,7 @@ public static class PrimitivePropertySchemaFactory
     public static PropertySchemaBase Create(
         PropertyName propertyName,
         INamedTypeSymbol propertySymbol,
-        IReadOnlyList<AttributeSyntax> attributeList)
+        IReadOnlyList<AttributeInfo> attributeList)
     {
         if (!PrimitiveTypeChecker.IsSupportedPrimitiveType(propertySymbol))
         {
@@ -25,8 +24,8 @@ public static class PrimitivePropertySchemaFactory
                 propertySymbol.Name));
         }
 
-        var isNullable = propertySymbol.OriginalDefinition.SpecialType is SpecialType.System_Nullable_T;
-        var underlyingType = isNullable
+        var isNullable = PrimitiveTypeChecker.IsNullablePrimitiveType(propertySymbol);
+        var underlyingType = propertySymbol.OriginalDefinition.SpecialType is SpecialType.System_Nullable_T
             ? propertySymbol.TypeArguments[0]
             : propertySymbol;
 

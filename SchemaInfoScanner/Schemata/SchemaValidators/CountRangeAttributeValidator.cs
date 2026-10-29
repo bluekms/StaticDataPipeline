@@ -22,7 +22,19 @@ internal partial class SchemaRuleValidator
             RuleFor(x => x)
                 .Must(HasNonNegativeMinCount)
                 .WithMessage(_ => Messages.CountRangeMinMustBeNonNegative);
+
+            RuleFor(x => x)
+                .Must(HasOrderedBounds)
+                .WithMessage(_ => Messages.CountRangeMinMustNotExceedMax);
         });
+    }
+
+    private static bool HasOrderedBounds(PropertySchemaBase property)
+    {
+        var minCount = property.GetAttributeValue<CountRangeAttribute, int>(0);
+        var maxCount = property.GetAttributeValue<CountRangeAttribute, int>(1);
+
+        return minCount <= maxCount;
     }
 
     private static bool HasNonNegativeMinCount(PropertySchemaBase property)

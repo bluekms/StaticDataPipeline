@@ -1,6 +1,5 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Resources;
 using Sdp.Attributes;
 
@@ -9,7 +8,7 @@ namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.CollectionTypes;
 public sealed record SingleColumnPrimitiveSetPropertySchema(
     PrimitiveTypeGenericArgumentSchema GenericArgumentSchema,
     INamedTypeSymbol NamedTypeSymbol,
-    IReadOnlyList<AttributeSyntax> AttributeList,
+    IReadOnlyList<AttributeInfo> AttributeList,
     string Separator)
     : PropertySchemaBase(GenericArgumentSchema.PropertyName, NamedTypeSymbol, AttributeList)
 {

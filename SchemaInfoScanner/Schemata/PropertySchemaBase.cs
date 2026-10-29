@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata;
+using SchemaInfoScanner.TypeCheckers;
 using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata;
@@ -12,7 +12,7 @@ namespace SchemaInfoScanner.Schemata;
 public abstract record PropertySchemaBase(
     PropertyName PropertyName,
     INamedTypeSymbol NamedTypeSymbol,
-    IReadOnlyList<AttributeSyntax> AttributeList)
+    IReadOnlyList<AttributeInfo> AttributeList)
 {
     protected abstract void OnCheckCompatibility(CompatibilityContext context);
 
@@ -28,7 +28,7 @@ public abstract record PropertySchemaBase(
 
     public bool IsNullable()
     {
-        return NamedTypeSymbol.OriginalDefinition.SpecialType is SpecialType.System_Nullable_T;
+        return PrimitiveTypeChecker.IsNullablePrimitiveType(NamedTypeSymbol);
     }
 
     protected int ResolveLength(CompatibilityContext context)
@@ -76,6 +76,13 @@ public abstract record PropertySchemaBase(
 
             return declaredColumnName ?? PropertyName.Name;
         }
+    }
+
+    protected bool EmptyCellMeansNullElement()
+    {
+        var hasNullString = TryGetAttributeValue<NullStringAttribute, string>(out var nullString);
+
+        return hasNullString && nullString is { Length: 0 };
     }
 
     public bool TryGetAttributeValue<TAttribute, TValue>(

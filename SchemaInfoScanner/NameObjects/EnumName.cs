@@ -1,6 +1,4 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.Resources;
 
 namespace SchemaInfoScanner.NameObjects;
@@ -9,16 +7,6 @@ public class EnumName : IEquatable<EnumName>
 {
     public string Name { get; }
     public string FullName { get; }
-
-    public EnumName(EnumDeclarationSyntax enumDeclaration)
-    {
-        Name = enumDeclaration.Identifier.ValueText;
-
-        var namespaceName = enumDeclaration.GetNamespace();
-        FullName = string.IsNullOrEmpty(namespaceName)
-            ? Name
-            : $"{namespaceName}.{Name}";
-    }
 
     public EnumName(INamedTypeSymbol namedTypeSymbol)
     {

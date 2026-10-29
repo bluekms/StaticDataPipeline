@@ -1,20 +1,14 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 
 namespace SchemaInfoScanner.Extensions;
 
 public static class RecordSchemaAttributeAccessors
 {
-    public static bool HasAttribute<T>(
-        this RecordSchema recordSchema)
+    public static bool HasAttribute<T>(this RecordSchema recordSchema)
         where T : Attribute
     {
-        var attributeName = typeof(T).Name.Replace("Attribute", string.Empty);
-
-        return recordSchema.RecordAttributeList.Any(x => x.Name.ToString() == attributeName);
+        return AttributeAccessors.HasAttribute<T>(recordSchema.RecordAttributeList);
     }
 
     public static TValue GetAttributeValue<TAttribute, TValue>(
@@ -22,28 +16,7 @@ public static class RecordSchemaAttributeAccessors
         int attributeParameterIndex)
         where TAttribute : Attribute
     {
-        var attributeName = typeof(TAttribute).Name.Replace("Attribute", string.Empty);
-        var attribute = recordSchema.RecordAttributeList.Single(x => x.Name.ToString() == attributeName);
-
-        if (attribute.ArgumentList is null)
-        {
-            throw new ArgumentNullException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.AttributeHasNoProperty,
-                typeof(TAttribute).Name));
-        }
-
-        var argument = attribute.ArgumentList.Arguments[attributeParameterIndex].Expression;
-        var valueString = argument switch
-        {
-            LiteralExpressionSyntax literal => literal.Token.ValueText,
-            MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.Text,
-            _ => throw new InvalidOperationException(Messages.UnsupportedExpressionType),
-        };
-
-        return typeof(TValue).IsEnum
-            ? (TValue)Enum.Parse(typeof(TValue), valueString.Split('.')[^1])
-            : (TValue)Convert.ChangeType(valueString, typeof(TValue), CultureInfo.InvariantCulture);
+        return AttributeAccessors.GetAttributeValue<TAttribute, TValue>(recordSchema.RecordAttributeList, attributeParameterIndex);
     }
 
     public static bool TryGetAttributeValue<TAttribute, TValue>(
@@ -52,39 +25,18 @@ public static class RecordSchemaAttributeAccessors
         [NotNullWhen(true)] out TValue? value)
         where TAttribute : Attribute
     {
-        try
-        {
-            value = recordSchema.GetAttributeValue<TAttribute, TValue>(attributeParameterIndex);
+        var found = AttributeAccessors.TryGetAttributeValue<TAttribute, TValue>(
+            recordSchema.RecordAttributeList,
+            out var result,
+            attributeParameterIndex);
+        value = found ? result : default;
 
-            return value is not null;
-        }
-        catch (Exception)
-        {
-            value = default;
-
-            return false;
-        }
+        return found;
     }
 
     public static IReadOnlyList<string> GetAttributeValueList<TAttribute>(this RecordSchema recordSchema)
+        where TAttribute : Attribute
     {
-        var attributeName = typeof(TAttribute).Name.Replace("Attribute", string.Empty);
-        var attribute = recordSchema.RecordAttributeList.Single(x => x.Name.ToString() == attributeName);
-
-        if (attribute.ArgumentList is null)
-        {
-            throw new ArgumentNullException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.AttributeHasNoProperty,
-                typeof(TAttribute).Name));
-        }
-
-        return attribute.ArgumentList.Arguments
-            .Select(x => x.Expression switch
-            {
-                LiteralExpressionSyntax literal => literal.Token.ValueText,
-                MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.Text,
-                _ => throw new InvalidOperationException(Messages.UnsupportedExpressionType),
-            }).ToList();
+        return AttributeAccessors.GetAttributeValueList<TAttribute>(recordSchema.RecordAttributeList);
     }
 }
