@@ -43,10 +43,7 @@ public class TableSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
         var diagnostic = Assert.Single(diagnostics, d => d.Id == "SDP0218");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -70,10 +67,7 @@ public class TableSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
         var diagnostic = Assert.Single(diagnostics, d => d.Id == "SDP0218");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -92,10 +86,7 @@ public class TableSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.Contains(diagnostics, d => d.Id == "SDP0219" && d.Severity == DiagnosticSeverity.Error);
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -114,15 +105,12 @@ public class TableSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0219");
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<TableSetDiagnosticsTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<TableSetDiagnosticsTests>()
             is not TestOutputLogger<TableSetDiagnosticsTests> logger)
         {

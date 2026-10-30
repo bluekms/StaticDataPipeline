@@ -251,12 +251,12 @@ public partial class CsvLoaderTests(ITestOutputHelper testOutputHelper)
         Assert.Equal(1, record.Id);
         Assert.Equal("Alice", record.Name);
         Assert.Equal(95.5, record.Score);
-        logger.LogInformation("Trailing-comma headers ignored, record loaded: Id={Id}", record.Id);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<CsvLoaderTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CsvLoaderTests>() is not TestOutputLogger<CsvLoaderTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");

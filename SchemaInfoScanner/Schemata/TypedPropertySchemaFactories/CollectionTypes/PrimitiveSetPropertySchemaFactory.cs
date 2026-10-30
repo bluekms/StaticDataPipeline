@@ -1,6 +1,5 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
@@ -17,7 +16,7 @@ public static class PrimitiveSetPropertySchemaFactory
     public static PropertySchemaBase Create(
         PropertyName propertyName,
         INamedTypeSymbol propertySymbol,
-        IReadOnlyList<AttributeSyntax> attributeList)
+        IReadOnlyList<AttributeInfo> attributeList)
     {
         if (!SetTypeChecker.IsPrimitiveSetType(propertySymbol))
         {
@@ -29,7 +28,7 @@ public static class PrimitiveSetPropertySchemaFactory
         }
 
         var typeArgumentSymbol = (INamedTypeSymbol)propertySymbol.TypeArguments.Single();
-        var isNullable = typeArgumentSymbol.OriginalDefinition.SpecialType is SpecialType.System_Nullable_T;
+        var isNullable = PrimitiveTypeChecker.IsNullablePrimitiveType(typeArgumentSymbol);
 
         var nestedSchema = PrimitivePropertySchemaFactory.Create(
             propertyName,
@@ -56,7 +55,7 @@ public static class PrimitiveSetPropertySchemaFactory
     public static PropertySchemaBase CreateForSingleColumn(
         PropertyName propertyName,
         INamedTypeSymbol propertySymbol,
-        IReadOnlyList<AttributeSyntax> attributeList)
+        IReadOnlyList<AttributeInfo> attributeList)
     {
         if (!SetTypeChecker.IsPrimitiveSetType(propertySymbol))
         {
@@ -79,7 +78,7 @@ public static class PrimitiveSetPropertySchemaFactory
         }
 
         var typeArgumentSymbol = (INamedTypeSymbol)propertySymbol.TypeArguments.Single();
-        var isNullable = typeArgumentSymbol.OriginalDefinition.SpecialType is SpecialType.System_Nullable_T;
+        var isNullable = PrimitiveTypeChecker.IsNullablePrimitiveType(typeArgumentSymbol);
 
         var nestedSchema = PrimitivePropertySchemaFactory.Create(
             propertyName,

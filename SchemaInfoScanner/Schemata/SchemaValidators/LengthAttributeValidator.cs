@@ -11,27 +11,20 @@ internal partial class SchemaRuleValidator
 {
     private void RegisterLengthAttributeRule()
     {
-        When(IsMultiColumnCollectionType, () =>
+        When(x => x.HasAttribute<LengthAttribute>(), () =>
         {
             RuleFor(x => x)
-                .Must(x => x.HasAttribute<LengthAttribute>())
-                .When(x => !x.HasAttribute<CountRangeAttribute>())
+                .Must(x => CollectionTypeChecker.IsSupportedCollectionType(x.NamedTypeSymbol))
                 .WithMessage(x =>
                     string.Format(
                         CultureInfo.CurrentCulture,
-                        Messages.Composite.LengthAttributeRequired,
-                        x.PropertyName.Name,
+                        Messages.Composite.LengthAttributeNotApplicable,
+                        x.PropertyName.FullName,
                         x.GetType().FullName));
+
+            RuleFor(x => x)
+                .Must(x => x.GetAttributeValue<LengthAttribute, int>(0) >= 1)
+                .WithMessage(_ => Messages.LengthMustBePositive);
         });
-    }
-
-    private static bool IsMultiColumnCollectionType(PropertySchemaBase property)
-    {
-        if (!CollectionTypeChecker.IsSupportedCollectionType(property.NamedTypeSymbol))
-        {
-            return false;
-        }
-
-        return !property.HasAttribute<SingleColumnCollectionAttribute>();
     }
 }

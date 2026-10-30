@@ -49,8 +49,7 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
         Assert.Contains("ViewSetBuildHelper.NullableViewMemberError(", generated);
         Assert.Contains("throw new global::System.AggregateException", generated);
         Assert.DoesNotContain("NotSupportedException", generated);
-
-        logger.LogInformation("Runtime throw for nullable member emitted ({Length} chars).", generated.Length);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -71,8 +70,7 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
         var generated = GeneratedViewSet(source);
         Assert.Contains("ViewSetBuildHelper.CannotEmitError(", generated);
         Assert.DoesNotContain("ViewSetBuildHelper.Build<", generated);
-
-        logger.LogInformation("Not supported shell for non-view member emitted ({Length} chars).", generated.Length);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -98,8 +96,7 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
         var generated = GeneratedViewSet(source);
         Assert.Contains("ViewSetBuildHelper.ViewConstructorNotFoundError(", generated);
         Assert.Contains("throw new global::System.AggregateException", generated);
-
-        logger.LogInformation("Runtime throw for missing constructor emitted ({Length} chars).", generated.Length);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -124,8 +121,7 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
         Assert.Contains("ViewSetBuildHelper.Build<", generated);
         Assert.DoesNotContain("NullableViewMemberError(", generated);
         Assert.DoesNotContain("ViewConstructorNotFoundError(", generated);
-
-        logger.LogInformation("Real Build emitted without runtime throw ({Length} chars).", generated.Length);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -150,8 +146,7 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
         var generated = SourceGeneratorTestHelper.GetSingleTree(result, "ViewSetBuilder.g.cs").ToString();
         Assert.Contains("ViewSetBuildHelper.CannotEmitError(", generated);
         Assert.DoesNotContain("ViewSetBuildHelper.Build<", generated);
-
-        logger.LogInformation("Not-supported shell emitted without real Build ({Length} chars).", generated.Length);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -181,8 +176,7 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
         var generated = GeneratedViewSet(source);
         Assert.Contains("ViewSetBuildHelper.ViewTargetsDifferentTableSetError(", generated);
         Assert.DoesNotContain("ViewConstructorNotFoundError(", generated);
-
-        logger.LogInformation("Target mismatch error emitted without constructor error ({Length} chars).", generated.Length);
+        Assert.Empty(logger.Logs);
     }
 
     private static string GeneratedViewSet(string source)
@@ -195,7 +189,7 @@ public class ViewSetRuntimeGuardTests(ITestOutputHelper testOutputHelper)
 
     private TestOutputLogger<ViewSetRuntimeGuardTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<ViewSetRuntimeGuardTests>()
             is not TestOutputLogger<ViewSetRuntimeGuardTests> logger)
         {

@@ -20,6 +20,13 @@ public sealed record RecordTypeGenericArgumentSchema(
 
     public void CheckCompatibility(CompatibilityContext context)
     {
+        if (NestedSchema is RecordPropertySchema recordSchema)
+        {
+            recordSchema.CheckMembers(context);
+
+            return;
+        }
+
         NestedSchema.CheckCompatibility(context);
     }
 }

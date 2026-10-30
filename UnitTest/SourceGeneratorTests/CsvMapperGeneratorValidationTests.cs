@@ -34,8 +34,7 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__ValidateRange_Price emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -63,8 +62,7 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__ValidateRange_Ratio emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -88,8 +86,7 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         Assert.Contains("NotSupportedException", mapperTree.ToString());
-
-        logger.LogInformation("NotSupportedException fallback emitted: {FilePath}", mapperTree.FilePath);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -118,8 +115,7 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__ValidatePattern_Title emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -144,8 +140,7 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         Assert.Contains("NotSupportedException", mapperTree.ToString());
-
-        logger.LogInformation("Diagnostic {Id} reported with severity {Severity}.", diagnostic.Id, diagnostic.Severity);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -166,8 +161,7 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         var code = mapperTree.ToString();
         Assert.Contains("NumberStyles.Float | global::System.Globalization.NumberStyles.AllowThousands", code);
-
-        logger.LogInformation("AllowThousands number style emitted: {FilePath}", mapperTree.FilePath);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -199,8 +193,7 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__ValidateRange_Date emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -229,8 +222,7 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__ValidateRange_Score emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -258,15 +250,12 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation(
-            "__ValidateRange_Scores emitted for nullable elements, compilation errors: {ErrorCount}",
-            errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<CsvMapperGeneratorValidationTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CsvMapperGeneratorValidationTests>()
             is not TestOutputLogger<CsvMapperGeneratorValidationTests> logger)
         {

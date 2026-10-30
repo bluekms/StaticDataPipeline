@@ -1,6 +1,5 @@
 using System.Globalization;
 using FluentValidation;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.Resources;
 using Sdp.Attributes;
@@ -32,14 +31,14 @@ internal partial class SchemaRuleValidator
     }
 
     private static List<(string Column, string Value)> FindDuplicateSwitchForeignKeyConditions(
-        IReadOnlyList<AttributeSyntax> attributeList)
+        IReadOnlyList<AttributeInfo> attributeList)
     {
         return attributeList
-            .Where(a => a.Name.ToString() == SwitchForeignKeyAttributeName)
-            .Where(a => a.ArgumentList is not null)
+            .Where(a => a.Name == SwitchForeignKeyAttributeName)
+            .Where(a => a.Arguments.Count >= 2)
             .Select(a => (
-                Column: a.ArgumentList!.Arguments[0].ToString().Trim('"'),
-                Value: a.ArgumentList!.Arguments[1].ToString().Trim('"')))
+                Column: a.Arguments[0].Text,
+                Value: a.Arguments[1].Text))
             .GroupBy(c => c)
             .Where(g => g.Count() > 1)
             .Select(g => g.Key)

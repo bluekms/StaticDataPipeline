@@ -16,7 +16,7 @@ SDP0008 | Sdp.SourceGenerator | Error | Collection parameter must not be nullabl
 SDP0009 | Sdp.SourceGenerator | Error | SingleColumnCollection cannot be applied to FrozenDictionary
 SDP0010 | Sdp.SourceGenerator | Error | Range bound is out of the parameter type's range
 SDP0011 | Sdp.SourceGenerator | Error | Use the numeric [Range] form instead of the typed form
-SDP0012 | Sdp.SourceGenerator | Error | StaticDataRecord cannot be generic
+SDP0012 | Sdp.SourceGenerator | Error | Generation target cannot be generic
 SDP0013 | Sdp.SourceGenerator | Error | Length and SingleColumnCollection are mutually exclusive
 SDP0014 | Sdp.SourceGenerator | Error | Length must be at least 1
 SDP0015 | Sdp.SourceGenerator | Error | Range minimum must not exceed maximum
@@ -49,6 +49,8 @@ SDP0223 | Sdp.SourceGenerator | Error | SwitchForeignKey condition value can nev
 SDP0224 | Sdp.SourceGenerator | Error | SwitchForeignKey condition column must not be a collection
 SDP0225 | Sdp.SourceGenerator | Error | SwitchForeignKey equivalent condition value
 SDP0226 | Sdp.SourceGenerator | Error | ForeignKey duplicate target
+SDP0227 | Sdp.SourceGenerator | Error | SwitchForeignKey condition column must be a single-value type
+SDP0228 | Sdp.SourceGenerator | Error | SwitchForeignKey condition value cannot be parsed as the condition column type
 SDP0301 | Sdp.SourceGenerator | Error | ViewSet record must be partial
 SDP0302 | Sdp.SourceGenerator | Error | ViewSet member must be non-nullable
 SDP0303 | Sdp.SourceGenerator | Error | StaticDataView subclass must be partial

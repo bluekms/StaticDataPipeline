@@ -1,4 +1,3 @@
-using System.Globalization;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.Logging;
 using UnitTest.Utility;
@@ -75,23 +74,15 @@ public class UnityCompatibilityTests(ITestOutputHelper testOutputHelper)
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(output.Final);
         foreach (var error in errors)
         {
-            logger.LogInformation(
-                "Error {Id} at {Path}: {Message}",
-                error.Id,
-                error.Location.SourceTree?.FilePath,
-                error.GetMessage(CultureInfo.InvariantCulture));
         }
 
         Assert.Empty(errors);
-
-        logger.LogInformation(
-            "Generated trees compiled under C# 9: [{Files}]",
-            string.Join(", ", output.Run.GeneratedTrees.Select(t => Path.GetFileName(t.FilePath))));
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<UnityCompatibilityTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<UnityCompatibilityTests>()
             is not TestOutputLogger<UnityCompatibilityTests> logger)
         {

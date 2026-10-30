@@ -29,10 +29,7 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
         Assert.True(record.Inventory.ContainsKey(2));
         Assert.Equal("First", record.Inventory[1].Name);
         Assert.Equal("Second", record.Inventory[2].Name);
-        logger.LogInformation(
-            "Inventory mapped with {Count} entries, [1]={Name}",
-            record.Inventory.Count,
-            record.Inventory[1].Name);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -44,7 +41,7 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
                 + "1,First,1,Second";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, SimpleInventoryRecord.MapFromCsvRow));
         Assert.IsType<ArgumentException>(ex.InnerException);
-        logger.LogInformation("Duplicate dictionary key threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record StringKeyValue([Key] string Code, int Amount);
@@ -66,10 +63,7 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
         Assert.True(record.Items.ContainsKey("B002"));
         Assert.Equal(100, record.Items["A001"].Amount);
         Assert.Equal(200, record.Items["B002"].Amount);
-        logger.LogInformation(
-            "String-key items mapped: A001={A}, B002={B}",
-            record.Items["A001"].Amount,
-            record.Items["B002"].Amount);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Dict", "Mixed")]
@@ -91,11 +85,7 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
         Assert.Equal(2, record.Items.Count);
         Assert.Equal("ItemA", record.Items[1].Name);
         Assert.Equal("ItemB", record.Items[2].Name);
-        logger.LogInformation(
-            "Mixed record mapped: Id={Id}, Name={Name}, Items={Count}",
-            record.Id,
-            record.Name,
-            record.Items.Count);
+        Assert.Empty(logger.Logs);
     }
 
     public enum ItemId
@@ -121,10 +111,7 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
         Assert.True(record.Items.ContainsKey((ItemId)1001));
         Assert.Equal("Potion", record.Items[(ItemId)42].Name);
         Assert.Equal("Sword", record.Items[(ItemId)1001].Name);
-        logger.LogInformation(
-            "Enum-key items mapped: 42={A}, 1001={B}",
-            record.Items[(ItemId)42].Name,
-            record.Items[(ItemId)1001].Name);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record ComplexValue(
@@ -150,10 +137,7 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
         Assert.Equal(1.5f, record.Inventory[1].Grades[2]);
         Assert.Equal(4.3f, record.Inventory[2].Grades[0]);
         Assert.Equal(4.5f, record.Inventory[2].Grades[2]);
-        logger.LogInformation(
-            "Complex inventory mapped: {Count} entries, [1].Grades={GradeCount} elements",
-            record.Inventory.Count,
-            record.Inventory[1].Grades.Length);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record KeyRecord(int Id, string Name);
@@ -182,17 +166,12 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
         Assert.True(record.Inventory.ContainsKey(key2));
         Assert.Equal(4.0f, record.Inventory[key1].Grade);
         Assert.Equal(4.3f, record.Inventory[key2].Grade);
-        logger.LogInformation(
-            "Record-key inventory mapped: {Key1}={Grade1}, {Key2}={Grade2}",
-            key1,
-            record.Inventory[key1].Grade,
-            key2,
-            record.Inventory[key2].Grade);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<FrozenDictionaryMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<FrozenDictionaryMappingTests>()
             is not TestOutputLogger<FrozenDictionaryMappingTests> logger)
         {

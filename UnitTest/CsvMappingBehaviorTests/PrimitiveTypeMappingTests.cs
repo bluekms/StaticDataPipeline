@@ -21,11 +21,7 @@ public partial class PrimitiveTypeMappingTests(ITestOutputHelper testOutputHelpe
         Assert.Equal(1, record.Id);
         Assert.Equal("Alice", record.Name);
         Assert.Equal(95.5, record.Score);
-        logger.LogInformation(
-            "Simple record mapped: Id={Id}, Name={Name}, Score={Score}",
-            record.Id,
-            record.Name,
-            record.Score);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Primitive", "ColumnName")]
@@ -42,7 +38,7 @@ public partial class PrimitiveTypeMappingTests(ITestOutputHelper testOutputHelpe
         var record = Assert.Single(CsvLoader.Parse(csv, RecordWithColumnNameRecord.MapFromCsvRow));
         Assert.Equal(42, record.Id);
         Assert.Equal("Bob", record.Name);
-        logger.LogInformation("Column-renamed record mapped: Id={Id}, Name={Name}", record.Id, record.Name);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Primitive", "Nullable")]
@@ -61,9 +57,7 @@ public partial class PrimitiveTypeMappingTests(ITestOutputHelper testOutputHelpe
         Assert.Equal(1, record.Id);
         Assert.Equal(100, record.OptionalValue);
         Assert.Null(record.NullableString);
-        logger.LogInformation(
-            "Nullable record mapped: OptionalValue={OptionalValue}, NullableString=null",
-            record.OptionalValue);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Primitive", "Decimal")]
@@ -80,12 +74,12 @@ public partial class PrimitiveTypeMappingTests(ITestOutputHelper testOutputHelpe
         var record = Assert.Single(CsvLoader.Parse(csv, RecordWithDecimalRecord.MapFromCsvRow));
         Assert.Equal(123.45m, record.Price);
         Assert.Equal(new DateTime(2024, 12, 22), record.Date);
-        logger.LogInformation("Decimal record mapped: Price={Price}, Date={Date}", record.Price, record.Date);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<PrimitiveTypeMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<PrimitiveTypeMappingTests>() is not TestOutputLogger<PrimitiveTypeMappingTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");

@@ -34,8 +34,7 @@ public class CsvMapperGeneratorSingleColumnTests(ITestOutputHelper testOutputHel
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__MapSingleArray_Tags emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -67,13 +66,12 @@ public class CsvMapperGeneratorSingleColumnTests(ITestOutputHelper testOutputHel
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__MapSingleSet_Labels emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<CsvMapperGeneratorSingleColumnTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CsvMapperGeneratorSingleColumnTests>()
             is not TestOutputLogger<CsvMapperGeneratorSingleColumnTests> logger)
         {

@@ -22,10 +22,7 @@ public partial class IgnoreMappingTests(ITestOutputHelper testOutputHelper)
         Assert.Equal(0, record.CachedValue);
         Assert.Null(record.Note);
         Assert.Equal("Alpha", record.Name);
-        logger.LogInformation(
-            "Ignored parameters defaulted: CachedValue={CachedValue}, Note={Note}",
-            record.CachedValue,
-            record.Note);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -37,15 +34,12 @@ public partial class IgnoreMappingTests(ITestOutputHelper testOutputHelper)
         var record = Assert.Single(CsvLoader.Parse(csv, CachedRecord.MapFromCsvRow));
         Assert.Equal(0, record.CachedValue);
         Assert.Null(record.Note);
-        logger.LogInformation(
-            "Ignored columns are not mapped: CachedValue={CachedValue}, Note={Note}",
-            record.CachedValue,
-            record.Note);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<IgnoreMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<IgnoreMappingTests>() is not TestOutputLogger<IgnoreMappingTests> logger)
         {
             throw new InvalidOperationException("Logger creation failed.");

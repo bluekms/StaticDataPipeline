@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -34,48 +33,36 @@ public class XunitTestLoggerTypeAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
     {
         var methodDeclaration = (MethodDeclarationSyntax)context.Node;
-
-        var hasFactOrTheoryAttribute = methodDeclaration.AttributeLists
-            .SelectMany(a => a.Attributes)
-            .Any(a => a.Name.ToString() == "Fact" || a.Name.ToString() == "Theory");
-
-        if (!hasFactOrTheoryAttribute)
+        if (!TestLoggerSyntax.IsTestMethod(methodDeclaration))
         {
             return;
         }
 
         var classDeclaration = methodDeclaration.Ancestors().OfType<ClassDeclarationSyntax>().FirstOrDefault();
-        if (classDeclaration == null)
+        if (classDeclaration is null)
         {
             return;
         }
 
-        var className = classDeclaration.Identifier.Text;
-        var loggerVariable = methodDeclaration.DescendantNodes()
-            .OfType<DeclarationPatternSyntax>()
-            .FirstOrDefault(v => v.Type.ToString().StartsWith("TestOutputLogger", StringComparison.Ordinal));
-        if (loggerVariable is null)
+        var loggerPattern = TestLoggerSyntax.FindLoggerPattern(methodDeclaration, context.SemanticModel, out var loggerType);
+        if (loggerPattern is null || loggerType is null)
         {
             return;
         }
 
-        var genericTypeName = ExtractGenericTypeArgument(loggerVariable.Type.ToString());
-        if (genericTypeName is null)
+        var classSymbol = context.SemanticModel.GetDeclaredSymbol(classDeclaration, context.CancellationToken);
+        if (classSymbol is null)
         {
             return;
         }
 
-        if (genericTypeName != className)
+        var genericArgument = loggerType.TypeArguments[0];
+        if (SymbolEqualityComparer.Default.Equals(genericArgument.OriginalDefinition, classSymbol.OriginalDefinition))
         {
-            var diagnostic = Diagnostic.Create(Rule, loggerVariable.GetLocation(), genericTypeName, className);
-            context.ReportDiagnostic(diagnostic);
+            return;
         }
-    }
 
-    private static string? ExtractGenericTypeArgument(string typeName)
-    {
-        var match = Regex.Match(typeName, @"<(.+)>");
-
-        return match.Success ? match.Groups[1].Value : null;
+        var diagnostic = Diagnostic.Create(Rule, loggerPattern.GetLocation(), genericArgument.Name, classSymbol.Name);
+        context.ReportDiagnostic(diagnostic);
     }
 }

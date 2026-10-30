@@ -224,7 +224,7 @@ public partial class ArrayTypeTests(ITestOutputHelper testOutputHelper)
                    [StaticDataRecord("Test", "TestSheet")]
                    public sealed partial record MyRecord(
                        [SingleColumnCollection(", ")]
-                       [Length(4)]
+                       [CountRange(4, 4)]
                        ImmutableArray<int> Property,
                    );
                    """;

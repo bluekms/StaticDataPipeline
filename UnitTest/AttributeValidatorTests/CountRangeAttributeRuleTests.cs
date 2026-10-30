@@ -92,7 +92,7 @@ public partial class CountRangeAttributeRuleTests(ITestOutputHelper testOutputHe
     }
 
     [Fact]
-    public void DisallowMinCountZeroTest()
+    public void AllowMinCountZeroTest()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CountRangeAttributeRuleTests>() is not TestOutputLogger<CountRangeAttributeRuleTests> logger)
@@ -106,6 +106,33 @@ public partial class CountRangeAttributeRuleTests(ITestOutputHelper testOutputHe
                    public sealed partial record MyRecord(
                        [SingleColumnCollection(",")]
                        [CountRange(0, 5)]
+                       ImmutableArray<int> Property,
+                   );
+                   """;
+
+        var loadResult = RecordSchemaLoader.OnLoad(code, logger);
+        var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
+        var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
+
+        RecordComplianceChecker.Check(recordSchemaCatalog, logger);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void DisallowNegativeMinCountTest()
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<CountRangeAttributeRuleTests>() is not TestOutputLogger<CountRangeAttributeRuleTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = """
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed partial record MyRecord(
+                       [SingleColumnCollection(",")]
+                       [CountRange(-1, 5)]
                        ImmutableArray<int> Property,
                    );
                    """;
@@ -213,11 +240,10 @@ public partial class CountRangeAttributeRuleTests(ITestOutputHelper testOutputHe
             foreach (var propertySchema in recordSchema.PropertySchemata)
             {
                 var ex = Assert.Throws<ArgumentOutOfRangeException>(() => propertySchema.CheckCompatibility(context));
-                logger.LogError(ex, ex.Message);
             }
         }
 
-        Assert.Single(logger.Logs);
+        Assert.Empty(logger.Logs);
     }
 
     private static MetadataCatalogs CreateCatalogs(string code, ILogger logger)

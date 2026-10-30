@@ -44,11 +44,10 @@ public partial class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
                 var context = CompatibilityContext.CreateNoCollect(catalogs, cells);
 
                 var ex = Assert.Throws<InvalidOperationException>(() => propertySchema.CheckCompatibility(context));
-                logger.LogError(ex, ex.Message);
             }
         }
 
-        Assert.Single(logger.Logs);
+        Assert.Empty(logger.Logs);
     }
 
     [Theory]
@@ -85,11 +84,10 @@ public partial class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
                 var context = CompatibilityContext.CreateNoCollect(catalogs, cells);
 
                 var ex = Assert.Throws<InvalidOperationException>(() => propertySchema.CheckCompatibility(context));
-                logger.LogError(ex, ex.Message);
             }
         }
 
-        Assert.Single(logger.Logs);
+        Assert.Empty(logger.Logs);
     }
 
     private static MetadataCatalogs CreateCatalogs(string code, ILogger logger)

@@ -39,8 +39,7 @@ public class CsvMapperGeneratorNestedTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__MapNested_1_Address emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -77,8 +76,7 @@ public class CsvMapperGeneratorNestedTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__MapNested_1_Address helper count: {HelperCount}", helperMatches.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -109,8 +107,7 @@ public class CsvMapperGeneratorNestedTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("Two-level nested helpers emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -140,13 +137,12 @@ public class CsvMapperGeneratorNestedTests(ITestOutputHelper testOutputHelper)
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
-
-        logger.LogInformation("__MapNested_1_ContactInfo emitted, compilation errors: {ErrorCount}", errors.Count);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<CsvMapperGeneratorNestedTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CsvMapperGeneratorNestedTests>()
             is not TestOutputLogger<CsvMapperGeneratorNestedTests> logger)
         {

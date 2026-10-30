@@ -30,34 +30,37 @@ public class XunitTestLoggerLogsAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(AnalyzeSyntaxNode, SyntaxKind.MethodDeclaration);
     }
 
-    private void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
+    private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
     {
         var methodDeclaration = (MethodDeclarationSyntax)context.Node;
-
-        var hasFactOrTheoryAttribute = methodDeclaration.AttributeLists
-            .SelectMany(a => a.Attributes)
-            .Any(a => a.Name.ToString() == "Fact" || a.Name.ToString() == "Theory");
-        if (!hasFactOrTheoryAttribute)
+        if (!TestLoggerSyntax.IsTestMethod(methodDeclaration))
         {
             return;
         }
 
-        var loggerVariable = methodDeclaration.DescendantNodes()
-            .OfType<DeclarationPatternSyntax>()
-            .FirstOrDefault(v => v.Type.ToString().StartsWith("TestOutputLogger", StringComparison.Ordinal));
-        if (loggerVariable is null)
+        var loggerPattern = TestLoggerSyntax.FindLoggerPattern(methodDeclaration, context.SemanticModel, out _);
+        if (loggerPattern is null || loggerPattern.Designation is not SingleVariableDesignationSyntax designation)
         {
             return;
         }
 
-        var logsUsage = methodDeclaration.DescendantNodes()
-            .OfType<InvocationExpressionSyntax>()
-            .Any(invocation => invocation.ArgumentList.Arguments.Any(x => x.ToString().Contains(".Logs")));
-
-        if (!logsUsage)
+        var loggerSymbol = context.SemanticModel.GetDeclaredSymbol(designation, context.CancellationToken);
+        if (loggerSymbol is null)
         {
-            var diagnostic = Diagnostic.Create(Rule, loggerVariable.GetLocation(), loggerVariable.Type.ToString());
-            context.ReportDiagnostic(diagnostic);
+            return;
         }
+
+        var usesLogs = methodDeclaration.DescendantNodes()
+            .OfType<MemberAccessExpressionSyntax>()
+            .Where(access => access.Name.Identifier.ValueText == "Logs")
+            .Select(access => context.SemanticModel.GetSymbolInfo(access.Expression, context.CancellationToken).Symbol)
+            .Any(symbol => SymbolEqualityComparer.Default.Equals(symbol, loggerSymbol));
+        if (usesLogs)
+        {
+            return;
+        }
+
+        var diagnostic = Diagnostic.Create(Rule, loggerPattern.GetLocation());
+        context.ReportDiagnostic(diagnostic);
     }
 }

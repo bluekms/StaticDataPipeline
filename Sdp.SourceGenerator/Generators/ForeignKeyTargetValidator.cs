@@ -100,7 +100,8 @@ internal static class ForeignKeyTargetValidator
             return;
         }
 
-        var fkType = TypeClassifier.UnwrapNullable(param.Type);
+        var fkValueType = FkTargetResolver.ResolveFkValueType(param.Type);
+        var fkType = TypeClassifier.UnwrapNullable(fkValueType);
         var targetType = TypeClassifier.UnwrapNullable(targetParam.Type);
         var targetCollection = TypeClassifier.ClassifyCollection(targetType);
         if (targetCollection is not null)
@@ -133,13 +134,13 @@ internal static class ForeignKeyTargetValidator
         // int?, int 통과
         // int? int? 통과
         // int, int? SDP0211 : 타깃 값이 Fk 타입보다 표현력이 넓음
-        if (!TypeClassifier.IsNullable(param.Type) && TypeClassifier.IsNullable(targetParam.Type))
+        if (!TypeClassifier.IsNullable(fkValueType) && TypeClassifier.IsNullable(targetParam.Type))
         {
             diagnostics.Add(Diagnostic.Create(
                 SdpDiagnostics.ForeignKeyColumnTypeMismatch,
                 ParameterLocation(param),
                 param.Name,
-                param.Type.ToDisplayString(),
+                fkValueType.ToDisplayString(),
                 columnName,
                 targetRecord.Name,
                 targetParam.Type.ToDisplayString()));

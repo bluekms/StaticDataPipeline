@@ -22,6 +22,10 @@ internal class Program
     private static int HandleParseError(IEnumerable<Error> errors)
     {
         var errorList = errors.ToList();
+        if (errorList.All(error => error is HelpRequestedError or HelpVerbRequestedError or VersionRequestedError))
+        {
+            return 0;
+        }
 
         Console.WriteLine(string.Format(
             CultureInfo.CurrentCulture,

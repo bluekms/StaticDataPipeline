@@ -16,25 +16,29 @@ public sealed class CompatibilityContext
         MetadataCatalogs metadataCatalogs,
         IReadOnlyList<CellData> cells,
         CollectMode collectMode,
-        int startPosition = 0)
+        int startPosition = 0,
+        string pathPrefix = "")
     {
         MetadataCatalogs = metadataCatalogs;
         Cells = cells;
         this.collectMode = collectMode;
         Position = startPosition;
+        PathPrefix = pathPrefix;
     }
 
     public static CompatibilityContext CreateNoCollect(
         MetadataCatalogs metadataCatalogs,
         IReadOnlyList<CellData> cells,
-        int startPosition = 0)
-        => new(metadataCatalogs, cells, CollectMode.None, startPosition);
+        int startPosition = 0,
+        string pathPrefix = "")
+        => new(metadataCatalogs, cells, CollectMode.None, startPosition, pathPrefix);
 
     public static CompatibilityContext CreateCollectKey(
         MetadataCatalogs metadataCatalogs,
         IReadOnlyList<CellData> cells,
-        int startPosition = 0)
-        => new(metadataCatalogs, cells, CollectMode.KeyOnly, startPosition);
+        int startPosition = 0,
+        string pathPrefix = "")
+        => new(metadataCatalogs, cells, CollectMode.KeyOnly, startPosition, pathPrefix);
 
     public MetadataCatalogs MetadataCatalogs { get; }
     public EnumMemberCatalog EnumMemberCatalog => MetadataCatalogs.EnumMemberCatalog;
@@ -44,12 +48,34 @@ public sealed class CompatibilityContext
 
     public int Position { get; private set; }
 
+    public string PathPrefix { get; private set; }
+
+    public string EnterPath(string segment)
+    {
+        var previous = PathPrefix;
+        PathPrefix = previous + segment;
+
+        return previous;
+    }
+
+    public void RestorePath(string previous)
+    {
+        PathPrefix = previous;
+    }
+
     private readonly CollectMode collectMode;
     private readonly List<object?> duplicateCandidates = new();
     private readonly List<object?> keyScopeComponents = new();
     private bool isKeyScope;
 
     public CellData Current => Cells[Position];
+
+    public string? PeekHeader(int offset = 0)
+    {
+        var index = Position + offset;
+
+        return index < Cells.Count ? Cells[index].Header : null;
+    }
 
     public CellData Consume()
     {
@@ -106,7 +132,7 @@ public sealed class CompatibilityContext
     public void ConsumeNull()
     {
         Position++;
-        duplicateCandidates.Add(null);
+        Collect(null);
     }
 
     public void Skip(int count = 1)

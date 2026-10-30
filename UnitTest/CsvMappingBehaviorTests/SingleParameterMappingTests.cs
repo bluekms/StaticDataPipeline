@@ -22,7 +22,7 @@ public partial class SingleParameterMappingTests(ITestOutputHelper testOutputHel
         var record = Assert.Single(CsvLoader.Parse(csv, EntityRecord.MapFromCsvRow));
         Assert.Equal(42, record.Id.Value);
         Assert.Equal("Test Entity", record.Name);
-        logger.LogInformation("Entity mapped: Id={Id}, Name={Name}", record.Id.Value, record.Name);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record UserId(long Value);
@@ -42,11 +42,7 @@ public partial class SingleParameterMappingTests(ITestOutputHelper testOutputHel
         Assert.Equal(1001L, record.UserId.Value);
         Assert.Equal(500, record.ProductId.Value);
         Assert.Equal(3, record.Quantity);
-        logger.LogInformation(
-            "Order mapped: UserId={UserId}, ProductId={ProductId}, Quantity={Quantity}",
-            record.UserId.Value,
-            record.ProductId.Value,
-            record.Quantity);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record DecimalId(decimal Value);
@@ -63,7 +59,7 @@ public partial class SingleParameterMappingTests(ITestOutputHelper testOutputHel
         var record = Assert.Single(CsvLoader.Parse(csv, PriceRecord.MapFromCsvRow));
         Assert.Equal(123.456m, record.Id.Value);
         Assert.Equal(999.99m, record.Amount);
-        logger.LogInformation("Price mapped: Id={Id}, Amount={Amount}", record.Id.Value, record.Amount);
+        Assert.Empty(logger.Logs);
     }
 
     public enum Grade
@@ -86,7 +82,7 @@ public partial class SingleParameterMappingTests(ITestOutputHelper testOutputHel
         var csv = "Id,Grade\n1,Gold";
         var record = Assert.Single(CsvLoader.Parse(csv, GradedRecord.MapFromCsvRow));
         Assert.Equal(Grade.Gold, record.Grade.Value);
-        logger.LogInformation("Enum branding mapped: Grade={Grade}", record.Grade.Value);
+        Assert.Empty(logger.Logs);
     }
 
     public sealed record MultiParamRecord(int X, int Y);
@@ -104,7 +100,7 @@ public partial class SingleParameterMappingTests(ITestOutputHelper testOutputHel
         Assert.Equal(10, record.Point.X);
         Assert.Equal(20, record.Point.Y);
         Assert.Equal("Origin", record.Label);
-        logger.LogInformation("Container mapped: Point={Point}, Label={Label}", record.Point, record.Label);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -116,12 +112,12 @@ public partial class SingleParameterMappingTests(ITestOutputHelper testOutputHel
         var record = Assert.Single(CsvLoader.Parse(csv, EntityRecord.MapFromCsvRow));
         Assert.Equal(99, record.Id.Value);
         Assert.Equal("Legacy Entity", record.Name);
-        logger.LogInformation("Legacy header mapped: Id={Id}, Name={Name}", record.Id.Value, record.Name);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<SingleParameterMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<SingleParameterMappingTests>()
             is not TestOutputLogger<SingleParameterMappingTests> logger)
         {

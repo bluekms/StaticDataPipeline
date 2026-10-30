@@ -18,8 +18,8 @@
   <data name="RecordNameNotFound" xml:space="preserve">
     <value>RecordName {0}을(를) 찾을 수 없습니다.</value>
   </data>
-  <data name="NoRecordsFound" xml:space="preserve">
-    <value>레코드를 찾을 수 없습니다.</value>
+  <data name="RecordNameAmbiguous" xml:space="preserve">
+    <value>RecordName {0}에 해당하는 record 가 여러 개입니다: {1}. 전체 이름을 사용하세요.</value>
   </data>
   <data name="ParseErrorCount" xml:space="preserve">
     <value>파싱 오류: {0}개</value>

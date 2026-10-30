@@ -80,10 +80,9 @@ public partial class RangeAttributeKeyEnumTests(ITestOutputHelper testOutputHelp
             foreach (var propertySchema in recordSchema.PropertySchemata)
             {
                 var ex = Assert.Throws<ArgumentOutOfRangeException>(() => propertySchema.CheckCompatibility(context));
-                logger.LogError(ex, ex.Message);
             }
         }
 
-        Assert.Single(logger.Logs);
+        Assert.Empty(logger.Logs);
     }
 }

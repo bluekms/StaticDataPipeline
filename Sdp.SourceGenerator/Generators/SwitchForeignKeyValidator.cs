@@ -1,4 +1,3 @@
-using System.Globalization;
 using Microsoft.CodeAnalysis;
 
 namespace Sdp.SourceGenerator.Generators;
@@ -67,13 +66,14 @@ internal static class SwitchForeignKeyValidator
             return;
         }
 
-        var conditionProperty = recordType.GetMembers(conditionColumn).OfType<IPropertySymbol>().FirstOrDefault();
+        var conditionProperty = SwitchForeignKeyConditionLiteralBuilder.FindConditionParameter(recordType, conditionColumn);
         if (conditionProperty is null)
         {
             return;
         }
 
         var conditionType = TypeClassifier.UnwrapNullable(conditionProperty.Type);
+        SwitchForeignKeyConditionLiteralBuilder.ReadFormats(recordType, conditionColumn, out var dateTimeFormat, out var timeSpanFormat);
         var seenValues = new HashSet<string>(StringComparer.Ordinal);
         var firstValueByNormalized = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var attr in switchFkAttrs)
@@ -85,11 +85,13 @@ internal static class SwitchForeignKeyValidator
             }
 
             // 파싱 불가한 값은 조건값 유효성 진단(SDP0212 등)이 담당한다.
-            var normalized = TryNormalizeConditionValue(conditionType, conditionValue, out var normalizedValue);
-            if (!normalized)
+            var literal = SwitchForeignKeyConditionLiteralBuilder.TryBuild(conditionType, conditionValue, dateTimeFormat, timeSpanFormat);
+            if (literal is null)
             {
                 continue;
             }
+
+            var normalizedValue = literal.Normalized;
 
             // 표기까지 동일한 중복은 SDP0208이 담당한다.
             var isNewValue = seenValues.Add(conditionValue);
@@ -137,7 +139,7 @@ internal static class SwitchForeignKeyValidator
                 continue;
             }
 
-            var conditionProperty = recordType.GetMembers(conditionColumn).OfType<IPropertySymbol>().FirstOrDefault();
+            var conditionProperty = SwitchForeignKeyConditionLiteralBuilder.FindConditionParameter(recordType, conditionColumn);
             if (conditionProperty is not null)
             {
                 continue;
@@ -181,166 +183,6 @@ internal static class SwitchForeignKeyValidator
             param.Name));
 
         return false;
-    }
-
-    private static bool TryNormalizeConditionValue(
-        ITypeSymbol conditionType,
-        string conditionValue,
-        out string normalizedValue)
-    {
-        normalizedValue = conditionValue;
-
-        if (conditionType.TypeKind == TypeKind.Enum && conditionType is INamedTypeSymbol enumType)
-        {
-            return TryNormalizeEnumConditionValue(enumType, conditionValue, out normalizedValue);
-        }
-
-        switch (conditionType.SpecialType)
-        {
-            case SpecialType.System_Boolean:
-            {
-                var parsedBool = bool.TryParse(conditionValue, out var boolValue);
-                if (!parsedBool)
-                {
-                    return false;
-                }
-
-                normalizedValue = boolValue ? "true" : "false";
-
-                return true;
-            }
-
-            case SpecialType.System_Byte:
-            case SpecialType.System_SByte:
-            case SpecialType.System_Int16:
-            case SpecialType.System_UInt16:
-            case SpecialType.System_Int32:
-            case SpecialType.System_UInt32:
-            case SpecialType.System_Int64:
-            {
-                var parsedSigned = long.TryParse(
-                    conditionValue,
-                    NumberStyles.Integer,
-                    CultureInfo.InvariantCulture,
-                    out var signed);
-                if (!parsedSigned)
-                {
-                    return false;
-                }
-
-                if (!SwitchForeignKeyConditionValueValidator.FitsInIntegralType(conditionType.SpecialType, signed))
-                {
-                    return false;
-                }
-
-                normalizedValue = signed.ToString(CultureInfo.InvariantCulture);
-
-                return true;
-            }
-
-            case SpecialType.System_UInt64:
-            {
-                var parsedUnsigned = ulong.TryParse(
-                    conditionValue,
-                    NumberStyles.Integer,
-                    CultureInfo.InvariantCulture,
-                    out var unsigned);
-                if (!parsedUnsigned)
-                {
-                    return false;
-                }
-
-                normalizedValue = unsigned.ToString(CultureInfo.InvariantCulture);
-
-                return true;
-            }
-        }
-
-        if (TypeClassifier.ClassifyScalar(conditionType) == ScalarKind.Guid)
-        {
-            var parsedGuid = Guid.TryParse(conditionValue, out var guid);
-            if (!parsedGuid)
-            {
-                return false;
-            }
-
-            normalizedValue = guid.ToString("D", CultureInfo.InvariantCulture);
-
-            return true;
-        }
-
-        // string·char 등 나머지 타입은 표기가 곧 값이라 그대로 비교한다.
-        return true;
-    }
-
-    private static bool TryNormalizeEnumConditionValue(
-        INamedTypeSymbol enumType,
-        string conditionValue,
-        out string normalizedValue)
-    {
-        normalizedValue = string.Empty;
-
-        if (SwitchForeignKeyConditionValueValidator.HasFlagsAttribute(enumType))
-        {
-            return SwitchForeignKeyConditionValueValidator.TryParseFlagsConditionValue(
-                enumType, conditionValue, out normalizedValue);
-        }
-
-        var underlyingSpecialType = enumType.EnumUnderlyingType!.SpecialType;
-        foreach (var member in enumType.GetMembers().OfType<IFieldSymbol>())
-        {
-            if (member.IsConst && string.Equals(member.Name, conditionValue, StringComparison.Ordinal))
-            {
-                if (underlyingSpecialType == SpecialType.System_UInt64)
-                {
-                    var unsignedMemberValue = Convert.ToUInt64(member.ConstantValue, CultureInfo.InvariantCulture);
-                    normalizedValue = unsignedMemberValue.ToString(CultureInfo.InvariantCulture);
-                }
-                else
-                {
-                    var signedMemberValue = Convert.ToInt64(member.ConstantValue, CultureInfo.InvariantCulture);
-                    normalizedValue = signedMemberValue.ToString(CultureInfo.InvariantCulture);
-                }
-
-                return true;
-            }
-        }
-
-        if (underlyingSpecialType == SpecialType.System_UInt64)
-        {
-            var parsedUnsigned = ulong.TryParse(
-                conditionValue,
-                NumberStyles.Integer,
-                CultureInfo.InvariantCulture,
-                out var unsigned);
-            if (!parsedUnsigned)
-            {
-                return false;
-            }
-
-            normalizedValue = unsigned.ToString(CultureInfo.InvariantCulture);
-
-            return true;
-        }
-
-        var parsedSigned = long.TryParse(
-            conditionValue,
-            NumberStyles.Integer,
-            CultureInfo.InvariantCulture,
-            out var signed);
-        if (!parsedSigned)
-        {
-            return false;
-        }
-
-        if (!SwitchForeignKeyConditionValueValidator.FitsInIntegralType(underlyingSpecialType, signed))
-        {
-            return false;
-        }
-
-        normalizedValue = signed.ToString(CultureInfo.InvariantCulture);
-
-        return true;
     }
 
     private static bool TryGetConditionColumn(AttributeData attr, out string conditionColumn)

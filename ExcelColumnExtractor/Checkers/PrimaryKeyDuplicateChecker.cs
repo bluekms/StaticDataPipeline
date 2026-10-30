@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text;
 using ExcelColumnExtractor.Aggregator;
 using ExcelColumnExtractor.Exceptions;
 using ExcelColumnExtractor.Mappings;
@@ -15,7 +14,7 @@ public static class PrimaryKeyDuplicateChecker
 {
     public static void Check(ExtractedTableMap extractedTableMap, ILogger<Program> logger)
     {
-        var sb = new StringBuilder();
+        var failures = new List<ExtractionException.Failure>();
 
         foreach (var (recordSchema, table) in extractedTableMap.SortedTables)
         {
@@ -25,14 +24,14 @@ public static class PrimaryKeyDuplicateChecker
             }
             catch (Exception e)
             {
-                sb.AppendLine(CultureInfo.InvariantCulture, $"{recordSchema}: {e.Message}");
+                failures.Add(new(recordSchema, e));
                 LogError(logger, recordSchema, e.Message, e);
             }
         }
 
-        if (sb.Length > 0)
+        if (failures.Count > 0)
         {
-            throw new DataBodyCheckerException(sb.ToString());
+            throw new ExtractionException(failures);
         }
     }
 
@@ -47,8 +46,8 @@ public static class PrimaryKeyDuplicateChecker
         }
 
         var columnName = ResolveColumnName(keyProperty);
-        var columnIndex = FindHeaderIndex(table.Headers, columnName);
-        if (columnIndex < 0)
+        var columnIndexes = FindKeyHeaderIndexes(table.Headers, columnName);
+        if (columnIndexes.Count == 0)
         {
             throw new InvalidOperationException(string.Format(
                 CultureInfo.CurrentCulture,
@@ -57,17 +56,17 @@ public static class PrimaryKeyDuplicateChecker
         }
 
         var duplicates = new List<string>();
-        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var seen = new HashSet<IReadOnlyList<string>>(KeyValueComparer.Instance);
         foreach (var row in table.Rows)
         {
-            var value = row.Data[columnIndex].Value;
-            if (!seen.Add(value))
+            var keyValues = columnIndexes.Select(i => row.Data[i].Value).ToList();
+            if (!seen.Add(keyValues))
             {
                 duplicates.Add(string.Format(
                     CultureInfo.CurrentCulture,
                     Messages.Composite.PrimaryKeyDuplicateFound,
                     columnName,
-                    value));
+                    FormatKeyValue(keyValues)));
             }
         }
 
@@ -87,28 +86,56 @@ public static class PrimaryKeyDuplicateChecker
         return keyProperty.PropertyName.Name;
     }
 
-    private static int FindHeaderIndex(IReadOnlyList<string> headers, string name)
+    private static List<int> FindKeyHeaderIndexes(IReadOnlyList<string> headers, string name)
     {
-        var index = IndexOf(headers, name);
-        if (index >= 0)
-        {
-            return index;
-        }
-
-        return IndexOf(headers, FormattableString.Invariant($"{name}.Value"));
-    }
-
-    private static int IndexOf(IReadOnlyList<string> headers, string name)
-    {
+        var prefix = name + ".";
+        var indexes = new List<int>();
         for (var i = 0; i < headers.Count; i++)
         {
-            if (string.Equals(headers[i], name, StringComparison.Ordinal))
+            var header = headers[i];
+            if (string.Equals(header, name, StringComparison.Ordinal) || header.StartsWith(prefix, StringComparison.Ordinal))
             {
-                return i;
+                indexes.Add(i);
             }
         }
 
-        return -1;
+        return indexes;
+    }
+
+    private static string FormatKeyValue(List<string> keyValues)
+    {
+        if (keyValues.Count == 1)
+        {
+            return keyValues[0];
+        }
+
+        return "(" + string.Join(", ", keyValues) + ")";
+    }
+
+    private sealed class KeyValueComparer : IEqualityComparer<IReadOnlyList<string>>
+    {
+        public static readonly KeyValueComparer Instance = new();
+
+        public bool Equals(IReadOnlyList<string>? x, IReadOnlyList<string>? y)
+        {
+            if (x is null || y is null)
+            {
+                return x is null && y is null;
+            }
+
+            return x.SequenceEqual(y, StringComparer.Ordinal);
+        }
+
+        public int GetHashCode(IReadOnlyList<string> obj)
+        {
+            var hash = default(HashCode);
+            foreach (var value in obj)
+            {
+                hash.Add(value, StringComparer.Ordinal);
+            }
+
+            return hash.ToHashCode();
+        }
     }
 
     private static readonly Action<ILogger, RecordSchema, string, Exception?> LogError =

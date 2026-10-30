@@ -21,13 +21,7 @@ public class GenerateAllHeaderHandler
         LogInformation(logger, Messages.GeneratingHeaderFile, null);
 
         var catalogs = RecordScanner.Scan(options.RecordCsPath, logger);
-        if (catalogs.RecordSchemaCatalog.StaticDataRecordSchemata.Count == 0)
-        {
-            var exception = new ArgumentException(Messages.NoRecordsFound);
-            LogError(logger, exception.Message, exception);
-            throw exception;
-        }
-
+        var separator = GenerateHeaderHandler.ResolveSeparator(options.Separator);
         var sb = new StringBuilder();
         sb.AppendLine("# StaticDataHeaderGenerator Results");
         sb.AppendLine();
@@ -39,7 +33,7 @@ public class GenerateAllHeaderHandler
                 catalogs.RecordSchemaCatalog,
                 logger);
 
-            HeaderSeparatorValidator.Validate(targetRecordSchema.RecordName.FullName, headers, options.Separator);
+            HeaderSeparatorValidator.Validate(targetRecordSchema.RecordName.FullName, headers, separator);
 
             var excelFileName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(0);
             var sheetName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(1);
@@ -57,9 +51,9 @@ public class GenerateAllHeaderHandler
 
             sb.AppendLine();
 
-            sb.AppendLine(HeaderSectionTitle.Resolve(options.Separator));
+            sb.AppendLine(HeaderSectionTitle.Resolve(separator));
             sb.AppendLine("```");
-            sb.AppendLine(string.Join(options.Separator, headers));
+            sb.AppendLine(string.Join(separator, headers));
             sb.AppendLine("```");
             sb.AppendLine();
 
@@ -70,11 +64,13 @@ public class GenerateAllHeaderHandler
             LogInformation(logger, msg, null);
         }
 
-        if (!string.IsNullOrEmpty(options.OutputFileName))
+        if (string.IsNullOrEmpty(options.OutputFileName))
         {
-            var outputFileName = string.IsNullOrEmpty(Path.GetExtension(options.OutputFileName))
-                ? FormattableString.Invariant($"{options.OutputFileName}.md")
-                : options.OutputFileName;
+            LogInformation(logger, FormattableString.Invariant($"\n{sb}\n"), null);
+        }
+        else
+        {
+            var outputFileName = GenerateHeaderHandler.ResolveOutputFileName(options.OutputFileName);
 
             var directoryName = Path.GetDirectoryName(outputFileName);
             if (!string.IsNullOrEmpty(directoryName) && !Directory.Exists(directoryName))
@@ -103,13 +99,7 @@ public class GenerateAllHeaderHandler
         LogInformation(logger, Messages.GeneratingHeaderFile, null);
 
         var catalogs = await RecordScanner.ScanAsync(options.RecordCsPath, logger, cancellationToken);
-        if (catalogs.RecordSchemaCatalog.StaticDataRecordSchemata.Count == 0)
-        {
-            var exception = new ArgumentException(Messages.NoRecordsFound);
-            LogError(logger, exception.Message, exception);
-            throw exception;
-        }
-
+        var separator = GenerateHeaderHandler.ResolveSeparator(options.Separator);
         var sb = new StringBuilder();
         sb.AppendLine("# StaticDataHeaderGenerator Results");
         sb.AppendLine();
@@ -121,7 +111,7 @@ public class GenerateAllHeaderHandler
                 catalogs.RecordSchemaCatalog,
                 logger);
 
-            HeaderSeparatorValidator.Validate(targetRecordSchema.RecordName.FullName, headers, options.Separator);
+            HeaderSeparatorValidator.Validate(targetRecordSchema.RecordName.FullName, headers, separator);
 
             var excelFileName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(0);
             var sheetName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(1);
@@ -139,9 +129,9 @@ public class GenerateAllHeaderHandler
 
             sb.AppendLine();
 
-            sb.AppendLine(HeaderSectionTitle.Resolve(options.Separator));
+            sb.AppendLine(HeaderSectionTitle.Resolve(separator));
             sb.AppendLine("```");
-            sb.AppendLine(string.Join(options.Separator, headers));
+            sb.AppendLine(string.Join(separator, headers));
             sb.AppendLine("```");
             sb.AppendLine();
 
@@ -152,11 +142,13 @@ public class GenerateAllHeaderHandler
             LogInformation(logger, msg, null);
         }
 
-        if (!string.IsNullOrEmpty(options.OutputFileName))
+        if (string.IsNullOrEmpty(options.OutputFileName))
         {
-            var outputFileName = string.IsNullOrEmpty(Path.GetExtension(options.OutputFileName))
-                ? FormattableString.Invariant($"{options.OutputFileName}.md")
-                : options.OutputFileName;
+            LogInformation(logger, FormattableString.Invariant($"\n{sb}\n"), null);
+        }
+        else
+        {
+            var outputFileName = GenerateHeaderHandler.ResolveOutputFileName(options.OutputFileName);
 
             var directoryName = Path.GetDirectoryName(outputFileName);
             if (!string.IsNullOrEmpty(directoryName) && !Directory.Exists(directoryName))
@@ -176,12 +168,6 @@ public class GenerateAllHeaderHandler
         return 0;
     }
 
-    private static readonly Action<ILogger, string, Exception?> LogTrace =
-        LoggerMessage.Define<string>(LogLevel.Trace, new EventId(0, nameof(LogTrace)), "{Message}");
-
     private static readonly Action<ILogger, string, Exception?> LogInformation =
         LoggerMessage.Define<string>(LogLevel.Information, new EventId(0, nameof(LogInformation)), "{Message}");
-
-    private static readonly Action<ILogger, string, Exception?> LogError =
-        LoggerMessage.Define<string>(LogLevel.Error, new EventId(0, nameof(LogError)), "{Message}");
 }

@@ -24,7 +24,7 @@ public partial class DateTimeFormatMappingTests(ITestOutputHelper testOutputHelp
         var csv = "Id,Date\n1,2026-05-19";
         var record = Assert.Single(CsvLoader.Parse(csv, DateTimeRecord.MapFromCsvRow));
         Assert.Equal(new DateTime(2026, 5, 19), record.Date);
-        logger.LogInformation("ISO format DateTime mapped to {Date}", record.Date);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("DateTime", "Us")]
@@ -40,7 +40,7 @@ public partial class DateTimeFormatMappingTests(ITestOutputHelper testOutputHelp
         var csv = "Id,Date\n1,05/19/2026";
         var record = Assert.Single(CsvLoader.Parse(csv, DateTimeUsFormatRecord.MapFromCsvRow));
         Assert.Equal(new DateTime(2026, 5, 19), record.Date);
-        logger.LogInformation("US format DateTime mapped to {Date}", record.Date);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public partial class DateTimeFormatMappingTests(ITestOutputHelper testOutputHelp
         var csv = "Id,Date\n1,2026-05-19";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, DateTimeUsFormatRecord.MapFromCsvRow));
         Assert.IsType<FormatException>(ex.InnerException);
-        logger.LogInformation("DateTime format mismatch threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("DateTime", "NullableDate")]
@@ -67,7 +67,7 @@ public partial class DateTimeFormatMappingTests(ITestOutputHelper testOutputHelp
         var csv = "Id,Date\n1,NULL";
         var record = Assert.Single(CsvLoader.Parse(csv, NullableDateTimeRecord.MapFromCsvRow));
         Assert.Null(record.Date);
-        logger.LogInformation("Nullable DateTime mapped to null for null string cell");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public partial class DateTimeFormatMappingTests(ITestOutputHelper testOutputHelp
         var csv = "Id,Date\n1,2026-05-19";
         var record = Assert.Single(CsvLoader.Parse(csv, NullableDateTimeRecord.MapFromCsvRow));
         Assert.Equal(new DateTime(2026, 5, 19), record.Date);
-        logger.LogInformation("Nullable DateTime mapped to {Date}", record.Date);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("DateTime", "TimeSpan")]
@@ -94,7 +94,7 @@ public partial class DateTimeFormatMappingTests(ITestOutputHelper testOutputHelp
         var csv = "Id,Cooldown\n1,01:30:00";
         var record = Assert.Single(CsvLoader.Parse(csv, TimeSpanRecord.MapFromCsvRow));
         Assert.Equal(TimeSpan.FromMinutes(90), record.Cooldown);
-        logger.LogInformation("TimeSpan mapped to {Cooldown}", record.Cooldown);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -105,7 +105,7 @@ public partial class DateTimeFormatMappingTests(ITestOutputHelper testOutputHelp
         var csv = "Id,Cooldown\n1,90m";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, TimeSpanRecord.MapFromCsvRow));
         Assert.IsType<FormatException>(ex.InnerException);
-        logger.LogInformation("TimeSpan format mismatch threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("DateTime", "NullableTimeSpan")]
@@ -121,7 +121,7 @@ public partial class DateTimeFormatMappingTests(ITestOutputHelper testOutputHelp
         var csv = "Id,Cooldown\n1,-";
         var record = Assert.Single(CsvLoader.Parse(csv, NullableTimeSpanRecord.MapFromCsvRow));
         Assert.Null(record.Cooldown);
-        logger.LogInformation("Nullable TimeSpan mapped to null for null string cell");
+        Assert.Empty(logger.Logs);
     }
 
     // 포맷 속성이 없는 DateTime/TimeSpan 은 이제 컴파일타임에 SDP0004(Error)로 차단되므로
@@ -140,7 +140,7 @@ public partial class DateTimeFormatMappingTests(ITestOutputHelper testOutputHelp
         var record = Assert.Single(CsvLoader.Parse(csv, DateTimeArrayRecord.MapFromCsvRow));
         Assert.Equal(new DateTime(2026, 5, 1), record.Period[0]);
         Assert.Equal(new DateTime(2026, 5, 31), record.Period[1]);
-        logger.LogInformation("Period mapped: [{P0}, {P1}]", record.Period[0], record.Period[1]);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("DateTime", "SpanArray")]
@@ -157,7 +157,7 @@ public partial class DateTimeFormatMappingTests(ITestOutputHelper testOutputHelp
         var record = Assert.Single(CsvLoader.Parse(csv, TimeSpanArrayRecord.MapFromCsvRow));
         Assert.Equal(TimeSpan.FromSeconds(30), record.Cooldowns[0]);
         Assert.Equal(TimeSpan.FromHours(1), record.Cooldowns[1]);
-        logger.LogInformation("Cooldowns mapped: [{C0}, {C1}]", record.Cooldowns[0], record.Cooldowns[1]);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("DateTime", "SingleColDate")]
@@ -175,10 +175,7 @@ public partial class DateTimeFormatMappingTests(ITestOutputHelper testOutputHelp
         Assert.Equal(3, record.Dates.Length);
         Assert.Equal(new DateTime(2026, 5, 1), record.Dates[0]);
         Assert.Equal(new DateTime(2026, 5, 3), record.Dates[2]);
-        logger.LogInformation(
-            "Dates mapped with {Count} elements, first={First}",
-            record.Dates.Length,
-            record.Dates[0]);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("DateTime", "DateSet")]
@@ -196,7 +193,7 @@ public partial class DateTimeFormatMappingTests(ITestOutputHelper testOutputHelp
         Assert.Equal(2, record.Dates.Count);
         Assert.Contains(new DateTime(2026, 5, 1), (IEnumerable<DateTime>)record.Dates);
         Assert.Contains(new DateTime(2026, 5, 2), (IEnumerable<DateTime>)record.Dates);
-        logger.LogInformation("Date set mapped with {Count} elements", record.Dates.Count);
+        Assert.Empty(logger.Logs);
     }
 
     [Theory]
@@ -214,19 +211,19 @@ public partial class DateTimeFormatMappingTests(ITestOutputHelper testOutputHelp
         {
             var parsed = DateTime.ParseExact(input, format, CultureInfo.InvariantCulture);
             Assert.Equal(new DateTime(2026, 5, 19, 9, 30, 0), parsed);
-            logger.LogInformation("format '{Format}' parsed '{Input}' to {Parsed}", format, input, parsed);
         }
         else
         {
             var ex = Assert.Throws<FormatException>(
                 () => DateTime.ParseExact(input, format, CultureInfo.InvariantCulture));
-            logger.LogInformation("format '{Format}' on '{Input}' threw: {Message}", format, input, ex.Message);
         }
+
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<DateTimeFormatMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<DateTimeFormatMappingTests>()
             is not TestOutputLogger<DateTimeFormatMappingTests> logger)
         {

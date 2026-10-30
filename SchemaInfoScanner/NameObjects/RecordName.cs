@@ -1,6 +1,4 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.Resources;
 
 namespace SchemaInfoScanner.NameObjects;
@@ -14,12 +12,6 @@ public class RecordName : IEquatable<RecordName>
         string.IsNullOrEmpty(Namespace)
             ? Name
             : $"{Namespace}.{Name}";
-
-    public RecordName(RecordDeclarationSyntax recordDeclarationSyntax)
-    {
-        Namespace = recordDeclarationSyntax.GetNamespace();
-        Name = recordDeclarationSyntax.Identifier.ValueText;
-    }
 
     public RecordName(string fullName)
     {
@@ -41,21 +33,26 @@ public class RecordName : IEquatable<RecordName>
         }
         else
         {
-            Namespace = parts[0];
+            Namespace = string.Join(".", parts[..^1]);
             Name = parts[^1];
         }
     }
 
     public RecordName(INamedTypeSymbol namedTypeSymbol)
     {
-        Namespace = GetFullNamespace(namedTypeSymbol.ContainingNamespace);
+        Namespace = GetContainingPath(namedTypeSymbol);
         Name = namedTypeSymbol.Name;
     }
 
-    private static string GetFullNamespace(INamespaceSymbol namespaceSymbol)
+    private static string GetContainingPath(INamedTypeSymbol namedTypeSymbol)
     {
         var parts = new List<string>();
-        var current = namespaceSymbol;
+        for (var type = namedTypeSymbol.ContainingType; type is not null; type = type.ContainingType)
+        {
+            parts.Add(type.Name);
+        }
+
+        var current = namedTypeSymbol.ContainingNamespace;
         while (current is not null && !current.IsGlobalNamespace)
         {
             parts.Add(current.Name);

@@ -1,6 +1,5 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.AttributeCheckers;
 using Sdp.Attributes;
@@ -10,66 +9,57 @@ namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.CollectionTypes.Nulla
 public sealed record SingleColumnNullablePrimitiveSetPropertySchema(
     PrimitiveTypeGenericArgumentSchema GenericArgumentSchema,
     INamedTypeSymbol NamedTypeSymbol,
-    IReadOnlyList<AttributeSyntax> AttributeList,
+    IReadOnlyList<AttributeInfo> AttributeList,
     string Separator)
     : PropertySchemaBase(GenericArgumentSchema.PropertyName, NamedTypeSymbol, AttributeList)
 {
     protected override void OnCheckCompatibility(CompatibilityContext context)
     {
         var cell = context.Consume();
-        var arguments = cell.Value.Split(Separator);
-
-        if (TryGetAttributeValue<LengthAttribute, int>(out var length))
-        {
-            if (arguments.Length != length)
-            {
-                throw new InvalidOperationException(string.Format(
-                    CultureInfo.CurrentCulture,
-                    Messages.Composite.SingleColumnCellCountMismatch,
-                    cell.Address,
-                    arguments.Length,
-                    PropertyName,
-                    length));
-            }
-        }
+        var parts = string.IsNullOrWhiteSpace(cell.Value) && !EmptyCellMeansNullElement()
+            ? Array.Empty<string>()
+            : cell.Value.Split(Separator);
 
         if (TryGetAttributeValue<CountRangeAttribute, int>(out var minCount) &&
             TryGetAttributeValue<CountRangeAttribute, int>(out var maxCount, 1))
         {
-            if (arguments.Length < minCount || arguments.Length > maxCount)
+            if (parts.Length < minCount || parts.Length > maxCount)
             {
                 throw new ArgumentOutOfRangeException(
                     PropertyName.FullName,
-                    arguments.Length,
+                    parts.Length,
                     string.Format(
                         CultureInfo.CurrentCulture,
                         Messages.Composite.CountOutOfRange,
                         cell.Address,
-                        arguments.Length,
+                        parts.Length,
                         PropertyName,
                         minCount,
                         maxCount));
             }
         }
 
-        foreach (var argument in arguments)
+        var nestedCells = parts
+            .Select(x => new CellData(cell.Address, x.Trim()))
+            .ToArray();
+
+        var nestedContext = CompatibilityContext.CreateCollectKey(context.MetadataCatalogs, nestedCells);
+        foreach (var nestedCell in nestedCells)
         {
-            var result = NullStringAttributeChecker.Check(this, argument);
+            var result = NullStringAttributeChecker.Check(this, nestedCell.Value);
+            nestedContext.BeginKeyScope();
             if (result.IsNull)
             {
-                context.ConsumeNull();
+                nestedContext.ConsumeNull();
             }
             else
             {
-                var nestedCells = new[] { new CellData(cell.Address, argument) };
-                var nestedContext = CompatibilityContext.CreateCollectKey(context.MetadataCatalogs, nestedCells);
-
-                nestedContext.BeginKeyScope();
                 GenericArgumentSchema.CheckCompatibility(nestedContext);
-                nestedContext.EndKeyScope();
             }
+
+            nestedContext.EndKeyScope();
         }
 
-        context.ValidateNoDuplicates();
+        nestedContext.ValidateNoDuplicates();
     }
 }

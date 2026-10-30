@@ -34,11 +34,9 @@ public partial class RecordNameTests(ITestOutputHelper testOutputHelper)
         var symbol = semanticModel.GetDeclaredSymbol(recordSyntax) as INamedTypeSymbol;
         Assert.NotNull(symbol);
 
-        var recordNameFromSyntax = new RecordName(recordSyntax);
         var recordNameFromSymbol = new RecordName(symbol);
 
-        // 두 생성자가 동일한 FullName을 반환해야 함
-        Assert.Equal(recordNameFromSyntax.FullName, recordNameFromSymbol.FullName);
+        Assert.Equal("Docs.TestRecord.SimpleRecord", recordNameFromSymbol.FullName);
         Assert.Equal("Docs.TestRecord", recordNameFromSymbol.Namespace);
         Assert.Equal("SimpleRecord", recordNameFromSymbol.Name);
     }
@@ -69,12 +67,10 @@ public partial class RecordNameTests(ITestOutputHelper testOutputHelper)
         var childSymbol = semanticModel.GetDeclaredSymbol(childRecordSyntax) as INamedTypeSymbol;
         Assert.NotNull(childSymbol);
 
-        var recordNameFromSyntax = new RecordName(childRecordSyntax);
         var recordNameFromSymbol = new RecordName(childSymbol);
 
-        // 내부 정의 nested record도 동일한 FullName을 반환해야 함
-        Assert.Equal(recordNameFromSyntax.FullName, recordNameFromSymbol.FullName);
-        Assert.Equal("Docs.TestRecord", recordNameFromSymbol.Namespace);
+        Assert.Equal("Docs.TestRecord.ParentRecord.ChildRecord", recordNameFromSymbol.FullName);
+        Assert.Equal("Docs.TestRecord.ParentRecord", recordNameFromSymbol.Namespace);
         Assert.Equal("ChildRecord", recordNameFromSymbol.Name);
     }
 

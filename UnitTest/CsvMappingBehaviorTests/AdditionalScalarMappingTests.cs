@@ -22,7 +22,7 @@ public partial class AdditionalScalarMappingTests(ITestOutputHelper testOutputHe
         var csv = $"Id,Enabled\n1,{cell}";
         var record = Assert.Single(CsvLoader.Parse(csv, BoolRecord.MapFromCsvRow));
         Assert.Equal(expected, record.Enabled);
-        logger.LogInformation("Bool cell '{Cell}' mapped to {Enabled}", cell, record.Enabled);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Scalar", "Guid")]
@@ -37,7 +37,7 @@ public partial class AdditionalScalarMappingTests(ITestOutputHelper testOutputHe
         var record = Assert.Single(CsvLoader.Parse(csv, GuidRecord.MapFromCsvRow));
         Assert.Equal(global::System.Guid.Parse("12345678-1234-1234-1234-1234567890ab"), record.Id);
         Assert.Equal("Alpha", record.Name);
-        logger.LogInformation("Guid record mapped: Id={Id}, Name={Name}", record.Id, record.Name);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Scalar", "Char")]
@@ -54,7 +54,7 @@ public partial class AdditionalScalarMappingTests(ITestOutputHelper testOutputHe
         var csv = $"Id,Grade\n1,{cell}";
         var record = Assert.Single(CsvLoader.Parse(csv, CharRecord.MapFromCsvRow));
         Assert.Equal(expected, record.Grade);
-        logger.LogInformation("Char cell '{Cell}' mapped to {Grade}", cell, record.Grade);
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public partial class AdditionalScalarMappingTests(ITestOutputHelper testOutputHe
         var csv = "Id,Grade\n1,AB";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, CharRecord.MapFromCsvRow));
         Assert.IsType<FormatException>(ex.InnerException);
-        logger.LogInformation("Multi-character char cell threw: {Message}", ex.Message);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Scalar", "Integers")]
@@ -90,14 +90,7 @@ public partial class AdditionalScalarMappingTests(ITestOutputHelper testOutputHe
         Assert.Equal((ushort)65535, record.Us);
         Assert.Equal(4000000000u, record.Ui);
         Assert.Equal(18000000000000000000ul, record.Ul);
-        logger.LogInformation(
-            "Integer record mapped: B={B}, Sb={Sb}, S={S}, Us={Us}, Ui={Ui}, Ul={Ul}",
-            record.B,
-            record.Sb,
-            record.S,
-            record.Us,
-            record.Ui,
-            record.Ul);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("Scalar", "Offset")]
@@ -116,12 +109,12 @@ public partial class AdditionalScalarMappingTests(ITestOutputHelper testOutputHe
         Assert.Equal(
             new global::System.DateTimeOffset(2026, 5, 19, 13, 30, 0, global::System.TimeSpan.FromHours(9)),
             record.Timestamp);
-        logger.LogInformation("DateTimeOffset mapped to {Timestamp}", record.Timestamp);
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<AdditionalScalarMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<AdditionalScalarMappingTests>()
             is not TestOutputLogger<AdditionalScalarMappingTests> logger)
         {

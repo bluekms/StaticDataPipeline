@@ -23,10 +23,7 @@ public class CsvMapperGeneratorPartialTests(ITestOutputHelper testOutputHelper)
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.Contains(diagnostics, d => d.Id == "SDP0001");
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -47,10 +44,7 @@ public class CsvMapperGeneratorPartialTests(ITestOutputHelper testOutputHelper)
         var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0001");
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0002");
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -73,10 +67,7 @@ public class CsvMapperGeneratorPartialTests(ITestOutputHelper testOutputHelper)
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.Contains(diagnostics, d => d.Id == "SDP0002");
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -99,15 +90,12 @@ public class CsvMapperGeneratorPartialTests(ITestOutputHelper testOutputHelper)
         var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.Contains(diagnostics, d => d.Id == "SDP0001");
         Assert.Contains(diagnostics, d => d.Id == "SDP0016");
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<CsvMapperGeneratorPartialTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<CsvMapperGeneratorPartialTests>()
             is not TestOutputLogger<CsvMapperGeneratorPartialTests> logger)
         {

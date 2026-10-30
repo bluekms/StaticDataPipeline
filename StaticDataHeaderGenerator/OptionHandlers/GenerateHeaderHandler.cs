@@ -3,7 +3,9 @@ using System.Text;
 using CLICommonLibrary;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner;
+using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Extensions;
+using SchemaInfoScanner.Schemata;
 using Sdp.Attributes;
 using StaticDataHeaderGenerator.ProgramOptions;
 using StaticDataHeaderGenerator.Resources;
@@ -22,38 +24,25 @@ public static class GenerateHeaderHandler
 
         var catalogs = RecordScanner.Scan(options.RecordCsPath, logger);
 
-        var targetRecordSchema = catalogs.RecordSchemaCatalog.StaticDataRecordSchemata
-            .SingleOrDefault(x => x.RecordName.Name == options.RecordName);
-
-        if (targetRecordSchema is null)
-        {
-            var exception = new ArgumentException(
-                string.Format(
-                    CultureInfo.CurrentCulture,
-                    Messages.Composite.RecordNameNotFound,
-                    options.RecordName));
-            LogError(logger, exception.Message, exception);
-            throw exception;
-        }
+        var targetRecordSchema = FindRecord(catalogs.RecordSchemaCatalog, options.RecordName, logger);
 
         var headers = RecordFlattener.Flatten(
             targetRecordSchema,
             catalogs.RecordSchemaCatalog,
             logger);
 
-        HeaderSeparatorValidator.Validate(targetRecordSchema.RecordName.FullName, headers, options.Separator);
+        var separator = ResolveSeparator(options.Separator);
+        HeaderSeparatorValidator.Validate(targetRecordSchema.RecordName.FullName, headers, separator);
 
         var excelFileName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(0);
         var sheetName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(1);
 
-        var output = BuildMarkdownOutput(targetRecordSchema.RecordName.FullName, headers, excelFileName, sheetName, options.Separator);
+        var output = BuildMarkdownOutput(targetRecordSchema.RecordName.FullName, headers, excelFileName, sheetName, separator);
         LogInformation(logger, FormattableString.Invariant($"\n{output}\n"), null);
 
         if (!string.IsNullOrEmpty(options.OutputFileName))
         {
-            var outputFileName = string.IsNullOrEmpty(Path.GetExtension(options.OutputFileName))
-                ? FormattableString.Invariant($"{options.OutputFileName}.md")
-                : options.OutputFileName;
+            var outputFileName = ResolveOutputFileName(options.OutputFileName);
 
             var directoryName = Path.GetDirectoryName(outputFileName);
             if (!string.IsNullOrEmpty(directoryName) && !Directory.Exists(directoryName))
@@ -83,38 +72,25 @@ public static class GenerateHeaderHandler
 
         var catalogs = await RecordScanner.ScanAsync(options.RecordCsPath, logger, cancellationToken);
 
-        var targetRecordSchema = catalogs.RecordSchemaCatalog.StaticDataRecordSchemata
-            .SingleOrDefault(x => x.RecordName.Name == options.RecordName);
-
-        if (targetRecordSchema is null)
-        {
-            var exception = new ArgumentException(
-                string.Format(
-                    CultureInfo.CurrentCulture,
-                    Messages.Composite.RecordNameNotFound,
-                    options.RecordName));
-            LogError(logger, exception.Message, exception);
-            throw exception;
-        }
+        var targetRecordSchema = FindRecord(catalogs.RecordSchemaCatalog, options.RecordName, logger);
 
         var headers = RecordFlattener.Flatten(
             targetRecordSchema,
             catalogs.RecordSchemaCatalog,
             logger);
 
-        HeaderSeparatorValidator.Validate(targetRecordSchema.RecordName.FullName, headers, options.Separator);
+        var separator = ResolveSeparator(options.Separator);
+        HeaderSeparatorValidator.Validate(targetRecordSchema.RecordName.FullName, headers, separator);
 
         var excelFileName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(0);
         var sheetName = targetRecordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(1);
 
-        var output = BuildMarkdownOutput(targetRecordSchema.RecordName.FullName, headers, excelFileName, sheetName, options.Separator);
+        var output = BuildMarkdownOutput(targetRecordSchema.RecordName.FullName, headers, excelFileName, sheetName, separator);
         LogInformation(logger, FormattableString.Invariant($"\n{output}\n"), null);
 
         if (!string.IsNullOrEmpty(options.OutputFileName))
         {
-            var outputFileName = string.IsNullOrEmpty(Path.GetExtension(options.OutputFileName))
-                ? FormattableString.Invariant($"{options.OutputFileName}.md")
-                : options.OutputFileName;
+            var outputFileName = ResolveOutputFileName(options.OutputFileName);
 
             var directoryName = Path.GetDirectoryName(outputFileName);
             if (!string.IsNullOrEmpty(directoryName) && !Directory.Exists(directoryName))
@@ -137,11 +113,46 @@ public static class GenerateHeaderHandler
     private static readonly Action<ILogger, string, Exception?> LogInformation =
         LoggerMessage.Define<string>(LogLevel.Information, new EventId(0, nameof(LogInformation)), "{Message}");
 
-    private static readonly Action<ILogger, string, Exception?> LogWarning =
-        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(0, nameof(LogWarning)), "{Message}");
-
     private static readonly Action<ILogger, string, Exception?> LogError =
         LoggerMessage.Define<string>(LogLevel.Error, new EventId(0, nameof(LogError)), "{Message}");
+
+    private static RecordSchema FindRecord(RecordSchemaCatalog catalog, string recordName, ILogger logger)
+    {
+        var candidates = catalog.StaticDataRecordSchemata
+            .Where(x => x.RecordName.Name == recordName || x.RecordName.FullName == recordName)
+            .ToList();
+
+        if (candidates.Count == 1)
+        {
+            return candidates[0];
+        }
+
+        var message = candidates.Count == 0
+            ? string.Format(CultureInfo.CurrentCulture, Messages.Composite.RecordNameNotFound, recordName)
+            : string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.RecordNameAmbiguous,
+                recordName,
+                string.Join(", ", candidates.Select(x => x.RecordName.FullName)));
+        var exception = new ArgumentException(message);
+        LogError(logger, exception.Message, exception);
+        throw exception;
+    }
+
+    internal static string ResolveSeparator(string separator)
+    {
+        return separator
+            .Replace(@"\t", "\t", StringComparison.Ordinal)
+            .Replace(@"\n", "\n", StringComparison.Ordinal)
+            .Replace(@"\r", "\r", StringComparison.Ordinal);
+    }
+
+    internal static string ResolveOutputFileName(string outputFileName)
+    {
+        return string.IsNullOrEmpty(Path.GetExtension(outputFileName))
+            ? Path.ChangeExtension(outputFileName, ".md")
+            : outputFileName;
+    }
 
     private static string BuildMarkdownOutput(string recordFullName, IReadOnlyList<string> headers, string excelFileName, string sheetName, string separator)
     {

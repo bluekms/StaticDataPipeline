@@ -1,31 +1,29 @@
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace ExcelColumnExtractor.Scanners;
 
+// Excel 이 쓰기 잠금을 쥔 파일도 ReadWrite 공유로 열린다. 완전 배타 잠금(공유 위반)일 때만 복사본으로 읽는다.
 public class LockedFileStreamOpener : IDisposable
 {
+    private const int SharingViolation = 32;
+    private const int LockViolation = 33;
+
     public Stream Stream { get; }
     public bool IsTemp => !string.IsNullOrEmpty(TempFileName);
     private string? TempFileName { get; }
 
     public LockedFileStreamOpener(string fileName)
     {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
         try
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            Stream = File.Open(fileName, FileMode.Open, FileAccess.Read);
+            Stream = Open(fileName);
         }
-        catch (FileNotFoundException)
+        catch (IOException e) when (IsSharingViolation(e))
         {
-            throw;
-        }
-        catch (IOException)
-        {
-            TempFileName = Path.GetTempFileName();
-            ForceCopy(fileName, TempFileName);
-            Stream = File.Open(TempFileName, FileMode.Open, FileAccess.Read);
+            TempFileName = CopyToTemp(fileName, e);
+            Stream = Open(TempFileName);
         }
     }
 
@@ -43,33 +41,13 @@ public class LockedFileStreamOpener : IDisposable
 
         try
         {
-            var stream = new FileStream(
-                fileName,
-                FileMode.Open,
-                FileAccess.Read,
-                FileShare.Read,
-                bufferSize: 4096,
-                useAsync: true);
-
-            return new LockedFileStreamOpener(stream, null);
+            return new LockedFileStreamOpener(Open(fileName), null);
         }
-        catch (FileNotFoundException)
+        catch (IOException e) when (IsSharingViolation(e))
         {
-            throw;
-        }
-        catch (IOException)
-        {
-            var tempFileName = Path.GetTempFileName();
-            await ForceCopyAsync(fileName, tempFileName, cancellationToken);
-            var stream = new FileStream(
-                tempFileName,
-                FileMode.Open,
-                FileAccess.Read,
-                FileShare.Read,
-                bufferSize: 4096,
-                useAsync: true);
+            var tempFileName = await Task.Run(() => CopyToTemp(fileName, e), cancellationToken).ConfigureAwait(false);
 
-            return new LockedFileStreamOpener(stream, tempFileName);
+            return new LockedFileStreamOpener(Open(tempFileName), tempFileName);
         }
     }
 
@@ -87,45 +65,31 @@ public class LockedFileStreamOpener : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private static void ForceCopy(string src, string dst)
+    private static FileStream Open(string fileName)
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            using var process = new Process();
-            process.StartInfo = new ProcessStartInfo
-            {
-                FileName = "cmd.exe",
-                Arguments = $"/c copy /y \"{src}\" \"{dst}\"",
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            };
-            process.Start();
-            process.WaitForExit();
-        }
-        else
-        {
-            File.Copy(src, dst, overwrite: true);
-        }
+        return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, bufferSize: 4096, useAsync: true);
     }
 
-    private static async Task ForceCopyAsync(string src, string dst, CancellationToken cancellationToken)
+    private static bool IsSharingViolation(IOException e)
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        var code = e.HResult & 0xFFFF;
+
+        return code is SharingViolation or LockViolation;
+    }
+
+    private static string CopyToTemp(string fileName, IOException cause)
+    {
+        var tempFileName = Path.GetTempFileName();
+        try
         {
-            using var process = new Process();
-            process.StartInfo = new ProcessStartInfo
-            {
-                FileName = "cmd.exe",
-                Arguments = $"/c copy /y \"{src}\" \"{dst}\"",
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            };
-            process.Start();
-            await process.WaitForExitAsync(cancellationToken);
+            File.Copy(fileName, tempFileName, overwrite: true);
         }
-        else
+        catch (Exception e)
         {
-            await Task.Run(() => File.Copy(src, dst, overwrite: true), cancellationToken);
+            File.Delete(tempFileName);
+            throw new IOException(e.Message, cause);
         }
+
+        return tempFileName;
     }
 }

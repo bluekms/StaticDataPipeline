@@ -45,6 +45,12 @@
   <data name="CsvUnterminatedQuote" xml:space="preserve">
     <value>CSV ends inside a quoted field (unterminated quote).</value>
   </data>
+  <data name="CsvQuoteInUnquotedField" xml:space="preserve">
+    <value>CSV row {0}: a quote character appears inside an unquoted field.</value>
+  </data>
+  <data name="CsvTextAfterClosingQuote" xml:space="preserve">
+    <value>CSV row {0}: unexpected text after a closing quote.</value>
+  </data>
   <data name="CsvRowFieldCountShortage" xml:space="preserve">
     <value>Row has {0} fields but the header defines {1}.</value>
   </data>

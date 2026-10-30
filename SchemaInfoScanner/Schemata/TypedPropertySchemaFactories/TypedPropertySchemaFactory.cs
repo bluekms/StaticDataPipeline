@@ -1,6 +1,5 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
@@ -17,8 +16,9 @@ public static class TypedPropertySchemaFactory
     public static PropertySchemaBase Create(
         PropertyName propertyName,
         INamedTypeSymbol propertySymbol,
-        IReadOnlyList<AttributeSyntax> attributeList,
-        INamedTypeSymbol parentRecordSymbol)
+        IReadOnlyList<AttributeInfo> attributeList,
+        INamedTypeSymbol parentRecordSymbol,
+        SchemaFactoryContext context)
     {
         if (PrimitiveTypeChecker.IsSupportedPrimitiveType(propertySymbol))
         {
@@ -46,7 +46,8 @@ public static class TypedPropertySchemaFactory
                 propertyName,
                 propertySymbol,
                 attributeList,
-                parentRecordSymbol);
+                parentRecordSymbol,
+                context);
         }
         else if (RecordTypeChecker.TryFindNestedRecordTypeSymbol(parentRecordSymbol, propertySymbol, out var nestedRecordSymbol))
         {
@@ -54,7 +55,8 @@ public static class TypedPropertySchemaFactory
                 propertyName,
                 nestedRecordSymbol,
                 attributeList,
-                parentRecordSymbol);
+                parentRecordSymbol,
+                context);
         }
         else if (ArrayTypeChecker.IsSupportedArrayType(propertySymbol))
         {
@@ -62,7 +64,8 @@ public static class TypedPropertySchemaFactory
                 propertyName,
                 propertySymbol,
                 attributeList,
-                parentRecordSymbol);
+                parentRecordSymbol,
+                context);
         }
         else if (SetTypeChecker.IsSupportedSetType(propertySymbol))
         {
@@ -70,16 +73,17 @@ public static class TypedPropertySchemaFactory
                 propertyName,
                 propertySymbol,
                 attributeList,
-                parentRecordSymbol);
+                parentRecordSymbol,
+                context);
         }
         else if (MapTypeChecker.IsPrimitiveKeyRecordValueMapType(propertySymbol))
         {
-            // 여기서 propertyName으로 찾아온 attributeList를 교체해 줘야 한다
             return PrimitiveKeyRecordValueMapPropertySchemaFactory.Create(
                 propertyName,
                 propertySymbol,
                 attributeList,
-                parentRecordSymbol);
+                parentRecordSymbol,
+                context);
         }
         else if (MapTypeChecker.IsRecordKeyAndValueMapType(propertySymbol))
         {
@@ -87,7 +91,8 @@ public static class TypedPropertySchemaFactory
                 propertyName,
                 propertySymbol,
                 attributeList,
-                parentRecordSymbol);
+                parentRecordSymbol,
+                context);
         }
 
         throw new NotSupportedException(string.Format(

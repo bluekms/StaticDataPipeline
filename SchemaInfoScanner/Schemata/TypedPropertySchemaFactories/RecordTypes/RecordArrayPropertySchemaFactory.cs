@@ -1,6 +1,5 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata.RecordTypes;
@@ -13,8 +12,9 @@ public static class RecordArrayPropertySchemaFactory
     public static PropertySchemaBase Create(
         PropertyName propertyName,
         INamedTypeSymbol propertySymbol,
-        IReadOnlyList<AttributeSyntax> attributeList,
-        INamedTypeSymbol parentRecordSymbol)
+        IReadOnlyList<AttributeInfo> attributeList,
+        INamedTypeSymbol parentRecordSymbol,
+        SchemaFactoryContext context)
     {
         if (!ArrayTypeChecker.IsSupportedArrayType(propertySymbol))
         {
@@ -48,7 +48,8 @@ public static class RecordArrayPropertySchemaFactory
             propertyName,
             typeArgumentSymbol,
             attributeList,
-            parentRecordSymbol);
+            parentRecordSymbol,
+            context);
 
         var genericArgumentSchema = new RecordTypeGenericArgumentSchema(
             RecordTypeGenericArgumentSchema.CollectionKind.Array,

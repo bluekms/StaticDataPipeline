@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
@@ -16,20 +15,23 @@ public static class RecordFlattener
     public static IReadOnlyList<string> Flatten(
         RecordSchema recordSchema,
         RecordSchemaCatalog recordSchemaCatalog,
-        ILogger logger)
+        ILogger logger,
+        IReadOnlyList<string>? sheetHeaders = null)
     {
         return OnFlatten(
             recordSchema,
             recordSchemaCatalog,
             string.Empty,
-            logger);
+            logger,
+            sheetHeaders);
     }
 
     private static List<string> OnFlatten(
         RecordSchema recordSchema,
         RecordSchemaCatalog recordSchemaCatalog,
         string parentPrefix,
-        ILogger logger)
+        ILogger logger,
+        IReadOnlyList<string>? sheetHeaders)
     {
         var headers = new List<string>();
 
@@ -55,13 +57,7 @@ public static class RecordFlattener
                 }
                 else
                 {
-                    if (!parameter.TryGetAttributeValue<LengthAttribute, int>(out var length))
-                    {
-                        throw new InvalidOperationException(string.Format(
-                            CultureInfo.CurrentCulture,
-                            Messages.Composite.ParameterCannotHaveLengthAttribute,
-                            parameter.PropertyName));
-                    }
+                    var length = ResolveLength(parameter, headerName, sheetHeaders, elementHasInnerHeaders: false);
 
                     for (var i = 0; i < length; ++i)
                     {
@@ -74,13 +70,7 @@ public static class RecordFlattener
                 var typeArgument = (INamedTypeSymbol)parameter.NamedTypeSymbol.TypeArguments.Last();
                 var innerRecordSchema = recordSchemaCatalog.Find(typeArgument);
 
-                if (!parameter.TryGetAttributeValue<LengthAttribute, int>(out var length))
-                {
-                    throw new InvalidOperationException(string.Format(
-                        CultureInfo.CurrentCulture,
-                        Messages.Composite.ParameterCannotHaveLengthAttribute,
-                        parameter.PropertyName));
-                }
+                var length = ResolveLength(parameter, headerName, sheetHeaders, elementHasInnerHeaders: true);
 
                 for (var i = 0; i < length; ++i)
                 {
@@ -88,7 +78,8 @@ public static class RecordFlattener
                         innerRecordSchema,
                         recordSchemaCatalog,
                         $"{headerName}[{i}]",
-                        logger);
+                        logger,
+                        sheetHeaders);
 
                     headers.AddRange(innerFlattenResult);
                 }
@@ -98,13 +89,7 @@ public static class RecordFlattener
                 var typeArgument = (INamedTypeSymbol)parameter.NamedTypeSymbol.TypeArguments.Single();
                 var innerRecordSchema = recordSchemaCatalog.Find(typeArgument);
 
-                if (!parameter.TryGetAttributeValue<LengthAttribute, int>(out var length))
-                {
-                    throw new InvalidOperationException(string.Format(
-                        CultureInfo.CurrentCulture,
-                        Messages.Composite.ParameterCannotHaveLengthAttribute,
-                        parameter.PropertyName));
-                }
+                var length = ResolveLength(parameter, headerName, sheetHeaders, elementHasInnerHeaders: true);
 
                 for (var i = 0; i < length; ++i)
                 {
@@ -112,7 +97,8 @@ public static class RecordFlattener
                         innerRecordSchema,
                         recordSchemaCatalog,
                         $"{headerName}[{i}]",
-                        logger);
+                        logger,
+                        sheetHeaders);
 
                     headers.AddRange(innerFlattenResult);
                 }
@@ -133,7 +119,8 @@ public static class RecordFlattener
                         innerRecordSchema,
                         recordSchemaCatalog,
                         headerName,
-                        logger);
+                        logger,
+                        sheetHeaders);
 
                     headers.AddRange(innerFlatten);
                 }
@@ -143,5 +130,65 @@ public static class RecordFlattener
         return headers;
     }
 
-    private static readonly Regex IndexRegex = new(@"\[.*?\]");
+    private static int ResolveLength(
+        PropertySchemaBase parameter,
+        string headerName,
+        IReadOnlyList<string>? sheetHeaders,
+        bool elementHasInnerHeaders)
+    {
+        var hasLength = parameter.TryGetAttributeValue<LengthAttribute, int>(out var length);
+        if (hasLength)
+        {
+            return length;
+        }
+
+        if (sheetHeaders is null)
+        {
+            return 1;
+        }
+
+        var count = 0;
+        while (true)
+        {
+            var indexedHeader = FormattableString.Invariant($"{headerName}[{count}]");
+            var present = elementHasInnerHeaders
+                ? sheetHeaders.Any(header => header.StartsWith(indexedHeader + ".", StringComparison.Ordinal))
+                : sheetHeaders.Contains(indexedHeader, StringComparer.Ordinal);
+            if (!present)
+            {
+                break;
+            }
+
+            count++;
+        }
+
+        var indexedPrefix = headerName + "[";
+        foreach (var header in sheetHeaders)
+        {
+            if (!header.StartsWith(indexedPrefix, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var close = header.IndexOf(']', indexedPrefix.Length);
+            if (close < 0)
+            {
+                continue;
+            }
+
+            var indexText = header.Substring(indexedPrefix.Length, close - indexedPrefix.Length);
+            var isIndex = int.TryParse(indexText, NumberStyles.None, CultureInfo.InvariantCulture, out var index);
+            if (isIndex && index >= count)
+            {
+                throw new InvalidOperationException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.IndexedHeadersNotContiguous,
+                    headerName,
+                    count,
+                    header));
+            }
+        }
+
+        return count;
+    }
 }

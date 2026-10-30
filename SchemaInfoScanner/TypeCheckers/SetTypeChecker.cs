@@ -12,16 +12,10 @@ namespace SchemaInfoScanner.TypeCheckers;
 
 public static class SetTypeChecker
 {
-    private static readonly HashSet<string> SupportedTypeNames =
-    [
-        "FrozenSet<>",
-    ];
-
     public static void Check(
         PropertySchemaBase property,
         RecordSchemaCatalog recordSchemaCatalog,
         HashSet<RecordName> visited,
-        HashSet<RecordName> visiting,
         ILogger logger)
     {
         if (!IsSupportedSetType(property.NamedTypeSymbol))
@@ -56,7 +50,7 @@ public static class SetTypeChecker
         }
 
         var innerRecordSchema = property.FindInnerRecordSchema(recordSchemaCatalog);
-        RecordTypeChecker.Check(innerRecordSchema, recordSchemaCatalog, visited, visiting, logger);
+        RecordTypeChecker.Check(innerRecordSchema, recordSchemaCatalog, visited, logger);
     }
 
     public static bool IsSupportedSetType(INamedTypeSymbol symbol)
@@ -67,11 +61,7 @@ public static class SetTypeChecker
             return false;
         }
 
-        var genericTypeDefinitionName = symbol
-            .ConstructUnboundGenericType()
-            .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-        return SupportedTypeNames.Contains(genericTypeDefinitionName);
+        return symbol.Name == "FrozenSet" && symbol.Arity == 1;
     }
 
     public static bool IsPrimitiveSetType(INamedTypeSymbol symbol)

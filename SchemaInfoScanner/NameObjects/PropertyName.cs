@@ -2,15 +2,24 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SchemaInfoScanner.NameObjects;
 
-public class PropertyName(
-    RecordName recordName,
-    ParameterSyntax parameterSyntax)
-    : IEquatable<PropertyName>
+public class PropertyName : IEquatable<PropertyName>
 {
-    public RecordName RecordName { get; } = recordName;
-    public string Name { get; } = parameterSyntax.Identifier.ValueText;
-    public bool IsNullableTypeSyntax { get; } = parameterSyntax.Type is NullableTypeSyntax;
+    public RecordName RecordName { get; }
+    public string Name { get; }
+    public bool IsNullableTypeSyntax { get; }
     public string FullName => $"{RecordName.FullName}.{Name}";
+
+    public PropertyName(RecordName recordName, ParameterSyntax parameterSyntax)
+        : this(recordName, parameterSyntax.Identifier.ValueText, parameterSyntax.Type is NullableTypeSyntax)
+    {
+    }
+
+    public PropertyName(RecordName recordName, string name, bool isNullableTypeSyntax)
+    {
+        RecordName = recordName;
+        Name = name;
+        IsNullableTypeSyntax = isNullableTypeSyntax;
+    }
 
     public override bool Equals(object? obj)
     {

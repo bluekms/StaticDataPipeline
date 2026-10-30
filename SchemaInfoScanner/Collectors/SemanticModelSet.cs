@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using SchemaInfoScanner.NameObjects;
 
 namespace SchemaInfoScanner.Collectors;
@@ -24,8 +25,13 @@ public class SemanticModelSet
     {
         foreach (var recordDeclaration in loadResult.RecordDeclarationList)
         {
-            var recordName = new RecordName(recordDeclaration);
-            semanticModelDictionary.Add(recordName, loadResult.SemanticModel);
+            var recordSymbol = loadResult.SemanticModel.GetDeclaredSymbol(recordDeclaration);
+            if (recordSymbol is null)
+            {
+                throw new NotSupportedException(recordDeclaration.Identifier.ValueText);
+            }
+
+            semanticModelDictionary.Add(new RecordName(recordSymbol), loadResult.SemanticModel);
         }
     }
 

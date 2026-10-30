@@ -23,7 +23,7 @@ public abstract class StaticDataManager<TTableSet>(ILogger logger)
         {
             var stopwatch = Stopwatch.StartNew();
 
-            var tableSet = await LoadTableSetAsync(csvDir, disabledTables, logger);
+            var tableSet = await LoadTableSetAsync(csvDir, disabledTables, logger).ConfigureAwait(false);
             ValidateForeignKeys(tableSet);
             Validate(tableSet);
             current = tableSet;

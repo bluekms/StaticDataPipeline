@@ -120,6 +120,14 @@ internal static class ViewSetBuilderPipeline
             return null;
         }
 
+        if (SymbolResolver.IsGenericOrNestedInGeneric(viewSetType))
+        {
+            var location = viewSetType.Locations.FirstOrDefault() ?? Location.None;
+            var diagnostic = SymbolResolver.CreateGenericTargetDiagnostic(viewSetType, location);
+
+            return new ViewSetAnalysis.DiagnosticsOnly(viewSetType, tableSetType, new[] { diagnostic });
+        }
+
         var diagnostics = new List<Diagnostic>();
         var viewSetSyntax = SymbolResolver.FindRecordDeclaration(viewSetType);
         var viewSetPartial = IsPartialRecord(viewSetType, viewSetSyntax, diagnostics);

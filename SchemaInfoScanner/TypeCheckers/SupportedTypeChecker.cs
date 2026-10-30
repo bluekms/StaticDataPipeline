@@ -2,12 +2,10 @@ using System.Globalization;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Exceptions;
-using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 using SchemaInfoScanner.Schemata.SchemaValidators;
-using Sdp.Attributes;
 
 namespace SchemaInfoScanner.TypeCheckers;
 
@@ -17,20 +15,8 @@ internal static class SupportedTypeChecker
         PropertySchemaBase property,
         RecordSchemaCatalog recordSchemaCatalog,
         HashSet<RecordName> visited,
-        HashSet<RecordName> visiting,
         ILogger logger)
     {
-        if (property.HasAttribute<IgnoreAttribute>())
-        {
-            var msg = string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.Ignored,
-                property.PropertyName.FullName);
-            LogTrace(logger, msg, null);
-
-            return;
-        }
-
         LogTrace(logger, property.PropertyName.FullName, null);
 
         var validator = new SchemaRuleValidator();
@@ -50,7 +36,7 @@ internal static class SupportedTypeChecker
 
         if (CollectionTypeChecker.IsSupportedCollectionType(property.NamedTypeSymbol))
         {
-            CheckSupportedCollectionType(property, recordSchemaCatalog, visited, visiting, logger);
+            CheckSupportedCollectionType(property, recordSchemaCatalog, visited, logger);
 
             return;
         }
@@ -78,27 +64,26 @@ internal static class SupportedTypeChecker
                 property.PropertyName.FullName));
         }
 
-        RecordTypeChecker.Check(recordSchema, recordSchemaCatalog, visited, visiting, logger);
+        RecordTypeChecker.Check(recordSchema, recordSchemaCatalog, visited, logger);
     }
 
     private static void CheckSupportedCollectionType(
         PropertySchemaBase property,
         RecordSchemaCatalog recordSchemaCatalog,
         HashSet<RecordName> visited,
-        HashSet<RecordName> visiting,
         ILogger logger)
     {
         if (SetTypeChecker.IsSupportedSetType(property.NamedTypeSymbol))
         {
-            SetTypeChecker.Check(property, recordSchemaCatalog, visited, visiting, logger);
+            SetTypeChecker.Check(property, recordSchemaCatalog, visited, logger);
         }
         else if (ArrayTypeChecker.IsSupportedArrayType(property.NamedTypeSymbol))
         {
-            ArrayTypeChecker.Check(property, recordSchemaCatalog, visited, visiting, logger);
+            ArrayTypeChecker.Check(property, recordSchemaCatalog, visited, logger);
         }
         else if (MapTypeChecker.IsSupportedMapType(property.NamedTypeSymbol))
         {
-            MapTypeChecker.Check(property, recordSchemaCatalog, visited, visiting, logger);
+            MapTypeChecker.Check(property, recordSchemaCatalog, visited, logger);
         }
         else
         {

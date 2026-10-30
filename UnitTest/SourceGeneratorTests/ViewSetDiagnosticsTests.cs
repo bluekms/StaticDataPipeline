@@ -47,10 +47,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.Contains(diagnostics, d => d.Id == "SDP0305" && d.Severity == DiagnosticSeverity.Error);
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -73,10 +70,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.Contains(diagnostics, d => d.Id == "SDP0302" && d.Severity == DiagnosticSeverity.Error);
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -102,10 +96,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
         var diagnostic = Assert.Single(diagnostics, d => d.Id == "SDP0303");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -132,10 +123,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
         var diagnostic = Assert.Single(diagnostics, d => d.Id == "SDP0002");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -161,10 +149,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
         var diagnostic = Assert.Single(diagnostics, d => d.Id == "SDP0304");
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -190,10 +175,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.Contains(diagnostics, d => d.Id == "SDP0303" && d.Severity == DiagnosticSeverity.Error);
         Assert.Contains(diagnostics, d => d.Id == "SDP0304" && d.Severity == DiagnosticSeverity.Error);
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -223,10 +205,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.Contains(diagnostics, d => d.Id == "SDP0307" && d.Severity == DiagnosticSeverity.Error);
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -260,10 +239,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.Equal(2, diagnostics.Count(d => d.Id == "SDP0307"));
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -292,10 +268,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
 
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.Contains(diagnostics, d => d.Id == "SDP0308" && d.Severity == DiagnosticSeverity.Error);
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -322,10 +295,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0304");
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0305");
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0308");
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -364,10 +334,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         var generated = SourceGeneratorTestHelper.GetSingleTree(result, "ViewSetBuilder.g.cs").ToString();
         Assert.Contains("ViewSetBuildHelper.CannotEmitError(", generated);
         Assert.DoesNotContain("ViewNotPartialError", generated);
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -393,10 +360,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         Assert.Contains(diagnostics, d => d.Id == "SDP0301" && d.Severity == DiagnosticSeverity.Error);
         Assert.DoesNotContain(result.GeneratedTrees, t => t.FilePath.EndsWith("ViewSetBuilder.g.cs", StringComparison.Ordinal));
         Assert.DoesNotContain(result.GeneratedTrees, t => t.FilePath.EndsWith("StaticDataManager.g.cs", StringComparison.Ordinal));
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -417,10 +381,7 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         var diagnostics = SourceGeneratorTestHelper.Run(Header + source).Results.SelectMany(r => r.Diagnostics).ToList();
         Assert.Contains(diagnostics, d => d.Id == "SDP0306" && d.Severity == DiagnosticSeverity.Error);
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0006");
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id).Distinct()));
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -449,15 +410,12 @@ public class ViewSetDiagnosticsTests(ITestOutputHelper testOutputHelper)
         Assert.Single(diagnostics, d => d.Id == "SDP0302");
         Assert.DoesNotContain(diagnostics, d => d.Id == "SDP0307");
         SourceGeneratorTestHelper.GetSingleTree(result, "ViewSetBuilder.g.cs");
-
-        logger.LogInformation(
-            "Reported diagnostics: [{Ids}]",
-            string.Join(", ", diagnostics.Select(d => d.Id)));
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<ViewSetDiagnosticsTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<ViewSetDiagnosticsTests>()
             is not TestOutputLogger<ViewSetDiagnosticsTests> logger)
         {

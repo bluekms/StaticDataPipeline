@@ -69,12 +69,6 @@
   <data name="ValueOutOfRange" xml:space="preserve">
     <value>값({0})은 {1}과(와) {2} 사이여야 합니다.</value>
   </data>
-  <data name="ParameterCannotHaveLengthAttribute" xml:space="preserve">
-    <value>{0} 파라미터에는 LengthAttribute를 사용할 수 없습니다</value>
-  </data>
-  <data name="ParameterCannotHaveLengthAttributeWithContext" xml:space="preserve">
-    <value>{0} 파라미터에는 인자 {1}에서 LengthAttribute를 사용할 수 없습니다</value>
-  </data>
   <data name="DuplicateKeyInContext" xml:space="preserve">
     <value>{0} 파라미터에 중복 키 {1}이(가) 있습니다. 컨텍스트: {2}</value>
   </data>
@@ -174,9 +168,6 @@
   <data name="DateTimeFormatAttributeRequired" xml:space="preserve">
     <value>{0}({1}): DateTime 타입은 반드시 DateTimeFormatAttribute를 사용해야 합니다.</value>
   </data>
-  <data name="LengthAttributeRequired" xml:space="preserve">
-    <value>{0}({1}): 컬렉션 타입에는 반드시 LengthAttribute를 사용해야 합니다.</value>
-  </data>
   <data name="NullStringAttributeRequiredForNullable" xml:space="preserve">
     <value>{0}({1}): nullable 타입은 NullStringAttribute를 사용해야 합니다.</value>
   </data>
@@ -207,8 +198,23 @@
   <data name="CountRangeAndLengthMutuallyExclusive" xml:space="preserve">
     <value>CountRangeAttribute와 LengthAttribute는 함께 사용할 수 없습니다.</value>
   </data>
-  <data name="CountRangeMinMustBePositive" xml:space="preserve">
-    <value>CountRangeAttribute의 MinCount는 0보다 커야 합니다. MinCount가 0이면 하한 제약이 적용되지 않습니다.</value>
+  <data name="LengthAndSingleColumnCollectionMutuallyExclusive" xml:space="preserve">
+    <value>LengthAttribute와 SingleColumnCollectionAttribute는 함께 사용할 수 없습니다. 단일 컬럼 컬렉션의 항목 수는 CountRangeAttribute로 제한합니다.</value>
+  </data>
+  <data name="CountRangeMinMustBeNonNegative" xml:space="preserve">
+    <value>CountRangeAttribute의 MinCount는 0 이상이어야 합니다.</value>
+  </data>
+  <data name="CountRangeMinMustNotExceedMax" xml:space="preserve">
+    <value>CountRangeAttribute의 MinCount는 MaxCount보다 클 수 없습니다.</value>
+  </data>
+  <data name="LengthAttributeNotApplicable" xml:space="preserve">
+    <value>{0}({1}): LengthAttribute는 다중 컬럼 컬렉션에만 사용할 수 있습니다.</value>
+  </data>
+  <data name="LengthMustBePositive" xml:space="preserve">
+    <value>LengthAttribute 값은 1 이상이어야 합니다.</value>
+  </data>
+  <data name="KeyAttributeNotForCollection" xml:space="preserve">
+    <value>{0}({1}): KeyAttribute는 컬렉션에 사용할 수 없습니다.</value>
   </data>
   <data name="CountOutOfRange" xml:space="preserve">
     <value>셀 {0}에는 {1}개의 값이 있지만, {2}는 {3}~{4}개를 기대합니다.</value>
@@ -237,11 +243,11 @@
   <data name="InvalidCellValueForEnum" xml:space="preserve">
     <value>셀 {1}의 값 '{0}'이 잘못되었습니다. {2}의 멤버여야 합니다.</value>
   </data>
-  <data name="SingleColumnCellCountMismatch" xml:space="preserve">
-    <value>셀 {0}에는 {1}개의 값이 있지만, {2}는 {3}개를 기대합니다.</value>
-  </data>
   <data name="SingleColumnCellEmptyValue" xml:space="preserve">
     <value>셀 {0}에 {1}에 대한 빈 값이 포함되어 있습니다.</value>
+  </data>
+  <data name="IndexedHeadersNotContiguous" xml:space="preserve">
+    <value>'{0}' 의 번호 컬럼은 [0]부터 빠짐없이 이어져야 합니다. 이어지는 묶음은 {1}개뿐인데 '{2}' 가 있습니다.</value>
   </data>
   <data name="CompileErrorsOccurred" xml:space="preserve">
     <value>{0}개의 컴파일 오류가 발생했습니다.</value>

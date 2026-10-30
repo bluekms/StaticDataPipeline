@@ -1,6 +1,5 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
@@ -12,14 +11,14 @@ namespace SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes;
 public sealed record UInt64PropertySchema(
     PropertyName PropertyName,
     INamedTypeSymbol NamedTypeSymbol,
-    IReadOnlyList<AttributeSyntax> AttributeList)
+    IReadOnlyList<AttributeInfo> AttributeList)
     : PropertySchemaBase(PropertyName, NamedTypeSymbol, AttributeList)
 {
     protected override void OnCheckCompatibility(CompatibilityContext context)
     {
         var cell = context.Consume();
 
-        if (!ulong.TryParse(cell.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
+        if (!ulong.TryParse(cell.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
         {
             throw new InvalidOperationException(
                 string.Format(

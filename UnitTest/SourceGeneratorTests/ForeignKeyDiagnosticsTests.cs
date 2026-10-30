@@ -18,6 +18,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
         using Sdp.Attributes;
         using Sdp.Manager;
         using Sdp.Table;
+        using System.Collections.Frozen;
         using System.Collections.Immutable;
 
         namespace Test;
@@ -77,8 +78,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0204");
-
-        logger.LogInformation("SDP0204 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -105,8 +105,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0205");
-
-        logger.LogInformation("SDP0205 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -133,8 +132,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0206");
-
-        logger.LogInformation("SDP0206 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -161,8 +159,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0207");
-
-        logger.LogInformation("SDP0207 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -192,8 +189,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0208");
-
-        logger.LogInformation("SDP0208 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -220,8 +216,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0209");
-
-        logger.LogInformation("SDP0209 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -252,8 +247,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0210");
-
-        logger.LogInformation("SDP0210 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -280,8 +274,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0211");
-
-        logger.LogInformation("SDP0211 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -312,8 +305,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0225");
-
-        logger.LogInformation("SDP0225 reported as Error.");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -342,13 +334,162 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             """;
 
         AssertReportedAsError(source, "SDP0226");
+        Assert.Empty(logger.Logs);
+    }
 
-        logger.LogInformation("SDP0226 reported as Error.");
+    [Fact]
+    public void Reports_SDP0227_when_SwitchForeignKey_condition_column_is_a_record()
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        const string source =
+            """
+            public sealed partial record KindId(int Value);
+
+            [StaticDataRecord("Consumer", "S")]
+            public sealed partial record ConsumerRec(
+                int Id,
+                KindId Kind,
+                [SwitchForeignKey("Kind", "1", "Target", "Id")] int RefId);
+
+            public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
+                : StaticDataTable<ConsumerRec>(records);
+
+            public partial class GenManager(ILogger logger)
+                : StaticDataManager<GenManager.TableSet>(logger)
+            {
+                public sealed partial record TableSet(TargetTable? Target, ConsumerTable? Consumer);
+            }
+            """;
+
+        AssertReportedAsError(source, "SDP0227");
+        Assert.Empty(logger.Logs);
+    }
+
+    [Theory]
+    [InlineData("decimal Kind", "abc")]
+    [InlineData("double Kind", "NaN")]
+    [InlineData("float Kind", "1,5x")]
+    [InlineData("[DateTimeFormat(\"yyyy-MM-dd\")] System.DateTime Kind", "2024-13-45")]
+    [InlineData("[TimeSpanFormat(\"hh\\\\:mm\")] System.TimeSpan Kind", "1:30:00")]
+    public void Reports_SDP0228_when_SwitchForeignKey_condition_value_is_not_parsable(string conditionParameter, string conditionValue)
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        var source =
+            $$"""
+            [StaticDataRecord("Consumer", "S")]
+            public sealed partial record ConsumerRec(
+                int Id,
+                {{conditionParameter}},
+                [SwitchForeignKey("Kind", "{{conditionValue}}", "Target", "Id")] int RefId);
+
+            public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
+                : StaticDataTable<ConsumerRec>(records);
+
+            public partial class GenManager(ILogger logger)
+                : StaticDataManager<GenManager.TableSet>(logger)
+            {
+                public sealed partial record TableSet(TargetTable? Target, ConsumerTable? Consumer);
+            }
+            """;
+
+        AssertReportedAsError(source, "SDP0228");
+    }
+
+    [Fact]
+    public void Reports_SDP0225_when_decimal_condition_values_differ_only_in_notation()
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        const string source =
+            """
+            [StaticDataRecord("Consumer", "S")]
+            public sealed partial record ConsumerRec(
+                int Id,
+                decimal Tier,
+                [SwitchForeignKey("Tier", "1.0", "Target", "Id")]
+                [SwitchForeignKey("Tier", "1", "Target", "Id")] int RefId);
+
+            public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
+                : StaticDataTable<ConsumerRec>(records);
+
+            public partial class GenManager(ILogger logger)
+                : StaticDataManager<GenManager.TableSet>(logger)
+            {
+                public sealed partial record TableSet(TargetTable? Target, ConsumerTable? Consumer);
+            }
+            """;
+
+        AssertReportedAsError(source, "SDP0225");
+        Assert.Empty(logger.Logs);
+    }
+
+    [Theory]
+    [InlineData("[SingleColumnCollection(\",\")] ImmutableArray<string> Refs")]
+    [InlineData("[Length(2)] ImmutableArray<TargetRec> Refs")]
+    [InlineData("[Length(2)] FrozenDictionary<int, TargetRec> Refs")]
+    public void Reports_SDP0211_when_collection_element_type_mismatches_target(string parameterDeclaration)
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        var source =
+            $$"""
+            [StaticDataRecord("Consumer", "S")]
+            public sealed partial record ConsumerRec(
+                int Id,
+                [ForeignKey("Target", "Id")] {{parameterDeclaration}});
+
+            public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
+                : StaticDataTable<ConsumerRec>(records);
+
+            public partial class GenManager(ILogger logger)
+                : StaticDataManager<GenManager.TableSet>(logger)
+            {
+                public sealed partial record TableSet(TargetTable? Target, ConsumerTable? Consumer);
+            }
+            """;
+
+        AssertReportedAsError("using System.Collections.Frozen;\n" + source, "SDP0211");
+    }
+
+    [Theory]
+    [InlineData("[SingleColumnCollection(\",\")] ImmutableArray<int> Refs")]
+    [InlineData("[Length(2)] [NullString(\"\")] ImmutableArray<int?> Refs")]
+    [InlineData("[Length(2)] FrozenSet<int> Refs")]
+    public void Does_not_report_when_collection_element_type_matches_target(string parameterDeclaration)
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        var source =
+            $$"""
+            [StaticDataRecord("Consumer", "S")]
+            public sealed partial record ConsumerRec(
+                int Id,
+                [ForeignKey("Target", "Id")] {{parameterDeclaration}});
+
+            public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
+                : StaticDataTable<ConsumerRec>(records);
+
+            public partial class GenManager(ILogger logger)
+                : StaticDataManager<GenManager.TableSet>(logger)
+            {
+                public sealed partial record TableSet(TargetTable? Target, ConsumerTable? Consumer);
+            }
+            """;
+
+        var diagnostics = RunDiagnostics("using System.Collections.Frozen;\n" + source);
+        Assert.Empty(diagnostics);
     }
 
     private TestOutputLogger<ForeignKeyDiagnosticsTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<ForeignKeyDiagnosticsTests>()
             is not TestOutputLogger<ForeignKeyDiagnosticsTests> logger)
         {

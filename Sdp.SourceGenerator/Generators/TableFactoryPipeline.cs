@@ -69,6 +69,13 @@ internal static class TableFactoryPipeline
         }
 
         var diagnostics = new List<Diagnostic>();
+        if (SymbolResolver.IsGenericOrNestedInGeneric(symbol))
+        {
+            diagnostics.Add(SymbolResolver.CreateGenericTargetDiagnostic(symbol, classDecl.Identifier.GetLocation()));
+
+            return new StaticDataTableAnalysis.DiagnosticsOnly(symbol, recordType, diagnostics);
+        }
+
         var isPartial = classDecl.Modifiers.Any(static modifier => modifier.IsKind(SyntaxKind.PartialKeyword));
         if (!isPartial)
         {

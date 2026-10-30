@@ -6,6 +6,29 @@ namespace Sdp.SourceGenerator.Generators;
 
 internal static class SymbolResolver
 {
+    public static bool IsGenericOrNestedInGeneric(INamedTypeSymbol symbol)
+    {
+        if (symbol.IsGenericType)
+        {
+            return true;
+        }
+
+        for (var type = symbol.ContainingType; type is not null; type = type.ContainingType)
+        {
+            if (type.IsGenericType)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static Diagnostic CreateGenericTargetDiagnostic(INamedTypeSymbol symbol, Location location)
+    {
+        return Diagnostic.Create(SdpDiagnostics.RecordCannotBeGeneric, location, symbol.ToDisplayString());
+    }
+
     public static INamedTypeSymbol? FindStaticDataViewBase(INamedTypeSymbol symbol)
     {
         for (var type = symbol.BaseType; type is not null; type = type.BaseType)

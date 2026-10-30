@@ -1,18 +1,19 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
+using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 using SchemaInfoScanner.Schemata.TypedPropertySchemaFactories;
+using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Collectors;
 
 public sealed class RecordSchemaSet
 {
     private readonly Dictionary<RecordName, INamedTypeSymbol> recordNamedTypeSymbolDictionary = [];
-    private readonly Dictionary<RecordName, List<AttributeSyntax>> recordAttributeDictionary = [];
+    private readonly Dictionary<RecordName, List<AttributeInfo>> recordAttributeDictionary = [];
     private readonly Dictionary<RecordName, List<PropertySchemaBase>> recordMemberSchemaDictionary = [];
 
     public int Count => recordAttributeDictionary.Count;
@@ -81,17 +82,24 @@ public sealed class RecordSchemaSet
             recordAttributeDictionary.Add(recordName, recordAttributes.ToList());
         }
 
+        var context = new SchemaFactoryContext(loadResult.SemanticModel);
         foreach (var propertyName in result.ParameterNamedTypeSymbolCollector.ParameterNames)
         {
             var propertySymbol = result.ParameterNamedTypeSymbolCollector[propertyName];
             var attributes = result.ParameterAttributeCollector[propertyName];
+            if (AttributeAccessors.HasAttribute<IgnoreAttribute>(attributes))
+            {
+                continue;
+            }
+
             var parentRecordSymbol = result.RecordNamedTypeSymbolCollector[propertyName.RecordName];
 
             var parameterSchema = TypedPropertySchemaFactory.Create(
                 propertyName,
                 propertySymbol,
                 attributes,
-                parentRecordSymbol);
+                parentRecordSymbol,
+                context);
 
             var recordName = propertyName.RecordName;
             if (recordMemberSchemaDictionary.TryGetValue(recordName, out var recordMembers))
@@ -105,7 +113,7 @@ public sealed class RecordSchemaSet
         }
     }
 
-    public IReadOnlyList<AttributeSyntax> GetRecordAttributes(RecordName recordName)
+    public IReadOnlyList<AttributeInfo> GetRecordAttributes(RecordName recordName)
     {
         return recordAttributeDictionary[recordName];
     }
@@ -134,18 +142,18 @@ public sealed class RecordSchemaSet
 
         foreach (var recordDeclaration in loadResult.RecordDeclarationList)
         {
-            var recordName = new RecordName(recordDeclaration);
             if (loadResult.SemanticModel.GetDeclaredSymbol(recordDeclaration) is not INamedTypeSymbol namedTypeSymbol)
             {
                 throw new NotSupportedException(string.Format(
                     CultureInfo.CurrentCulture,
                     Messages.Composite.RecordNotNamedTypeSymbol,
-                    recordName.FullName));
+                    recordDeclaration.Identifier.ValueText));
             }
 
+            var recordName = new RecordName(namedTypeSymbol);
             recordNamedTypeSymbolCollector.Add(recordName, namedTypeSymbol);
 
-            recordAttributeCollector.Collect(recordDeclaration);
+            recordAttributeCollector.Collect(recordName, recordDeclaration, loadResult.SemanticModel);
 
             if (recordDeclaration.ParameterList is null)
             {
@@ -159,8 +167,8 @@ public sealed class RecordSchemaSet
                     continue;
                 }
 
-                parameterAttributeCollector.Collect(recordDeclaration, parameter);
-                parameterNamedTypeSymbolCollector.Collect(recordDeclaration, parameter);
+                parameterAttributeCollector.Collect(recordName, parameter, loadResult.SemanticModel);
+                parameterNamedTypeSymbolCollector.Collect(recordName, parameter);
             }
         }
 

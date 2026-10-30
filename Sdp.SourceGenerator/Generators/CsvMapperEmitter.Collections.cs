@@ -376,7 +376,7 @@ internal static partial class CsvMapperEmitter
             return;
         }
 
-        sb.Append(indent).Append("    var parts = __cell.Length == 0 ? global::System.Array.Empty<string>() : __cell.Split(").Append(separatorLiteral).AppendLine(");");
+        sb.Append(indent).Append("    var parts = string.IsNullOrWhiteSpace(__cell) ? global::System.Array.Empty<string>() : __cell.Split(").Append(separatorLiteral).AppendLine(");");
     }
 
     private static string EmitElementConversion(

@@ -26,7 +26,7 @@ public partial class SingleColumnNullStringMappingTests(ITestOutputHelper testOu
         var record = Assert.Single(CsvLoader.Parse(csv, DashRecord.MapFromCsvRow));
         var value = Assert.Single(record.Values);
         Assert.Null(value);
-        logger.LogInformation("Dash cell mapped to single null element");
+        Assert.Empty(logger.Logs);
     }
 
     [Fact]
@@ -40,11 +40,7 @@ public partial class SingleColumnNullStringMappingTests(ITestOutputHelper testOu
         Assert.Equal(1, record.Values[0]);
         Assert.Null(record.Values[1]);
         Assert.Equal(3, record.Values[2]);
-        logger.LogInformation(
-            "Mixed cell mapped: [{V0}, {V1}, {V2}]",
-            record.Values[0],
-            record.Values[1],
-            record.Values[2]);
+        Assert.Empty(logger.Logs);
     }
 
     [StaticDataRecord("ScNs", "Empty")]
@@ -64,12 +60,12 @@ public partial class SingleColumnNullStringMappingTests(ITestOutputHelper testOu
         var record = Assert.Single(CsvLoader.Parse(csv, EmptyRecord.MapFromCsvRow));
         var value = Assert.Single(record.Values);
         Assert.Null(value);
-        logger.LogInformation("Empty cell mapped to single null element");
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<SingleColumnNullStringMappingTests> CreateLogger()
     {
-        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Information);
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<SingleColumnNullStringMappingTests>()
             is not TestOutputLogger<SingleColumnNullStringMappingTests> logger)
         {
