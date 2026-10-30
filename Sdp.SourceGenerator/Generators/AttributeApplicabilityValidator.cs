@@ -16,6 +16,19 @@ internal sealed class AttributeApplicabilityValidator(
         foreach (var qualified in allParameters)
         {
             var param = qualified.Parameter;
+            if (param.NullArgumentAttribute is { } nullArgumentAttribute)
+            {
+                diagnostics.Add(Diagnostic.Create(
+                    SdpDiagnostics.AttributeArgumentMustNotBeNull,
+                    syntax.Identifier.GetLocation(),
+                    symbol.ToDisplayString(),
+                    qualified.Path,
+                    nullArgumentAttribute));
+                rejected.Add(qualified.Path);
+
+                continue;
+            }
+
             if (param.HasSingleColumnCollectionAttribute && !IsSingleColumnCollectionApplicable(param))
             {
                 ReportAttributeNotApplicable(qualified, nameof(SdpAttributeNames.SingleColumnCollection), rejected);
