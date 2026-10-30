@@ -32,6 +32,11 @@ internal static partial class TableSetLoaderEmitter
                 sb.Append(indent).Append("        var __fkMissingReported").Append(parameterIndex).AppendLine(" = false;");
             }
 
+            for (var parameterIndex = 0; parameterIndex < recordFkInfo.Parameters.Length; parameterIndex++)
+            {
+                EmitRuntimeParsedSwitchConditions(sb, recordFkInfo.Parameters[parameterIndex], parameterIndex, indent + "        ");
+            }
+
             sb.AppendLine();
             sb.Append(indent).Append("        foreach (var __r in tableSet.").Append(memberAccess).AppendLine(".Records)");
             sb.Append(indent).AppendLine("        {");
@@ -51,6 +56,34 @@ internal static partial class TableSetLoaderEmitter
         sb.Append(indent).AppendLine("        throw new global::System.AggregateException(global::Sdp.Manager.TableSetLoaderHelper.ForeignKeyValidationFailedMessage, __errors);");
         sb.Append(indent).AppendLine("    }");
         sb.Append(indent).AppendLine("}");
+    }
+
+    private static void EmitRuntimeParsedSwitchConditions(
+        StringBuilder sb,
+        FkParameter fkParameter,
+        int parameterIndex,
+        string indent)
+    {
+        var switchBranches = fkParameter.Branches
+            .Where(static branch => branch.IsSwitch)
+            .ToList();
+        for (var branchIndex = 0; branchIndex < switchBranches.Count; branchIndex++)
+        {
+            var branch = switchBranches[branchIndex];
+            if (!branch.ConditionParsesAtRuntime)
+            {
+                continue;
+            }
+
+            sb.Append(indent).Append("var ").Append(SwitchConditionVariable(parameterIndex, branchIndex))
+                .Append(" = ").Append(branch.ConditionLiteral!).AppendLine(";");
+        }
+    }
+
+    private static string SwitchConditionVariable(int parameterIndex, int branchIndex)
+    {
+        return "__switchCondition" + parameterIndex.ToString(CultureInfo.InvariantCulture)
+            + "_" + branchIndex.ToString(CultureInfo.InvariantCulture);
     }
 
     private sealed record FkTargetSetKey(string TableSetMember, string TargetColumn, string PropertyTypeName);
@@ -240,7 +273,10 @@ internal static partial class TableSetLoaderEmitter
             for (var branchIndex = 0; branchIndex < switchBranches.Count; branchIndex++)
             {
                 var branch = switchBranches[branchIndex];
-                var conditionExpression = "__r." + conditionColumnAccess + " == " + branch.ConditionLiteral!;
+                var conditionOperand = branch.ConditionParsesAtRuntime
+                    ? SwitchConditionVariable(parameterIndex, branchIndex)
+                    : branch.ConditionLiteral!;
+                var conditionExpression = "__r." + conditionColumnAccess + " == " + conditionOperand;
 
                 var setKey = new FkTargetSetKey(branch.TableSetMember, branch.TargetColumn, propertyTypeFullyQualifiedName);
                 var setVariable = fkSetVariables[setKey];

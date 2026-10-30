@@ -109,7 +109,7 @@ internal static class ForeignKeyAnalyzer
                         formatsConditionColumn = conditionColumn;
                     }
 
-                    var conditionLiteral = SwitchForeignKeyConditionLiteralBuilder.TryBuild(conditionType, conditionValue, dateTimeFormat, timeSpanFormat);
+                    var conditionLiteral = SwitchForeignKeyConditionLiteralBuilder.TryBuild(conditionType, conditionColumn, conditionValue, dateTimeFormat, timeSpanFormat);
                     if (conditionLiteral is null)
                     {
                         continue;
@@ -120,7 +120,8 @@ internal static class ForeignKeyAnalyzer
                         switchColumnName,
                         conditionColumn,
                         conditionValue,
-                        conditionLiteral.Code));
+                        conditionLiteral.Code,
+                        conditionLiteral.ParsesAtRuntime));
                 }
             }
 
