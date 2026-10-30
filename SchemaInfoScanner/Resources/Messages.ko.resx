@@ -136,10 +136,10 @@
     <value>{0}이(가) 지원되는 딕셔너리 타입이어야 하지만 그렇지 않습니다.</value>
   </data>
   <data name="DictionaryKeyMustBeNonNullable" xml:space="preserve">
-    <value>딕셔너리 키 타입은 nullable이 아니어야 합니다.</value>
+    <value>딕셔너리 '{0}'의 키 타입은 nullable이 아니어야 합니다.</value>
   </data>
   <data name="DictionaryValueMustBeNonNullable" xml:space="preserve">
-    <value>딕셔너리 값 타입은 nullable이 아니어야 합니다.</value>
+    <value>딕셔너리 '{0}'의 값 타입은 nullable이 아니어야 합니다.</value>
   </data>
   <data name="KeyAttributeRequiredInDictionaryValue" xml:space="preserve">
     <value>{0}이(가) 딕셔너리 {1}의 값으로 사용되므로 파라미터 중 하나에 KeyAttribute를 사용해야 합니다.</value>
@@ -148,7 +148,7 @@
     <value>딕셔너리의 키와 값 타입은 같은 타입이어야 합니다.</value>
   </data>
   <data name="FileOrDirectoryNotExist" xml:space="preserve">
-    <value>파일 또는 디렉터리가 존재하지 않습니다.</value>
+    <value>파일 또는 디렉터리가 존재하지 않습니다: {0}</value>
   </data>
   <data name="NullableCollectionNotSupported" xml:space="preserve">
     <value>{0}({1}): nullable collection 타입은 지원하지 않습니다.</value>
@@ -276,20 +276,14 @@
   <data name="NotSupportedListType" xml:space="preserve">
     <value>{0}({1})은(는) 지원하지 않는 list 타입입니다.</value>
   </data>
-  <data name="NotSingleColumnList" xml:space="preserve">
-    <value>{0}({1})은(는) single column list가 아닙니다.</value>
-  </data>
   <data name="NotSupportedHashSetType" xml:space="preserve">
     <value>{0}({1})은(는) 지원하지 않는 hash set 타입입니다.</value>
-  </data>
-  <data name="NotSingleColumnHashSet" xml:space="preserve">
-    <value>{0}({1})은(는) single column hash set이 아닙니다.</value>
   </data>
   <data name="FactoryNotSupportedArrayType" xml:space="preserve">
     <value>{0}({1})은(는) 지원하지 않는 array 타입입니다.</value>
   </data>
-  <data name="IsRecordArrayType" xml:space="preserve">
-    <value>{0}({1})은(는) record array 타입입니다.</value>
+  <data name="NotRecordArrayType" xml:space="preserve">
+    <value>{0}({1})은(는) record 배열이 아닙니다. 원소 타입이 원시 타입입니다.</value>
   </data>
   <data name="NotSupportedNestedCollectionType" xml:space="preserve">
     <value>{0}({1})은(는) 지원하지 않는 중첩 collection 타입입니다.</value>
@@ -306,10 +300,13 @@
   <data name="FactoryNotSupportedRecordType" xml:space="preserve">
     <value>{0}({1})은(는) 지원하지 않는 record 타입입니다.</value>
   </data>
-  <data name="IsRecordHashSetType" xml:space="preserve">
-    <value>{0}({1})은(는) record hash set 타입입니다.</value>
+  <data name="NotRecordHashSetType" xml:space="preserve">
+    <value>{0}({1})은(는) record hash set 이 아닙니다. 원소 타입이 원시 타입입니다.</value>
   </data>
   <data name="InvalidFullName" xml:space="preserve">
     <value>fullName은 null이거나 비어있거나 '.'으로 끝날 수 없습니다.</value>
+  </data>
+  <data name="AttributeArgumentMustNotBeNull" xml:space="preserve">
+    <value>'{1}'의 [{0}]에는 null 인자를 줄 수 없습니다.</value>
   </data>
 </root>

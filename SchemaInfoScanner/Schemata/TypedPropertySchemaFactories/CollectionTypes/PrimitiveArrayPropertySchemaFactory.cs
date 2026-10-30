@@ -66,15 +66,14 @@ public static class PrimitiveArrayPropertySchemaFactory
                 propertySymbol.Name));
         }
 
-        if (!AttributeAccessors.TryGetAttributeValue<SingleColumnCollectionAttribute, string>(
-            attributeList,
-            out var separator))
+        var hasSeparator = AttributeAccessors.TryGetAttributeValue<SingleColumnCollectionAttribute, string>(attributeList, out var separator);
+        if (!hasSeparator)
         {
             throw new InvalidOperationException(string.Format(
                 CultureInfo.CurrentCulture,
-                Messages.Composite.NotSingleColumnList,
-                propertyName,
-                propertySymbol.Name));
+                Messages.Composite.AttributeArgumentMustNotBeNull,
+                "SingleColumnCollection",
+                propertyName));
         }
 
         var typeArgumentSymbol = (INamedTypeSymbol)propertySymbol.TypeArguments.Single();

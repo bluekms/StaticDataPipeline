@@ -21,7 +21,8 @@ internal sealed record ParameterAnalysis(
     bool HasCountRangeAttribute,
     bool HasLengthAttribute,
     bool HasSingleColumnCollectionAttribute,
-    bool IsIgnored)
+    bool IsIgnored,
+    string? NullArgumentAttribute = null)
 {
     public bool IsCollection => Collection is not null;
 

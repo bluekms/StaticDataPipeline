@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using Sdp.SourceGenerator;
 using UnitTest.Utility;
 using Xunit.Abstractions;
 
@@ -213,7 +214,32 @@ public class CsvMapperGeneratorAttributeUsageTests(ITestOutputHelper testOutputH
         Assert.Contains("Pos.Value", diagnostic.GetMessage(CultureInfo.InvariantCulture));
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-        Assert.Contains("NotSupportedException", mapperTree.ToString());
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.MapperNotSupported(", mapperTree.ToString());
+        Assert.Empty(logger.Logs);
+    }
+
+    [Theory]
+    [InlineData("[NullString(null)] int? Bonus", "Bonus", "NullString")]
+    [InlineData("[SingleColumnCollection(null)] ImmutableArray<int> Tags", "Tags", "SingleColumnCollection")]
+    public void Reports_SDP0020_when_attribute_argument_is_null(string parameter, string parameterName, string attributeName)
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        var source = $$"""
+            using System.Collections.Immutable;
+            using Sdp.Attributes;
+            namespace Test;
+
+            [StaticDataRecord("File", "Sheet")]
+            public sealed partial record Foo(int Id, {{parameter}});
+            """;
+
+        var result = SourceGeneratorTestHelper.Run(source);
+        var diagnostic = Assert.Single(result.Diagnostics, d => d.Id == "SDP0020");
+        var format = SdpDiagnostics.AttributeArgumentMustNotBeNull.MessageFormat.ToString(CultureInfo.InvariantCulture);
+        var expected = string.Format(CultureInfo.InvariantCulture, format, "Test.Foo", parameterName, attributeName);
+        Assert.Equal(expected, diagnostic.GetMessage(CultureInfo.InvariantCulture));
         Assert.Empty(logger.Logs);
     }
 

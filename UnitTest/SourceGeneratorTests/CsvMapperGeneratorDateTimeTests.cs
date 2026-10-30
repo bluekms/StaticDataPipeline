@@ -28,7 +28,7 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         var code = mapperTree.ToString();
-        Assert.Contains("global::System.DateTime.ParseExact(", code);
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.ParseDateTime(", code);
         Assert.Contains("\"yyyy-MM-dd\"", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
@@ -57,7 +57,7 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         var code = mapperTree.ToString();
-        Assert.Contains("global::System.DateTimeOffset.ParseExact(", code);
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.ParseDateTimeOffset(", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
@@ -85,7 +85,7 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         var code = mapperTree.ToString();
-        Assert.Contains("global::System.TimeSpan.ParseExact(", code);
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.ParseTimeSpan(", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
@@ -111,7 +111,7 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
         Assert.Contains(result.Diagnostics, d => d.Id == "SDP0004" && d.Severity == DiagnosticSeverity.Error);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-        Assert.Contains("NotSupportedException", mapperTree.ToString());
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.MapperNotSupported(", mapperTree.ToString());
         Assert.Empty(logger.Logs);
     }
 
@@ -134,7 +134,7 @@ public class CsvMapperGeneratorDateTimeTests(ITestOutputHelper testOutputHelper)
         Assert.Contains(result.Diagnostics, d => d.Id == "SDP0004" && d.Severity == DiagnosticSeverity.Error);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-        Assert.Contains("NotSupportedException", mapperTree.ToString());
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.MapperNotSupported(", mapperTree.ToString());
         Assert.Empty(logger.Logs);
     }
 

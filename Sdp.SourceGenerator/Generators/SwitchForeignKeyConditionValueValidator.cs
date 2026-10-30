@@ -103,7 +103,7 @@ internal static class SwitchForeignKeyConditionValueValidator
                 continue;
             }
 
-            var literal = SwitchForeignKeyConditionLiteralBuilder.TryBuild(conditionType, conditionValue, dateTimeFormat, timeSpanFormat);
+            var literal = SwitchForeignKeyConditionLiteralBuilder.TryBuild(conditionType, conditionColumn, conditionValue, dateTimeFormat, timeSpanFormat);
             if (literal is not null)
             {
                 continue;

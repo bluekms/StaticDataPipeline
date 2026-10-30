@@ -90,6 +90,9 @@ internal static class Messages
     internal static string EmptyStartCellInAttribute
         => ResourceManager.GetString("EmptyStartCellInAttribute", Culture)!;
 
+    internal static string OptionPathNotExist
+        => ResourceManager.GetString("OptionPathNotExist", Culture)!;
+
     internal static class Composite
     {
         internal static CompositeFormat FileAlreadyOpen => CompositeFormat.Parse(Messages.FileAlreadyOpen);
@@ -113,5 +116,6 @@ internal static class Messages
         internal static CompositeFormat PrimaryKeyDuplicateFound => CompositeFormat.Parse(Messages.PrimaryKeyDuplicateFound);
         internal static CompositeFormat PrimaryKeyHeaderNotFound => CompositeFormat.Parse(Messages.PrimaryKeyHeaderNotFound);
         internal static CompositeFormat EmptyStartCellInAttribute => CompositeFormat.Parse(Messages.EmptyStartCellInAttribute);
+        internal static CompositeFormat OptionPathNotExist => CompositeFormat.Parse(Messages.OptionPathNotExist);
     }
 }
