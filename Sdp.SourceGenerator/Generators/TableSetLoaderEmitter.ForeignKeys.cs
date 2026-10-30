@@ -235,7 +235,7 @@ internal static partial class TableSetLoaderEmitter
             sb.Append(body).AppendLine("    var __switchTargetLoaded = false;");
 
             var conditionDisplay = "{__r." + conditionColumnAccess + "}";
-            var conditionSuffix = " (when " + conditionColumn + "=" + conditionDisplay + ")";
+            var conditionColumnLiteral = SymbolDisplay.FormatLiteral(conditionColumn, quote: true);
 
             for (var branchIndex = 0; branchIndex < switchBranches.Count; branchIndex++)
             {
@@ -257,16 +257,18 @@ internal static partial class TableSetLoaderEmitter
                 sb.Append(body).AppendLine("            else");
                 sb.Append(body).AppendLine("            {");
 
-                AppendValueNotFoundError(
-                    body + "                ",
-                    "{__v}" + conditionSuffix,
-                    branch.TableSetMember + "." + branch.TargetColumn);
+                var branchTargetsLiteral = SymbolDisplay.FormatLiteral(branch.TableSetMember + "." + branch.TargetColumn, quote: true);
+                var errorIndent = body + "                ";
+                sb.Append(errorIndent).AppendLine("__errors.Add(global::Sdp.Manager.TableSetLoaderHelper.SwitchFkValueNotFoundError(");
+                sb.Append(errorIndent).Append("    ").Append(recordDisplayExpr).Append(", ").Append(propertyNameLiteral).AppendLine(",");
+                sb.Append(errorIndent).Append("    global::System.FormattableString.Invariant($\"{__v}\"), ").Append(branchTargetsLiteral).AppendLine(",");
+                sb.Append(errorIndent).Append("    ").Append(conditionColumnLiteral)
+                    .Append(", global::System.FormattableString.Invariant($\"").Append(conditionDisplay).AppendLine("\")));");
                 sb.Append(body).AppendLine("            }");
                 sb.Append(body).AppendLine("        }");
                 sb.Append(body).AppendLine("    }");
             }
 
-            var conditionColumnLiteral = SymbolDisplay.FormatLiteral(conditionColumn, quote: true);
             var switchTargetMembers = string.Join(", ", switchBranches.Select(static branch => branch.TableSetMember).Distinct());
 
             sb.Append(body).AppendLine("    if (!__matched)");

@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Sdp.SourceGenerator.Generators;
 
@@ -53,9 +54,8 @@ internal static partial class CsvMapperEmitter
         sb.Append(indent).AppendLine("    global::Sdp.Csv.CsvHeaderIndex headers,");
         sb.Append(indent).AppendLine("    string[] values)");
         sb.Append(indent).AppendLine("{");
-        sb.Append(indent).Append("    throw new global::System.NotSupportedException(\"")
-            .Append("Sdp.SourceGenerator: '").Append(analysis.FullyQualifiedTypeName)
-            .AppendLine("' has parameter type(s) not yet supported by the CSV mapper.\");");
+        sb.Append(indent).Append("    throw global::Sdp.Csv.CsvMapperHelper.MapperNotSupported(")
+            .Append(SymbolDisplay.FormatLiteral(analysis.FullyQualifiedTypeName, quote: true)).AppendLine(");");
         sb.Append(indent).AppendLine("}");
         sb.AppendLine();
         sb.Append(indent).AppendLine("internal static bool IsEmptyCsvRow(global::Sdp.Csv.CsvHeaderIndex headers, string[] values)");

@@ -29,7 +29,7 @@ internal static partial class CsvMapperEmitter
 
             sb.Append(indent).AppendLine("    var __raw = values[headers[__key]];");
 
-            var conversion = EmitScalarConversion(only, "__raw", token);
+            var conversion = EmitScalarConversion(only, "__raw", "__key", token);
             sb.Append(indent).Append("    return new ").Append(typeFullName).Append('(').Append(conversion).AppendLine(");");
             sb.Append(indent).AppendLine("}");
 

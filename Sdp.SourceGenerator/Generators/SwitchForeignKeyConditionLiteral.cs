@@ -243,7 +243,7 @@ internal static class SwitchForeignKeyConditionLiteralBuilder
         return new SwitchForeignKeyConditionLiteral(text + "UL", text);
     }
 
-    // 실수의 파싱 스타일은 런타임 CSV 파싱(EmitScalarParse 가 내는 코드)과 같아야 한다.
+    // 실수의 파싱 스타일은 런타임 CSV 파싱(CsvMapperHelper.ParseSingle·ParseDouble·ParseDecimal)과 같아야 한다.
     private static SwitchForeignKeyConditionLiteral? TryBuildSingle(string conditionValue)
     {
         var parsed = float.TryParse(conditionValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var value);
