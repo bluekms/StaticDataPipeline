@@ -32,6 +32,9 @@ public class Program
             ? Logger.CreateLoggerWithoutFile<Program>(options.MinLogLevel)
             : Logger.CreateLogger<Program>(options.MinLogLevel, options.LogPath);
 
+        EnsureInputPathExists(options.RecordCsPath, "record-path", logger);
+        EnsureInputPathExists(options.ExcelPath, "excel-path", logger);
+
         var beforeCsState = FolderStateScanner.Scan(options.RecordCsPath, ".cs");
         var beforeExcelState = FolderStateScanner.Scan(options.ExcelPath, ".xls", ".xlsx");
 
@@ -88,6 +91,19 @@ public class Program
 
         LogTrace(logger, sw.Elapsed.TotalMilliseconds, nameof(FolderStateScanner), null);
         LogInformation(logger, totalSw.Elapsed.TotalMilliseconds, nameof(ExcelColumnExtractor), null);
+    }
+
+    private static void EnsureInputPathExists(string path, string optionName, ILogger<Program> logger)
+    {
+        if (File.Exists(path) || Directory.Exists(path))
+        {
+            return;
+        }
+
+        var message = string.Format(CultureInfo.CurrentCulture, Messages.Composite.OptionPathNotExist, optionName, Path.GetFullPath(path));
+        var exception = new ArgumentException(message);
+        LogError(logger, exception.Message, exception);
+        throw exception;
     }
 
     private static string EnsureOutputDirectory(ProgramOptions options, ILogger<Program> logger)
