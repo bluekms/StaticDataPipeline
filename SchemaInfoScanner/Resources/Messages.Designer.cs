@@ -291,20 +291,14 @@ internal static class Messages
     internal static string NotSupportedListType
         => ResourceManager.GetString("NotSupportedListType", Culture)!;
 
-    internal static string NotSingleColumnList
-        => ResourceManager.GetString("NotSingleColumnList", Culture)!;
-
     internal static string NotSupportedHashSetType
         => ResourceManager.GetString("NotSupportedHashSetType", Culture)!;
-
-    internal static string NotSingleColumnHashSet
-        => ResourceManager.GetString("NotSingleColumnHashSet", Culture)!;
 
     internal static string FactoryNotSupportedArrayType
         => ResourceManager.GetString("FactoryNotSupportedArrayType", Culture)!;
 
-    internal static string IsRecordArrayType
-        => ResourceManager.GetString("IsRecordArrayType", Culture)!;
+    internal static string NotRecordArrayType
+        => ResourceManager.GetString("NotRecordArrayType", Culture)!;
 
     internal static string NotSupportedNestedCollectionType
         => ResourceManager.GetString("NotSupportedNestedCollectionType", Culture)!;
@@ -321,15 +315,19 @@ internal static class Messages
     internal static string FactoryNotSupportedRecordType
         => ResourceManager.GetString("FactoryNotSupportedRecordType", Culture)!;
 
-    internal static string IsRecordHashSetType
-        => ResourceManager.GetString("IsRecordHashSetType", Culture)!;
+    internal static string NotRecordHashSetType
+        => ResourceManager.GetString("NotRecordHashSetType", Culture)!;
 
     internal static string InvalidFullName
         => ResourceManager.GetString("InvalidFullName", Culture)!;
 
+    internal static string AttributeArgumentMustNotBeNull
+        => ResourceManager.GetString("AttributeArgumentMustNotBeNull", Culture)!;
+
     internal static class Composite
     {
         internal static CompositeFormat AlreadyVisited => CompositeFormat.Parse(Messages.AlreadyVisited);
+        internal static CompositeFormat FileOrDirectoryNotExist => CompositeFormat.Parse(Messages.FileOrDirectoryNotExist);
         internal static CompositeFormat CircularReference => CompositeFormat.Parse(Messages.CircularReference);
         internal static CompositeFormat Ignored => CompositeFormat.Parse(Messages.Ignored);
         internal static CompositeFormat RecordStarted => CompositeFormat.Parse(Messages.RecordStarted);
@@ -404,16 +402,17 @@ internal static class Messages
         internal static CompositeFormat NotSupportedPropertyType => CompositeFormat.Parse(Messages.NotSupportedPropertyType);
         internal static CompositeFormat FactoryNotSupportedPrimitiveType => CompositeFormat.Parse(Messages.FactoryNotSupportedPrimitiveType);
         internal static CompositeFormat NotSupportedListType => CompositeFormat.Parse(Messages.NotSupportedListType);
-        internal static CompositeFormat NotSingleColumnList => CompositeFormat.Parse(Messages.NotSingleColumnList);
         internal static CompositeFormat NotSupportedHashSetType => CompositeFormat.Parse(Messages.NotSupportedHashSetType);
-        internal static CompositeFormat NotSingleColumnHashSet => CompositeFormat.Parse(Messages.NotSingleColumnHashSet);
         internal static CompositeFormat FactoryNotSupportedArrayType => CompositeFormat.Parse(Messages.FactoryNotSupportedArrayType);
-        internal static CompositeFormat IsRecordArrayType => CompositeFormat.Parse(Messages.IsRecordArrayType);
+        internal static CompositeFormat NotRecordArrayType => CompositeFormat.Parse(Messages.NotRecordArrayType);
         internal static CompositeFormat NotSupportedNestedCollectionType => CompositeFormat.Parse(Messages.NotSupportedNestedCollectionType);
         internal static CompositeFormat FactoryDictionaryKeyMustBeRecordType => CompositeFormat.Parse(Messages.FactoryDictionaryKeyMustBeRecordType);
         internal static CompositeFormat FactoryDictionaryValueMustBeRecordType => CompositeFormat.Parse(Messages.FactoryDictionaryValueMustBeRecordType);
         internal static CompositeFormat FactoryDictionaryKeyMustBePrimitiveType => CompositeFormat.Parse(Messages.FactoryDictionaryKeyMustBePrimitiveType);
         internal static CompositeFormat FactoryNotSupportedRecordType => CompositeFormat.Parse(Messages.FactoryNotSupportedRecordType);
-        internal static CompositeFormat IsRecordHashSetType => CompositeFormat.Parse(Messages.IsRecordHashSetType);
+        internal static CompositeFormat NotRecordHashSetType => CompositeFormat.Parse(Messages.NotRecordHashSetType);
+        internal static CompositeFormat DictionaryKeyMustBeNonNullable => CompositeFormat.Parse(Messages.DictionaryKeyMustBeNonNullable);
+        internal static CompositeFormat DictionaryValueMustBeNonNullable => CompositeFormat.Parse(Messages.DictionaryValueMustBeNonNullable);
+        internal static CompositeFormat AttributeArgumentMustNotBeNull => CompositeFormat.Parse(Messages.AttributeArgumentMustNotBeNull);
     }
 }

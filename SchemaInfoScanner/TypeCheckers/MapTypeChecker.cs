@@ -30,7 +30,7 @@ public static class MapTypeChecker
         var keySymbol = (INamedTypeSymbol)property.NamedTypeSymbol.TypeArguments[0];
         if (keySymbol.NullableAnnotation is NullableAnnotation.Annotated)
         {
-            throw new NotSupportedException(Messages.DictionaryKeyMustBeNonNullable);
+            throw NullableKey(property.PropertyName);
         }
 
         var valueSymbol = (INamedTypeSymbol)property.NamedTypeSymbol.TypeArguments[1];
@@ -42,7 +42,7 @@ public static class MapTypeChecker
 
         if (valueSymbol.NullableAnnotation is NullableAnnotation.Annotated)
         {
-            throw new NotSupportedException(Messages.DictionaryValueMustBeNonNullable);
+            throw NullableValue(property.PropertyName);
         }
 
         var valueRecordSchema = RecordTypeChecker.CheckAndGetSchema(valueSymbol, recordSchemaCatalog, visited, logger);
@@ -97,6 +97,26 @@ public static class MapTypeChecker
         return symbol.Name == "FrozenDictionary" && symbol.Arity == 2;
     }
 
+    public static void CheckNonNullableKeyAndValue(PropertyName propertyName, INamedTypeSymbol symbol)
+    {
+        if (!IsSupportedMapType(symbol))
+        {
+            return;
+        }
+
+        var keySymbol = (INamedTypeSymbol)symbol.TypeArguments[0];
+        if (keySymbol.NullableAnnotation is NullableAnnotation.Annotated)
+        {
+            throw NullableKey(propertyName);
+        }
+
+        var valueSymbol = (INamedTypeSymbol)symbol.TypeArguments[1];
+        if (valueSymbol.NullableAnnotation is NullableAnnotation.Annotated)
+        {
+            throw NullableValue(propertyName);
+        }
+    }
+
     public static bool IsPrimitiveKeyRecordValueMapType(INamedTypeSymbol symbol)
     {
         if (!IsSupportedMapType(symbol))
@@ -105,16 +125,7 @@ public static class MapTypeChecker
         }
 
         var keySymbol = (INamedTypeSymbol)symbol.TypeArguments[0];
-        if (keySymbol.NullableAnnotation is NullableAnnotation.Annotated)
-        {
-            throw new NotSupportedException(Messages.DictionaryKeyMustBeNonNullable);
-        }
-
         var valueSymbol = (INamedTypeSymbol)symbol.TypeArguments[1];
-        if (valueSymbol.NullableAnnotation is NullableAnnotation.Annotated)
-        {
-            throw new NotSupportedException(Messages.DictionaryValueMustBeNonNullable);
-        }
 
         return PrimitiveTypeChecker.IsSupportedPrimitiveType(keySymbol) &&
                RecordTypeChecker.IsSupportedRecordType(valueSymbol);
@@ -128,16 +139,7 @@ public static class MapTypeChecker
         }
 
         var keySymbol = (INamedTypeSymbol)symbol.TypeArguments[0];
-        if (keySymbol.NullableAnnotation is NullableAnnotation.Annotated)
-        {
-            throw new NotSupportedException(Messages.DictionaryKeyMustBeNonNullable);
-        }
-
         var valueSymbol = (INamedTypeSymbol)symbol.TypeArguments[1];
-        if (valueSymbol.NullableAnnotation is NullableAnnotation.Annotated)
-        {
-            throw new NotSupportedException(Messages.DictionaryValueMustBeNonNullable);
-        }
 
         return RecordTypeChecker.IsSupportedRecordType(keySymbol) &&
                RecordTypeChecker.IsSupportedRecordType(valueSymbol);
@@ -222,5 +224,19 @@ public static class MapTypeChecker
         {
             throw new NotSupportedException(Messages.DictionaryKeyValueMustBeSameType);
         }
+    }
+
+    private static NotSupportedException NullableKey(PropertyName propertyName)
+    {
+        var message = string.Format(CultureInfo.CurrentCulture, Messages.Composite.DictionaryKeyMustBeNonNullable, propertyName.FullName);
+
+        return new NotSupportedException(message);
+    }
+
+    private static NotSupportedException NullableValue(PropertyName propertyName)
+    {
+        var message = string.Format(CultureInfo.CurrentCulture, Messages.Composite.DictionaryValueMustBeNonNullable, propertyName.FullName);
+
+        return new NotSupportedException(message);
     }
 }
