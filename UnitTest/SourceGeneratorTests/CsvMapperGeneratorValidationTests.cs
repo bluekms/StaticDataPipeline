@@ -27,10 +27,10 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         var code = mapperTree.ToString();
-        Assert.Contains("__ValidateRange_Price(int.Parse(", code);
+        Assert.Contains("__ValidateRange_Price(global::Sdp.Csv.CsvMapperHelper.ParseInt32(", code);
         Assert.Contains("value < 0", code);
         Assert.Contains("value > 1000000", code);
-        Assert.Contains("ArgumentOutOfRangeException", code);
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.ValueOutOfRange(\"Price\", \"0\", \"1000000\", value)", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
@@ -85,7 +85,7 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
         Assert.Contains(result.Diagnostics, d => d.Id == "SDP0016" && d.Severity == DiagnosticSeverity.Error);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-        Assert.Contains("NotSupportedException", mapperTree.ToString());
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.MapperNotSupported(", mapperTree.ToString());
         Assert.Empty(logger.Logs);
     }
 
@@ -139,12 +139,12 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
         Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-        Assert.Contains("NotSupportedException", mapperTree.ToString());
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.MapperNotSupported(", mapperTree.ToString());
         Assert.Empty(logger.Logs);
     }
 
     [Fact]
-    public void Emits_AllowThousands_for_floating_point_parse()
+    public void Emits_helper_parse_for_floating_point()
     {
         var logger = CreateLogger();
 
@@ -160,7 +160,8 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
         var result = SourceGeneratorTestHelper.Run(source);
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         var code = mapperTree.ToString();
-        Assert.Contains("NumberStyles.Float | global::System.Globalization.NumberStyles.AllowThousands", code);
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.ParseDouble(values[headers[\"Ratio\"]], \"Ratio\")", code);
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.ParseSingle(values[headers[\"Scale\"]], \"Scale\")", code);
         Assert.Empty(logger.Logs);
     }
 
@@ -217,7 +218,7 @@ public class CsvMapperGeneratorValidationTests(ITestOutputHelper testOutputHelpe
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         var code = mapperTree.ToString();
         Assert.Contains("== \"-\"", code);
-        Assert.Contains("private static int? __MapNullable_Score(string value)", code);
+        Assert.Contains("private static int? __MapNullable_Score(string value, string column)", code);
         Assert.Contains("__ValidateRange_Score", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);

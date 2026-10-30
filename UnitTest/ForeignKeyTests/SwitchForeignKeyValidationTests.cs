@@ -1,10 +1,13 @@
 using System.Collections.Immutable;
+using System.Globalization;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
 using Sdp.Manager;
 using Sdp.Table;
 using UnitTest.Utility;
 using Xunit.Abstractions;
+using SdpMessages = Sdp.Resources.Messages;
 
 namespace UnitTest.ForeignKeyTests;
 
@@ -265,10 +268,14 @@ public partial class SwitchForeignKeyValidationTests(ITestOutputHelper testOutpu
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
-        Assert.Single(ex.InnerExceptions);
-        Assert.Contains("5", ex.InnerExceptions[0].Message);
-        Assert.Contains("when RewardType=Item", ex.InnerExceptions[0].Message);
+        var inner = Assert.Single(ex.InnerExceptions);
+        Assert.Equal(Format(SdpMessages.Composite.SwitchFkValueNotFound, "QuestRecord", "RewardId", "5", "Item.Id", "RewardType", "Item"), inner.Message);
         Assert.Empty(logger.Logs);
+    }
+
+    private static string Format(CompositeFormat format, params object[] args)
+    {
+        return string.Format(CultureInfo.CurrentCulture, format, args);
     }
 }
 
