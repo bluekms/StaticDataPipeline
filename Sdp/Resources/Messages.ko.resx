@@ -93,4 +93,40 @@
   <data name="CannotEmitDueToDiagnostics" xml:space="preserve">
     <value>Sdp.SourceGenerator: '{0}'은(는) SDP 진단에 의해 빌드할 수 없습니다. 빌드 출력의 SDP 진단을 확인하세요.</value>
   </data>
+  <data name="CellValueInvalid" xml:space="preserve">
+    <value>'{2}' 열의 값 '{0}'을(를) {1}(으)로 읽을 수 없습니다.</value>
+  </data>
+  <data name="CellValueInvalidFormat" xml:space="preserve">
+    <value>'{3}' 열의 값 '{0}'을(를) '{2}' 형식의 {1}(으)로 읽을 수 없습니다.</value>
+  </data>
+  <data name="CellEnumMemberUndefined" xml:space="preserve">
+    <value>'{2}' 열의 값 '{0}'은(는) {1}에 정의된 멤버가 아닙니다.</value>
+  </data>
+  <data name="MappedValueOutOfRange" xml:space="preserve">
+    <value>'{0}'의 값은 [{1}, {2}] 범위 안이어야 합니다.</value>
+  </data>
+  <data name="MappedValuePatternMismatch" xml:space="preserve">
+    <value>'{1}'의 값 '{0}'이(가) 지정한 패턴과 맞지 않습니다.</value>
+  </data>
+  <data name="MappedCountOutOfRange" xml:space="preserve">
+    <value>'{0}'의 원소 개수는 [{1}, {2}] 범위 안이어야 하지만 {3}개입니다.</value>
+  </data>
+  <data name="MappedDuplicateSetValue" xml:space="preserve">
+    <value>Set '{1}'에 값 {0}이(가) 중복됩니다.</value>
+  </data>
+  <data name="MappedDuplicateDictionaryKey" xml:space="preserve">
+    <value>Dictionary '{1}'에 키 {0}이(가) 중복됩니다.</value>
+  </data>
+  <data name="MappedNonContiguousIndex" xml:space="preserve">
+    <value>컬렉션 '{2}'의 인덱스 {0}이(가) 비어 있습니다(찾은 최대 인덱스 {1}).</value>
+  </data>
+  <data name="MappedColumnExceedsLength" xml:space="preserve">
+    <value>열 '{0}'이(가) 컬렉션 '{2}'에 선언한 길이 {1}을(를) 넘습니다.</value>
+  </data>
+  <data name="MapperNotSupported" xml:space="preserve">
+    <value>Sdp.SourceGenerator: '{0}'에 CSV 매퍼가 아직 지원하지 않는 파라미터 타입이 있습니다.</value>
+  </data>
+  <data name="SwitchFkValueNotFound" xml:space="preserve">
+    <value>{0}.{1}({2})이(가) [{3}] 중 어디에도 존재하지 않습니다({4}={5}일 때).</value>
+  </data>
 </root>

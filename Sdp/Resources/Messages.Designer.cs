@@ -111,6 +111,42 @@ internal static class Messages
     internal static string CannotEmitDueToDiagnostics
         => ResourceManager.GetString("CannotEmitDueToDiagnostics", Culture)!;
 
+    internal static string CellValueInvalid
+        => ResourceManager.GetString("CellValueInvalid", Culture)!;
+
+    internal static string CellValueInvalidFormat
+        => ResourceManager.GetString("CellValueInvalidFormat", Culture)!;
+
+    internal static string CellEnumMemberUndefined
+        => ResourceManager.GetString("CellEnumMemberUndefined", Culture)!;
+
+    internal static string MappedValueOutOfRange
+        => ResourceManager.GetString("MappedValueOutOfRange", Culture)!;
+
+    internal static string MappedValuePatternMismatch
+        => ResourceManager.GetString("MappedValuePatternMismatch", Culture)!;
+
+    internal static string MappedCountOutOfRange
+        => ResourceManager.GetString("MappedCountOutOfRange", Culture)!;
+
+    internal static string MappedDuplicateSetValue
+        => ResourceManager.GetString("MappedDuplicateSetValue", Culture)!;
+
+    internal static string MappedDuplicateDictionaryKey
+        => ResourceManager.GetString("MappedDuplicateDictionaryKey", Culture)!;
+
+    internal static string MappedNonContiguousIndex
+        => ResourceManager.GetString("MappedNonContiguousIndex", Culture)!;
+
+    internal static string MappedColumnExceedsLength
+        => ResourceManager.GetString("MappedColumnExceedsLength", Culture)!;
+
+    internal static string MapperNotSupported
+        => ResourceManager.GetString("MapperNotSupported", Culture)!;
+
+    internal static string SwitchFkValueNotFound
+        => ResourceManager.GetString("SwitchFkValueNotFound", Culture)!;
+
     internal static class Composite
     {
 #if NET8_0_OR_GREATER
@@ -135,6 +171,18 @@ internal static class Messages
         internal static CompositeFormat ViewMustBePartial => CompositeFormat.Parse(Messages.ViewMustBePartial);
         internal static CompositeFormat ViewContainingTypeMustBePartial => CompositeFormat.Parse(Messages.ViewContainingTypeMustBePartial);
         internal static CompositeFormat CannotEmitDueToDiagnostics => CompositeFormat.Parse(Messages.CannotEmitDueToDiagnostics);
+        internal static CompositeFormat CellValueInvalid => CompositeFormat.Parse(Messages.CellValueInvalid);
+        internal static CompositeFormat CellValueInvalidFormat => CompositeFormat.Parse(Messages.CellValueInvalidFormat);
+        internal static CompositeFormat CellEnumMemberUndefined => CompositeFormat.Parse(Messages.CellEnumMemberUndefined);
+        internal static CompositeFormat MappedValueOutOfRange => CompositeFormat.Parse(Messages.MappedValueOutOfRange);
+        internal static CompositeFormat MappedValuePatternMismatch => CompositeFormat.Parse(Messages.MappedValuePatternMismatch);
+        internal static CompositeFormat MappedCountOutOfRange => CompositeFormat.Parse(Messages.MappedCountOutOfRange);
+        internal static CompositeFormat MappedDuplicateSetValue => CompositeFormat.Parse(Messages.MappedDuplicateSetValue);
+        internal static CompositeFormat MappedDuplicateDictionaryKey => CompositeFormat.Parse(Messages.MappedDuplicateDictionaryKey);
+        internal static CompositeFormat MappedNonContiguousIndex => CompositeFormat.Parse(Messages.MappedNonContiguousIndex);
+        internal static CompositeFormat MappedColumnExceedsLength => CompositeFormat.Parse(Messages.MappedColumnExceedsLength);
+        internal static CompositeFormat MapperNotSupported => CompositeFormat.Parse(Messages.MapperNotSupported);
+        internal static CompositeFormat SwitchFkValueNotFound => CompositeFormat.Parse(Messages.SwitchFkValueNotFound);
 #else
         // netstandard2.1 에는 CompositeFormat 이 없어 원본 포맷 문자열을 그대로 노출한다.
         // 호출부의 string.Format 은 string 오버로드로 동일하게 동작한다.
@@ -159,6 +207,18 @@ internal static class Messages
         internal static string ViewMustBePartial => Messages.ViewMustBePartial;
         internal static string ViewContainingTypeMustBePartial => Messages.ViewContainingTypeMustBePartial;
         internal static string CannotEmitDueToDiagnostics => Messages.CannotEmitDueToDiagnostics;
+        internal static string CellValueInvalid => Messages.CellValueInvalid;
+        internal static string CellValueInvalidFormat => Messages.CellValueInvalidFormat;
+        internal static string CellEnumMemberUndefined => Messages.CellEnumMemberUndefined;
+        internal static string MappedValueOutOfRange => Messages.MappedValueOutOfRange;
+        internal static string MappedValuePatternMismatch => Messages.MappedValuePatternMismatch;
+        internal static string MappedCountOutOfRange => Messages.MappedCountOutOfRange;
+        internal static string MappedDuplicateSetValue => Messages.MappedDuplicateSetValue;
+        internal static string MappedDuplicateDictionaryKey => Messages.MappedDuplicateDictionaryKey;
+        internal static string MappedNonContiguousIndex => Messages.MappedNonContiguousIndex;
+        internal static string MappedColumnExceedsLength => Messages.MappedColumnExceedsLength;
+        internal static string MapperNotSupported => Messages.MapperNotSupported;
+        internal static string SwitchFkValueNotFound => Messages.SwitchFkValueNotFound;
 #endif
     }
 }
