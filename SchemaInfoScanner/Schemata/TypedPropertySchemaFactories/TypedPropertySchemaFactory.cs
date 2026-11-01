@@ -97,9 +97,7 @@ public static class TypedPropertySchemaFactory
                 context);
         }
 
-        // 스캐너 컴파일에는 참조 어셈블리가 없어서 Record 소스 밖의 타입(System.DayOfWeek 같은 외부 enum)은 전부 Error 타입이다.
-        var underlyingType = UnwrapNullable(propertySymbol);
-        if (underlyingType.TypeKind is TypeKind.Error)
+        if (IsDeclaredOutsideRecordSources(propertySymbol))
         {
             throw new NotSupportedException(string.Format(
                 CultureInfo.CurrentCulture,
@@ -115,10 +113,12 @@ public static class TypedPropertySchemaFactory
             propertySymbol.Name));
     }
 
-    private static ITypeSymbol UnwrapNullable(INamedTypeSymbol symbol)
+    private static bool IsDeclaredOutsideRecordSources(INamedTypeSymbol symbol)
     {
-        return symbol.OriginalDefinition.SpecialType is SpecialType.System_Nullable_T
+        var underlyingType = symbol.OriginalDefinition.SpecialType is SpecialType.System_Nullable_T
             ? symbol.TypeArguments[0]
             : symbol;
+
+        return underlyingType.TypeKind is TypeKind.Error;
     }
 }
