@@ -267,6 +267,9 @@
   <data name="NotSupportedPrimitiveType" xml:space="preserve">
     <value>{0}은(는) 지원하지 않는 primitive 타입입니다.</value>
   </data>
+  <data name="TypeNotDeclaredInRecordSources" xml:space="preserve">
+    <value>{0}의 타입 '{1}'이(가) Record 소스 파일에 선언되어 있지 않습니다. 다른 어셈블리의 enum(예: System.DayOfWeek)은 쓸 수 없으니 Record 와 같은 파일에 enum 을 선언하십시오.</value>
+  </data>
   <data name="NotSupportedPropertyType" xml:space="preserve">
     <value>{0}({1})은(는) 지원하지 않는 property 타입입니다.</value>
   </data>
