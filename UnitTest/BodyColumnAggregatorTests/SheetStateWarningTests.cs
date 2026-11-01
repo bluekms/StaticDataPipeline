@@ -1,5 +1,5 @@
-using ClosedXML.Excel;
 using CLICommonLibrary;
+using ClosedXML.Excel;
 using ExcelColumnExtractor.Aggregator;
 using ExcelColumnExtractor.Checkers;
 using ExcelColumnExtractor.Exceptions;
@@ -68,12 +68,15 @@ public class SheetStateWarningTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public void FormulaCellOutsideDataArea_IsIgnored()
     {
-        var (logger, table) = Extract(RecordSource, sheet =>
-        {
-            sheet.Cell("A1").Value = "아이템 표";
-            sheet.Cell("B1").FormulaA1 = "=TODAY()";
-            WriteRows(sheet, ["Id", "Name", "Kind", "Price"], [["1", "Potion", "Potion", "100"]], startRow: 3);
-        }, startCell: "A3");
+        var (logger, table) = Extract(
+            RecordSource,
+            sheet =>
+            {
+                sheet.Cell("A1").Value = "아이템 표";
+                sheet.Cell("B1").FormulaA1 = "=TODAY()";
+                WriteRows(sheet, ["Id", "Name", "Kind", "Price"], [["1", "Potion", "Potion", "100"]], startRow: 3);
+            },
+            startCell: "A3");
 
         Assert.Single(table.Rows);
         Assert.DoesNotContain(logger.Logs, log => log.LogLevel == LogLevel.Warning);

@@ -97,7 +97,7 @@ public static class BodyColumnAggregator
     private static void EnsureNoFormulaCells(
         ExcelSheetName excelSheetName,
         string startCell,
-        IReadOnlySet<int> targetColumns,
+        HashSet<int> targetColumns,
         FormulaCellsBySheet formulaCellsBySheet)
     {
         var sheetFormulaCells = formulaCellsBySheet.GetValueOrDefault(excelSheetName.SheetName);
