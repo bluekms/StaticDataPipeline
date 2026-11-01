@@ -60,7 +60,6 @@ internal static partial class CsvMapperEmitter
         sb.Append(indent).AppendLine("        default:");
         if (isKey)
         {
-            // [Key] enum 은 ID 코드 공간으로 쓰이므로 정의되지 않은 정수 값도 캐스트로 통과시킨다.
             sb.Append(indent).Append("            return (").Append(enumFullName).Append(")global::Sdp.Csv.CsvMapperHelper.")
                 .Append(CellParseMethod(underlyingKind)).AppendLine("(value, column);");
         }
