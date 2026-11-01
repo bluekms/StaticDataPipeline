@@ -188,7 +188,6 @@ public class ColumnOrderTests(ITestOutputHelper testOutputHelper)
             catalogs.RecordSchemaCatalog.StaticDataRecordSchemata,
             sheetNameMap,
             requiredHeaderMap,
-            startCell,
             logger);
 
         var table = Assert.Single(extractedTableMap.SortedTables).Value;

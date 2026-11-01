@@ -62,7 +62,6 @@ public class Program
             catalogs.RecordSchemaCatalog.StaticDataRecordSchemata,
             sheetNameMap,
             requiredHeaderMap,
-            options.StartCell,
             logger);
         LogTrace(logger, sw.Elapsed.TotalMilliseconds, nameof(BodyColumnAggregator), null);
 

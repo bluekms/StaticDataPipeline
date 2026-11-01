@@ -66,7 +66,6 @@ public class NestedRecordMemberExtractionTests(ITestOutputHelper testOutputHelpe
             catalogs.RecordSchemaCatalog.StaticDataRecordSchemata,
             sheetNameMap,
             requiredHeaderMap,
-            "A1",
             logger);
         DataBodyChecker.Check(catalogs, extractedTableMap, programLogger);
 

@@ -10,8 +10,10 @@ namespace UnitTest.AttributeValidatorTests;
 
 public partial class ColumnNameForbiddenCharacterRuleTests(ITestOutputHelper testOutputHelper)
 {
-    [Fact]
-    public void CleanColumnNamePasses()
+    [Theory]
+    [InlineData("UserId")]
+    [InlineData("출석일수(3~7월)")]
+    public void ColumnNameWithoutForbiddenCharacterPasses(string columnName)
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<ColumnNameForbiddenCharacterRuleTests>() is not TestOutputLogger<ColumnNameForbiddenCharacterRuleTests> logger)
@@ -20,12 +22,12 @@ public partial class ColumnNameForbiddenCharacterRuleTests(ITestOutputHelper tes
         }
 
         // language=C#
-        var code = """
-                   [StaticDataRecord("Test", "TestSheet")]
-                   public sealed partial record MyRecord(
-                       [ColumnName("UserId")] int Id,
-                   );
-                   """;
+        var code = $$"""
+                     [StaticDataRecord("Test", "TestSheet")]
+                     public sealed partial record MyRecord(
+                         [ColumnName("{{columnName}}")] int Id,
+                     );
+                     """;
 
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
@@ -36,8 +38,13 @@ public partial class ColumnNameForbiddenCharacterRuleTests(ITestOutputHelper tes
 
     [Theory]
     [InlineData("a,b")]
+    [InlineData(@"a\""b")]
     [InlineData("a.b")]
+    [InlineData("a[b")]
+    [InlineData("a]b")]
     [InlineData("Tag[0]")]
+    [InlineData(@"a\nb")]
+    [InlineData(@"a\rb")]
     public void ForbiddenCharacterThrows(string columnName)
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);

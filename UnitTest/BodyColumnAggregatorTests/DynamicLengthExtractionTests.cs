@@ -121,7 +121,6 @@ public class DynamicLengthExtractionTests(ITestOutputHelper testOutputHelper)
             catalogs.RecordSchemaCatalog.StaticDataRecordSchemata,
             sheetNameMap,
             requiredHeaderMap,
-            "A1",
             logger);
         DataBodyChecker.Check(catalogs, extractedTableMap, programLogger);
 

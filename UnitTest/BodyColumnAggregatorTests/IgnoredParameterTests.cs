@@ -69,7 +69,6 @@ public class IgnoredParameterTests(ITestOutputHelper testOutputHelper)
             catalogs.RecordSchemaCatalog.StaticDataRecordSchemata,
             sheetNameMap,
             requiredHeaderMap,
-            "A1",
             logger);
         DataBodyChecker.Check(catalogs, extractedTableMap, programLogger);
         PrimaryKeyDuplicateChecker.Check(extractedTableMap, programLogger);

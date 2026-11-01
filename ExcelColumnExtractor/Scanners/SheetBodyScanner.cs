@@ -11,7 +11,11 @@ public class SheetBodyScanner
     public sealed record RowData(IReadOnlyList<CellData> Data);
     public sealed record BodyData(IReadOnlyList<RowData> Rows);
 
-    public static BodyData Scan(ExcelSheetName excelSheetName, string startCell, ILogger logger)
+    public static BodyData Scan(
+        ExcelSheetName excelSheetName,
+        string startCell,
+        IReadOnlySet<int> inspectedColumns,
+        ILogger logger)
     {
         List<RowData> rows = [];
         void ProcessBody(SheetBodyRow row)
@@ -19,7 +23,7 @@ public class SheetBodyScanner
             rows.Add(new(row.Cells));
         }
 
-        var processor = new ExcelSheetProcessor(ProcessBody);
+        var processor = new ExcelSheetProcessor(ProcessBody, inspectedColumns);
         processor.Process(excelSheetName, startCell, logger);
 
         var msg = string.Format(
