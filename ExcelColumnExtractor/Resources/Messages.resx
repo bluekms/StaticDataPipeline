@@ -37,7 +37,7 @@
     <value>RecordHeaders: {{ {0} }}</value>
   </data>
   <data name="HeaderCaseSensitivity" xml:space="preserve">
-    <value>Header case sensitivity: {0}</value>
+    <value>Header case does not match. Record header: '{0}', sheet header: '{1}'</value>
   </data>
   <data name="DuplicateRequiredHeader" xml:space="preserve">
     <value>Record headers '{0}' and '{1}' both refer to the same sheet column '{2}'. Check for duplicate [ColumnName] values.</value>

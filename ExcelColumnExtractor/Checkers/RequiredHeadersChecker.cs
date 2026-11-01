@@ -128,6 +128,16 @@ public static class RequiredHeadersChecker
 
             if (index is -1)
             {
+                var caseMismatchHeader = FindIgnoringCase(sheetHeaders, flattenedHeader, fallbackHeader);
+                if (caseMismatchHeader is not null)
+                {
+                    throw new ArgumentException(string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.HeaderCaseSensitivity,
+                        standardHeader,
+                        caseMismatchHeader));
+                }
+
                 var sb = new StringBuilder();
                 sb.AppendLine(string.Format(
                     CultureInfo.CurrentCulture,
@@ -146,14 +156,6 @@ public static class RequiredHeadersChecker
             }
 
             var sheetHeader = sheetHeaders[index];
-            if (!sheetHeader.Equals(standardHeader, StringComparison.OrdinalIgnoreCase) &&
-                !sheetHeader.Equals(fallbackHeader, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new ArgumentException(string.Format(
-                    CultureInfo.CurrentCulture,
-                    Messages.Composite.HeaderCaseSensitivity,
-                    standardHeader));
-            }
 
             if (!standardHeaderByIndex.TryAdd(index, standardHeader))
             {
@@ -169,6 +171,28 @@ public static class RequiredHeadersChecker
         }
 
         return requiredHeaders;
+    }
+
+    private static string? FindIgnoringCase(
+        IReadOnlyList<string> sheetHeaders,
+        RecordFlattener.FlattenedHeader flattenedHeader,
+        string fallbackHeader)
+    {
+        foreach (var sheetHeader in sheetHeaders)
+        {
+            if (string.Equals(sheetHeader, flattenedHeader.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                return sheetHeader;
+            }
+
+            if (flattenedHeader.FromSingleValueRecord &&
+                string.Equals(sheetHeader, fallbackHeader, StringComparison.OrdinalIgnoreCase))
+            {
+                return sheetHeader;
+            }
+        }
+
+        return null;
     }
 
     private static int IndexOf(IReadOnlyList<string> list, string value)
