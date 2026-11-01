@@ -42,7 +42,7 @@
 |`SDP0209`|`[SwitchForeignKey]` 의 조건 컬럼이 같은 Record 에 없다|조건 컬럼 이름을 맞춘다|
 |`SDP0210`|한 파라미터의 `[SwitchForeignKey]` 들이 서로 다른 조건 컬럼을 쓴다|같은 조건 컬럼으로 통일한다|
 |`SDP0211`|FK 참조 값의 타입이 타겟 컬럼 타입과 다르다 (컬렉션 참조는 원소 타입 기준)|타입을 맞춘다. FK `int?` → 타겟 `int` 는 허용되지만 FK `int` → 타겟 `int?` 는 이 진단이다. Map 이나 원소가 Record 인 컬렉션은 참조 컬럼이 될 수 없다|
-|`SDP0212`|enum 조건 컬럼에 대해 `[SwitchForeignKey]` 조건값이 어떤 멤버와도 맞지 않는다|멤버 이름 또는 정수 값으로 고친다. `[Flags]` enum 은 쉼표로 조합한 멤버 이름도 허용된다|
+|`SDP0212`|enum 조건 컬럼에 대해 `[SwitchForeignKey]` 조건값이 어떤 멤버와도 맞지 않는다|멤버 이름 하나 또는 정수 값으로 고친다. `"Read, Write"` 같은 조합은 `[Flags]` enum 이어도 받지 않는다|
 |`SDP0213`|TableSet 파라미터가 `StaticDataTable` 서브클래스가 아니다|테이블 타입으로 바꾼다|
 |`SDP0214`|FK 타겟 컬럼이 컬렉션 타입이다|단일 값 컬럼을 타겟으로 지정한다|
 |`SDP0215`|테이블의 Record 타입에 `[StaticDataRecord]` 가 없다|Record 에 `[StaticDataRecord]` 를 붙인다|

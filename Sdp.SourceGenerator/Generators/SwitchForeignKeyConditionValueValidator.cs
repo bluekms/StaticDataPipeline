@@ -51,16 +51,8 @@ internal static class SwitchForeignKeyConditionValueValidator
 
         if (conditionType.TypeKind == TypeKind.Enum && conditionType is INamedTypeSymbol enumType)
         {
-            if (HasFlagsAttribute(enumType))
-            {
-                ValidateFlagsEnumConditionValue(
-                    recordType, param, switchFkAttrs, conditionColumn, enumType, diagnostics);
-            }
-            else
-            {
-                ValidateEnumConditionValue(
-                    recordType, param, switchFkAttrs, conditionColumn, enumType, diagnostics);
-            }
+            ValidateEnumConditionValue(
+                recordType, param, switchFkAttrs, conditionColumn, enumType, diagnostics);
         }
         else if (IsIntegralType(conditionType.SpecialType))
         {
@@ -145,37 +137,6 @@ internal static class SwitchForeignKeyConditionValueValidator
             }
 
             if (memberNames.Contains(conditionValue) || IsParsableEnumNumeric(enumType, conditionValue))
-            {
-                continue;
-            }
-
-            diagnostics.Add(Diagnostic.Create(
-                SdpDiagnostics.SwitchForeignKeyConditionValueInvalid,
-                ParameterLocation(param),
-                recordType.Name,
-                conditionValue,
-                conditionColumn,
-                enumType.ToDisplayString()));
-        }
-    }
-
-    private static void ValidateFlagsEnumConditionValue(
-        INamedTypeSymbol recordType,
-        IParameterSymbol param,
-        List<AttributeData> switchFkAttrs,
-        string conditionColumn,
-        INamedTypeSymbol enumType,
-        List<Diagnostic> diagnostics)
-    {
-        foreach (var attr in switchFkAttrs)
-        {
-            var args = attr.ConstructorArguments;
-            if (args.Length < 2 || args[1].Value is not string conditionValue)
-            {
-                continue;
-            }
-
-            if (TryParseFlagsConditionValue(enumType, conditionValue, out _))
             {
                 continue;
             }
@@ -325,110 +286,6 @@ internal static class SwitchForeignKeyConditionValueValidator
                 conditionValue,
                 conditionColumn));
         }
-    }
-
-    public static bool HasFlagsAttribute(INamedTypeSymbol enumType)
-    {
-        foreach (var attr in enumType.GetAttributes())
-        {
-            if (attr.AttributeClass is not { } attributeClass)
-            {
-                continue;
-            }
-
-            var attributeName = attributeClass.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            if (attributeName == "global::System.FlagsAttribute")
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    // [Flags] enum Permission: int { Read = 1, Write = 2, Admin = 4 }
-    // "Read, Write": true, 3
-    // "5": true, 5 (미정의 조합도 값이면 성공)
-    // "Read, Execute": false
-    public static bool TryParseFlagsConditionValue(
-        INamedTypeSymbol enumType,
-        string conditionValue,
-        out string numericLiteral)
-    {
-        numericLiteral = string.Empty;
-
-        var memberValues = new Dictionary<string, object?>(StringComparer.Ordinal);
-        foreach (var member in enumType.GetMembers().OfType<IFieldSymbol>())
-        {
-            if (member.IsConst)
-            {
-                memberValues[member.Name] = member.ConstantValue;
-            }
-        }
-
-        if (enumType.EnumUnderlyingType!.SpecialType == SpecialType.System_UInt64)
-        {
-            var accumulator = 0UL;
-            foreach (var token in conditionValue.Split(','))
-            {
-                var trimmedToken = token.Trim();
-                if (memberValues.TryGetValue(trimmedToken, out var memberValue))
-                {
-                    accumulator |= Convert.ToUInt64(memberValue, CultureInfo.InvariantCulture);
-
-                    continue;
-                }
-
-                var parsed = ulong.TryParse(
-                    trimmedToken,
-                    NumberStyles.Integer,
-                    CultureInfo.InvariantCulture,
-                    out var numeric);
-                if (!parsed)
-                {
-                    return false;
-                }
-
-                accumulator |= numeric;
-            }
-
-            numericLiteral = accumulator.ToString(CultureInfo.InvariantCulture);
-
-            return true;
-        }
-
-        var signedAccumulator = 0L;
-        foreach (var token in conditionValue.Split(','))
-        {
-            var trimmedToken = token.Trim();
-            if (memberValues.TryGetValue(trimmedToken, out var memberValue))
-            {
-                signedAccumulator |= Convert.ToInt64(memberValue, CultureInfo.InvariantCulture);
-
-                continue;
-            }
-
-            var parsed = long.TryParse(
-                trimmedToken,
-                NumberStyles.Integer,
-                CultureInfo.InvariantCulture,
-                out var numeric);
-            if (!parsed)
-            {
-                return false;
-            }
-
-            if (!FitsInIntegralType(enumType.EnumUnderlyingType!.SpecialType, numeric))
-            {
-                return false;
-            }
-
-            signedAccumulator |= numeric;
-        }
-
-        numericLiteral = signedAccumulator.ToString(CultureInfo.InvariantCulture);
-
-        return true;
     }
 
     private static bool IsParsableEnumNumeric(INamedTypeSymbol enumType, string value)
