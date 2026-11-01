@@ -4,6 +4,7 @@ using CLICommonLibrary;
 using CommandLine;
 using ExcelColumnExtractor.Aggregator;
 using ExcelColumnExtractor.Checkers;
+using ExcelColumnExtractor.Exceptions;
 using ExcelColumnExtractor.Resources;
 using ExcelColumnExtractor.Scanners;
 using ExcelColumnExtractor.Writers;
@@ -15,25 +16,46 @@ public class Program
 {
     public static int Main(string[] args)
     {
-        return Parser.Default.ParseArguments<ProgramOptions>(args)
-            .MapResult(
-                options =>
-                {
-                    Run(options);
-
-                    return 0;
-                },
-                HandleParseErrors);
+        try
+        {
+            return Parser.Default.ParseArguments<ProgramOptions>(args)
+                .MapResult(RunAndReport, HandleParseErrors);
+        }
+        finally
+        {
+            Serilog.Log.CloseAndFlush();
+        }
     }
 
-    private static void Run(ProgramOptions options)
+    private static int RunAndReport(ProgramOptions options)
     {
         var logger = string.IsNullOrEmpty(options.LogPath)
             ? Logger.CreateLoggerWithoutFile<Program>(options.MinLogLevel)
             : Logger.CreateLogger<Program>(options.MinLogLevel, options.LogPath);
 
-        EnsureInputPathExists(options.RecordCsPath, "record-path", logger);
-        EnsureInputPathExists(options.ExcelPath, "excel-path", logger);
+        try
+        {
+            Run(options, logger);
+
+            return 0;
+        }
+        catch (ExtractionException)
+        {
+            // Record 별 원인은 검사기가 이미 Error 로 남겼다.
+            return 1;
+        }
+        catch (Exception e)
+        {
+            LogError(logger, e.Message, e);
+
+            return 1;
+        }
+    }
+
+    internal static void Run(ProgramOptions options, ILogger<Program> logger)
+    {
+        EnsureInputPathExists(options.RecordCsPath, "record-path");
+        EnsureInputPathExists(options.ExcelPath, "excel-path");
 
         var beforeCsState = FolderStateScanner.Scan(options.RecordCsPath, ".cs");
         var beforeExcelState = FolderStateScanner.Scan(options.ExcelPath, ".xls", ".xlsx");
@@ -43,9 +65,7 @@ public class Program
         var catalogs = RecordScanner.Scan(options.RecordCsPath, logger);
         if (catalogs.RecordSchemaCatalog.StaticDataRecordSchemata.Count == 0)
         {
-            var exception = new ArgumentException(Messages.StaticDataRecordAttributeNotFound);
-            LogError(logger, exception.Message, exception);
-            throw exception;
+            throw new ArgumentException(Messages.StaticDataRecordAttributeNotFound);
         }
 
         LogTrace(logger, sw.Elapsed.TotalMilliseconds, nameof(RecordScanner), null);
@@ -77,7 +97,7 @@ public class Program
         // TODO BodyChecker 결과로 FK를 체크해줄 수 있을까?
         sw.Restart();
         CsvWriter.Write(
-            EnsureOutputDirectory(options, logger),
+            EnsureOutputDirectory(options),
             extractedTableMap);
         LogTrace(logger, sw.Elapsed.TotalMilliseconds, nameof(CsvWriter), null);
 
@@ -92,7 +112,7 @@ public class Program
         LogInformation(logger, totalSw.Elapsed.TotalMilliseconds, nameof(ExcelColumnExtractor), null);
     }
 
-    private static void EnsureInputPathExists(string path, string optionName, ILogger<Program> logger)
+    private static void EnsureInputPathExists(string path, string optionName)
     {
         if (File.Exists(path) || Directory.Exists(path))
         {
@@ -100,12 +120,11 @@ public class Program
         }
 
         var message = string.Format(CultureInfo.CurrentCulture, Messages.Composite.OptionPathNotExist, optionName, Path.GetFullPath(path));
-        var exception = new ArgumentException(message);
-        LogError(logger, exception.Message, exception);
-        throw exception;
+
+        throw new ArgumentException(message);
     }
 
-    private static string EnsureOutputDirectory(ProgramOptions options, ILogger<Program> logger)
+    private static string EnsureOutputDirectory(ProgramOptions options)
     {
         var path = string.IsNullOrEmpty(options.Version)
             ? options.OutputPath
@@ -121,13 +140,10 @@ public class Program
             var fileCount = Directory.GetFiles(path).Length;
             if (fileCount > 0)
             {
-                var exception = new ArgumentException(
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        Messages.Composite.DirectoryAlreadyHasFiles,
-                        fileCount));
-                LogError(logger, exception.Message, exception);
-                throw exception;
+                throw new ArgumentException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.DirectoryAlreadyHasFiles,
+                    fileCount));
             }
         }
 
