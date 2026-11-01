@@ -38,7 +38,7 @@ public class SheetStateWarningTests(ITestOutputHelper testOutputHelper)
         """;
 
     [Fact]
-    public void HiddenSheet_WarnsThenFails()
+    public void HiddenSheet_FailsWithSingleErrorLog()
     {
         var (logger, exception) = ExtractExpectingFailure(RecordSource, sheet =>
         {
@@ -46,12 +46,13 @@ public class SheetStateWarningTests(ITestOutputHelper testOutputHelper)
             sheet.Hide();
         });
 
-        Assert.Contains(logger.Logs, log => log.LogLevel == LogLevel.Warning && log.Message.Contains("State.Items", StringComparison.Ordinal));
+        Assert.DoesNotContain(logger.Logs, log => log.LogLevel == LogLevel.Warning);
+        Assert.Single(logger.Logs, log => log.LogLevel == LogLevel.Error && log.Message.Contains("State.Items", StringComparison.Ordinal));
         Assert.Contains("State.Items", exception.Message, StringComparison.Ordinal);
     }
 
     [Fact]
-    public void FormulaCellInDataArea_WarnsThenFails()
+    public void FormulaCellInDataArea_FailsWithSingleErrorLog()
     {
         var (logger, exception) = ExtractExpectingFailure(RecordSource, sheet =>
         {
@@ -59,7 +60,8 @@ public class SheetStateWarningTests(ITestOutputHelper testOutputHelper)
             sheet.Cell("D2").FormulaA1 = "=50*2";
         });
 
-        Assert.Contains(logger.Logs, log => log.LogLevel == LogLevel.Warning && log.Message.Contains("D2", StringComparison.Ordinal));
+        Assert.DoesNotContain(logger.Logs, log => log.LogLevel == LogLevel.Warning);
+        Assert.Single(logger.Logs, log => log.LogLevel == LogLevel.Error && log.Message.Contains("D2", StringComparison.Ordinal));
         Assert.Contains("D2", exception.Message, StringComparison.Ordinal);
     }
 
@@ -191,14 +193,27 @@ public class SheetStateWarningTests(ITestOutputHelper testOutputHelper)
     }
 
     [Fact]
-    public void BrandedHeaderInBothForms_WarnsThenFails()
+    public void HeaderCaseMismatch_FailsWithBothHeaders()
+    {
+        var (_, exception) = ExtractExpectingFailure(RecordSource, sheet =>
+        {
+            WriteRows(sheet, ["id", "Name", "Kind", "Price"], [["1", "Potion", "Potion", "100"]]);
+        });
+
+        Assert.Contains("'Id'", exception.Message, StringComparison.Ordinal);
+        Assert.Contains("'id'", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BrandedHeaderInBothForms_FailsWithSingleErrorLog()
     {
         var (logger, exception) = ExtractExpectingFailure(BrandedRecordSource, sheet =>
         {
             WriteRows(sheet, ["Id", "Id.Value", "Name"], [["1", "1", "Potion"]]);
         });
 
-        Assert.Contains(logger.Logs, log => log.LogLevel == LogLevel.Warning && log.Message.Contains("Id.Value", StringComparison.Ordinal));
+        Assert.DoesNotContain(logger.Logs, log => log.LogLevel == LogLevel.Warning);
+        Assert.Single(logger.Logs, log => log.LogLevel == LogLevel.Error && log.Message.Contains("Id.Value", StringComparison.Ordinal));
         Assert.Contains("Id.Value", exception.Message, StringComparison.Ordinal);
     }
 
