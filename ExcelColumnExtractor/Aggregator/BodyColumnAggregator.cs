@@ -7,6 +7,9 @@ using ExcelColumnExtractor.Scanners;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Schemata;
 using SchemaInfoScanner.Schemata.TypedPropertySchemata;
+using FormulaCellsBySheet = System.Collections.Generic.IReadOnlyDictionary<
+    string,
+    System.Collections.Generic.IReadOnlyList<ExcelColumnExtractor.Scanners.SheetFormulaScanner.FormulaCell>>;
 
 namespace ExcelColumnExtractor.Aggregator;
 
@@ -25,6 +28,7 @@ public static class BodyColumnAggregator
         var result = new Dictionary<RecordSchema, ExtractedTable>();
 
         var failures = new List<ExtractionException.Failure>();
+        var formulaCellsByWorkbook = new Dictionary<string, FormulaCellsBySheet>(StringComparer.Ordinal);
         foreach (var recordSchema in recordSchemaList)
         {
             try
@@ -34,7 +38,8 @@ public static class BodyColumnAggregator
                 var targetColumns = targetColumnData.Headers
                     .Select(header => header.SheetColumn)
                     .ToHashSet();
-                EnsureNoFormulaCells(excelSheetName, targetColumnData.StartCell, targetColumns);
+                var formulaCellsBySheet = GetFormulaCellsBySheet(excelSheetName.ExcelPath, formulaCellsByWorkbook);
+                EnsureNoFormulaCells(excelSheetName, targetColumnData.StartCell, targetColumns, formulaCellsBySheet);
                 var sheetBody = SheetBodyScanner.Scan(excelSheetName, targetColumnData.StartCell, targetColumns, logger);
 
                 var filteredRows = sheetBody.Rows
@@ -73,12 +78,43 @@ public static class BodyColumnAggregator
             : new(result);
     }
 
+    private static FormulaCellsBySheet GetFormulaCellsBySheet(
+        string excelPath,
+        Dictionary<string, FormulaCellsBySheet> formulaCellsByWorkbook)
+    {
+        var cached = formulaCellsByWorkbook.GetValueOrDefault(excelPath);
+        if (cached is not null)
+        {
+            return cached;
+        }
+
+        var scanned = SheetFormulaScanner.Scan(excelPath);
+        formulaCellsByWorkbook.Add(excelPath, scanned);
+
+        return scanned;
+    }
+
     private static void EnsureNoFormulaCells(
         ExcelSheetName excelSheetName,
         string startCell,
-        IReadOnlySet<int> targetColumns)
+        IReadOnlySet<int> targetColumns,
+        FormulaCellsBySheet formulaCellsBySheet)
     {
-        var formulaCells = SheetFormulaScanner.Scan(excelSheetName, startCell, targetColumns);
+        var sheetFormulaCells = formulaCellsBySheet.GetValueOrDefault(excelSheetName.SheetName);
+        if (sheetFormulaCells is null)
+        {
+            throw new ArgumentException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.SheetNotFound,
+                excelSheetName.FullName));
+        }
+
+        var startRow = ExcelSheetProcessor.ParseStartCell(startCell).Row;
+        var formulaCells = sheetFormulaCells
+            .Where(x => x.Row >= startRow)
+            .Where(x => targetColumns.Contains(x.Column))
+            .Select(x => x.Reference)
+            .ToList();
         if (formulaCells.Count == 0)
         {
             return;
