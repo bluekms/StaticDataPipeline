@@ -15,6 +15,7 @@ public class SheetBodyScanner
         ExcelSheetName excelSheetName,
         string startCell,
         IReadOnlySet<int> inspectedColumns,
+        IReadOnlyDictionary<int, string> dateTimeFormatByColumn,
         ILogger logger)
     {
         List<RowData> rows = [];
@@ -23,7 +24,7 @@ public class SheetBodyScanner
             rows.Add(new(row.Cells));
         }
 
-        var processor = new ExcelSheetProcessor(ProcessBody, inspectedColumns);
+        var processor = new ExcelSheetProcessor(ProcessBody, inspectedColumns, dateTimeFormatByColumn);
         processor.Process(excelSheetName, startCell, logger);
 
         var msg = string.Format(

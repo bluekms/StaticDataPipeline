@@ -38,9 +38,17 @@ public static class BodyColumnAggregator
                 var targetColumns = targetColumnData.Headers
                     .Select(header => header.SheetColumn)
                     .ToHashSet();
+                var dateTimeFormatByColumn = targetColumnData.Headers
+                    .Where(header => header.DateTimeFormat is not null)
+                    .ToDictionary(header => header.SheetColumn, header => header.DateTimeFormat!);
                 var formulaCellsBySheet = GetFormulaCellsBySheet(excelSheetName.ExcelPath, formulaCellsByWorkbook);
                 EnsureNoFormulaCells(excelSheetName, targetColumnData.StartCell, targetColumns, formulaCellsBySheet);
-                var sheetBody = SheetBodyScanner.Scan(excelSheetName, targetColumnData.StartCell, targetColumns, logger);
+                var sheetBody = SheetBodyScanner.Scan(
+                    excelSheetName,
+                    targetColumnData.StartCell,
+                    targetColumns,
+                    dateTimeFormatByColumn,
+                    logger);
 
                 var filteredRows = sheetBody.Rows
                     .Select(row =>

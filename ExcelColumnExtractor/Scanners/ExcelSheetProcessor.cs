@@ -17,10 +17,12 @@ public sealed class ExcelSheetProcessor
     internal sealed record CellAddress(int Column, int Row);
 
     private static readonly IReadOnlySet<int> NoInspectedColumns = new HashSet<int>();
+    private static readonly IReadOnlyDictionary<int, string> NoDateTimeFormats = new Dictionary<int, string>();
 
     private readonly ProcessHeader? processHeader;
     private readonly ProcessBodyRow? processBodyRow;
     private readonly IReadOnlySet<int> inspectedColumns = NoInspectedColumns;
+    private readonly IReadOnlyDictionary<int, string> dateTimeFormatByColumn = NoDateTimeFormats;
 
     public ExcelSheetProcessor(
         ProcessHeader processHeader,
@@ -42,11 +44,15 @@ public sealed class ExcelSheetProcessor
         this.processBodyRow = processBodyRow;
     }
 
-    public ExcelSheetProcessor(ProcessBodyRow processBodyRow, IReadOnlySet<int> inspectedColumns)
+    public ExcelSheetProcessor(
+        ProcessBodyRow processBodyRow,
+        IReadOnlySet<int> inspectedColumns,
+        IReadOnlyDictionary<int, string> dateTimeFormatByColumn)
     {
         this.processHeader = null;
         this.processBodyRow = processBodyRow;
         this.inspectedColumns = inspectedColumns;
+        this.dateTimeFormatByColumn = dateTimeFormatByColumn;
     }
 
     public void Process(ExcelSheetName excelSheetName, string startCell, ILogger logger)
@@ -162,7 +168,8 @@ public sealed class ExcelSheetProcessor
                 {
                     var column = startAddress.Column + offset;
                     var address = ToAddress(column, excelPhysicalRow);
-                    var value = FormatCellValue(x);
+                    var dateTimeFormat = dateTimeFormatByColumn.GetValueOrDefault(column);
+                    var value = FormatCellValue(x, dateTimeFormat);
                     if (!inspectedColumns.Contains(column))
                     {
                         return new CellData(address, value);
@@ -276,6 +283,28 @@ public sealed class ExcelSheetProcessor
             IFormattable formattable => formattable.ToString(null, CultureInfo.InvariantCulture),
             _ => value.ToString() ?? string.Empty,
         };
+    }
+
+    // 열의 [DateTimeFormat] 으로 적은 문자열이 같은 시각으로 되읽히지 않으면(포맷이 시각을 담지 못함) 기본 표기로 두어
+    // 뒤의 셀 값 검사가 실패하게 한다. 시각을 조용히 잘라 내지 않는다.
+    private static string FormatCellValue(object? value, string? dateTimeFormat)
+    {
+        if (value is not DateTime dt || dateTimeFormat is null)
+        {
+            return FormatCellValue(value);
+        }
+
+        var text = dt.ToString(dateTimeFormat, CultureInfo.InvariantCulture);
+        var roundTrips = DateTime.TryParseExact(
+            text,
+            dateTimeFormat,
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out var parsed);
+
+        return roundTrips && parsed == dt
+            ? text
+            : FormatCellValue(value);
     }
 
     internal static CellAddress ParseStartCell(string startCell)

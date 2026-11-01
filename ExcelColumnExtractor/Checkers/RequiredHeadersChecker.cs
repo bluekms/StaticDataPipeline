@@ -15,7 +15,7 @@ namespace ExcelColumnExtractor.Checkers;
 
 public static class RequiredHeadersChecker
 {
-    public sealed record RequiredHeader(string Header, int Index, int SheetColumn);
+    public sealed record RequiredHeader(string Header, int Index, int SheetColumn, string? DateTimeFormat);
 
     public sealed record RequiredHeaderMapping(string StartCell, IReadOnlyList<RequiredHeader> Headers);
 
@@ -167,7 +167,7 @@ public static class RequiredHeadersChecker
                     sheetHeader));
             }
 
-            requiredHeaders.Add(new(sheetHeader, index, startColumn + index));
+            requiredHeaders.Add(new(sheetHeader, index, startColumn + index, flattenedHeader.DateTimeFormat));
         }
 
         return requiredHeaders;

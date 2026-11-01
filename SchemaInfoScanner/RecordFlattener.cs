@@ -12,7 +12,7 @@ namespace SchemaInfoScanner;
 
 public static class RecordFlattener
 {
-    public sealed record FlattenedHeader(string Name, bool FromSingleValueRecord);
+    public sealed record FlattenedHeader(string Name, bool FromSingleValueRecord, string? DateTimeFormat);
 
     public static IReadOnlyList<string> Flatten(
         RecordSchema recordSchema,
@@ -58,15 +58,16 @@ public static class RecordFlattener
                 ? name
                 : $"{parentPrefix}.{name}";
 
+            var dateTimeFormat = FindDateTimeFormat(parameter);
             if (PrimitiveTypeChecker.IsSupportedPrimitiveType(parameter.NamedTypeSymbol))
             {
-                headers.Add(new(headerName, false));
+                headers.Add(new(headerName, false, dateTimeFormat));
             }
             else if (CollectionTypeChecker.IsPrimitiveCollection(parameter.NamedTypeSymbol))
             {
                 if (parameter.HasAttribute<SingleColumnCollectionAttribute>())
                 {
-                    headers.Add(new(headerName, false));
+                    headers.Add(new(headerName, false, dateTimeFormat));
                 }
                 else
                 {
@@ -74,7 +75,7 @@ public static class RecordFlattener
 
                     for (var i = 0; i < length; ++i)
                     {
-                        headers.Add(new(FormattableString.Invariant($"{headerName}[{i}]"), false));
+                        headers.Add(new(FormattableString.Invariant($"{headerName}[{i}]"), false, dateTimeFormat));
                     }
                 }
             }
@@ -124,7 +125,7 @@ public static class RecordFlattener
                 if (innerRecordSchema.PropertySchemata.Count == 1 &&
                     PrimitiveTypeChecker.IsSupportedPrimitiveType(innerRecordSchema.PropertySchemata[0].NamedTypeSymbol))
                 {
-                    headers.Add(new(headerName, true));
+                    headers.Add(new(headerName, true, FindDateTimeFormat(innerRecordSchema.PropertySchemata[0])));
                 }
                 else
                 {
@@ -141,6 +142,13 @@ public static class RecordFlattener
         }
 
         return headers;
+    }
+
+    private static string? FindDateTimeFormat(PropertySchemaBase parameter)
+    {
+        return parameter.TryGetAttributeValue<DateTimeFormatAttribute, string>(out var format)
+            ? format
+            : null;
     }
 
     private static int ResolveLength(
