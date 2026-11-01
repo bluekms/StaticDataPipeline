@@ -63,7 +63,7 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
         var code = mapperTree.ToString();
         Assert.Contains("ImmutableArray.CreateBuilder<int>(2)", code);
         Assert.Contains("\"Grades[0]\"", code);
-        Assert.Contains("int.Parse(values[headers[__k0]]", code);
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.ParseInt32(values[headers[__k0]], __k0)", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
@@ -93,7 +93,7 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
         var code = mapperTree.ToString();
         Assert.Contains("__MapSet_Grades(headers, values, string.Empty)", code);
         Assert.Contains("HashSet<int>(2)", code);
-        Assert.Contains("Duplicate value {__e0} in set 'Grades'", code);
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.DuplicateSetValue(__e0, \"Grades\")", code);
         Assert.Contains("ToFrozenSet(set)", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
@@ -132,7 +132,7 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
         Assert.Contains("__MapNested_1_Item(headers, values, __k1)", code);
         Assert.Contains("dict.TryAdd(__v0.Id, __v0)", code);
         Assert.Contains("dict.TryAdd(__v1.Id, __v1)", code);
-        Assert.Contains("Duplicate key {__v0.Id} in dict 'Items'", code);
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.DuplicateDictionaryKey(__v0.Id, \"Items\")", code);
         Assert.Contains("FrozenDictionary.ToFrozenDictionary(dict)", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
@@ -163,7 +163,7 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
         Assert.Contains(result.Diagnostics, d => d.Id == "SDP0017" && d.Severity == DiagnosticSeverity.Error);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-        Assert.Contains("NotSupportedException", mapperTree.ToString());
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.MapperNotSupported(", mapperTree.ToString());
         Assert.Empty(logger.Logs);
     }
 
@@ -192,7 +192,7 @@ public class CsvMapperGeneratorCollectionTests(ITestOutputHelper testOutputHelpe
         Assert.Contains(result.Diagnostics, d => d.Id == "SDP0018" && d.Severity == DiagnosticSeverity.Error);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-        Assert.Contains("NotSupportedException", mapperTree.ToString());
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.MapperNotSupported(", mapperTree.ToString());
         Assert.Empty(logger.Logs);
     }
 

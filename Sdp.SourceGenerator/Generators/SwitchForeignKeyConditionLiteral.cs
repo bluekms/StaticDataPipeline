@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Sdp.SourceGenerator.Generators;
 
-internal sealed record SwitchForeignKeyConditionLiteral(string Code, string Normalized);
+internal sealed record SwitchForeignKeyConditionLiteral(string Code, string Normalized, bool ParsesAtRuntime = false);
 
 internal static class SwitchForeignKeyConditionLiteralBuilder
 {
@@ -81,6 +81,7 @@ internal static class SwitchForeignKeyConditionLiteralBuilder
 
     public static SwitchForeignKeyConditionLiteral? TryBuild(
         ITypeSymbol conditionType,
+        string conditionColumn,
         string conditionValue,
         string? dateTimeFormat,
         string? timeSpanFormat)
@@ -131,19 +132,19 @@ internal static class SwitchForeignKeyConditionLiteralBuilder
                 return TryBuildGuid(conditionValue);
 
             case ScalarKind.DateTime:
-                return TryBuildDateTime(conditionValue, dateTimeFormat);
+                return TryBuildDateTime(conditionColumn, conditionValue, dateTimeFormat);
 
             case ScalarKind.DateTimeOffset:
-                return TryBuildDateTimeOffset(conditionValue, dateTimeFormat);
+                return TryBuildDateTimeOffset(conditionColumn, conditionValue, dateTimeFormat);
 
             case ScalarKind.DateOnly:
-                return TryBuildDateOnly(conditionValue, dateTimeFormat);
+                return TryBuildDateOnly(conditionColumn, conditionValue, dateTimeFormat);
 
             case ScalarKind.TimeOnly:
-                return TryBuildTimeOnly(conditionValue, dateTimeFormat);
+                return TryBuildTimeOnly(conditionColumn, conditionValue, dateTimeFormat);
 
             case ScalarKind.TimeSpan:
-                return TryBuildTimeSpan(conditionValue, timeSpanFormat);
+                return TryBuildTimeSpan(conditionColumn, conditionValue, timeSpanFormat);
 
             default:
                 return null;
@@ -243,7 +244,7 @@ internal static class SwitchForeignKeyConditionLiteralBuilder
         return new SwitchForeignKeyConditionLiteral(text + "UL", text);
     }
 
-    // 실수의 파싱 스타일은 런타임 CSV 파싱(EmitScalarParse 가 내는 코드)과 같아야 한다.
+    // 실수의 파싱 스타일은 런타임 CSV 파싱(CsvMapperHelper.ParseSingle·ParseDouble·ParseDecimal)과 같아야 한다.
     private static SwitchForeignKeyConditionLiteral? TryBuildSingle(string conditionValue)
     {
         var parsed = float.TryParse(conditionValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var value);
@@ -297,7 +298,9 @@ internal static class SwitchForeignKeyConditionLiteralBuilder
         return new SwitchForeignKeyConditionLiteral("new global::System.Guid(\"" + text + "\")", text);
     }
 
-    private static SwitchForeignKeyConditionLiteral? TryBuildDateTime(string conditionValue, string? dateTimeFormat)
+    // 시간 계열 조건 값은 빌드 기계의 시간대로 굽지 않고, 실행 기계에서 셀과 같은 CsvMapperHelper 파서로 파싱한다.
+    // 빌드 시 파싱은 값이 포맷에 맞는지와 조건 값 겹침(Normalized)을 판정하는 데만 쓴다.
+    private static SwitchForeignKeyConditionLiteral? TryBuildDateTime(string conditionColumn, string conditionValue, string? dateTimeFormat)
     {
         if (dateTimeFormat is null)
         {
@@ -310,13 +313,13 @@ internal static class SwitchForeignKeyConditionLiteralBuilder
             return null;
         }
 
+        var code = RuntimeParse("ParseDateTime", conditionValue, dateTimeFormat, conditionColumn);
         var ticks = value.Ticks.ToString(CultureInfo.InvariantCulture);
-        var code = "new global::System.DateTime(" + ticks + "L, global::System.DateTimeKind." + value.Kind + ")";
 
-        return new SwitchForeignKeyConditionLiteral(code, ticks);
+        return new SwitchForeignKeyConditionLiteral(code, ticks, ParsesAtRuntime: true);
     }
 
-    private static SwitchForeignKeyConditionLiteral? TryBuildDateTimeOffset(string conditionValue, string? dateTimeFormat)
+    private static SwitchForeignKeyConditionLiteral? TryBuildDateTimeOffset(string conditionColumn, string conditionValue, string? dateTimeFormat)
     {
         if (dateTimeFormat is null)
         {
@@ -329,15 +332,14 @@ internal static class SwitchForeignKeyConditionLiteralBuilder
             return null;
         }
 
-        var ticks = value.Ticks.ToString(CultureInfo.InvariantCulture);
-        var offsetTicks = value.Offset.Ticks.ToString(CultureInfo.InvariantCulture);
-        var code = "new global::System.DateTimeOffset(" + ticks + "L, new global::System.TimeSpan(" + offsetTicks + "L))";
+        var code = RuntimeParse("ParseDateTimeOffset", conditionValue, dateTimeFormat, conditionColumn);
+        var utcTicks = value.UtcTicks.ToString(CultureInfo.InvariantCulture);
 
-        return new SwitchForeignKeyConditionLiteral(code, value.UtcTicks.ToString(CultureInfo.InvariantCulture));
+        return new SwitchForeignKeyConditionLiteral(code, utcTicks, ParsesAtRuntime: true);
     }
 
-    // DateOnly/TimeOnly 는 생성기(netstandard2.0)에 없는 타입이라 DateTime 으로 해석한 뒤 리터럴만 만든다.
-    private static SwitchForeignKeyConditionLiteral? TryBuildDateOnly(string conditionValue, string? dateTimeFormat)
+    // DateOnly/TimeOnly 는 생성기(netstandard2.0)에 없는 타입이라 빌드 시 판정은 DateTime 으로 해석한다.
+    private static SwitchForeignKeyConditionLiteral? TryBuildDateOnly(string conditionColumn, string conditionValue, string? dateTimeFormat)
     {
         if (dateTimeFormat is null)
         {
@@ -350,12 +352,13 @@ internal static class SwitchForeignKeyConditionLiteralBuilder
             return null;
         }
 
-        var code = FormattableString.Invariant($"new global::System.DateOnly({value.Year}, {value.Month}, {value.Day})");
+        var code = RuntimeParse("ParseDateOnly", conditionValue, dateTimeFormat, conditionColumn);
+        var dateTicks = value.Date.Ticks.ToString(CultureInfo.InvariantCulture);
 
-        return new SwitchForeignKeyConditionLiteral(code, value.Date.Ticks.ToString(CultureInfo.InvariantCulture));
+        return new SwitchForeignKeyConditionLiteral(code, dateTicks, ParsesAtRuntime: true);
     }
 
-    private static SwitchForeignKeyConditionLiteral? TryBuildTimeOnly(string conditionValue, string? dateTimeFormat)
+    private static SwitchForeignKeyConditionLiteral? TryBuildTimeOnly(string conditionColumn, string conditionValue, string? dateTimeFormat)
     {
         if (dateTimeFormat is null)
         {
@@ -368,12 +371,13 @@ internal static class SwitchForeignKeyConditionLiteralBuilder
             return null;
         }
 
+        var code = RuntimeParse("ParseTimeOnly", conditionValue, dateTimeFormat, conditionColumn);
         var ticks = value.TimeOfDay.Ticks.ToString(CultureInfo.InvariantCulture);
 
-        return new SwitchForeignKeyConditionLiteral("new global::System.TimeOnly(" + ticks + "L)", ticks);
+        return new SwitchForeignKeyConditionLiteral(code, ticks, ParsesAtRuntime: true);
     }
 
-    private static SwitchForeignKeyConditionLiteral? TryBuildTimeSpan(string conditionValue, string? timeSpanFormat)
+    private static SwitchForeignKeyConditionLiteral? TryBuildTimeSpan(string conditionColumn, string conditionValue, string? timeSpanFormat)
     {
         if (timeSpanFormat is null)
         {
@@ -386,8 +390,18 @@ internal static class SwitchForeignKeyConditionLiteralBuilder
             return null;
         }
 
+        var code = RuntimeParse("ParseTimeSpan", conditionValue, timeSpanFormat, conditionColumn);
         var ticks = value.Ticks.ToString(CultureInfo.InvariantCulture);
 
-        return new SwitchForeignKeyConditionLiteral("new global::System.TimeSpan(" + ticks + "L)", ticks);
+        return new SwitchForeignKeyConditionLiteral(code, ticks, ParsesAtRuntime: true);
+    }
+
+    private static string RuntimeParse(string methodName, string conditionValue, string format, string conditionColumn)
+    {
+        var valueLiteral = SymbolDisplay.FormatLiteral(conditionValue, quote: true);
+        var formatLiteral = SymbolDisplay.FormatLiteral(format, quote: true);
+        var columnLiteral = SymbolDisplay.FormatLiteral(conditionColumn, quote: true);
+
+        return "global::Sdp.Csv.CsvMapperHelper." + methodName + "(" + valueLiteral + ", " + formatLiteral + ", " + columnLiteral + ")";
     }
 }

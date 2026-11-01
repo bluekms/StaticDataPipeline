@@ -62,7 +62,7 @@ public class CsvMapperGeneratorSingleColumnTests(ITestOutputHelper testOutputHel
         Assert.Contains(".Split(\"|\")", code);
         Assert.Contains("set.Count < 1", code);
         Assert.Contains("set.Count > 5", code);
-        Assert.Contains("Duplicate value {__e} in set 'Labels'", code);
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.DuplicateSetValue(__e, \"Labels\")", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);

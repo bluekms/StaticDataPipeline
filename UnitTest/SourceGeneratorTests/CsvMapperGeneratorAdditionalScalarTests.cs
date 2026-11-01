@@ -24,7 +24,7 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-        Assert.Contains("char.Parse(", mapperTree.ToString());
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.ParseChar(", mapperTree.ToString());
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
@@ -51,7 +51,7 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-        Assert.Contains("System.DateOnly.ParseExact(", mapperTree.ToString());
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.ParseDateOnly(", mapperTree.ToString());
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
@@ -78,7 +78,7 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-        Assert.Contains("System.TimeOnly.ParseExact(", mapperTree.ToString());
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.ParseTimeOnly(", mapperTree.ToString());
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
@@ -104,7 +104,7 @@ public class CsvMapperGeneratorAdditionalScalarTests(ITestOutputHelper testOutpu
         Assert.Contains(result.Diagnostics, d => d.Id == "SDP0004" && d.Severity == DiagnosticSeverity.Error);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-        Assert.Contains("NotSupportedException", mapperTree.ToString());
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.MapperNotSupported(", mapperTree.ToString());
         Assert.Empty(logger.Logs);
     }
 

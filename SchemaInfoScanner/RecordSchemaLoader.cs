@@ -45,7 +45,8 @@ public static class RecordSchemaLoader
         }
         else
         {
-            throw new ArgumentException(Messages.FileOrDirectoryNotExist, nameof(csPath));
+            var message = string.Format(CultureInfo.CurrentCulture, Messages.Composite.FileOrDirectoryNotExist, csPath);
+            throw new ArgumentException(message, nameof(csPath));
         }
 
         return results;
@@ -73,7 +74,8 @@ public static class RecordSchemaLoader
         }
         else
         {
-            throw new ArgumentException(Messages.FileOrDirectoryNotExist, nameof(csPath));
+            var message = string.Format(CultureInfo.CurrentCulture, Messages.Composite.FileOrDirectoryNotExist, csPath);
+            throw new ArgumentException(message, nameof(csPath));
         }
 
         return results;

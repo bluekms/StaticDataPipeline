@@ -85,7 +85,7 @@ internal static class SwitchForeignKeyValidator
             }
 
             // 파싱 불가한 값은 조건값 유효성 진단(SDP0212 등)이 담당한다.
-            var literal = SwitchForeignKeyConditionLiteralBuilder.TryBuild(conditionType, conditionValue, dateTimeFormat, timeSpanFormat);
+            var literal = SwitchForeignKeyConditionLiteralBuilder.TryBuild(conditionType, conditionColumn, conditionValue, dateTimeFormat, timeSpanFormat);
             if (literal is null)
             {
                 continue;

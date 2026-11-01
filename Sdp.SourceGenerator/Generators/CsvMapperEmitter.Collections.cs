@@ -34,7 +34,7 @@ internal static partial class CsvMapperEmitter
         }
 
         var valueExpr = $"values[headers[{keyExpression}]]";
-        var baseConversion = EmitElementBaseConversion(info, valueExpr, param, nestedTokens);
+        var baseConversion = EmitElementBaseConversion(info, valueExpr, keyExpression, param, nestedTokens);
         var converted = WrapValidations(param, baseConversion, ownerToken);
 
         if (TypeClassifier.IsNullable(info.ElementType) && param.NullString is not null)
@@ -50,6 +50,7 @@ internal static partial class CsvMapperEmitter
     private static string EmitElementBaseConversion(
         CollectionInfo info,
         string valueExpr,
+        string columnExpr,
         ParameterAnalysis param,
         Dictionary<INamedTypeSymbol, string> nestedTokens)
     {
@@ -57,10 +58,10 @@ internal static partial class CsvMapperEmitter
         {
             var enumType = (INamedTypeSymbol)TypeClassifier.UnwrapNullable(info.ElementType);
 
-            return $"__MapElementEnum_{nestedTokens[enumType]}({valueExpr})";
+            return $"__MapElementEnum_{nestedTokens[enumType]}({valueExpr}, {columnExpr})";
         }
 
-        return EmitScalarParse(info.ElementKind, valueExpr, param.DateTimeFormat, param.TimeSpanFormat);
+        return EmitCellParse(info.ElementKind, valueExpr, columnExpr, param.DateTimeFormat, param.TimeSpanFormat);
     }
 
     private static string EmitElementNullCast(CollectionInfo info)
@@ -101,8 +102,8 @@ internal static partial class CsvMapperEmitter
         sb.AppendLine();
         sb.Append(indent).AppendLine("    for (var __i = 0; __i < __indices.Count; __i++)");
         sb.Append(indent).AppendLine("    {");
-        sb.Append(indent).Append("        if (!__indices.Contains(__i)) throw new global::System.ArgumentException(global::System.FormattableString.Invariant($\"Non-contiguous index {__i} (max found index {__max}) in collection '")
-            .Append(param.Name).AppendLine("'.\"));");
+        sb.Append(indent).Append("        if (!__indices.Contains(__i)) throw global::Sdp.Csv.CsvMapperHelper.NonContiguousIndex(__i, __max, ")
+            .Append(SymbolDisplay.FormatLiteral(param.Name, quote: true)).AppendLine(");");
         sb.Append(indent).AppendLine("        var __ek = __base + \"[\" + __i.ToString(global::System.Globalization.CultureInfo.InvariantCulture) + \"]\";");
         sb.AppendLine();
     }
@@ -119,8 +120,8 @@ internal static partial class CsvMapperEmitter
         sb.Append(indent).AppendLine("        var __close = __h.IndexOf(']', __prefix.Length);");
         sb.Append(indent).AppendLine("        if (__close < 0) { continue; }");
         sb.Append(indent).Append("        if (int.TryParse(__h.Substring(__prefix.Length, __close - __prefix.Length), global::System.Globalization.NumberStyles.None, global::System.Globalization.CultureInfo.InvariantCulture, out var __idx) && __idx >= ").Append(lengthLiteral)
-            .Append(") throw new global::System.ArgumentException(global::System.FormattableString.Invariant($\"Column '{__h}' exceeds declared length ").Append(lengthLiteral).Append(" in collection '")
-            .Append(param.Name).AppendLine("'.\"));");
+            .Append(") throw global::Sdp.Csv.CsvMapperHelper.ColumnExceedsLength(__h, ").Append(lengthLiteral).Append(", ")
+            .Append(SymbolDisplay.FormatLiteral(param.Name, quote: true)).AppendLine(");");
         sb.Append(indent).AppendLine("    }");
         sb.AppendLine();
     }
@@ -205,9 +206,8 @@ internal static partial class CsvMapperEmitter
                 var elementVar = "__e" + i.ToString(CultureInfo.InvariantCulture);
                 sb.Append(indent).Append("    var ").Append(elementVar).Append(" = ").Append(conversion).AppendLine(";");
                 sb.Append(indent).Append("    if (!set.Add(").Append(elementVar)
-                    .Append(")) throw new global::System.ArgumentException(global::System.FormattableString.Invariant($\"Duplicate value {")
-                    .Append(elementVar).Append("} in set '")
-                    .Append(param.Name).AppendLine("'.\"));");
+                    .Append(")) throw global::Sdp.Csv.CsvMapperHelper.DuplicateSetValue(").Append(elementVar).Append(", ")
+                    .Append(SymbolDisplay.FormatLiteral(param.Name, quote: true)).AppendLine(");");
             }
         }
         else
@@ -217,9 +217,8 @@ internal static partial class CsvMapperEmitter
             EmitDynamicElementLoopBegin(sb, param, indent);
             sb.Append(indent).Append("        var __e = ")
                 .Append(EmitColumnElementConversion(param, "__ek", ownerToken, nestedTokens)).AppendLine(";");
-            sb.Append(indent).Append("        if (!set.Add(__e")
-                .Append(")) throw new global::System.ArgumentException(global::System.FormattableString.Invariant($\"Duplicate value {__e} in set '")
-                .Append(param.Name).AppendLine("'.\"));");
+            sb.Append(indent).Append("        if (!set.Add(__e)) throw global::Sdp.Csv.CsvMapperHelper.DuplicateSetValue(__e, ")
+                .Append(SymbolDisplay.FormatLiteral(param.Name, quote: true)).AppendLine(");");
             sb.Append(indent).AppendLine("    }");
         }
 
@@ -266,8 +265,8 @@ internal static partial class CsvMapperEmitter
                 sb.Append(indent).Append("    var ").Append(varName).Append(" = __MapNested_")
                     .Append(valueToken).Append("(headers, values, ").Append(keyVar).AppendLine(");");
                 sb.Append(indent).Append("    if (!dict.TryAdd(").Append(varName).Append('.').Append(keyMemberAccess).Append(", ").Append(varName)
-                    .Append(")) throw new global::System.ArgumentException(global::System.FormattableString.Invariant($\"Duplicate key {")
-                    .Append(varName).Append('.').Append(keyMemberAccess).Append("} in dict '").Append(param.Name).AppendLine("'.\"));");
+                    .Append(")) throw global::Sdp.Csv.CsvMapperHelper.DuplicateDictionaryKey(").Append(varName).Append('.').Append(keyMemberAccess).Append(", ")
+                    .Append(SymbolDisplay.FormatLiteral(param.Name, quote: true)).AppendLine(");");
             }
         }
         else
@@ -278,9 +277,8 @@ internal static partial class CsvMapperEmitter
             sb.Append(indent).Append("        var __v = __MapNested_")
                 .Append(valueToken).AppendLine("(headers, values, __ek);");
             sb.Append(indent).Append("        if (!dict.TryAdd(__v.").Append(keyMemberAccess)
-                .Append(", __v)) throw new global::System.ArgumentException(global::System.FormattableString.Invariant($\"Duplicate key {__v.")
-                .Append(keyMemberAccess).Append("} in dict '")
-                .Append(param.Name).AppendLine("'.\"));");
+                .Append(", __v)) throw global::Sdp.Csv.CsvMapperHelper.DuplicateDictionaryKey(__v.").Append(keyMemberAccess).Append(", ")
+                .Append(SymbolDisplay.FormatLiteral(param.Name, quote: true)).AppendLine(");");
             sb.Append(indent).AppendLine("    }");
         }
 
@@ -317,7 +315,7 @@ internal static partial class CsvMapperEmitter
         sb.Append(indent).AppendLine("    for (var i = 0; i < parts.Length; i++)");
         sb.Append(indent).AppendLine("    {");
         sb.Append(indent).AppendLine("        var __raw = parts[i].Trim();");
-        var conversion = EmitElementConversion(param, "__raw", ownerToken, nestedTokens);
+        var conversion = EmitElementConversion(param, "__raw", "__k", ownerToken, nestedTokens);
         sb.Append(indent).Append("        builder.Add(").Append(conversion).AppendLine(");");
         sb.Append(indent).AppendLine("    }");
         sb.Append(indent).AppendLine("    return builder.MoveToImmutable();");
@@ -349,10 +347,10 @@ internal static partial class CsvMapperEmitter
         sb.Append(indent).AppendLine("    for (var i = 0; i < parts.Length; i++)");
         sb.Append(indent).AppendLine("    {");
         sb.Append(indent).AppendLine("        var __raw = parts[i].Trim();");
-        var conversion = EmitElementConversion(param, "__raw", ownerToken, nestedTokens);
+        var conversion = EmitElementConversion(param, "__raw", "__k", ownerToken, nestedTokens);
         sb.Append(indent).Append("        var __e = ").Append(conversion).AppendLine(";");
-        sb.Append(indent).Append("        if (!set.Add(__e)) throw new global::System.ArgumentException(global::System.FormattableString.Invariant($\"Duplicate value {__e} in set '")
-            .Append(param.Name).AppendLine("'.\"));");
+        sb.Append(indent).Append("        if (!set.Add(__e)) throw global::Sdp.Csv.CsvMapperHelper.DuplicateSetValue(__e, ")
+            .Append(SymbolDisplay.FormatLiteral(param.Name, quote: true)).AppendLine(");");
         sb.Append(indent).AppendLine("    }");
 
         EmitCountRangeCheck(sb, param, "set.Count", indent);
@@ -382,11 +380,12 @@ internal static partial class CsvMapperEmitter
     private static string EmitElementConversion(
         ParameterAnalysis param,
         string rawVar,
+        string columnVar,
         string ownerToken,
         Dictionary<INamedTypeSymbol, string> nestedTokens)
     {
         var info = param.Collection!;
-        var baseConversion = EmitElementBaseConversion(info, rawVar, param, nestedTokens);
+        var baseConversion = EmitElementBaseConversion(info, rawVar, columnVar, param, nestedTokens);
         var converted = WrapValidations(param, baseConversion, ownerToken);
 
         if (TypeClassifier.IsNullable(info.ElementType) && param.NullString is not null)
@@ -411,9 +410,9 @@ internal static partial class CsvMapperEmitter
         var maxCount = info.MaxCount.Value.ToString(CultureInfo.InvariantCulture);
         sb.Append(indent).Append("    if (").Append(countExpr).Append(" < ").Append(minCount).Append(" || ").Append(countExpr).Append(" > ").Append(maxCount).AppendLine(")");
         sb.Append(indent).AppendLine("    {");
-        sb.Append(indent).Append("        throw new global::System.ArgumentException(global::System.FormattableString.Invariant($\"Count of '").Append(param.Name)
-            .Append("' must be within [").Append(minCount).Append(", ").Append(maxCount)
-            .Append("] but was {").Append(countExpr).AppendLine("}.\"));");
+        sb.Append(indent).Append("        throw global::Sdp.Csv.CsvMapperHelper.CountOutOfRange(")
+            .Append(SymbolDisplay.FormatLiteral(param.Name, quote: true)).Append(", ")
+            .Append(minCount).Append(", ").Append(maxCount).Append(", ").Append(countExpr).AppendLine(");");
         sb.Append(indent).AppendLine("    }");
     }
 }

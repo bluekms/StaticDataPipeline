@@ -28,7 +28,7 @@ public class CsvMapperGeneratorNullableTests(ITestOutputHelper testOutputHelper)
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         var code = mapperTree.ToString();
         Assert.Contains("== \"\"", code);
-        Assert.Contains("private static string? __MapNullable_Phone(string value)", code);
+        Assert.Contains("private static string? __MapNullable_Phone(string value, string column)", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
@@ -56,7 +56,7 @@ public class CsvMapperGeneratorNullableTests(ITestOutputHelper testOutputHelper)
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         var code = mapperTree.ToString();
         Assert.Contains("== \"-\"", code);
-        Assert.Contains("private static int? __MapNullable_Score(string value)", code);
+        Assert.Contains("private static int? __MapNullable_Score(string value, string column)", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
@@ -83,7 +83,7 @@ public class CsvMapperGeneratorNullableTests(ITestOutputHelper testOutputHelper)
         Assert.Contains(result.Diagnostics, d => d.Id == "SDP0004" && d.Severity == DiagnosticSeverity.Error);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-        Assert.Contains("NotSupportedException", mapperTree.ToString());
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.MapperNotSupported(", mapperTree.ToString());
         Assert.Empty(logger.Logs);
     }
 

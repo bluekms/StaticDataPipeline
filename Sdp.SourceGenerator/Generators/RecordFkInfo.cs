@@ -20,7 +20,8 @@ internal sealed record FkBranch(
     bool IsSwitch,
     string? ConditionColumn,
     string? ConditionValue,
-    string? ConditionLiteral)
+    string? ConditionLiteral,
+    bool ConditionParsesAtRuntime)
 {
     public static FkBranch ForeignKey(string tableSetMember, string targetColumn)
     {
@@ -30,7 +31,8 @@ internal sealed record FkBranch(
             IsSwitch: false,
             ConditionColumn: null,
             ConditionValue: null,
-            ConditionLiteral: null);
+            ConditionLiteral: null,
+            ConditionParsesAtRuntime: false);
     }
 
     public static FkBranch SwitchForeignKey(
@@ -38,7 +40,8 @@ internal sealed record FkBranch(
         string targetColumn,
         string conditionColumn,
         string conditionValue,
-        string conditionLiteral)
+        string conditionLiteral,
+        bool conditionParsesAtRuntime)
     {
         return new FkBranch(
             tableSetMember,
@@ -46,6 +49,7 @@ internal sealed record FkBranch(
             IsSwitch: true,
             conditionColumn,
             conditionValue,
-            conditionLiteral);
+            conditionLiteral,
+            conditionParsesAtRuntime);
     }
 }

@@ -133,7 +133,7 @@ public class CsvMapperGeneratorNestedTests(ITestOutputHelper testOutputHelper)
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         var code = mapperTree.ToString();
         Assert.Contains("__MapNested_1_ContactInfo", code);
-        Assert.Contains("private static string? __MapNullable_1_ContactInfo_Phone(string value)", code);
+        Assert.Contains("private static string? __MapNullable_1_ContactInfo_Phone(string value, string column)", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);

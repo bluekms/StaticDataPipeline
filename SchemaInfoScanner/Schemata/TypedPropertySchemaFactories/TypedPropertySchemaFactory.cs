@@ -20,6 +20,8 @@ public static class TypedPropertySchemaFactory
         INamedTypeSymbol parentRecordSymbol,
         SchemaFactoryContext context)
     {
+        MapTypeChecker.CheckNonNullableKeyAndValue(propertyName, propertySymbol);
+
         if (PrimitiveTypeChecker.IsSupportedPrimitiveType(propertySymbol))
         {
             return PrimitivePropertySchemaFactory.Create(propertyName, propertySymbol, attributeList);

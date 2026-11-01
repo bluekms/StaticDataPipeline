@@ -45,19 +45,19 @@ internal static partial class CsvMapperEmitter
             return $"__MapNested_{nestedTokens[nested.Symbol]}(headers, values, {keyExpr})";
         }
 
-        return EmitScalarConversion(param, valueExpr, ownerToken);
+        return EmitScalarConversion(param, valueExpr, keyExpr, ownerToken);
     }
 
     // 스칼라 셀 값 하나의 변환식. [NullString] nullable 은 같은 셀을 두 번 읽지 않도록 __MapNullable_ 헬퍼를 경유하고,
     // 그 외에는 기본 변환(enum 이면 __MapColumn_ 호출)에 [Range]/[RegularExpression] 검증을 감싸 인라인으로 만든다.
-    private static string EmitScalarConversion(ParameterAnalysis param, string valueExpr, string ownerToken)
+    private static string EmitScalarConversion(ParameterAnalysis param, string valueExpr, string columnExpr, string ownerToken)
     {
         if (param.IsNullable && param.NullString is not null)
         {
-            return $"{HelperName("__MapNullable_", ownerToken, param.Name)}({valueExpr})";
+            return $"{HelperName("__MapNullable_", ownerToken, param.Name)}({valueExpr}, {columnExpr})";
         }
 
-        var baseConversion = EmitBaseConversion(param, valueExpr, ownerToken);
+        var baseConversion = EmitBaseConversion(param, valueExpr, columnExpr, ownerToken);
 
         return WrapValidations(param, baseConversion, ownerToken);
     }
@@ -77,21 +77,71 @@ internal static partial class CsvMapperEmitter
         return inner;
     }
 
-    private static string EmitBaseConversion(ParameterAnalysis param, string valueExpr, string ownerToken)
+    private static string EmitBaseConversion(ParameterAnalysis param, string valueExpr, string columnExpr, string ownerToken)
     {
         if (param.Kind == ScalarKind.Enum)
         {
-            return $"{HelperName("__MapColumn_", ownerToken, param.Name)}({valueExpr})";
+            return $"{HelperName("__MapColumn_", ownerToken, param.Name)}({valueExpr}, {columnExpr})";
         }
 
-        return EmitScalarParse(param.Kind, valueExpr, param.DateTimeFormat, param.TimeSpanFormat);
+        return EmitCellParse(param.Kind, valueExpr, columnExpr, param.DateTimeFormat, param.TimeSpanFormat);
     }
 
-    private static string EmitScalarParse(
+    private static string EmitCellParse(
         ScalarKind kind,
         string valueExpr,
-        string? dateTimeFormat = null,
-        string? timeSpanFormat = null)
+        string columnExpr,
+        string? dateTimeFormat,
+        string? timeSpanFormat)
+    {
+        const string helper = "global::Sdp.Csv.CsvMapperHelper.";
+
+        return kind switch
+        {
+            ScalarKind.String => valueExpr,
+            ScalarKind.DateTime => $"{helper}ParseDateTime({valueExpr}, {FormatLiteral(dateTimeFormat!)}, {columnExpr})",
+            ScalarKind.DateTimeOffset => $"{helper}ParseDateTimeOffset({valueExpr}, {FormatLiteral(dateTimeFormat!)}, {columnExpr})",
+            ScalarKind.DateOnly => $"{helper}ParseDateOnly({valueExpr}, {FormatLiteral(dateTimeFormat!)}, {columnExpr})",
+            ScalarKind.TimeOnly => $"{helper}ParseTimeOnly({valueExpr}, {FormatLiteral(dateTimeFormat!)}, {columnExpr})",
+            ScalarKind.TimeSpan => $"{helper}ParseTimeSpan({valueExpr}, {FormatLiteral(timeSpanFormat!)}, {columnExpr})",
+            ScalarKind.Unsupported or ScalarKind.Enum => valueExpr,
+            _ => $"{helper}{CellParseMethod(kind)}({valueExpr}, {columnExpr})",
+        };
+    }
+
+    private static string CellParseMethod(ScalarKind kind)
+    {
+        return kind switch
+        {
+            ScalarKind.Bool => "ParseBool",
+            ScalarKind.Byte => "ParseByte",
+            ScalarKind.SByte => "ParseSByte",
+            ScalarKind.Int16 => "ParseInt16",
+            ScalarKind.UInt16 => "ParseUInt16",
+            ScalarKind.Int32 => "ParseInt32",
+            ScalarKind.UInt32 => "ParseUInt32",
+            ScalarKind.Int64 => "ParseInt64",
+            ScalarKind.UInt64 => "ParseUInt64",
+            ScalarKind.Single => "ParseSingle",
+            ScalarKind.Double => "ParseDouble",
+            ScalarKind.Decimal => "ParseDecimal",
+            ScalarKind.Char => "ParseChar",
+            ScalarKind.Guid => "ParseGuid",
+            _ => throw new InvalidOperationException(FormattableString.Invariant(
+                $"Unsupported cell parse kind: {kind}")),
+        };
+    }
+
+    private static string FormatLiteral(string format)
+    {
+        return SymbolDisplay.FormatLiteral(format, quote: true);
+    }
+
+    private static string EmitLiteralParse(
+        ScalarKind kind,
+        string valueExpr,
+        string? dateTimeFormat,
+        string? timeSpanFormat)
     {
         return kind switch
         {
@@ -123,10 +173,10 @@ internal static partial class CsvMapperEmitter
     {
         var returnType = NullableScalarTypeName(param);
         var nullLiteral = SymbolDisplay.FormatLiteral(param.NullString!, quote: true);
-        var conversion = WrapValidations(param, EmitBaseConversion(param, "value", ownerToken), ownerToken);
+        var conversion = WrapValidations(param, EmitBaseConversion(param, "value", "column", ownerToken), ownerToken);
 
         sb.Append(indent).Append("private static ").Append(returnType).Append(' ')
-            .Append(HelperName("__MapNullable_", ownerToken, param.Name)).AppendLine("(string value)");
+            .Append(HelperName("__MapNullable_", ownerToken, param.Name)).AppendLine("(string value, string column)");
         sb.Append(indent).AppendLine("{");
         sb.Append(indent).Append("    if (value == ").Append(nullLiteral).AppendLine(")");
         sb.Append(indent).AppendLine("    {");

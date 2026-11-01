@@ -53,6 +53,7 @@ internal static class ParameterAnalyzer
         var hasLengthAttribute = false;
         var hasSingleColumnCollectionAttribute = false;
         var isIgnored = false;
+        string? nullArgumentAttribute = null;
 
         foreach (var attr in param.GetAttributes())
         {
@@ -89,6 +90,11 @@ internal static class ParameterAnalyzer
 
                 case SdpAttributeNames.NullString:
                 {
+                    if (attr.ConstructorArguments.Length > 0 && attr.ConstructorArguments[0].IsNull)
+                    {
+                        nullArgumentAttribute ??= nameof(SdpAttributeNames.NullString);
+                    }
+
                     if (attr.ConstructorArguments.Length > 0 &&
                         attr.ConstructorArguments[0].Value is string nullStringValue)
                     {
@@ -152,6 +158,11 @@ internal static class ParameterAnalyzer
                 case SdpAttributeNames.SingleColumnCollection:
                 {
                     hasSingleColumnCollectionAttribute = true;
+                    if (attr.ConstructorArguments.Length > 0 && attr.ConstructorArguments[0].IsNull)
+                    {
+                        nullArgumentAttribute ??= nameof(SdpAttributeNames.SingleColumnCollection);
+                    }
+
                     if (attr.ConstructorArguments.Length > 0 &&
                         attr.ConstructorArguments[0].Value is string separator)
                     {
@@ -272,7 +283,8 @@ internal static class ParameterAnalyzer
             hasCountRangeAttribute,
             hasLengthAttribute,
             hasSingleColumnCollectionAttribute,
-            isIgnored);
+            isIgnored,
+            nullArgumentAttribute);
     }
 
     private static NestedRecordInfo? AnalyzeNestedRecord(

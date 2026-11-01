@@ -93,4 +93,40 @@
   <data name="CannotEmitDueToDiagnostics" xml:space="preserve">
     <value>Sdp.SourceGenerator: '{0}' cannot be built due to SDP diagnostics. Check the SDP diagnostics in the build output.</value>
   </data>
+  <data name="CellValueInvalid" xml:space="preserve">
+    <value>'{0}' is not a valid {1} for column '{2}'.</value>
+  </data>
+  <data name="CellValueInvalidFormat" xml:space="preserve">
+    <value>'{0}' is not a valid {1} in format '{2}' for column '{3}'.</value>
+  </data>
+  <data name="CellEnumMemberUndefined" xml:space="preserve">
+    <value>'{0}' is not a defined member of {1} for column '{2}'.</value>
+  </data>
+  <data name="MappedValueOutOfRange" xml:space="preserve">
+    <value>'{0}' must be within [{1}, {2}].</value>
+  </data>
+  <data name="MappedValuePatternMismatch" xml:space="preserve">
+    <value>'{0}' does not match pattern for '{1}'.</value>
+  </data>
+  <data name="MappedCountOutOfRange" xml:space="preserve">
+    <value>Count of '{0}' must be within [{1}, {2}] but was {3}.</value>
+  </data>
+  <data name="MappedDuplicateSetValue" xml:space="preserve">
+    <value>Duplicate value {0} in set '{1}'.</value>
+  </data>
+  <data name="MappedDuplicateDictionaryKey" xml:space="preserve">
+    <value>Duplicate key {0} in dict '{1}'.</value>
+  </data>
+  <data name="MappedNonContiguousIndex" xml:space="preserve">
+    <value>Non-contiguous index {0} (max found index {1}) in collection '{2}'.</value>
+  </data>
+  <data name="MappedColumnExceedsLength" xml:space="preserve">
+    <value>Column '{0}' exceeds declared length {1} in collection '{2}'.</value>
+  </data>
+  <data name="MapperNotSupported" xml:space="preserve">
+    <value>Sdp.SourceGenerator: '{0}' has parameter type(s) not yet supported by the CSV mapper.</value>
+  </data>
+  <data name="SwitchFkValueNotFound" xml:space="preserve">
+    <value>{0}.{1}({2}) not found in any of: [{3}] (when {4}={5})</value>
+  </data>
 </root>

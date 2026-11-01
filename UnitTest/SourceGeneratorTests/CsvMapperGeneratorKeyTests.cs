@@ -1,4 +1,6 @@
+using System.Globalization;
 using Microsoft.Extensions.Logging;
+using Sdp.SourceGenerator;
 using UnitTest.Utility;
 using Xunit.Abstractions;
 
@@ -24,7 +26,10 @@ public class CsvMapperGeneratorKeyTests(ITestOutputHelper testOutputHelper)
 
         var result = SourceGeneratorTestHelper.Run(source);
         var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
-        Assert.Contains(diagnostics, d => d.Id == "SDP0003");
+        var diagnostic = Assert.Single(diagnostics, d => d.Id == "SDP0003");
+        var format = SdpDiagnostics.MultipleKeyAttributes.MessageFormat.ToString(CultureInfo.InvariantCulture);
+        var expected = string.Format(CultureInfo.InvariantCulture, format, "Test.Foo", 2, "Id, Name");
+        Assert.Equal(expected, diagnostic.GetMessage(CultureInfo.InvariantCulture));
         Assert.Empty(logger.Logs);
     }
 

@@ -29,7 +29,7 @@ public static class RecordArrayPropertySchemaFactory
         {
             throw new InvalidOperationException(string.Format(
                 CultureInfo.CurrentCulture,
-                Messages.Composite.IsRecordArrayType,
+                Messages.Composite.NotRecordArrayType,
                 propertyName,
                 propertySymbol.Name));
         }

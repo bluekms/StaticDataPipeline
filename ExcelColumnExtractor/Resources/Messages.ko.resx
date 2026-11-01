@@ -72,4 +72,7 @@
   <data name="EmptyStartCellInAttribute" xml:space="preserve">
     <value>'{0}'의 StaticDataRecord 속성에 지정된 시작 셀이 비어 있습니다.</value>
   </data>
+  <data name="OptionPathNotExist" xml:space="preserve">
+    <value>--{0} 에 지정한 경로가 존재하지 않습니다: {1}</value>
+  </data>
 </root>

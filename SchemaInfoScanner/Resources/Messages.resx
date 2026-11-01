@@ -136,10 +136,10 @@
     <value>Expected {0} to be supported dictionary type, but actually not supported.</value>
   </data>
   <data name="DictionaryKeyMustBeNonNullable" xml:space="preserve">
-    <value>Key type of dictionary must be non-nullable.</value>
+    <value>Key type of dictionary '{0}' must be non-nullable.</value>
   </data>
   <data name="DictionaryValueMustBeNonNullable" xml:space="preserve">
-    <value>Value type of dictionary must be non-nullable.</value>
+    <value>Value type of dictionary '{0}' must be non-nullable.</value>
   </data>
   <data name="KeyAttributeRequiredInDictionaryValue" xml:space="preserve">
     <value>{0} is used as a value in dictionary {1}, KeyAttribute must be used in one of the parameters.</value>
@@ -148,7 +148,7 @@
     <value>Key and value type of dictionary must be same type.</value>
   </data>
   <data name="FileOrDirectoryNotExist" xml:space="preserve">
-    <value>The file or directory does not exist.</value>
+    <value>The file or directory does not exist: {0}</value>
   </data>
   <data name="NullableCollectionNotSupported" xml:space="preserve">
     <value>{0}({1}): nullable collection type is not supported.</value>
@@ -276,20 +276,14 @@
   <data name="NotSupportedListType" xml:space="preserve">
     <value>{0}({1}) is not a supported list type.</value>
   </data>
-  <data name="NotSingleColumnList" xml:space="preserve">
-    <value>{0}({1}) is not a single column list.</value>
-  </data>
   <data name="NotSupportedHashSetType" xml:space="preserve">
     <value>{0}({1}) is not a supported hash set type.</value>
-  </data>
-  <data name="NotSingleColumnHashSet" xml:space="preserve">
-    <value>{0}({1}) is not a single column hash set.</value>
   </data>
   <data name="FactoryNotSupportedArrayType" xml:space="preserve">
     <value>{0}({1}) is not a supported array type.</value>
   </data>
-  <data name="IsRecordArrayType" xml:space="preserve">
-    <value>{0}({1}) is record array type.</value>
+  <data name="NotRecordArrayType" xml:space="preserve">
+    <value>{0}({1}) is not a record array: its element type is primitive.</value>
   </data>
   <data name="NotSupportedNestedCollectionType" xml:space="preserve">
     <value>{0}({1}) is not a supported nested collection type.</value>
@@ -306,10 +300,13 @@
   <data name="FactoryNotSupportedRecordType" xml:space="preserve">
     <value>{0}({1}) is not a supported record type.</value>
   </data>
-  <data name="IsRecordHashSetType" xml:space="preserve">
-    <value>{0}({1}) is record hash set type.</value>
+  <data name="NotRecordHashSetType" xml:space="preserve">
+    <value>{0}({1}) is not a record hash set: its element type is primitive.</value>
   </data>
   <data name="InvalidFullName" xml:space="preserve">
     <value>fullName should not be null, empty, or end with '.'</value>
+  </data>
+  <data name="AttributeArgumentMustNotBeNull" xml:space="preserve">
+    <value>[{0}] on '{1}' must not have a null argument.</value>
   </data>
 </root>

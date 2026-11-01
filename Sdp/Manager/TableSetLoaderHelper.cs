@@ -55,6 +55,25 @@ public static class TableSetLoaderHelper
             targets));
     }
 
+    public static Exception SwitchFkValueNotFoundError(
+        string source,
+        string propertyName,
+        string value,
+        string targets,
+        string conditionColumn,
+        string conditionValue)
+    {
+        return new InvalidOperationException(string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.SwitchFkValueNotFound,
+            source,
+            propertyName,
+            value,
+            targets,
+            conditionColumn,
+            conditionValue));
+    }
+
     public static Exception FkTargetNotLoadedError(string source, string targets)
     {
         return new InvalidOperationException(string.Format(

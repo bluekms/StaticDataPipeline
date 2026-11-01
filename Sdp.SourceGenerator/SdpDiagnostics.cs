@@ -25,7 +25,7 @@ internal static class SdpDiagnostics
     public static readonly DiagnosticDescriptor MultipleKeyAttributes = new(
         id: "SDP0003",
         title: "Only one [Key] attribute is allowed per record",
-        messageFormat: "record '{0}'에는 [Key]를 한 파라미터에만 부착할 수 있습니다 (현재 {1}개)",
+        messageFormat: "record '{0}'에는 [Key]를 한 파라미터에만 부착할 수 있습니다 (현재 {1}개: {2})",
         category: Category,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
@@ -154,6 +154,14 @@ internal static class SdpDiagnostics
         id: "SDP0019",
         title: "CountRange bounds must be non-negative",
         messageFormat: "record '{0}'의 파라미터 '{1}'의 [CountRange] 경계({2}, {3})는 음수일 수 없습니다",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor AttributeArgumentMustNotBeNull = new(
+        id: "SDP0020",
+        title: "Attribute argument must not be null",
+        messageFormat: "record '{0}'의 파라미터 '{1}'의 [{2}]에는 null 인자를 줄 수 없습니다",
         category: Category,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);

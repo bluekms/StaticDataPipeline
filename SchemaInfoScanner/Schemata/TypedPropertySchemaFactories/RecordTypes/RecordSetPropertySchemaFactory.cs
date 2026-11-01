@@ -29,7 +29,7 @@ public class RecordSetPropertySchemaFactory
         {
             throw new InvalidOperationException(string.Format(
                 CultureInfo.CurrentCulture,
-                Messages.Composite.IsRecordHashSetType,
+                Messages.Composite.NotRecordHashSetType,
                 propertyName,
                 propertySymbol.Name));
         }

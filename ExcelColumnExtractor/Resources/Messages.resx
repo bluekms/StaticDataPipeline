@@ -72,4 +72,7 @@
   <data name="EmptyStartCellInAttribute" xml:space="preserve">
     <value>StartCell in StaticDataRecord attribute is empty for '{0}'.</value>
   </data>
+  <data name="OptionPathNotExist" xml:space="preserve">
+    <value>The path given to --{0} does not exist: {1}</value>
+  </data>
 </root>

@@ -12,6 +12,18 @@ internal partial class SchemaRuleValidator
 {
     private void RegisterNullStringAttributeRule()
     {
+        When(x => x.HasAttribute<NullStringAttribute>(), () =>
+        {
+            RuleFor(x => x)
+                .Must(x => x.TryGetAttributeValue<NullStringAttribute, string>(out _))
+                .WithMessage(x =>
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.AttributeArgumentMustNotBeNull,
+                        "NullString",
+                        x.PropertyName.FullName));
+        });
+
         // nullable 타입이면 반드시 있어야 한다.
         When(x => x.IsNullable(), () =>
         {

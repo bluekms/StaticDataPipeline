@@ -34,7 +34,7 @@ public class CsvMapperGeneratorEnumTests(ITestOutputHelper testOutputHelper)
 
         // 멤버명뿐 아니라 underlying 숫자값으로도 매핑된다.
         Assert.Contains("case \"0\":", code);
-        Assert.Contains("not a defined member of global::Test.Kind", code);
+        Assert.Contains("throw global::Sdp.Csv.CsvMapperHelper.UndefinedEnumMember(value, \"Test.Kind\", column);", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
@@ -93,7 +93,7 @@ public class CsvMapperGeneratorEnumTests(ITestOutputHelper testOutputHelper)
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         var code = mapperTree.ToString();
         Assert.Contains("== \"?\"", code);
-        Assert.Contains("private static global::Test.Kind? __MapNullable_K(string value)", code);
+        Assert.Contains("private static global::Test.Kind? __MapNullable_K(string value, string column)", code);
         Assert.Contains("__MapColumn_K", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);

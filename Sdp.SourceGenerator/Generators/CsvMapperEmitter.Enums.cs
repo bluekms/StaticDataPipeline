@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Sdp.SourceGenerator.Generators;
 
@@ -30,7 +31,7 @@ internal static partial class CsvMapperEmitter
         bool isKey)
     {
         var enumFullName = enumType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-        var underlyingKeyword = ScalarTypeKeyword(TypeClassifier.ClassifyScalar(enumType.EnumUnderlyingType!));
+        var underlyingKind = TypeClassifier.ClassifyScalar(enumType.EnumUnderlyingType!);
         var isUnsigned64 = enumType.EnumUnderlyingType!.SpecialType == SpecialType.System_UInt64;
         var accumulatorKeyword = isUnsigned64 ? "ulong" : "long";
         var accumulatorSuffix = isUnsigned64 ? "UL" : "L";
@@ -41,7 +42,7 @@ internal static partial class CsvMapperEmitter
             .ToList();
 
         sb.Append(indent).Append("private static ").Append(enumFullName).Append(' ')
-            .Append(helperName).AppendLine("(string value)");
+            .Append(helperName).AppendLine("(string value, string column)");
         sb.Append(indent).AppendLine("{");
         sb.Append(indent).AppendLine("    switch (value)");
         sb.Append(indent).AppendLine("    {");
@@ -78,8 +79,8 @@ internal static partial class CsvMapperEmitter
             }
 
             sb.Append(indent).AppendLine("                    default:");
-            sb.Append(indent).Append("                        __acc |= (").Append(accumulatorKeyword).Append(")(")
-                .Append(InvariantIntegerParse(underlyingKeyword, "__parts[__i].Trim()")).AppendLine(");");
+            sb.Append(indent).Append("                        __acc |= (").Append(accumulatorKeyword).Append(")(global::Sdp.Csv.CsvMapperHelper.")
+                .Append(CellParseMethod(underlyingKind)).AppendLine("(__parts[__i].Trim(), column));");
             sb.Append(indent).AppendLine("                        break;");
             sb.Append(indent).AppendLine("                }");
             sb.Append(indent).AppendLine("            }");
@@ -89,8 +90,8 @@ internal static partial class CsvMapperEmitter
         }
         else
         {
-            sb.Append(indent).Append("            throw new global::System.ArgumentException($\"'{value}' is not a defined member of ")
-                .Append(enumFullName).AppendLine(".\", nameof(value));");
+            sb.Append(indent).Append("            throw global::Sdp.Csv.CsvMapperHelper.UndefinedEnumMember(value, ")
+                .Append(SymbolDisplay.FormatLiteral(enumType.ToDisplayString(), quote: true)).AppendLine(", column);");
         }
 
         sb.Append(indent).AppendLine("    }");

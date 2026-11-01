@@ -183,14 +183,18 @@ internal static class CsvMapperPipeline
         ImmutableArray<ParameterAnalysis> parameters,
         List<Diagnostic> diagnostics)
     {
-        var keyCount = parameters.Count(static param => param.IsKey);
-        if (keyCount > 1)
+        var keyNames = parameters
+            .Where(static param => param.IsKey)
+            .Select(static param => param.Name)
+            .ToList();
+        if (keyNames.Count > 1)
         {
             diagnostics.Add(Diagnostic.Create(
                 SdpDiagnostics.MultipleKeyAttributes,
                 syntax.Identifier.GetLocation(),
                 symbol.ToDisplayString(),
-                keyCount));
+                keyNames.Count,
+                string.Join(", ", keyNames)));
         }
     }
 

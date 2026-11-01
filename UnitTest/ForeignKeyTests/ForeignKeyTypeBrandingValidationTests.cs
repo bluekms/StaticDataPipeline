@@ -1,10 +1,13 @@
 using System.Collections.Immutable;
+using System.Globalization;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
 using Sdp.Manager;
 using Sdp.Table;
 using UnitTest.Utility;
 using Xunit.Abstractions;
+using SdpMessages = Sdp.Resources.Messages;
 
 namespace UnitTest.ForeignKeyTests;
 
@@ -321,9 +324,8 @@ public partial class ForeignKeyTypeBrandingValidationTests(ITestOutputHelper tes
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
-        Assert.Single(ex.InnerExceptions);
-        Assert.Contains("Omega", ex.InnerExceptions[0].Message, StringComparison.Ordinal);
-        Assert.Contains("when Category=Npc", ex.InnerExceptions[0].Message, StringComparison.Ordinal);
+        var inner = Assert.Single(ex.InnerExceptions);
+        Assert.Equal(Format(SdpMessages.Composite.SwitchFkValueNotFound, "FaceLookupRecord", "FaceId", "Omega", "NpcFace.Id", "Category", "Npc"), inner.Message);
         Assert.Empty(logger.Logs);
     }
 
@@ -436,9 +438,13 @@ public partial class ForeignKeyTypeBrandingValidationTests(ITestOutputHelper tes
 
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
-        Assert.Single(ex.InnerExceptions);
-        Assert.Contains("999", ex.InnerExceptions[0].Message, StringComparison.Ordinal);
-        Assert.Contains("when Kind=Wood", ex.InnerExceptions[0].Message, StringComparison.Ordinal);
+        var inner = Assert.Single(ex.InnerExceptions);
+        Assert.Equal(Format(SdpMessages.Composite.SwitchFkValueNotFound, "PartLookupRecord", "PartId", "PartId { Value = 999 }", "WoodPart.Id", "Kind", "Wood"), inner.Message);
         Assert.Empty(logger.Logs);
+    }
+
+    private static string Format(CompositeFormat format, params object[] args)
+    {
+        return string.Format(CultureInfo.CurrentCulture, format, args);
     }
 }

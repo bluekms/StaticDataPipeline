@@ -32,8 +32,10 @@ internal static partial class CsvMapperEmitter
         sb.Append(indent).AppendLine("{");
         sb.Append(indent).Append("    if (value < ").Append(lowerBound).Append(" || value > ").Append(upperBound).AppendLine(")");
         sb.Append(indent).AppendLine("    {");
-        sb.Append(indent).Append("        throw new global::System.ArgumentOutOfRangeException(nameof(value), value, \"'");
-        sb.Append(param.Name).Append("' must be within [").Append(rawMin).Append(", ").Append(rawMax).AppendLine("].\");");
+        sb.Append(indent).Append("        throw global::Sdp.Csv.CsvMapperHelper.ValueOutOfRange(")
+            .Append(SymbolDisplay.FormatLiteral(param.Name, quote: true)).Append(", ")
+            .Append(SymbolDisplay.FormatLiteral(rawMin, quote: true)).Append(", ")
+            .Append(SymbolDisplay.FormatLiteral(rawMax, quote: true)).AppendLine(", value);");
         sb.Append(indent).AppendLine("    }");
         sb.AppendLine();
         sb.Append(indent).AppendLine("    return value;");
@@ -75,8 +77,8 @@ internal static partial class CsvMapperEmitter
         var maxText = (string)param.Range!.Maximum!;
         var minLiteral = SymbolDisplay.FormatLiteral(minText, quote: true);
         var maxLiteral = SymbolDisplay.FormatLiteral(maxText, quote: true);
-        var minExpr = EmitScalarParse(kind, minLiteral, param.DateTimeFormat, param.TimeSpanFormat);
-        var maxExpr = EmitScalarParse(kind, maxLiteral, param.DateTimeFormat, param.TimeSpanFormat);
+        var minExpr = EmitLiteralParse(kind, minLiteral, param.DateTimeFormat, param.TimeSpanFormat);
+        var maxExpr = EmitLiteralParse(kind, maxLiteral, param.DateTimeFormat, param.TimeSpanFormat);
         var minField = HelperName("__RangeMin_", ownerToken, param.Name);
         var maxField = HelperName("__RangeMax_", ownerToken, param.Name);
 
@@ -158,10 +160,10 @@ internal static partial class CsvMapperEmitter
         string minText,
         string maxText)
     {
-        var message = "'" + param.Name + "' must be within [" + minText + ", " + maxText + "].";
-        var messageLiteral = SymbolDisplay.FormatLiteral(message, quote: true);
-        sb.Append(indent).Append("        throw new global::System.ArgumentOutOfRangeException(nameof(value), value, ");
-        sb.Append(messageLiteral).AppendLine(");");
+        sb.Append(indent).Append("        throw global::Sdp.Csv.CsvMapperHelper.ValueOutOfRange(")
+            .Append(SymbolDisplay.FormatLiteral(param.Name, quote: true)).Append(", ")
+            .Append(SymbolDisplay.FormatLiteral(minText, quote: true)).Append(", ")
+            .Append(SymbolDisplay.FormatLiteral(maxText, quote: true)).AppendLine(", value);");
     }
 
     private static string EnumBoundExpr(
@@ -198,8 +200,8 @@ internal static partial class CsvMapperEmitter
         sb.Append(indent).AppendLine("{");
         sb.Append(indent).Append("    if (!").Append(patternField).AppendLine(".IsMatch(value))");
         sb.Append(indent).AppendLine("    {");
-        sb.Append(indent).Append("        throw new global::System.ArgumentException($\"'{value}' does not match pattern for '");
-        sb.Append(param.Name).AppendLine("'.\", nameof(value));");
+        sb.Append(indent).Append("        throw global::Sdp.Csv.CsvMapperHelper.PatternMismatch(value, ")
+            .Append(SymbolDisplay.FormatLiteral(param.Name, quote: true)).AppendLine(");");
         sb.Append(indent).AppendLine("    }");
         sb.AppendLine();
         sb.Append(indent).AppendLine("    return value;");

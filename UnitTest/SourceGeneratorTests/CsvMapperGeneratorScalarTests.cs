@@ -25,7 +25,7 @@ public class CsvMapperGeneratorScalarTests(ITestOutputHelper testOutputHelper)
         var code = mapperTree.ToString();
         Assert.Contains("MapFromCsvRow", code);
         Assert.Contains("global::Test.Foo", code);
-        Assert.Contains("int.Parse(values[headers[\"Id\"]]", code);
+        Assert.Contains("global::Sdp.Csv.CsvMapperHelper.ParseInt32(values[headers[\"Id\"]], \"Id\")", code);
         Assert.Contains("values[headers[\"Name\"]]", code);
         Assert.Empty(logger.Logs);
     }
