@@ -63,7 +63,9 @@ public static class SheetNameScanner
         using var reader = ExcelReaderFactory.CreateReader(loader.Stream);
         do
         {
-            sheetNames.Add(new(filePath, reader.Name));
+            var isHidden = reader.VisibleState is { } visibleState &&
+                           !string.Equals(visibleState, "visible", StringComparison.OrdinalIgnoreCase);
+            sheetNames.Add(new(filePath, reader.Name, isHidden));
         }
         while (reader.NextResult());
 
