@@ -75,4 +75,25 @@
   <data name="OptionPathNotExist" xml:space="preserve">
     <value>The path given to --{0} does not exist: {1}</value>
   </data>
+  <data name="StartCellOverriddenByAttribute" xml:space="preserve">
+    <value>'{0}' uses the StartCell '{1}' from its StaticDataRecord attribute; the --start-cell option '{2}' is ignored for this record.</value>
+  </data>
+  <data name="SheetIsHidden" xml:space="preserve">
+    <value>Sheet '{0}' is hidden. Unhide every sheet that is extracted.</value>
+  </data>
+  <data name="FormulaCellsFound" xml:space="preserve">
+    <value>Sheet '{0}' has formulas in cells {1} ({2} cells). The extractor does not read formulas; paste the results as values (or keep a value-only result column) and extract that column instead.</value>
+  </data>
+  <data name="CellHasSurroundingWhitespace" xml:space="preserve">
+    <value>Cell {1} of sheet '{0}' has leading or trailing whitespace: '{2}'. The value is extracted as is.</value>
+  </data>
+  <data name="ColumnHasNumberFormat" xml:space="preserve">
+    <value>Cell {1} of sheet '{0}' has the number format '{2}'. The extractor uses the stored value '{3}', which may differ from what Excel shows. Set the format to General or enter the value as text. (Reported once per column.)</value>
+  </data>
+  <data name="SheetHasNoDataRows" xml:space="preserve">
+    <value>Sheet '{0}' has no data rows.</value>
+  </data>
+  <data name="BrandedHeaderBothForms" xml:space="preserve">
+    <value>Both '{0}' and '{1}' exist in the sheet headers. Keep only one of them.</value>
+  </data>
 </root>

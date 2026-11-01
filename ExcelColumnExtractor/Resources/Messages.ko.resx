@@ -75,4 +75,25 @@
   <data name="OptionPathNotExist" xml:space="preserve">
     <value>--{0} 에 지정한 경로가 존재하지 않습니다: {1}</value>
   </data>
+  <data name="StartCellOverriddenByAttribute" xml:space="preserve">
+    <value>'{0}'은(는) StaticDataRecord 속성의 시작 셀 '{1}'을(를) 씁니다. 이 Record 에서는 --start-cell 옵션 '{2}'이(가) 무시됩니다.</value>
+  </data>
+  <data name="SheetIsHidden" xml:space="preserve">
+    <value>'{0}' 시트가 숨겨져 있습니다. 추출하는 시트는 모두 숨기지 마십시오.</value>
+  </data>
+  <data name="FormulaCellsFound" xml:space="preserve">
+    <value>'{0}' 시트의 {1} 셀에 수식이 있습니다 ({2}개). 추출기는 수식을 읽지 않습니다. 결과를 값으로 붙여 넣거나 값만 든 결과 열을 따로 만들어 그 열을 추출하십시오.</value>
+  </data>
+  <data name="CellHasSurroundingWhitespace" xml:space="preserve">
+    <value>'{0}' 시트의 {1} 셀 값 '{2}' 앞뒤에 공백이 있습니다. 값은 그대로 추출됩니다.</value>
+  </data>
+  <data name="ColumnHasNumberFormat" xml:space="preserve">
+    <value>'{0}' 시트의 {1} 셀에 숫자 서식 '{2}'이(가) 있습니다. 추출은 저장값 '{3}'을(를) 쓰므로 Excel 에 보이는 값과 다를 수 있습니다. 서식을 일반으로 바꾸거나 값을 텍스트로 입력하십시오. (열마다 한 번만 알립니다.)</value>
+  </data>
+  <data name="SheetHasNoDataRows" xml:space="preserve">
+    <value>'{0}' 시트에 데이터 행이 없습니다.</value>
+  </data>
+  <data name="BrandedHeaderBothForms" xml:space="preserve">
+    <value>시트 헤더에 '{0}'과(와) '{1}'이(가) 함께 있습니다. 하나만 남기십시오.</value>
+  </data>
 </root>

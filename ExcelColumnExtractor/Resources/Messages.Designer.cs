@@ -93,6 +93,27 @@ internal static class Messages
     internal static string OptionPathNotExist
         => ResourceManager.GetString("OptionPathNotExist", Culture)!;
 
+    internal static string StartCellOverriddenByAttribute
+        => ResourceManager.GetString("StartCellOverriddenByAttribute", Culture)!;
+
+    internal static string SheetIsHidden
+        => ResourceManager.GetString("SheetIsHidden", Culture)!;
+
+    internal static string FormulaCellsFound
+        => ResourceManager.GetString("FormulaCellsFound", Culture)!;
+
+    internal static string CellHasSurroundingWhitespace
+        => ResourceManager.GetString("CellHasSurroundingWhitespace", Culture)!;
+
+    internal static string ColumnHasNumberFormat
+        => ResourceManager.GetString("ColumnHasNumberFormat", Culture)!;
+
+    internal static string SheetHasNoDataRows
+        => ResourceManager.GetString("SheetHasNoDataRows", Culture)!;
+
+    internal static string BrandedHeaderBothForms
+        => ResourceManager.GetString("BrandedHeaderBothForms", Culture)!;
+
     internal static class Composite
     {
         internal static CompositeFormat FileAlreadyOpen => CompositeFormat.Parse(Messages.FileAlreadyOpen);
@@ -117,5 +138,12 @@ internal static class Messages
         internal static CompositeFormat PrimaryKeyHeaderNotFound => CompositeFormat.Parse(Messages.PrimaryKeyHeaderNotFound);
         internal static CompositeFormat EmptyStartCellInAttribute => CompositeFormat.Parse(Messages.EmptyStartCellInAttribute);
         internal static CompositeFormat OptionPathNotExist => CompositeFormat.Parse(Messages.OptionPathNotExist);
+        internal static CompositeFormat StartCellOverriddenByAttribute => CompositeFormat.Parse(Messages.StartCellOverriddenByAttribute);
+        internal static CompositeFormat SheetIsHidden => CompositeFormat.Parse(Messages.SheetIsHidden);
+        internal static CompositeFormat FormulaCellsFound => CompositeFormat.Parse(Messages.FormulaCellsFound);
+        internal static CompositeFormat CellHasSurroundingWhitespace => CompositeFormat.Parse(Messages.CellHasSurroundingWhitespace);
+        internal static CompositeFormat ColumnHasNumberFormat => CompositeFormat.Parse(Messages.ColumnHasNumberFormat);
+        internal static CompositeFormat SheetHasNoDataRows => CompositeFormat.Parse(Messages.SheetHasNoDataRows);
+        internal static CompositeFormat BrandedHeaderBothForms => CompositeFormat.Parse(Messages.BrandedHeaderBothForms);
     }
 }
