@@ -324,6 +324,9 @@ internal static class Messages
     internal static string AttributeArgumentMustNotBeNull
         => ResourceManager.GetString("AttributeArgumentMustNotBeNull", Culture)!;
 
+    internal static string TypeNotDeclaredInRecordSources
+        => ResourceManager.GetString("TypeNotDeclaredInRecordSources", Culture)!;
+
     internal static class Composite
     {
         internal static CompositeFormat AlreadyVisited => CompositeFormat.Parse(Messages.AlreadyVisited);
@@ -414,5 +417,6 @@ internal static class Messages
         internal static CompositeFormat DictionaryKeyMustBeNonNullable => CompositeFormat.Parse(Messages.DictionaryKeyMustBeNonNullable);
         internal static CompositeFormat DictionaryValueMustBeNonNullable => CompositeFormat.Parse(Messages.DictionaryValueMustBeNonNullable);
         internal static CompositeFormat AttributeArgumentMustNotBeNull => CompositeFormat.Parse(Messages.AttributeArgumentMustNotBeNull);
+        internal static CompositeFormat TypeNotDeclaredInRecordSources => CompositeFormat.Parse(Messages.TypeNotDeclaredInRecordSources);
     }
 }

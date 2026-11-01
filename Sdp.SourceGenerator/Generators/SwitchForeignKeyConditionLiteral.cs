@@ -170,17 +170,6 @@ internal static class SwitchForeignKeyConditionLiteralBuilder
             return new SwitchForeignKeyConditionLiteral(enumFullyQualifiedName + "." + EmitHelper.EscapeIdentifier(member.Name), normalized);
         }
 
-        if (SwitchForeignKeyConditionValueValidator.HasFlagsAttribute(enumType))
-        {
-            var parsedFlags = SwitchForeignKeyConditionValueValidator.TryParseFlagsConditionValue(enumType, conditionValue, out var flagsNumericLiteral);
-            if (!parsedFlags)
-            {
-                return null;
-            }
-
-            return new SwitchForeignKeyConditionLiteral("(" + enumFullyQualifiedName + ")(" + flagsNumericLiteral + ")", flagsNumericLiteral);
-        }
-
         if (underlyingSpecialType == SpecialType.System_UInt64)
         {
             var parsedUnsigned = ulong.TryParse(conditionValue, NumberStyles.Integer, CultureInfo.InvariantCulture, out var unsigned);

@@ -267,6 +267,9 @@
   <data name="NotSupportedPrimitiveType" xml:space="preserve">
     <value>{0} is not supported primitive type.</value>
   </data>
+  <data name="TypeNotDeclaredInRecordSources" xml:space="preserve">
+    <value>The type '{1}' of {0} is not declared in the record source files. Enums from other assemblies (for example System.DayOfWeek) cannot be used; declare an enum in the same file as the record instead.</value>
+  </data>
   <data name="NotSupportedPropertyType" xml:space="preserve">
     <value>{0}({1}) is not a supported property type.</value>
   </data>

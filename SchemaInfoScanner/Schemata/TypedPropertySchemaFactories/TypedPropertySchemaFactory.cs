@@ -97,10 +97,28 @@ public static class TypedPropertySchemaFactory
                 context);
         }
 
+        if (IsDeclaredOutsideRecordSources(propertySymbol))
+        {
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.TypeNotDeclaredInRecordSources,
+                propertyName.FullName,
+                propertySymbol.ToDisplayString()));
+        }
+
         throw new NotSupportedException(string.Format(
             CultureInfo.CurrentCulture,
             Messages.Composite.NotSupportedPropertyType,
             propertyName,
             propertySymbol.Name));
+    }
+
+    private static bool IsDeclaredOutsideRecordSources(INamedTypeSymbol symbol)
+    {
+        var underlyingType = symbol.OriginalDefinition.SpecialType is SpecialType.System_Nullable_T
+            ? symbol.TypeArguments[0]
+            : symbol;
+
+        return underlyingType.TypeKind is TypeKind.Error;
     }
 }

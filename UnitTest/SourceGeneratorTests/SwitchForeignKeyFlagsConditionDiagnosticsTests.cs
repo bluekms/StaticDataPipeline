@@ -65,11 +65,9 @@ public class SwitchForeignKeyFlagsConditionDiagnosticsTests(ITestOutputHelper te
     [Theory]
     [InlineData("Read")]
     [InlineData("ReadWrite")]
-    [InlineData("Read, Write")]
-    [InlineData("Write,Read")]
     [InlineData("5")]
     [InlineData("99")]
-    public void DoesNotReport_SDP0212_when_flags_condition_value_is_resolvable(string conditionValue)
+    public void DoesNotReport_SDP0212_when_flags_enum_condition_value_is_member_name_or_numeric(string conditionValue)
     {
         var logger = CreateLogger();
 
@@ -84,8 +82,10 @@ public class SwitchForeignKeyFlagsConditionDiagnosticsTests(ITestOutputHelper te
     [Theory]
     [InlineData("Weapno")]
     [InlineData("Read|Write")]
+    [InlineData("Read, Write")]
+    [InlineData("Write,Read")]
     [InlineData("Read, Weapno")]
-    public void Reports_SDP0212_as_error_when_flags_condition_value_is_unresolvable(string conditionValue)
+    public void Reports_SDP0212_as_error_when_flags_enum_condition_value_is_a_combination(string conditionValue)
     {
         var logger = CreateLogger();
 
@@ -98,9 +98,9 @@ public class SwitchForeignKeyFlagsConditionDiagnosticsTests(ITestOutputHelper te
     }
 
     [Theory]
-    [InlineData("Read, Write", "(global::Test.Access)(3)")]
+    [InlineData("ReadWrite", "global::Test.Access.ReadWrite")]
     [InlineData("5", "(global::Test.Access)(5)")]
-    public void Emits_cast_value_comparison_for_flags_condition_value(string conditionValue, string expectedLiteral)
+    public void Emits_plain_enum_comparison_for_flags_enum_condition_value(string conditionValue, string expectedLiteral)
     {
         var logger = CreateLogger();
 

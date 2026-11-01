@@ -160,8 +160,7 @@ public sealed partial record RewardRecord(
 
 |조건 컬럼 타입|`conditionValue` 표기|
 |-|-|
-|enum|멤버 이름 (`"Item"`) 또는 정수 리터럴 (`"1"`)|
-|`[Flags]` enum|`"Read, Write"` 처럼 쉼표로 묶은 조합. 정수 리터럴도 가능|
+|enum|멤버 이름 (`"Item"`) 또는 정수 리터럴 (`"1"`). `[Flags]` enum 이어도 같고, `"Read, Write"` 같은 조합은 받지 않는다 (여러 값을 가지는 컬럼은 `[SingleColumnCollection]` 컬렉션으로 선언한다)|
 |정수 (`int`, `long` 등)|그 타입의 범위 안에 있는 숫자|
 |`bool`|`"true"` / `"false"`|
 |`char`|한 글자|

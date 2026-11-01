@@ -42,7 +42,7 @@ public class CsvMapperGeneratorEnumTests(ITestOutputHelper testOutputHelper)
     }
 
     [Fact]
-    public void Key_enum_default_supports_comma_combination()
+    public void Key_enum_default_casts_undefined_integer_without_comma_combination()
     {
         var logger = CreateLogger();
 
@@ -61,9 +61,8 @@ public class CsvMapperGeneratorEnumTests(ITestOutputHelper testOutputHelper)
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
         var code = mapperTree.ToString();
-        Assert.Contains("value.Split(',')", code);
-        Assert.Contains("__acc |=", code);
-        Assert.Contains("(global::Test.Flag)__acc", code);
+        Assert.DoesNotContain("value.Split(',')", code);
+        Assert.Contains("return (global::Test.Flag)global::Sdp.Csv.CsvMapperHelper.ParseInt32(value, column);", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
@@ -102,7 +101,7 @@ public class CsvMapperGeneratorEnumTests(ITestOutputHelper testOutputHelper)
     }
 
     [Fact]
-    public void Key_long_flags_enum_with_sign_bit_member_compiles()
+    public void Key_long_enum_with_sign_bit_member_compiles()
     {
         var logger = CreateLogger();
 
@@ -111,17 +110,18 @@ public class CsvMapperGeneratorEnumTests(ITestOutputHelper testOutputHelper)
             using Sdp.Attributes;
             namespace Test;
 
-            [System.Flags]
-            public enum Flags : long { None = 0, High = long.MinValue }
+            public enum Level : long { None = 0, High = long.MinValue }
 
             [StaticDataRecord("File", "Sheet")]
-            public sealed partial record Foo([Key] Flags F, string Name);
+            public sealed partial record Foo([Key] Level F, string Name);
             """;
 
         var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
 
         var mapperTree = SourceGeneratorTestHelper.GetSingleTree(result, "CsvMapper.g.cs");
-        Assert.Contains("unchecked((long)", mapperTree.ToString());
+        var code = mapperTree.ToString();
+        Assert.Contains("case \"-9223372036854775808\":", code);
+        Assert.Contains("return (global::Test.Level)global::Sdp.Csv.CsvMapperHelper.ParseInt64(value, column);", code);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(final);
         Assert.Empty(errors);
