@@ -56,8 +56,8 @@ public partial class SwitchForeignKeyFlagsEnumValidationTests(ITestOutputHelper 
     private partial record GrantRecord(
         int GrantId,
         Access Access,
-        [SwitchForeignKey("Access", "Read",        "Item",      "Id")]
-        [SwitchForeignKey("Access", "Read, Write", "Character", "Id")]
+        [SwitchForeignKey("Access", "Read",      "Item",      "Id")]
+        [SwitchForeignKey("Access", "ReadWrite", "Character", "Id")]
         int RefId);
 
     [StaticDataRecord("Item", "Sheet1")]
@@ -93,7 +93,7 @@ public partial class SwitchForeignKeyFlagsEnumValidationTests(ITestOutputHelper 
     }
 
     [Fact]
-    public async Task Load_FlagsCombinationConditionValue_MatchesNamedComboAndNumericCells()
+    public async Task Load_FlagsEnumCondition_MatchesMemberNameAndNumericCells()
     {
         var logger = CreateLogger();
 
