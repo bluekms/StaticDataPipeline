@@ -34,7 +34,7 @@ public static class BodyColumnAggregator
                 var targetColumns = targetColumnData.Headers
                     .Select(header => header.SheetColumn)
                     .ToHashSet();
-                EnsureNoFormulaCells(excelSheetName, targetColumnData.StartCell, targetColumns, logger);
+                EnsureNoFormulaCells(excelSheetName, targetColumnData.StartCell, targetColumns);
                 var sheetBody = SheetBodyScanner.Scan(excelSheetName, targetColumnData.StartCell, targetColumns, logger);
 
                 var filteredRows = sheetBody.Rows
@@ -76,8 +76,7 @@ public static class BodyColumnAggregator
     private static void EnsureNoFormulaCells(
         ExcelSheetName excelSheetName,
         string startCell,
-        IReadOnlySet<int> targetColumns,
-        ILogger logger)
+        IReadOnlySet<int> targetColumns)
     {
         var formulaCells = SheetFormulaScanner.Scan(excelSheetName, startCell, targetColumns);
         if (formulaCells.Count == 0)
@@ -91,7 +90,6 @@ public static class BodyColumnAggregator
             excelSheetName.FullName,
             string.Join(", ", formulaCells.Take(MaxReportedFormulaCells)),
             formulaCells.Count);
-        LogWarning(logger, msg, null);
 
         throw new InvalidOperationException(msg);
     }
@@ -100,9 +98,6 @@ public static class BodyColumnAggregator
 
     private static readonly Action<ILogger, RecordSchema, string, Exception?> LogError =
         LoggerMessage.Define<RecordSchema, string>(LogLevel.Error, new EventId(0, nameof(LogError)), "{RecordSchema}: {ErrorMessage}");
-
-    private static readonly Action<ILogger, string, Exception?> LogWarning =
-        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(1, nameof(LogWarning)), "{Message}");
 
     private static readonly Action<ILogger, string, Exception?> LogInformation =
         LoggerMessage.Define<string>(LogLevel.Information, new EventId(2, nameof(LogInformation)), "{Message}");

@@ -33,7 +33,7 @@ public static class RequiredHeadersChecker
             try
             {
                 var excelSheetName = sheetNameMap.Get(recordSchema);
-                EnsureSheetVisible(excelSheetName, logger);
+                EnsureSheetVisible(excelSheetName);
 
                 var recordStartCell = StartCellResolver.Resolve(recordSchema, startCell, logger);
 
@@ -58,7 +58,7 @@ public static class RequiredHeadersChecker
             : new(result);
     }
 
-    private static void EnsureSheetVisible(ExcelSheetName excelSheetName, ILogger logger)
+    private static void EnsureSheetVisible(ExcelSheetName excelSheetName)
     {
         if (!excelSheetName.IsHidden)
         {
@@ -69,7 +69,6 @@ public static class RequiredHeadersChecker
             CultureInfo.CurrentCulture,
             Messages.Composite.SheetIsHidden,
             excelSheetName.FullName);
-        LogWarning(logger, msg, null);
 
         throw new ArgumentException(msg);
     }
@@ -90,14 +89,13 @@ public static class RequiredHeadersChecker
 
         var startColumn = ExcelSheetProcessor.ParseStartCell(startCell).Column;
 
-        return new(startCell, ComputeRequiredHeaders(standardHeaders, sheetHeaders, startColumn, logger));
+        return new(startCell, ComputeRequiredHeaders(standardHeaders, sheetHeaders, startColumn));
     }
 
     private static List<RequiredHeader> ComputeRequiredHeaders(
         IReadOnlyList<RecordFlattener.FlattenedHeader> standardHeaders,
         IReadOnlyList<string> sheetHeaders,
-        int startColumn,
-        ILogger logger)
+        int startColumn)
     {
         var requiredHeaders = new List<RequiredHeader>();
         var standardHeaderByIndex = new Dictionary<int, string>();
@@ -118,7 +116,6 @@ public static class RequiredHeadersChecker
                         Messages.Composite.BrandedHeaderBothForms,
                         standardHeader,
                         fallbackHeader);
-                    LogWarning(logger, bothFormsMsg, null);
 
                     throw new ArgumentException(bothFormsMsg);
                 }
@@ -189,7 +186,4 @@ public static class RequiredHeadersChecker
 
     private static readonly Action<ILogger, RecordSchema, string, Exception?> LogError =
         LoggerMessage.Define<RecordSchema, string>(LogLevel.Error, new EventId(0, nameof(LogError)), "{RecordSchema}: {ErrorMessage}");
-
-    private static readonly Action<ILogger, string, Exception?> LogWarning =
-        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(1, nameof(LogWarning)), "{Message}");
 }
