@@ -15,14 +15,14 @@ namespace ExcelColumnExtractor.Checkers;
 
 public static class RequiredHeadersChecker
 {
-    public sealed record RequiredHeader(string Header, int Index);
+    public sealed record RequiredHeader(string Header, int Index, int SheetColumn);
 
-    public sealed record RequiredHeaderMapping(IReadOnlyList<RequiredHeader> Headers);
+    public sealed record RequiredHeaderMapping(string StartCell, IReadOnlyList<RequiredHeader> Headers);
 
     public static RequiredHeaderMap Check(
         RecordSchemaCatalog recordSchemaCatalog,
         ExcelSheetNameMap sheetNameMap,
-        string startCell,
+        string? startCell,
         ILogger logger)
     {
         var result = new Dictionary<RecordSchema, RequiredHeaderMapping>(recordSchemaCatalog.StaticDataRecordSchemata.Count);
@@ -33,7 +33,9 @@ public static class RequiredHeadersChecker
             try
             {
                 var excelSheetName = sheetNameMap.Get(recordSchema);
-                var recordStartCell = StartCellResolver.Resolve(recordSchema, startCell);
+                EnsureSheetVisible(excelSheetName, logger);
+
+                var recordStartCell = StartCellResolver.Resolve(recordSchema, startCell, logger);
 
                 var targetColumnIndexSet = ResolveRequiredHeaderMapping(
                     recordSchema,
@@ -56,6 +58,22 @@ public static class RequiredHeadersChecker
             : new(result);
     }
 
+    private static void EnsureSheetVisible(ExcelSheetName excelSheetName, ILogger logger)
+    {
+        if (!excelSheetName.IsHidden)
+        {
+            return;
+        }
+
+        var msg = string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.SheetIsHidden,
+            excelSheetName.FullName);
+        LogWarning(logger, msg, null);
+
+        throw new ArgumentException(msg);
+    }
+
     private static RequiredHeaderMapping ResolveRequiredHeaderMapping(
         RecordSchema recordSchema,
         RecordSchemaCatalog recordSchemaCatalog,
@@ -64,28 +82,51 @@ public static class RequiredHeadersChecker
         ILogger logger)
     {
         var sheetHeaders = SheetHeaderScanner.Scan(excelSheetName, startCell, logger);
-        var standardHeaders = RecordFlattener.Flatten(
+        var standardHeaders = RecordFlattener.FlattenHeaders(
             recordSchema,
             recordSchemaCatalog,
             logger,
             sheetHeaders);
 
-        return new(ComputeRequiredHeaders(standardHeaders, sheetHeaders));
+        var startColumn = ExcelSheetProcessor.ParseStartCell(startCell).Column;
+
+        return new(startCell, ComputeRequiredHeaders(standardHeaders, sheetHeaders, startColumn, logger));
     }
 
-    private static List<RequiredHeader> ComputeRequiredHeaders(IReadOnlyList<string> standardHeaders, IReadOnlyList<string> sheetHeaders)
+    private static List<RequiredHeader> ComputeRequiredHeaders(
+        IReadOnlyList<RecordFlattener.FlattenedHeader> standardHeaders,
+        IReadOnlyList<string> sheetHeaders,
+        int startColumn,
+        ILogger logger)
     {
         var requiredHeaders = new List<RequiredHeader>();
         var standardHeaderByIndex = new Dictionary<int, string>();
-        foreach (var standardHeader in standardHeaders)
+        foreach (var flattenedHeader in standardHeaders)
         {
+            var standardHeader = flattenedHeader.Name;
             var index = IndexOf(sheetHeaders, standardHeader);
 
             // Single parameter record 하위 호환: "Id" -> "Id.Value" 폴백
-            if (index is -1)
+            var fallbackHeader = $"{standardHeader}.Value";
+            if (flattenedHeader.FromSingleValueRecord)
             {
-                var fallbackHeader = $"{standardHeader}.Value";
-                index = IndexOf(sheetHeaders, fallbackHeader);
+                var fallbackIndex = IndexOf(sheetHeaders, fallbackHeader);
+                if (index is not -1 && fallbackIndex is not -1)
+                {
+                    var bothFormsMsg = string.Format(
+                        CultureInfo.CurrentCulture,
+                        Messages.Composite.BrandedHeaderBothForms,
+                        standardHeader,
+                        fallbackHeader);
+                    LogWarning(logger, bothFormsMsg, null);
+
+                    throw new ArgumentException(bothFormsMsg);
+                }
+
+                if (index is -1)
+                {
+                    index = fallbackIndex;
+                }
             }
 
             if (index is -1)
@@ -102,14 +143,14 @@ public static class RequiredHeadersChecker
                 sb.AppendLine(string.Format(
                     CultureInfo.CurrentCulture,
                     Messages.Composite.RecordHeadersLine,
-                    string.Join(", ", standardHeaders)));
+                    string.Join(", ", standardHeaders.Select(x => x.Name))));
 
                 throw new ArgumentException(sb.ToString());
             }
 
             var sheetHeader = sheetHeaders[index];
             if (!sheetHeader.Equals(standardHeader, StringComparison.OrdinalIgnoreCase) &&
-                !sheetHeader.Equals($"{standardHeader}.Value", StringComparison.OrdinalIgnoreCase))
+                !sheetHeader.Equals(fallbackHeader, StringComparison.OrdinalIgnoreCase))
             {
                 throw new ArgumentException(string.Format(
                     CultureInfo.CurrentCulture,
@@ -127,7 +168,7 @@ public static class RequiredHeadersChecker
                     sheetHeader));
             }
 
-            requiredHeaders.Add(new(sheetHeader, index));
+            requiredHeaders.Add(new(sheetHeader, index, startColumn + index));
         }
 
         return requiredHeaders;
@@ -148,4 +189,7 @@ public static class RequiredHeadersChecker
 
     private static readonly Action<ILogger, RecordSchema, string, Exception?> LogError =
         LoggerMessage.Define<RecordSchema, string>(LogLevel.Error, new EventId(0, nameof(LogError)), "{RecordSchema}: {ErrorMessage}");
+
+    private static readonly Action<ILogger, string, Exception?> LogWarning =
+        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(1, nameof(LogWarning)), "{Message}");
 }
