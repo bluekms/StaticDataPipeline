@@ -1,4 +1,5 @@
 using System.Globalization;
+using ExcelColumnExtractor;
 using ExcelColumnExtractor.Scanners;
 using Microsoft.Extensions.Logging;
 using UnitTest.Utility;
@@ -16,11 +17,28 @@ public class ExtractorInputPathTests(ITestOutputHelper testOutputHelper)
         using var directory = new CsvTestDirectory();
         var missing = Path.Combine(directory.Path, "Records");
 
-        var ex = Assert.Throws<ArgumentException>(() => ExcelColumnExtractor.Program.Main(["-r", missing, "-e", directory.Path, "-o", directory.Path]));
+        var options = new ProgramOptions
+        {
+            RecordCsPath = missing,
+            ExcelPath = directory.Path,
+            OutputPath = directory.Path,
+        };
+        var ex = Assert.Throws<ArgumentException>(() => Program.Run(options, CreateProgramLogger()));
 
         var expected = string.Format(CultureInfo.CurrentCulture, ExtractorMessages.Composite.OptionPathNotExist, "record-path", Path.GetFullPath(missing));
         Assert.Equal(expected, ex.Message);
         Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Main_MissingRecordPath_ReturnsOne()
+    {
+        using var directory = new CsvTestDirectory();
+        var missing = Path.Combine(directory.Path, "Records");
+
+        var exitCode = Program.Main(["-r", missing, "-e", directory.Path, "-o", directory.Path]);
+
+        Assert.Equal(1, exitCode);
     }
 
     [Fact]
@@ -30,7 +48,13 @@ public class ExtractorInputPathTests(ITestOutputHelper testOutputHelper)
         using var directory = new CsvTestDirectory();
         var missing = Path.Combine(directory.Path, "Excelz");
 
-        var ex = Assert.Throws<ArgumentException>(() => ExcelColumnExtractor.Program.Main(["-r", directory.Path, "-e", missing, "-o", directory.Path]));
+        var options = new ProgramOptions
+        {
+            RecordCsPath = directory.Path,
+            ExcelPath = missing,
+            OutputPath = directory.Path,
+        };
+        var ex = Assert.Throws<ArgumentException>(() => Program.Run(options, CreateProgramLogger()));
 
         var expected = string.Format(CultureInfo.CurrentCulture, ExtractorMessages.Composite.OptionPathNotExist, "excel-path", Path.GetFullPath(missing));
         Assert.Equal(expected, ex.Message);
@@ -51,6 +75,9 @@ public class ExtractorInputPathTests(ITestOutputHelper testOutputHelper)
         Assert.Equal("A.cs", fileName);
         Assert.Empty(logger.Logs);
     }
+
+    private ILogger<Program> CreateProgramLogger()
+        => new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning).CreateLogger<Program>();
 
     private TestOutputLogger<ExtractorInputPathTests> CreateLogger()
     {

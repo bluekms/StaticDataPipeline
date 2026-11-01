@@ -6,17 +6,24 @@ using StaticDataHeaderGenerator.Resources;
 
 namespace StaticDataHeaderGenerator;
 
-internal class Program
+public class Program
 {
-    private static int Main(string[] args)
+    public static int Main(string[] args)
     {
-        return Parser.Default.ParseArguments<
-                GenerateHeaderOptions,
-                GenerateAllHeaderOptions>(args)
-            .MapResult(
-                (GenerateHeaderOptions options) => GenerateHeaderHandler.Generate(options),
-                (GenerateAllHeaderOptions options) => GenerateAllHeaderHandler.Generate(options),
-                HandleParseError);
+        try
+        {
+            return Parser.Default.ParseArguments<
+                    GenerateHeaderOptions,
+                    GenerateAllHeaderOptions>(args)
+                .MapResult(
+                    (GenerateHeaderOptions options) => GenerateHeaderHandler.Generate(options),
+                    (GenerateAllHeaderOptions options) => GenerateAllHeaderHandler.Generate(options),
+                    HandleParseError);
+        }
+        finally
+        {
+            Serilog.Log.CloseAndFlush();
+        }
     }
 
     private static int HandleParseError(IEnumerable<Error> errors)
