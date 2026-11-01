@@ -14,10 +14,13 @@ public sealed class ExcelSheetProcessor
     public delegate void ProcessHeader(SheetHeader header);
     public delegate void ProcessBodyRow(SheetBodyRow row);
 
-    private sealed record CellAddress(int Column, int Row);
+    internal sealed record CellAddress(int Column, int Row);
+
+    private static readonly IReadOnlySet<int> NoInspectedColumns = new HashSet<int>();
 
     private readonly ProcessHeader? processHeader;
     private readonly ProcessBodyRow? processBodyRow;
+    private readonly IReadOnlySet<int> inspectedColumns = NoInspectedColumns;
 
     public ExcelSheetProcessor(
         ProcessHeader processHeader,
@@ -39,6 +42,13 @@ public sealed class ExcelSheetProcessor
         this.processBodyRow = processBodyRow;
     }
 
+    public ExcelSheetProcessor(ProcessBodyRow processBodyRow, IReadOnlySet<int> inspectedColumns)
+    {
+        this.processHeader = null;
+        this.processBodyRow = processBodyRow;
+        this.inspectedColumns = inspectedColumns;
+    }
+
     public void Process(ExcelSheetName excelSheetName, string startCell, ILogger logger)
     {
         var startAddress = ParseStartCell(startCell);
@@ -55,7 +65,7 @@ public sealed class ExcelSheetProcessor
             LogInformation(logger, msg, null);
         }
 
-        ProcessCore(opener.Stream, excelSheetName, startCell, startAddress);
+        ProcessCore(opener.Stream, excelSheetName, startCell, startAddress, logger);
     }
 
     public async Task ProcessAsync(ExcelSheetName excelSheetName, string startCell, ILogger logger, CancellationToken cancellationToken = default)
@@ -74,14 +84,15 @@ public sealed class ExcelSheetProcessor
             LogInformation(logger, msg, null);
         }
 
-        ProcessCore(opener.Stream, excelSheetName, startCell, startAddress);
+        ProcessCore(opener.Stream, excelSheetName, startCell, startAddress, logger);
     }
 
     private void ProcessCore(
         Stream stream,
         ExcelSheetName excelSheetName,
         string startCell,
-        CellAddress startAddress)
+        CellAddress startAddress,
+        ILogger logger)
     {
         using var reader = ExcelReaderFactory.CreateReader(stream);
 
@@ -137,6 +148,7 @@ public sealed class ExcelSheetProcessor
             return;
         }
 
+        var formatWarnedColumns = new HashSet<int>();
         while (reader.Read())
         {
             excelPhysicalRow++;
@@ -149,8 +161,23 @@ public sealed class ExcelSheetProcessor
                 .Select((x, offset) =>
                 {
                     var column = startAddress.Column + offset;
-                    var address = ToExcelColumnName(column) + excelPhysicalRow;
+                    var address = ToAddress(column, excelPhysicalRow);
                     var value = FormatCellValue(x);
+                    if (!inspectedColumns.Contains(column))
+                    {
+                        return new CellData(address, value);
+                    }
+
+                    WarnIfSurroundedByWhitespace(excelSheetName, address, value, logger);
+                    WarnIfNumberFormatted(
+                        reader,
+                        column - 1,
+                        x,
+                        excelSheetName,
+                        address,
+                        value,
+                        formatWarnedColumns,
+                        logger);
 
                     return new CellData(address, value);
                 })
@@ -158,6 +185,71 @@ public sealed class ExcelSheetProcessor
 
             processBodyRow(new(rowCells));
         }
+    }
+
+    private static void WarnIfSurroundedByWhitespace(
+        ExcelSheetName excelSheetName,
+        string address,
+        string value,
+        ILogger logger)
+    {
+        if (value.Length == 0 || (!char.IsWhiteSpace(value[0]) && !char.IsWhiteSpace(value[^1])))
+        {
+            return;
+        }
+
+        var msg = string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.CellHasSurroundingWhitespace,
+            excelSheetName.FullName,
+            address,
+            value);
+        LogWarning(logger, msg, null);
+    }
+
+    // 날짜 셀은 서식으로만 날짜임을 알 수 있어서(ExcelDataReader 가 DateTime 으로 돌려줌) 경고 대상에서 뺀다.
+    private static void WarnIfNumberFormatted(
+        IExcelDataReader reader,
+        int fieldIndex,
+        object? rawValue,
+        ExcelSheetName excelSheetName,
+        string address,
+        string value,
+        HashSet<int> warnedColumns,
+        ILogger logger)
+    {
+        if (rawValue is null or string or DateTime || warnedColumns.Contains(fieldIndex))
+        {
+            return;
+        }
+
+        var numberFormat = reader.GetNumberFormatString(fieldIndex);
+        if (string.IsNullOrEmpty(numberFormat) || IsPlainNumberFormat(numberFormat))
+        {
+            return;
+        }
+
+        warnedColumns.Add(fieldIndex);
+
+        var msg = string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.ColumnHasNumberFormat,
+            excelSheetName.FullName,
+            address,
+            numberFormat,
+            value);
+        LogWarning(logger, msg, null);
+    }
+
+    private static bool IsPlainNumberFormat(string numberFormat)
+    {
+        return string.Equals(numberFormat, "General", StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(numberFormat, "@", StringComparison.Ordinal);
+    }
+
+    private static string ToAddress(int column, int row)
+    {
+        return ToExcelColumnName(column) + row.ToString(CultureInfo.InvariantCulture);
     }
 
     private static string ToExcelColumnName(int columnNumber)
@@ -186,7 +278,7 @@ public sealed class ExcelSheetProcessor
         };
     }
 
-    private static CellAddress ParseStartCell(string startCell)
+    internal static CellAddress ParseStartCell(string startCell)
     {
         var normalized = startCell.Trim().ToUpperInvariant();
         if (!IsValidCellAddress(normalized))
@@ -207,7 +299,7 @@ public sealed class ExcelSheetProcessor
 
     private static readonly Regex CellAddressPattern = new(@"^[A-Z]+[1-9][0-9]*$", RegexOptions.CultureInvariant);
 
-    private static CellAddress ParseCellAddress(string cellAddress)
+    internal static CellAddress ParseCellAddress(string cellAddress)
     {
         var row = 0;
         var column = 0;
@@ -229,4 +321,7 @@ public sealed class ExcelSheetProcessor
 
     private static readonly Action<ILogger, string, Exception?> LogInformation =
         LoggerMessage.Define<string>(LogLevel.Information, new EventId(0, nameof(LogInformation)), "{Message}");
+
+    private static readonly Action<ILogger, string, Exception?> LogWarning =
+        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(1, nameof(LogWarning)), "{Message}");
 }
