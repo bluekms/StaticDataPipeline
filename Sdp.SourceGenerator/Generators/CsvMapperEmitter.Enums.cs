@@ -32,9 +32,6 @@ internal static partial class CsvMapperEmitter
     {
         var enumFullName = enumType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var underlyingKind = TypeClassifier.ClassifyScalar(enumType.EnumUnderlyingType!);
-        var isUnsigned64 = enumType.EnumUnderlyingType!.SpecialType == SpecialType.System_UInt64;
-        var accumulatorKeyword = isUnsigned64 ? "ulong" : "long";
-        var accumulatorSuffix = isUnsigned64 ? "UL" : "L";
         var members = enumType
             .GetMembers()
             .OfType<IFieldSymbol>()
@@ -63,30 +60,9 @@ internal static partial class CsvMapperEmitter
         sb.Append(indent).AppendLine("        default:");
         if (isKey)
         {
-            sb.Append(indent).AppendLine("        {");
-            sb.Append(indent).Append("            var __acc = 0").Append(accumulatorSuffix).AppendLine(";");
-            sb.Append(indent).AppendLine("            var __parts = value.Split(',');");
-            sb.Append(indent).AppendLine("            for (var __i = 0; __i < __parts.Length; __i++)");
-            sb.Append(indent).AppendLine("            {");
-            sb.Append(indent).AppendLine("                switch (__parts[__i].Trim())");
-            sb.Append(indent).AppendLine("                {");
-            foreach (var member in members)
-            {
-                var accumulatorLiteral = EnumAccumulatorLiteral(member.ConstantValue, isUnsigned64);
-                sb.Append(indent).Append("                    case \"").Append(member.Name).AppendLine("\":");
-                sb.Append(indent).Append("                        __acc |= ").Append(accumulatorLiteral).AppendLine(";");
-                sb.Append(indent).AppendLine("                        break;");
-            }
-
-            sb.Append(indent).AppendLine("                    default:");
-            sb.Append(indent).Append("                        __acc |= (").Append(accumulatorKeyword).Append(")(global::Sdp.Csv.CsvMapperHelper.")
-                .Append(CellParseMethod(underlyingKind)).AppendLine("(__parts[__i].Trim(), column));");
-            sb.Append(indent).AppendLine("                        break;");
-            sb.Append(indent).AppendLine("                }");
-            sb.Append(indent).AppendLine("            }");
-            sb.AppendLine();
-            sb.Append(indent).Append("            return (").Append(enumFullName).AppendLine(")__acc;");
-            sb.Append(indent).AppendLine("        }");
+            // [Key] enum 은 ID 코드 공간으로 쓰이므로 정의되지 않은 정수 값도 캐스트로 통과시킨다.
+            sb.Append(indent).Append("            return (").Append(enumFullName).Append(")global::Sdp.Csv.CsvMapperHelper.")
+                .Append(CellParseMethod(underlyingKind)).AppendLine("(value, column);");
         }
         else
         {
@@ -114,25 +90,5 @@ internal static partial class CsvMapperEmitter
         var value = Convert.ToInt64(constantValue, CultureInfo.InvariantCulture);
 
         return value.ToString(CultureInfo.InvariantCulture);
-    }
-
-    private static string EnumAccumulatorLiteral(object? constantValue, bool isUnsigned64)
-    {
-        if (isUnsigned64)
-        {
-            var bits = Convert.ToUInt64(constantValue, CultureInfo.InvariantCulture);
-
-            return bits.ToString(CultureInfo.InvariantCulture) + "UL";
-        }
-
-        var value = Convert.ToInt64(constantValue, CultureInfo.InvariantCulture);
-        if (value >= 0)
-        {
-            return value.ToString(CultureInfo.InvariantCulture) + "L";
-        }
-
-        var pattern = unchecked((ulong)value).ToString(CultureInfo.InvariantCulture);
-
-        return "unchecked((long)" + pattern + "UL)";
     }
 }

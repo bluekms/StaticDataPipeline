@@ -72,7 +72,7 @@ flowchart TB
 `[ColumnName]`, `[Ignore]`, `[Key]`, `[ForeignKey]`, `[SwitchForeignKey]` 는 자리에 맞기만 하면 어떤 단일 값 타입에도 붙일 수 있으므로 각 항목의 "사용 가능한 Attribute" 에서는 따로 적지 않습니다. 자세한 명세와 사용 예는 [5.2](./02-attributes.md) 를 참고하세요.
 
 > **파싱 단계 보충** — 아래 항목의 "파싱" 표기는 추출 단계 (`ExcelColumnExtractor` 가 각 컬럼의 스키마로 셀 값을 검증) 기준입니다. 런타임은 소스 제너레이터가 Record 에 생성한 `MapFromCsvRow` 가 검증된 CSV 의 문자열을 다음과 같이 변환합니다.
-> - `enum` — 생성된 `switch` 로 멤버 이름(또는 정수 문자열) 을 매칭 (대소문자 구별). 정의되지 않은 값은 실패하며, `[Key]` enum 은 쉼표로 조합한 값도 받는다.
+> - `enum` — 생성된 `switch` 로 멤버 이름(또는 정수 문자열) 을 매칭 (대소문자 구별). 정의되지 않은 값은 실패하며, `[Key]` enum 은 정의되지 않은 정수 값도 캐스트로 받는다 (쉼표로 조합한 값은 받지 않는다).
 > - `DateTime` / `TimeSpan` — `ParseExact` 를 `[DateTimeFormat]` / `[TimeSpanFormat]` 의 format 으로 호출.
 > - `string` — 셀 값을 그대로 사용 (별도 변환 없음).
 > - 정수 타입 (`byte` ~ `ulong`) — `Parse(value, NumberStyles.Integer, InvariantCulture)`. 추출기도 같은 스타일로 검사하므로 셀 `1,000` 이나 `1.0` 은 추출 단계에서 거부됩니다. 정수 컬럼에는 자릿수 구분 기호와 소수점 없이 적어야 합니다.
