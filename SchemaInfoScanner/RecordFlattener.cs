@@ -12,7 +12,20 @@ namespace SchemaInfoScanner;
 
 public static class RecordFlattener
 {
+    public sealed record FlattenedHeader(string Name, bool FromSingleValueRecord);
+
     public static IReadOnlyList<string> Flatten(
+        RecordSchema recordSchema,
+        RecordSchemaCatalog recordSchemaCatalog,
+        ILogger logger,
+        IReadOnlyList<string>? sheetHeaders = null)
+    {
+        return FlattenHeaders(recordSchema, recordSchemaCatalog, logger, sheetHeaders)
+            .Select(x => x.Name)
+            .ToList();
+    }
+
+    public static IReadOnlyList<FlattenedHeader> FlattenHeaders(
         RecordSchema recordSchema,
         RecordSchemaCatalog recordSchemaCatalog,
         ILogger logger,
@@ -26,14 +39,14 @@ public static class RecordFlattener
             sheetHeaders);
     }
 
-    private static List<string> OnFlatten(
+    private static List<FlattenedHeader> OnFlatten(
         RecordSchema recordSchema,
         RecordSchemaCatalog recordSchemaCatalog,
         string parentPrefix,
         ILogger logger,
         IReadOnlyList<string>? sheetHeaders)
     {
-        var headers = new List<string>();
+        var headers = new List<FlattenedHeader>();
 
         foreach (var parameter in recordSchema.PropertySchemata)
         {
@@ -47,13 +60,13 @@ public static class RecordFlattener
 
             if (PrimitiveTypeChecker.IsSupportedPrimitiveType(parameter.NamedTypeSymbol))
             {
-                headers.Add(headerName);
+                headers.Add(new(headerName, false));
             }
             else if (CollectionTypeChecker.IsPrimitiveCollection(parameter.NamedTypeSymbol))
             {
                 if (parameter.HasAttribute<SingleColumnCollectionAttribute>())
                 {
-                    headers.Add(headerName);
+                    headers.Add(new(headerName, false));
                 }
                 else
                 {
@@ -61,7 +74,7 @@ public static class RecordFlattener
 
                     for (var i = 0; i < length; ++i)
                     {
-                        headers.Add(FormattableString.Invariant($"{headerName}[{i}]"));
+                        headers.Add(new(FormattableString.Invariant($"{headerName}[{i}]"), false));
                     }
                 }
             }
@@ -111,7 +124,7 @@ public static class RecordFlattener
                 if (innerRecordSchema.PropertySchemata.Count == 1 &&
                     PrimitiveTypeChecker.IsSupportedPrimitiveType(innerRecordSchema.PropertySchemata[0].NamedTypeSymbol))
                 {
-                    headers.Add(headerName);
+                    headers.Add(new(headerName, true));
                 }
                 else
                 {
