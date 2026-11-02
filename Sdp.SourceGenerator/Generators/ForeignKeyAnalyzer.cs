@@ -121,7 +121,8 @@ internal static class ForeignKeyAnalyzer
                         conditionColumn,
                         conditionValue,
                         conditionLiteral.Code,
-                        conditionLiteral.ParsesAtRuntime));
+                        conditionLiteral.ParsesAtRuntime,
+                        dateTimeFormat ?? timeSpanFormat));
                 }
             }
 
