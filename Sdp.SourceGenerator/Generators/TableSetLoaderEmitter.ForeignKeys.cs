@@ -119,13 +119,7 @@ internal static partial class TableSetLoaderEmitter
                 sb.Append(indent).Append("    foreach (var __t in tableSet.").Append(targetMemberAccess).AppendLine(".Records)");
                 sb.Append(indent).AppendLine("    {");
                 sb.Append(indent).Append("        ").Append(setVariable).Append(".Add(__t.")
-                    .Append(EmitHelper.EscapeIdentifier(branch.TargetColumn));
-                if (branch.TargetUnwrapMember is { } targetUnwrapMember)
-                {
-                    sb.Append('.').Append(EmitHelper.EscapeIdentifier(targetUnwrapMember));
-                }
-
-                sb.AppendLine(");");
+                    .Append(EmitHelper.EscapeIdentifier(branch.TargetColumn)).AppendLine(");");
                 sb.Append(indent).AppendLine("    }");
                 sb.Append(indent).AppendLine("}");
                 sb.AppendLine();
