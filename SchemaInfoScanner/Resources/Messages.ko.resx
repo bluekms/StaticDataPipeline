@@ -66,6 +66,9 @@
   <data name="EnumMemberNotFound" xml:space="preserve">
     <value>'{0}' 열거형 멤버를 {1}에서 찾을 수 없습니다.</value>
   </data>
+  <data name="EnumMemberValueNotLiteral" xml:space="preserve">
+    <value>{1} 의 열거형 멤버 '{0}' 값을 정수 리터럴로 읽을 수 없습니다. 열거형의 [Range] 는 멤버 값이 long 범위의 정수 리터럴이어야 합니다.</value>
+  </data>
   <data name="ValueOutOfRange" xml:space="preserve">
     <value>값({0})은 {1}과(와) {2} 사이여야 합니다.</value>
   </data>

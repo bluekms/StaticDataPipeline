@@ -66,6 +66,9 @@
   <data name="EnumMemberNotFound" xml:space="preserve">
     <value>Enum member '{0}' not found on {1}.</value>
   </data>
+  <data name="EnumMemberValueNotLiteral" xml:space="preserve">
+    <value>Enum member '{0}' of {1} has a value that cannot be read as an integer literal. [Range] on an enum needs member values that are integer literals within the long range.</value>
+  </data>
   <data name="ValueOutOfRange" xml:space="preserve">
     <value>Value({0}) must be between {1} and {2}.</value>
   </data>
