@@ -22,9 +22,10 @@ internal sealed record FkBranch(
     string? ConditionValue,
     string? ConditionLiteral,
     bool ConditionParsesAtRuntime,
-    string? ConditionDisplayFormat)
+    string? ConditionDisplayFormat,
+    string? TargetUnwrapMember)
 {
-    public static FkBranch ForeignKey(string tableSetMember, string targetColumn)
+    public static FkBranch ForeignKey(string tableSetMember, string targetColumn, string? targetUnwrapMember)
     {
         return new FkBranch(
             tableSetMember,
@@ -34,7 +35,8 @@ internal sealed record FkBranch(
             ConditionValue: null,
             ConditionLiteral: null,
             ConditionParsesAtRuntime: false,
-            ConditionDisplayFormat: null);
+            ConditionDisplayFormat: null,
+            targetUnwrapMember);
     }
 
     public static FkBranch SwitchForeignKey(
@@ -44,7 +46,8 @@ internal sealed record FkBranch(
         string conditionValue,
         string conditionLiteral,
         bool conditionParsesAtRuntime,
-        string? conditionDisplayFormat)
+        string? conditionDisplayFormat,
+        string? targetUnwrapMember)
     {
         return new FkBranch(
             tableSetMember,
@@ -54,6 +57,7 @@ internal sealed record FkBranch(
             conditionValue,
             conditionLiteral,
             conditionParsesAtRuntime,
-            conditionDisplayFormat);
+            conditionDisplayFormat,
+            targetUnwrapMember);
     }
 }

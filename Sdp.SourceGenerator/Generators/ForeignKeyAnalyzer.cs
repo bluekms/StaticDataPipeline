@@ -71,12 +71,13 @@ internal static class ForeignKeyAnalyzer
                     args[0].Value is string tableSetName &&
                     args[1].Value is string columnName)
                 {
-                    if (!FkTargetResolver.IsValidFkTarget(param.Type, membersByName, tableSetName, columnName))
+                    var resolution = FkTargetResolver.ResolveFkTarget(param.Type, membersByName, tableSetName, columnName);
+                    if (resolution is null)
                     {
                         continue;
                     }
 
-                    branchBuilder.Add(FkBranch.ForeignKey(tableSetName, columnName));
+                    branchBuilder.Add(FkBranch.ForeignKey(tableSetName, columnName, resolution.TargetUnwrapMember));
                 }
                 else if (attr.AttributeClass.Name == "SwitchForeignKeyAttribute" &&
                          args.Length >= 4 &&
@@ -91,7 +92,8 @@ internal static class ForeignKeyAnalyzer
                         continue;
                     }
 
-                    if (!FkTargetResolver.IsValidFkTarget(param.Type, membersByName, switchTableSetName, switchColumnName))
+                    var switchResolution = FkTargetResolver.ResolveFkTarget(param.Type, membersByName, switchTableSetName, switchColumnName);
+                    if (switchResolution is null)
                     {
                         continue;
                     }
@@ -122,7 +124,8 @@ internal static class ForeignKeyAnalyzer
                         conditionValue,
                         conditionLiteral.Code,
                         conditionLiteral.ParsesAtRuntime,
-                        dateTimeFormat ?? timeSpanFormat));
+                        dateTimeFormat ?? timeSpanFormat,
+                        switchResolution.TargetUnwrapMember));
                 }
             }
 
