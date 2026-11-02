@@ -156,6 +156,16 @@ public static class RequiredHeadersChecker
             }
 
             var sheetHeader = sheetHeaders[index];
+            var sheetColumns = FindColumnsOfHeader(sheetHeaders, sheetHeader, startColumn);
+            if (sheetColumns.Count > 1)
+            {
+                var columnLetters = sheetColumns.Select(ExcelSheetProcessor.ToExcelColumnName);
+                throw new ArgumentException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    Messages.Composite.DuplicateSheetHeader,
+                    sheetHeader,
+                    string.Join(", ", columnLetters)));
+            }
 
             if (!standardHeaderByIndex.TryAdd(index, standardHeader))
             {
@@ -193,6 +203,20 @@ public static class RequiredHeadersChecker
         }
 
         return null;
+    }
+
+    private static List<int> FindColumnsOfHeader(IReadOnlyList<string> sheetHeaders, string header, int startColumn)
+    {
+        var columns = new List<int>();
+        for (var i = 0; i < sheetHeaders.Count; i++)
+        {
+            if (string.Equals(sheetHeaders[i], header, StringComparison.Ordinal))
+            {
+                columns.Add(startColumn + i);
+            }
+        }
+
+        return columns;
     }
 
     private static int IndexOf(IReadOnlyList<string> list, string value)

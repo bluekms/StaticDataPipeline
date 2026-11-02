@@ -259,7 +259,7 @@ public sealed class ExcelSheetProcessor
         return ToExcelColumnName(column) + row.ToString(CultureInfo.InvariantCulture);
     }
 
-    private static string ToExcelColumnName(int columnNumber)
+    internal static string ToExcelColumnName(int columnNumber)
     {
         var sb = new StringBuilder();
 
