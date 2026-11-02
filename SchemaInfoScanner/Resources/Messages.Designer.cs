@@ -84,6 +84,9 @@ internal static class Messages
     internal static string EnumMemberNotFound
         => ResourceManager.GetString("EnumMemberNotFound", Culture)!;
 
+    internal static string EnumMemberValueNotLiteral
+        => ResourceManager.GetString("EnumMemberValueNotLiteral", Culture)!;
+
     internal static string ValueOutOfRange
         => ResourceManager.GetString("ValueOutOfRange", Culture)!;
 
@@ -347,6 +350,7 @@ internal static class Messages
         internal static CompositeFormat NullStringAttributeNotFound => CompositeFormat.Parse(Messages.NullStringAttributeNotFound);
         internal static CompositeFormat ValueOutOfRange => CompositeFormat.Parse(Messages.ValueOutOfRange);
         internal static CompositeFormat EnumMemberNotFound => CompositeFormat.Parse(Messages.EnumMemberNotFound);
+        internal static CompositeFormat EnumMemberValueNotLiteral => CompositeFormat.Parse(Messages.EnumMemberValueNotLiteral);
         internal static CompositeFormat DuplicateKeyInContext => CompositeFormat.Parse(Messages.DuplicateKeyInContext);
         internal static CompositeFormat InvalidDataLength => CompositeFormat.Parse(Messages.InvalidDataLength);
         internal static CompositeFormat InvalidCellValue => CompositeFormat.Parse(Messages.InvalidCellValue);
