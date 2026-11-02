@@ -1,5 +1,6 @@
 using System.Globalization;
 using Microsoft.CodeAnalysis;
+using SchemaInfoScanner.Collectors;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.Resources;
 using Sdp.Attributes;
@@ -113,19 +114,6 @@ public static class RangeAttributeChecker
             return asLong;
         }
 
-        var member = enumType.GetMembers()
-            .OfType<IFieldSymbol>()
-            .FirstOrDefault(f => f.Name == raw && f.HasConstantValue);
-
-        if (member?.ConstantValue is null)
-        {
-            throw new InvalidOperationException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.EnumMemberNotFound,
-                raw,
-                enumType.Name));
-        }
-
-        return Convert.ToInt64(member.ConstantValue, CultureInfo.InvariantCulture);
+        return EnumMemberValueResolver.Resolve(enumType, raw);
     }
 }
