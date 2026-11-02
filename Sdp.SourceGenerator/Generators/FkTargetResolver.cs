@@ -27,25 +27,105 @@ internal static class FkTargetResolver
         return !SymbolEqualityComparer.Default.Equals(valueType, parameterType);
     }
 
-    public static bool IsValidFkTarget(
-        ITypeSymbol parameterType,
+    public static IParameterSymbol? FindTargetParameter(
         Dictionary<string, INamedTypeSymbol?> membersByName,
         string tableSetMember,
         string columnName)
     {
         if (!membersByName.TryGetValue(tableSetMember, out var targetRecord) || targetRecord is null)
         {
-            return false;
+            return null;
         }
 
         var primaryCtor = SymbolResolver.FindPrimaryConstructor(targetRecord);
         if (primaryCtor is null)
         {
+            return null;
+        }
+
+        return primaryCtor.Parameters
+            .FirstOrDefault(param => param.Name == columnName);
+    }
+
+    private static IParameterSymbol? FindBrandingValueParameter(ITypeSymbol type)
+    {
+        if (type is not INamedTypeSymbol namedType)
+        {
+            return null;
+        }
+
+        var primaryCtor = SymbolResolver.FindPrimaryConstructor(namedType);
+        if (primaryCtor is null || primaryCtor.Parameters.Length != 1)
+        {
+            return null;
+        }
+
+        var valueParam = primaryCtor.Parameters[0];
+        var valueType = TypeClassifier.UnwrapNullable(valueParam.Type);
+        var valueCollection = TypeClassifier.ClassifyCollection(valueType);
+        if (valueCollection is not null)
+        {
+            return null;
+        }
+
+        var valueKind = TypeClassifier.ClassifyScalar(valueType);
+        if (valueKind == ScalarKind.Unsupported)
+        {
+            return null;
+        }
+
+        return valueParam;
+    }
+
+    public static IParameterSymbol? ResolveTargetBrandingValue(ITypeSymbol fkValueType, ITypeSymbol targetType)
+    {
+        var unwrappedFk = TypeClassifier.UnwrapNullable(fkValueType);
+        var unwrappedTarget = TypeClassifier.UnwrapNullable(targetType);
+        if (SymbolEqualityComparer.Default.Equals(unwrappedFk, unwrappedTarget))
+        {
+            return null;
+        }
+
+        var brandingValue = FindBrandingValueParameter(unwrappedTarget);
+        if (brandingValue is null)
+        {
+            return null;
+        }
+
+        var unwrappedBrandingValue = TypeClassifier.UnwrapNullable(brandingValue.Type);
+        if (!SymbolEqualityComparer.Default.Equals(unwrappedFk, unwrappedBrandingValue))
+        {
+            return null;
+        }
+
+        return brandingValue;
+    }
+
+    public static bool IsNullabilityCompatible(
+        ITypeSymbol fkValueType,
+        ITypeSymbol targetType,
+        IParameterSymbol? brandingValue)
+    {
+        if (TypeClassifier.IsNullable(fkValueType))
+        {
+            return true;
+        }
+
+        if (TypeClassifier.IsNullable(targetType))
+        {
             return false;
         }
 
-        var targetParam = primaryCtor.Parameters
-            .FirstOrDefault(param => param.Name == columnName);
+        return brandingValue is null || !TypeClassifier.IsNullable(brandingValue.Type);
+    }
+
+    public static bool IsValidFkTarget(
+        ITypeSymbol parameterType,
+        Dictionary<string, INamedTypeSymbol?> membersByName,
+        string tableSetMember,
+        string columnName)
+    {
+        var targetParam = FindTargetParameter(membersByName, tableSetMember, columnName);
         if (targetParam is null)
         {
             return false;
@@ -59,11 +139,13 @@ internal static class FkTargetResolver
         }
 
         var valueType = ResolveFkValueType(parameterType);
-        if (!SymbolEqualityComparer.Default.Equals(TypeClassifier.UnwrapNullable(valueType), unwrappedTarget))
+        var brandingValue = ResolveTargetBrandingValue(valueType, targetParam.Type);
+        var isSameType = SymbolEqualityComparer.Default.Equals(TypeClassifier.UnwrapNullable(valueType), unwrappedTarget);
+        if (!isSameType && brandingValue is null)
         {
             return false;
         }
 
-        return TypeClassifier.IsNullable(valueType) || !TypeClassifier.IsNullable(targetParam.Type);
+        return IsNullabilityCompatible(valueType, targetParam.Type, brandingValue);
     }
 }
