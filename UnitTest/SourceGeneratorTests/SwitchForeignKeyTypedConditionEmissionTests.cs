@@ -71,6 +71,7 @@ public class SwitchForeignKeyTypedConditionEmissionTests(ITestOutputHelper testO
         var tree = SourceGeneratorTestHelper.GetSingleTree(output.Run, "TableSetLoader.g.cs");
         var generated = tree.ToString();
         Assert.Contains(expected, generated, StringComparison.Ordinal);
+        Assert.Contains("{__r.Kind}", generated, StringComparison.Ordinal);
         Assert.DoesNotContain("ToString(null, global::System.Globalization.CultureInfo.InvariantCulture)", generated, StringComparison.Ordinal);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(output.Final);
@@ -78,13 +79,13 @@ public class SwitchForeignKeyTypedConditionEmissionTests(ITestOutputHelper testO
     }
 
     [Theory]
-    [InlineData("[DateTimeFormat(\"yyyy-MM-dd\")] DateTime Kind", "2024-01-02", "ParseDateTime(\"2024-01-02\", \"yyyy-MM-dd\", \"Kind\")")]
-    [InlineData("[DateTimeFormat(\"yyyy-MM-ddTHH:mm:ssK\")] DateTime Kind", "2024-01-02T00:00:00+09:00", "ParseDateTime(\"2024-01-02T00:00:00+09:00\", \"yyyy-MM-ddTHH:mm:ssK\", \"Kind\")")]
-    [InlineData("[DateTimeFormat(\"yyyy-MM-dd HH:mm\")] DateTimeOffset Kind", "2024-01-02 00:00", "ParseDateTimeOffset(\"2024-01-02 00:00\", \"yyyy-MM-dd HH:mm\", \"Kind\")")]
-    [InlineData("[TimeSpanFormat(\"hh\\\\:mm\")] TimeSpan Kind", "01:30", "ParseTimeSpan(\"01:30\", \"hh\\\\:mm\", \"Kind\")")]
-    [InlineData("[DateTimeFormat(\"yyyy-MM-dd\")] DateOnly Kind", "2024-01-02", "ParseDateOnly(\"2024-01-02\", \"yyyy-MM-dd\", \"Kind\")")]
-    [InlineData("[DateTimeFormat(\"HH:mm\")] TimeOnly Kind", "01:30", "ParseTimeOnly(\"01:30\", \"HH:mm\", \"Kind\")")]
-    public void Time_condition_is_parsed_once_at_runtime_and_compared_by_value(string conditionParameter, string conditionValue, string expectedParse)
+    [InlineData("[DateTimeFormat(\"yyyy-MM-dd\")] DateTime Kind", "2024-01-02", "ParseDateTime(\"2024-01-02\", \"yyyy-MM-dd\", \"Kind\")", "{__r.Kind:yyyy-MM-dd}")]
+    [InlineData("[DateTimeFormat(\"yyyy-MM-ddTHH:mm:ssK\")] DateTime Kind", "2024-01-02T00:00:00+09:00", "ParseDateTime(\"2024-01-02T00:00:00+09:00\", \"yyyy-MM-ddTHH:mm:ssK\", \"Kind\")", "{__r.Kind:yyyy-MM-ddTHH:mm:ssK}")]
+    [InlineData("[DateTimeFormat(\"yyyy-MM-dd HH:mm\")] DateTimeOffset Kind", "2024-01-02 00:00", "ParseDateTimeOffset(\"2024-01-02 00:00\", \"yyyy-MM-dd HH:mm\", \"Kind\")", "{__r.Kind:yyyy-MM-dd HH:mm}")]
+    [InlineData("[TimeSpanFormat(\"hh\\\\:mm\")] TimeSpan Kind", "01:30", "ParseTimeSpan(\"01:30\", \"hh\\\\:mm\", \"Kind\")", "{__r.Kind:hh\\\\:mm}")]
+    [InlineData("[DateTimeFormat(\"yyyy-MM-dd\")] DateOnly Kind", "2024-01-02", "ParseDateOnly(\"2024-01-02\", \"yyyy-MM-dd\", \"Kind\")", "{__r.Kind:yyyy-MM-dd}")]
+    [InlineData("[DateTimeFormat(\"HH:mm\")] TimeOnly Kind", "01:30", "ParseTimeOnly(\"01:30\", \"HH:mm\", \"Kind\")", "{__r.Kind:HH:mm}")]
+    public void Time_condition_is_parsed_once_at_runtime_and_compared_by_value(string conditionParameter, string conditionValue, string expectedParse, string expectedDisplay)
     {
         var logger = CreateLogger();
 
@@ -100,6 +101,7 @@ public class SwitchForeignKeyTypedConditionEmissionTests(ITestOutputHelper testO
         var generated = tree.ToString();
         Assert.Contains("var __switchCondition0_0 = global::Sdp.Csv.CsvMapperHelper." + expectedParse + ";", generated, StringComparison.Ordinal);
         Assert.Contains("__r.Kind == __switchCondition0_0", generated, StringComparison.Ordinal);
+        Assert.Contains(expectedDisplay, generated, StringComparison.Ordinal);
 
         var declarationIndex = generated.IndexOf("var __switchCondition0_0", StringComparison.Ordinal);
         var recordLoopIndex = generated.IndexOf("foreach (var __r in", StringComparison.Ordinal);
