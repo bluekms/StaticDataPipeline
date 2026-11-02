@@ -267,7 +267,7 @@ internal static partial class TableSetLoaderEmitter
             sb.Append(body).AppendLine("    var __matched = false;");
             sb.Append(body).AppendLine("    var __switchTargetLoaded = false;");
 
-            var conditionDisplay = "{__r." + conditionColumnAccess + "}";
+            var conditionDisplay = BuildConditionDisplay(conditionColumnAccess, switchBranches[0].ConditionDisplayFormat);
             var conditionColumnLiteral = SymbolDisplay.FormatLiteral(conditionColumn, quote: true);
 
             for (var branchIndex = 0; branchIndex < switchBranches.Count; branchIndex++)
@@ -331,6 +331,25 @@ internal static partial class TableSetLoaderEmitter
         }
 
         sb.Append(indent).AppendLine("}");
+    }
+
+    private static string BuildConditionDisplay(string conditionColumnAccess, string? conditionDisplayFormat)
+    {
+        if (conditionDisplayFormat is null)
+        {
+            return "{__r." + conditionColumnAccess + "}";
+        }
+
+        return "{__r." + conditionColumnAccess + ":" + EscapeInterpolationFormat(conditionDisplayFormat) + "}";
+    }
+
+    private static string EscapeInterpolationFormat(string format)
+    {
+        return format
+            .Replace("\\", "\\\\")
+            .Replace("\"", "\\\"")
+            .Replace("{", "{{")
+            .Replace("}", "}}");
     }
 
     private static IParameterSymbol? FindKeyParameter(INamedTypeSymbol record)
