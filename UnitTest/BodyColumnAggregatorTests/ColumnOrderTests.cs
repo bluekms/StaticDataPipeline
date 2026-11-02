@@ -135,6 +135,68 @@ public class ColumnOrderTests(ITestOutputHelper testOutputHelper)
         Assert.Contains("Price", exception.Message, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void SheetHeaderAppearsTwice_Throws()
+    {
+        var exception = Assert.Throws<ExtractionException>(() => Extract(
+            RecordSource,
+            sheetHeaders: ["Id", "Name", "Price", "Name"],
+            sheetRows:
+            [
+                ["1", "Potion", "100", "중복"],
+            ]));
+
+        testOutputHelper.WriteLine(exception.Message);
+        Assert.Contains("Name", exception.Message, StringComparison.Ordinal);
+        Assert.Contains("B, D", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnusedSheetHeaderAppearsTwice_Succeeds()
+    {
+        var table = Extract(
+            RecordSource,
+            sheetHeaders: ["Id", "Memo", "Name", "Memo", "Price"],
+            sheetRows:
+            [
+                ["1", "a", "Potion", "b", "100"],
+                ["2", "c", "Sword", "d", "5000"],
+            ]);
+
+        AssertTable(table, RecordOrderHeaders, RecordOrderRows);
+    }
+
+    [Fact]
+    public void FallbackHeaderAppearsTwice_Throws()
+    {
+        var exception = Assert.Throws<ExtractionException>(() => Extract(
+            BrandedIdRecordSource,
+            sheetHeaders: ["Id.Value", "Name", "Price", "Id.Value"],
+            sheetRows:
+            [
+                ["1", "Potion", "100", "9"],
+            ]));
+
+        testOutputHelper.WriteLine(exception.Message);
+        Assert.Contains("Id.Value", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SheetHeaderAppearsTwiceWithStartCellB2_ReportsSheetColumns()
+    {
+        var exception = Assert.Throws<ExtractionException>(() => Extract(
+            RecordSource,
+            sheetHeaders: ["Id", "Name", "Price", "Name"],
+            sheetRows:
+            [
+                ["1", "Potion", "100", "중복"],
+            ],
+            startCell: "B2"));
+
+        testOutputHelper.WriteLine(exception.Message);
+        Assert.Contains("C, E", exception.Message, StringComparison.Ordinal);
+    }
+
     private static void AssertTable(
         BodyColumnAggregator.ExtractedTable table,
         string[] expectedHeaders,
