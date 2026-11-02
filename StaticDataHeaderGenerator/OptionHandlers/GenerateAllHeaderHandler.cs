@@ -18,6 +18,22 @@ public class GenerateAllHeaderHandler
             ? Logger.CreateLoggerWithoutFile<Program>(options.MinLogLevel)
             : Logger.CreateLogger<Program>(options.MinLogLevel, options.LogPath);
 
+        try
+        {
+            Run(options, logger);
+
+            return 0;
+        }
+        catch (Exception e)
+        {
+            LogError(logger, e.Message, e);
+
+            return 1;
+        }
+    }
+
+    internal static void Run(GenerateAllHeaderOptions options, ILogger logger)
+    {
         LogInformation(logger, Messages.GeneratingHeaderFile, null);
 
         var catalogs = RecordScanner.Scan(options.RecordCsPath, logger);
@@ -86,8 +102,6 @@ public class GenerateAllHeaderHandler
                 outputFileName);
             LogInformation(logger, savedMsg, null);
         }
-
-        return 0;
     }
 
     public static async Task<int> GenerateAsync(GenerateAllHeaderOptions options, CancellationToken cancellationToken = default)
@@ -96,6 +110,22 @@ public class GenerateAllHeaderHandler
             ? Logger.CreateLoggerWithoutFile<Program>(options.MinLogLevel)
             : Logger.CreateLogger<Program>(options.MinLogLevel, options.LogPath);
 
+        try
+        {
+            await RunAsync(options, logger, cancellationToken);
+
+            return 0;
+        }
+        catch (Exception e)
+        {
+            LogError(logger, e.Message, e);
+
+            return 1;
+        }
+    }
+
+    internal static async Task RunAsync(GenerateAllHeaderOptions options, ILogger logger, CancellationToken cancellationToken)
+    {
         LogInformation(logger, Messages.GeneratingHeaderFile, null);
 
         var catalogs = await RecordScanner.ScanAsync(options.RecordCsPath, logger, cancellationToken);
@@ -164,10 +194,11 @@ public class GenerateAllHeaderHandler
                 outputFileName);
             LogInformation(logger, savedMsg, null);
         }
-
-        return 0;
     }
 
     private static readonly Action<ILogger, string, Exception?> LogInformation =
         LoggerMessage.Define<string>(LogLevel.Information, new EventId(0, nameof(LogInformation)), "{Message}");
+
+    private static readonly Action<ILogger, string, Exception?> LogError =
+        LoggerMessage.Define<string>(LogLevel.Error, new EventId(0, nameof(LogError)), "{Message}");
 }

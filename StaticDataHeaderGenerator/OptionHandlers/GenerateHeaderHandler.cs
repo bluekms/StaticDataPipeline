@@ -20,11 +20,27 @@ public static class GenerateHeaderHandler
             ? Logger.CreateLoggerWithoutFile<Program>(options.MinLogLevel)
             : Logger.CreateLogger<Program>(options.MinLogLevel, options.LogPath);
 
+        try
+        {
+            Run(options, logger);
+
+            return 0;
+        }
+        catch (Exception e)
+        {
+            LogError(logger, e.Message, e);
+
+            return 1;
+        }
+    }
+
+    internal static void Run(GenerateHeaderOptions options, ILogger logger)
+    {
         LogInformation(logger, Messages.GeneratingHeaderFile, null);
 
         var catalogs = RecordScanner.Scan(options.RecordCsPath, logger);
 
-        var targetRecordSchema = FindRecord(catalogs.RecordSchemaCatalog, options.RecordName, logger);
+        var targetRecordSchema = FindRecord(catalogs.RecordSchemaCatalog, options.RecordName);
 
         var headers = RecordFlattener.Flatten(
             targetRecordSchema,
@@ -58,8 +74,6 @@ public static class GenerateHeaderHandler
                 outputFileName);
             LogInformation(logger, msg, null);
         }
-
-        return 0;
     }
 
     public static async Task<int> GenerateAsync(GenerateHeaderOptions options, CancellationToken cancellationToken = default)
@@ -68,11 +82,27 @@ public static class GenerateHeaderHandler
             ? Logger.CreateLoggerWithoutFile<Program>(options.MinLogLevel)
             : Logger.CreateLogger<Program>(options.MinLogLevel, options.LogPath);
 
+        try
+        {
+            await RunAsync(options, logger, cancellationToken);
+
+            return 0;
+        }
+        catch (Exception e)
+        {
+            LogError(logger, e.Message, e);
+
+            return 1;
+        }
+    }
+
+    internal static async Task RunAsync(GenerateHeaderOptions options, ILogger logger, CancellationToken cancellationToken)
+    {
         LogInformation(logger, Messages.GeneratingHeaderFile, null);
 
         var catalogs = await RecordScanner.ScanAsync(options.RecordCsPath, logger, cancellationToken);
 
-        var targetRecordSchema = FindRecord(catalogs.RecordSchemaCatalog, options.RecordName, logger);
+        var targetRecordSchema = FindRecord(catalogs.RecordSchemaCatalog, options.RecordName);
 
         var headers = RecordFlattener.Flatten(
             targetRecordSchema,
@@ -106,8 +136,6 @@ public static class GenerateHeaderHandler
                 outputFileName);
             LogInformation(logger, msg, null);
         }
-
-        return 0;
     }
 
     private static readonly Action<ILogger, string, Exception?> LogInformation =
@@ -116,7 +144,7 @@ public static class GenerateHeaderHandler
     private static readonly Action<ILogger, string, Exception?> LogError =
         LoggerMessage.Define<string>(LogLevel.Error, new EventId(0, nameof(LogError)), "{Message}");
 
-    private static RecordSchema FindRecord(RecordSchemaCatalog catalog, string recordName, ILogger logger)
+    private static RecordSchema FindRecord(RecordSchemaCatalog catalog, string recordName)
     {
         var candidates = catalog.StaticDataRecordSchemata
             .Where(x => x.RecordName.Name == recordName || x.RecordName.FullName == recordName)
@@ -134,9 +162,8 @@ public static class GenerateHeaderHandler
                 Messages.Composite.RecordNameAmbiguous,
                 recordName,
                 string.Join(", ", candidates.Select(x => x.RecordName.FullName)));
-        var exception = new ArgumentException(message);
-        LogError(logger, exception.Message, exception);
-        throw exception;
+
+        throw new ArgumentException(message);
     }
 
     internal static string ResolveSeparator(string separator)
