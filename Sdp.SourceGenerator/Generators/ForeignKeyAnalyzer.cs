@@ -76,8 +76,7 @@ internal static class ForeignKeyAnalyzer
                         continue;
                     }
 
-                    var targetUnwrapMember = ResolveTargetUnwrapMember(param.Type, membersByName, tableSetName, columnName);
-                    branchBuilder.Add(FkBranch.ForeignKey(tableSetName, columnName, targetUnwrapMember));
+                    branchBuilder.Add(FkBranch.ForeignKey(tableSetName, columnName));
                 }
                 else if (attr.AttributeClass.Name == "SwitchForeignKeyAttribute" &&
                          args.Length >= 4 &&
@@ -116,7 +115,6 @@ internal static class ForeignKeyAnalyzer
                         continue;
                     }
 
-                    var switchTargetUnwrapMember = ResolveTargetUnwrapMember(param.Type, membersByName, switchTableSetName, switchColumnName);
                     branchBuilder.Add(FkBranch.SwitchForeignKey(
                         switchTableSetName,
                         switchColumnName,
@@ -124,8 +122,7 @@ internal static class ForeignKeyAnalyzer
                         conditionValue,
                         conditionLiteral.Code,
                         conditionLiteral.ParsesAtRuntime,
-                        dateTimeFormat ?? timeSpanFormat,
-                        switchTargetUnwrapMember));
+                        dateTimeFormat ?? timeSpanFormat));
                 }
             }
 
@@ -142,27 +139,5 @@ internal static class ForeignKeyAnalyzer
         }
 
         return builder.ToImmutable();
-    }
-
-    private static string? ResolveTargetUnwrapMember(
-        ITypeSymbol parameterType,
-        Dictionary<string, INamedTypeSymbol?> membersByName,
-        string tableSetMember,
-        string columnName)
-    {
-        var targetParam = FkTargetResolver.FindTargetParameter(membersByName, tableSetMember, columnName);
-        if (targetParam is null)
-        {
-            return null;
-        }
-
-        var fkValueType = FkTargetResolver.ResolveFkValueType(parameterType);
-        var brandingValue = FkTargetResolver.ResolveTargetBrandingValue(fkValueType, targetParam.Type);
-        if (brandingValue is null)
-        {
-            return null;
-        }
-
-        return brandingValue.Name;
     }
 }
