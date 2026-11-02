@@ -25,6 +25,16 @@ public class HeaderGeneratorNameResolutionTests(ITestOutputHelper testOutputHelp
         }
         """;
 
+    // language=C#
+    private const string NestedRecordSource = """
+        using Sdp.Attributes;
+
+        public sealed record Score(int Value);
+
+        [StaticDataRecord("Book", "A")]
+        public sealed partial record ItemRecord([Key] int Id, Score Score);
+        """;
+
     [Fact]
     public void AmbiguousSimpleName_ListsCandidates()
     {
@@ -32,12 +42,13 @@ public class HeaderGeneratorNameResolutionTests(ITestOutputHelper testOutputHelp
         using var dir = new CsvTestDirectory();
         dir.Write("Records.cs", TwoNamespacesSource);
 
-        var ex = Assert.Throws<ArgumentException>(() => GenerateHeaderHandler.Generate(new GenerateHeaderOptions
+        var options = new GenerateHeaderOptions
         {
             RecordCsPath = dir.Path,
             RecordName = "ItemRecord",
             Separator = "\t",
-        }));
+        };
+        var ex = Assert.Throws<ArgumentException>(() => GenerateHeaderHandler.Run(options, logger));
 
         Assert.Contains("A.ItemRecord", ex.Message, StringComparison.Ordinal);
         Assert.Contains("B.ItemRecord", ex.Message, StringComparison.Ordinal);
@@ -66,6 +77,67 @@ public class HeaderGeneratorNameResolutionTests(ITestOutputHelper testOutputHelp
         Assert.Contains("### Headers (TSV)", written, StringComparison.Ordinal);
         Assert.Contains("Id\tItem Name", written, StringComparison.Ordinal);
         Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Generate_RecordNameNotFound_ReturnsOne()
+    {
+        using var dir = new CsvTestDirectory();
+        dir.Write("Records.cs", NestedRecordSource);
+
+        var exitCode = GenerateHeaderHandler.Generate(new GenerateHeaderOptions
+        {
+            RecordCsPath = dir.Path,
+            RecordName = "Score",
+            Separator = "\t",
+        });
+
+        Assert.Equal(1, exitCode);
+    }
+
+    [Fact]
+    public void Main_RecordNameNotFound_ReturnsOne()
+    {
+        using var dir = new CsvTestDirectory();
+        dir.Write("Records.cs", NestedRecordSource);
+
+        var exitCode = StaticDataHeaderGenerator.Program.Main(["header", "-r", dir.Path, "-n", "Score"]);
+
+        Assert.Equal(1, exitCode);
+    }
+
+    [Fact]
+    public void Run_RecordNameNotFound_ThrowsWithRecordName()
+    {
+        var logger = CreateLogger();
+        using var dir = new CsvTestDirectory();
+        dir.Write("Records.cs", NestedRecordSource);
+
+        var options = new GenerateHeaderOptions
+        {
+            RecordCsPath = dir.Path,
+            RecordName = "Score",
+            Separator = "\t",
+        };
+        var ex = Assert.Throws<ArgumentException>(() => GenerateHeaderHandler.Run(options, logger));
+
+        Assert.Contains("Score", ex.Message, StringComparison.Ordinal);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void GenerateAll_MissingRecordPath_ReturnsOne()
+    {
+        using var dir = new CsvTestDirectory();
+        var missing = Path.Combine(dir.Path, "Records");
+
+        var exitCode = GenerateAllHeaderHandler.Generate(new GenerateAllHeaderOptions
+        {
+            RecordCsPath = missing,
+            Separator = "\t",
+        });
+
+        Assert.Equal(1, exitCode);
     }
 
     private TestOutputLogger<HeaderGeneratorNameResolutionTests> CreateLogger()
