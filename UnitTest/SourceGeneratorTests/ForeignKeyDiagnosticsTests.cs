@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using UnitTest.Utility;
@@ -485,6 +486,198 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
 
         var diagnostics = RunDiagnostics("using System.Collections.Frozen;\n" + source);
         Assert.Empty(diagnostics);
+    }
+
+    // language=C#
+    private const string BrandingTargets =
+        """
+        public enum ConsumerKind
+        {
+            Item,
+            Currency,
+        }
+
+        [StaticDataRecord("Item", "S")]
+        public sealed partial record ItemRec([Key] ItemRec.ItemId Id, string Name)
+        {
+            public readonly record struct ItemId(int Value);
+        }
+
+        public sealed partial class ItemTable(ImmutableArray<ItemRec> records)
+            : StaticDataTable<ItemRec>(records);
+
+        [StaticDataRecord("Currency", "S")]
+        public sealed partial record CurrencyRec([Key] CurrencyRec.CurrencyId Id, string Name)
+        {
+            public readonly record struct CurrencyId(int Value);
+        }
+
+        public sealed partial class CurrencyTable(ImmutableArray<CurrencyRec> records)
+            : StaticDataTable<CurrencyRec>(records);
+
+        [StaticDataRecord("Npc", "S")]
+        public sealed partial record NpcRec([Key] NpcRec.NpcId Id, string Name)
+        {
+            public readonly record struct NpcId([NullString("")] int? Value);
+        }
+
+        public sealed partial class NpcTable(ImmutableArray<NpcRec> records)
+            : StaticDataTable<NpcRec>(records);
+
+        """;
+
+    private static string BuildBrandingSource(string consumerParameters)
+    {
+        // language=C#
+        const string template =
+            """
+            [StaticDataRecord("Consumer", "S")]
+            public sealed partial record ConsumerRec(
+                int Id,
+                {{CONSUMER_PARAMETERS}});
+
+            public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
+                : StaticDataTable<ConsumerRec>(records);
+
+            public partial class GenManager(ILogger logger)
+                : StaticDataManager<GenManager.TableSet>(logger)
+            {
+                public sealed partial record TableSet(
+                    TargetTable? Target,
+                    ItemTable? Item,
+                    CurrencyTable? Currency,
+                    NpcTable? Npc,
+                    ConsumerTable? Consumer);
+            }
+            """;
+
+        return BrandingTargets + template.Replace("{{CONSUMER_PARAMETERS}}", consumerParameters, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Allows_primitive_column_to_reference_branding_key()
+    {
+        var logger = CreateLogger();
+
+        var source = BuildBrandingSource("[ForeignKey(\"Item\", \"Id\")] int ItemId");
+
+        var diagnostics = RunDiagnostics(source);
+        Assert.Empty(diagnostics);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Allows_primitive_column_with_two_branding_targets()
+    {
+        var logger = CreateLogger();
+
+        var source = BuildBrandingSource("[ForeignKey(\"Item\", \"Id\")] [ForeignKey(\"Currency\", \"Id\")] int RewardId");
+
+        var diagnostics = RunDiagnostics(source);
+        Assert.Empty(diagnostics);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Allows_primitive_collection_element_to_reference_branding_key()
+    {
+        var logger = CreateLogger();
+
+        var source = BuildBrandingSource("[ForeignKey(\"Item\", \"Id\")] [Length(2)] FrozenSet<int> ItemIds");
+
+        var diagnostics = RunDiagnostics(source);
+        Assert.Empty(diagnostics);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Allows_nullable_primitive_column_to_reference_branding_key()
+    {
+        var logger = CreateLogger();
+
+        var source = BuildBrandingSource("[ForeignKey(\"Item\", \"Id\")] [NullString(\"\")] int? ItemId");
+
+        var diagnostics = RunDiagnostics(source);
+        Assert.Empty(diagnostics);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Allows_primitive_switch_column_over_two_branding_targets()
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        const string consumerParameters =
+            """
+            ConsumerKind Kind,
+            [SwitchForeignKey("Kind", "Item", "Item", "Id")]
+            [SwitchForeignKey("Kind", "Currency", "Currency", "Id")]
+            int TargetId
+            """;
+
+        var source = BuildBrandingSource(consumerParameters);
+
+        var diagnostics = RunDiagnostics(source);
+        Assert.Empty(diagnostics);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Reports_SDP0211_when_primitive_column_references_branding_key_with_nullable_value()
+    {
+        var logger = CreateLogger();
+
+        var source = BuildBrandingSource("[ForeignKey(\"Npc\", \"Id\")] int NpcId");
+
+        AssertReportedAsError(source, "SDP0211");
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Reports_SDP0211_with_branding_value_type_when_branding_key_value_is_nullable()
+    {
+        var logger = CreateLogger();
+
+        var source = BuildBrandingSource("[ForeignKey(\"Npc\", \"Id\")] int NpcId");
+
+        var diagnostics = RunDiagnostics(source);
+        var diagnostic = Assert.Single(diagnostics, d => d.Id == "SDP0211");
+        Assert.Contains("NpcId(int? Value)", diagnostic.GetMessage(CultureInfo.InvariantCulture));
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Reports_SDP0211_when_branding_column_references_primitive_key()
+    {
+        var logger = CreateLogger();
+
+        var source = BuildBrandingSource("[ForeignKey(\"Target\", \"Id\")] ItemRec.ItemId RefId");
+
+        AssertReportedAsError(source, "SDP0211");
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Reports_SDP0211_when_branding_column_references_different_branding_key()
+    {
+        var logger = CreateLogger();
+
+        var source = BuildBrandingSource("[ForeignKey(\"Currency\", \"Id\")] ItemRec.ItemId RefId");
+
+        AssertReportedAsError(source, "SDP0211");
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Reports_SDP0211_when_primitive_column_type_differs_from_branding_value()
+    {
+        var logger = CreateLogger();
+
+        var source = BuildBrandingSource("[ForeignKey(\"Item\", \"Id\")] long ItemId");
+
+        AssertReportedAsError(source, "SDP0211");
+        Assert.Empty(logger.Logs);
     }
 
     private TestOutputLogger<ForeignKeyDiagnosticsTests> CreateLogger()
