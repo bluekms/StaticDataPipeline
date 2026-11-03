@@ -270,8 +270,11 @@
   <data name="NotSupportedPrimitiveType" xml:space="preserve">
     <value>{0} is not supported primitive type.</value>
   </data>
+  <data name="RuntimeAssembliesNotFound" xml:space="preserve">
+    <value>Runtime assemblies were not found (TRUSTED_PLATFORM_ASSEMBLIES is empty), so record sources cannot be compiled.</value>
+  </data>
   <data name="TypeNotDeclaredInRecordSources" xml:space="preserve">
-    <value>The type '{1}' of {0} is not declared in the record source files. Enums from other assemblies (for example System.DayOfWeek) cannot be used; declare an enum in the same file as the record instead.</value>
+    <value>The type '{1}' of {0} is not found in the record source folder or in the runtime libraries. Types from other assemblies cannot be used; declare the type in a file under the record source folder.</value>
   </data>
   <data name="NotSupportedPropertyType" xml:space="preserve">
     <value>{0}({1}) is not a supported property type.</value>
