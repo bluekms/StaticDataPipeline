@@ -1,0 +1,3 @@
+ItemId,IconPath,DisplayOrder,Stock,SaleStart,Prices[0].Key.Currency,Prices[0].Key.Kind,Prices[0].Amount,Prices[0].Note,Prices[1].Key.Currency,Prices[1].Key.Kind,Prices[1].Amount,Prices[1].Note
+10001,icons/potion.png,1,무제한,2026-03-01 00:00:00 +09:00,901,Normal,150,,901,Sale,120,봄 이벤트
+10002,icons/iron_sword.png,2,50,2026-03-01 10:00:00 +09:00,901,Normal,300,,902,Normal,3,

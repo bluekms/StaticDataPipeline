@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="UnitTest" />
+    <InternalsVisibleTo Include="ScenarioTest" />
   </ItemGroup>
 
   <ItemGroup>

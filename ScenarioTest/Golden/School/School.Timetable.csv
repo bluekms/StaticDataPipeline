@@ -1,0 +1,7 @@
+Slot.ClassRoomId,Slot.Day,Slot.Period,StartTime,Subject,TeacherId
+101,Mon,1,08:40,Math,7
+101,Mon,2,09:40,Korean,8
+102,Mon,1,08:40,Korean,8
+102,Mon,2,09:40,Math,7
+201,Tue,1,08:40,English,9
+301,Wed,3,10:40,Science,10
