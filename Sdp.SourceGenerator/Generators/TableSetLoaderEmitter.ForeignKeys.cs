@@ -24,6 +24,7 @@ internal static partial class TableSetLoaderEmitter
             sb.AppendLine();
             sb.Append(indent).Append("    if (tableSet.").Append(memberAccess).AppendLine(" is not null)");
             sb.Append(indent).AppendLine("    {");
+            sb.Append(indent).Append("        var __records = tableSet.").Append(memberAccess).AppendLine(".Records;");
 
             var fkSetVariables = EmitFkTargetSets(sb, recordFkInfo, indent + "        ");
 
@@ -38,7 +39,7 @@ internal static partial class TableSetLoaderEmitter
             }
 
             sb.AppendLine();
-            sb.Append(indent).Append("        foreach (var __r in tableSet.").Append(memberAccess).AppendLine(".Records)");
+            sb.Append(indent).AppendLine("        foreach (var __r in __records)");
             sb.Append(indent).AppendLine("        {");
 
             for (var parameterIndex = 0; parameterIndex < recordFkInfo.Parameters.Length; parameterIndex++)
@@ -109,6 +110,12 @@ internal static partial class TableSetLoaderEmitter
                 var setVariable = "__fkSet" + setVariables.Count.ToString(CultureInfo.InvariantCulture);
                 setVariables[setKey] = setVariable;
 
+                if (branch.TableSetMember == recordFkInfo.TableSetMember)
+                {
+                    EmitSelfReferenceFkTargetSet(sb, branch, propertyTypeFullyQualifiedName, setVariable, indent);
+                    continue;
+                }
+
                 var targetMemberAccess = EmitHelper.EscapeIdentifier(branch.TableSetMember);
                 sb.Append(indent).Append("global::System.Collections.Generic.HashSet<").Append(propertyTypeFullyQualifiedName)
                     .Append(">? ").Append(setVariable).AppendLine(" = null;");
@@ -119,13 +126,7 @@ internal static partial class TableSetLoaderEmitter
                 sb.Append(indent).Append("    foreach (var __t in tableSet.").Append(targetMemberAccess).AppendLine(".Records)");
                 sb.Append(indent).AppendLine("    {");
                 sb.Append(indent).Append("        ").Append(setVariable).Append(".Add(__t.")
-                    .Append(EmitHelper.EscapeIdentifier(branch.TargetColumn));
-                if (branch.TargetUnwrapMember is { } targetUnwrapMember)
-                {
-                    sb.Append('.').Append(EmitHelper.EscapeIdentifier(targetUnwrapMember));
-                }
-
-                sb.AppendLine(");");
+                    .Append(BuildTargetValueAccess(branch)).AppendLine(");");
                 sb.Append(indent).AppendLine("    }");
                 sb.Append(indent).AppendLine("}");
                 sb.AppendLine();
@@ -133,6 +134,34 @@ internal static partial class TableSetLoaderEmitter
         }
 
         return setVariables;
+    }
+
+    private static void EmitSelfReferenceFkTargetSet(
+        StringBuilder sb,
+        FkBranch branch,
+        string propertyTypeFullyQualifiedName,
+        string setVariable,
+        string indent)
+    {
+        sb.Append(indent).Append("var ").Append(setVariable)
+            .Append(" = new global::System.Collections.Generic.HashSet<").Append(propertyTypeFullyQualifiedName).AppendLine(">();");
+        sb.Append(indent).AppendLine("foreach (var __t in __records)");
+        sb.Append(indent).AppendLine("{");
+        sb.Append(indent).Append("    ").Append(setVariable).Append(".Add(__t.")
+            .Append(BuildTargetValueAccess(branch)).AppendLine(");");
+        sb.Append(indent).AppendLine("}");
+        sb.AppendLine();
+    }
+
+    private static string BuildTargetValueAccess(FkBranch branch)
+    {
+        var access = EmitHelper.EscapeIdentifier(branch.TargetColumn);
+        if (branch.TargetUnwrapMember is { } targetUnwrapMember)
+        {
+            access += "." + EmitHelper.EscapeIdentifier(targetUnwrapMember);
+        }
+
+        return access;
     }
 
     private static void EmitFkParameterCheck(
