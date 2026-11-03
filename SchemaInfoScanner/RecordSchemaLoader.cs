@@ -25,79 +25,83 @@ public static class RecordSchemaLoader
         "CS8632",
     ];
 
+    private static readonly Lazy<List<MetadataReference>> RuntimeReferences = new(CreateRuntimeReferences);
+
+    private static readonly CSharpCompilationOptions CompilationOptions = new(OutputKind.DynamicallyLinkedLibrary);
+
     public static IReadOnlyList<Result> Load(string csPath, ILogger logger)
     {
-        var results = new List<Result>();
-
         if (File.Exists(csPath))
         {
             var code = File.ReadAllText(csPath);
-            results.Add(OnLoad(code, logger));
-        }
-        else if (Directory.Exists(csPath))
-        {
-            var files = Directory.GetFiles(csPath, "*.cs");
-            foreach (var file in files)
-            {
-                var code = File.ReadAllText(file);
-                results.Add(OnLoad(code, logger));
-            }
-        }
-        else
-        {
-            var message = string.Format(CultureInfo.CurrentCulture, Messages.Composite.FileOrDirectoryNotExist, csPath);
-            throw new ArgumentException(message, nameof(csPath));
+
+            return OnLoad([CSharpSyntaxTree.ParseText(code, path: csPath)], logger);
         }
 
-        return results;
+        if (Directory.Exists(csPath))
+        {
+            var syntaxTrees = new List<SyntaxTree>();
+            foreach (var file in Directory.GetFiles(csPath, "*.cs"))
+            {
+                var code = File.ReadAllText(file);
+                syntaxTrees.Add(CSharpSyntaxTree.ParseText(code, path: file));
+            }
+
+            return OnLoad(syntaxTrees, logger);
+        }
+
+        throw FileOrDirectoryNotExist(csPath);
     }
 
     public static async Task<IReadOnlyList<Result>> LoadAsync(string csPath, ILogger logger, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var results = new List<Result>();
-
         if (File.Exists(csPath))
         {
             var code = await File.ReadAllTextAsync(csPath, cancellationToken);
-            results.Add(OnLoad(code, logger));
-        }
-        else if (Directory.Exists(csPath))
-        {
-            var files = Directory.GetFiles(csPath, "*.cs");
-            foreach (var file in files)
-            {
-                var code = await File.ReadAllTextAsync(file, cancellationToken);
-                results.Add(OnLoad(code, logger));
-            }
-        }
-        else
-        {
-            var message = string.Format(CultureInfo.CurrentCulture, Messages.Composite.FileOrDirectoryNotExist, csPath);
-            throw new ArgumentException(message, nameof(csPath));
+
+            return OnLoad([CSharpSyntaxTree.ParseText(code, path: csPath, cancellationToken: cancellationToken)], logger);
         }
 
-        return results;
+        if (Directory.Exists(csPath))
+        {
+            var syntaxTrees = new List<SyntaxTree>();
+            foreach (var file in Directory.GetFiles(csPath, "*.cs"))
+            {
+                var code = await File.ReadAllTextAsync(file, cancellationToken);
+                syntaxTrees.Add(CSharpSyntaxTree.ParseText(code, path: file, cancellationToken: cancellationToken));
+            }
+
+            return OnLoad(syntaxTrees, logger);
+        }
+
+        throw FileOrDirectoryNotExist(csPath);
     }
 
     internal static Result OnLoad(string code, ILogger logger)
     {
-        var syntaxTree = CSharpSyntaxTree.ParseText(code);
-        var root = syntaxTree.GetRoot();
-        var compilation = CSharpCompilation.Create("SchemaInfoScanner", [syntaxTree]);
+        var results = OnLoad([CSharpSyntaxTree.ParseText(code)], logger);
 
-        var result = compilation.GetDiagnostics();
-        var compileErrors = result
+        return results[0];
+    }
+
+    private static List<Result> OnLoad(List<SyntaxTree> syntaxTrees, ILogger logger)
+    {
+        var compilation = CSharpCompilation.Create("SchemaInfoScanner", syntaxTrees, RuntimeReferences.Value, CompilationOptions);
+
+        var compileErrors = compilation.GetDiagnostics()
+            .Where(x => x.Severity is DiagnosticSeverity.Error)
             .Where(x => !SkipCompileErrorIds.Contains(x.Id))
             .ToList();
 
         if (compileErrors.Count is not 0)
         {
+            var sources = string.Join(", ", syntaxTrees.Select(DescribeSource));
             var msg = string.Format(
                 CultureInfo.CurrentCulture,
                 Messages.Composite.CodeNotCompilable,
-                code);
+                sources);
             LogException(logger, msg, null);
             foreach (var error in compileErrors)
             {
@@ -110,11 +114,47 @@ public static class RecordSchemaLoader
                 compileErrors.Count));
         }
 
-        var semanticModel = compilation.GetSemanticModel(syntaxTree);
-        var recordDeclarationList = root.DescendantNodes().OfType<RecordDeclarationSyntax>().ToList();
-        var enumDeclarationList = root.DescendantNodes().OfType<EnumDeclarationSyntax>().ToList();
+        var results = new List<Result>(syntaxTrees.Count);
+        foreach (var syntaxTree in syntaxTrees)
+        {
+            var root = syntaxTree.GetRoot();
+            var semanticModel = compilation.GetSemanticModel(syntaxTree);
+            var recordDeclarationList = root.DescendantNodes().OfType<RecordDeclarationSyntax>().ToList();
+            var enumDeclarationList = root.DescendantNodes().OfType<EnumDeclarationSyntax>().ToList();
 
-        return new(semanticModel, recordDeclarationList, enumDeclarationList);
+            results.Add(new(semanticModel, recordDeclarationList, enumDeclarationList));
+        }
+
+        return results;
+    }
+
+    private static string DescribeSource(SyntaxTree syntaxTree)
+    {
+        return string.IsNullOrEmpty(syntaxTree.FilePath)
+            ? syntaxTree.ToString()
+            : syntaxTree.FilePath;
+    }
+
+    private static List<MetadataReference> CreateRuntimeReferences()
+    {
+        var trustedAssemblies = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string;
+        if (string.IsNullOrEmpty(trustedAssemblies))
+        {
+            throw new InvalidOperationException(Messages.RuntimeAssembliesNotFound);
+        }
+
+        return trustedAssemblies
+            .Split(Path.PathSeparator)
+            .Where(x => !string.IsNullOrEmpty(x))
+            .Select(x => (MetadataReference)MetadataReference.CreateFromFile(x))
+            .ToList();
+    }
+
+    private static ArgumentException FileOrDirectoryNotExist(string csPath)
+    {
+        var message = string.Format(CultureInfo.CurrentCulture, Messages.Composite.FileOrDirectoryNotExist, csPath);
+
+        return new ArgumentException(message, nameof(csPath));
     }
 
     private static readonly Action<ILogger, string, Exception?> LogException =

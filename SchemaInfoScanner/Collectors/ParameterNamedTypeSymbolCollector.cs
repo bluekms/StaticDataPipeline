@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SchemaInfoScanner.NameObjects;
 
@@ -21,8 +22,8 @@ public sealed class ParameterNamedTypeSymbolCollector(SemanticModel semanticMode
             throw new NotSupportedException();
         }
 
-        var typeSymbol = semanticModel.GetTypeInfo(parameter.Type).Type;
-        if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
+        var parameterSymbol = semanticModel.GetDeclaredSymbol(parameter);
+        if (parameterSymbol?.Type is not INamedTypeSymbol namedTypeSymbol)
         {
             throw new NotSupportedException();
         }
