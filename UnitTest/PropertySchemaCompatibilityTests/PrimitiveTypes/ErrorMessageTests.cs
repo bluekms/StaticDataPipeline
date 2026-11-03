@@ -196,6 +196,93 @@ public partial class ErrorMessageTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("DateTimeOffset", "yyyy-MM-dd HH:mm:ss zzz", "2025-05-26 01:05:00")]
+    [InlineData("DateOnly", "yyyy-MM-dd", "2025-13-40")]
+    [InlineData("TimeOnly", "HH:mm", "25:61")]
+    public void DateTimeFormatTypeTest(string type, string format, string argument)
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<ErrorMessageTests>() is not TestOutputLogger<ErrorMessageTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = $"""
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed partial record MyRecord(
+                        [DateTimeFormat("{format}")]
+                        {type} Property,
+                    );
+                    """;
+
+        var catalogs = CreateCatalogs(code, logger);
+
+        var cells = new[]
+        {
+            new CellData("A1", argument)
+        };
+
+        var context = CompatibilityContext.CreateNoCollect(catalogs, cells);
+
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+        {
+            foreach (var recordSchema in catalogs.RecordSchemaCatalog.StaticDataRecordSchemata)
+            {
+                foreach (var propertySchema in recordSchema.PropertySchemata)
+                {
+                    propertySchema.CheckCompatibility(context);
+                }
+            }
+        });
+
+        Assert.StartsWith($"Invalid value '{argument}' in cell A1.", ex.Message);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Theory]
+    [InlineData("Guid", "not-a-guid")]
+    public void GuidTest(string type, string argument)
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<ErrorMessageTests>() is not TestOutputLogger<ErrorMessageTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = $"""
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed partial record MyRecord(
+                        {type} Property,
+                    );
+                    """;
+
+        var catalogs = CreateCatalogs(code, logger);
+
+        var cells = new[]
+        {
+            new CellData("A1", argument)
+        };
+
+        var context = CompatibilityContext.CreateNoCollect(catalogs, cells);
+
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+        {
+            foreach (var recordSchema in catalogs.RecordSchemaCatalog.StaticDataRecordSchemata)
+            {
+                foreach (var propertySchema in recordSchema.PropertySchemata)
+                {
+                    propertySchema.CheckCompatibility(context);
+                }
+            }
+        });
+
+        Assert.StartsWith($"Invalid value '{argument}' in cell A1.", ex.Message);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Theory]
     [InlineData("TimeSpan", "invalid_value")]
     public void TimeSpanTest(string type, string argument)
     {

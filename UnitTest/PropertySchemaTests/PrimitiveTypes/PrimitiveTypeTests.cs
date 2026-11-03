@@ -147,6 +147,63 @@ public partial class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("DateTimeOffset", "yyyy-MM-dd HH:mm:ss zzz")]
+    [InlineData("DateOnly", "yyyy-MM-dd")]
+    [InlineData("TimeOnly", "HH:mm")]
+    public void DateTimeFormatTypeTest(string type, string format)
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<PrimitiveTypeTests>() is not TestOutputLogger<PrimitiveTypeTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = $"""
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed partial record MyRecord(
+                        [DateTimeFormat("{format}")]
+                        {type} Property,
+                    );
+                    """;
+
+        var loadResult = RecordSchemaLoader.OnLoad(code, logger);
+
+        var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
+        var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
+        RecordComplianceChecker.Check(recordSchemaCatalog, logger);
+
+        Assert.Empty(logger.Logs);
+    }
+
+    [Theory]
+    [InlineData("Guid")]
+    public void GuidTest(string type)
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<PrimitiveTypeTests>() is not TestOutputLogger<PrimitiveTypeTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = $"""
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed partial record MyRecord(
+                        {type} Property,
+                    );
+                    """;
+
+        var loadResult = RecordSchemaLoader.OnLoad(code, logger);
+
+        var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
+        var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
+        RecordComplianceChecker.Check(recordSchemaCatalog, logger);
+
+        Assert.Empty(logger.Logs);
+    }
+
+    [Theory]
     [InlineData("TimeSpan")]
     public void TimeSpanTest(string type)
     {

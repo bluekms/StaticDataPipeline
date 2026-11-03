@@ -93,4 +93,30 @@ public partial class RangeAttributeNotApplicableRuleTests(ITestOutputHelper test
         Assert.Throws<InvalidAttributeUsageException>(() => RecordComplianceChecker.Check(recordSchemaCatalog, logger));
         Assert.Single(logger.Logs);
     }
+
+    [Fact]
+    public void RejectedOnGuid()
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<RangeAttributeNotApplicableRuleTests>() is not TestOutputLogger<RangeAttributeNotApplicableRuleTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = """
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed partial record MyRecord(
+                       [Range(typeof(Guid), "00000000-0000-0000-0000-000000000000", "ffffffff-ffff-ffff-ffff-ffffffffffff")]
+                       Guid Property,
+                   );
+                   """;
+
+        var loadResult = RecordSchemaLoader.OnLoad(code, logger);
+        var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
+        var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
+
+        Assert.Throws<InvalidAttributeUsageException>(() => RecordComplianceChecker.Check(recordSchemaCatalog, logger));
+        Assert.Single(logger.Logs);
+    }
 }
