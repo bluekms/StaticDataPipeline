@@ -56,6 +56,26 @@ internal static class PrimitiveTypeChecker
             return true;
         }
 
+        if (IsDateTimeOffsetType(underlyingType))
+        {
+            return true;
+        }
+
+        if (IsDateOnlyType(underlyingType))
+        {
+            return true;
+        }
+
+        if (IsTimeOnlyType(underlyingType))
+        {
+            return true;
+        }
+
+        if (IsGuidType(underlyingType))
+        {
+            return true;
+        }
+
         return IsClrPrimitiveType(underlyingType);
     }
 
@@ -67,6 +87,35 @@ internal static class PrimitiveTypeChecker
     public static bool IsTimeSpanType(ITypeSymbol symbol)
     {
         return GetLastName(symbol) is "TimeSpan" or "TimeSpan?";
+    }
+
+    public static bool IsDateTimeOffsetType(ITypeSymbol symbol)
+    {
+        return GetLastName(symbol) is "DateTimeOffset" or "DateTimeOffset?";
+    }
+
+    public static bool IsDateOnlyType(ITypeSymbol symbol)
+    {
+        return GetLastName(symbol) is "DateOnly" or "DateOnly?";
+    }
+
+    public static bool IsTimeOnlyType(ITypeSymbol symbol)
+    {
+        return GetLastName(symbol) is "TimeOnly" or "TimeOnly?";
+    }
+
+    public static bool IsGuidType(ITypeSymbol symbol)
+    {
+        return GetLastName(symbol) is "Guid" or "Guid?";
+    }
+
+    // 생성기의 AttributeApplicabilityValidator.IsDateTimeKind 와 같은 집합이어야 한다.
+    public static bool IsDateTimeFormatType(ITypeSymbol symbol)
+    {
+        return IsDateTimeType(symbol) ||
+               IsDateTimeOffsetType(symbol) ||
+               IsDateOnlyType(symbol) ||
+               IsTimeOnlyType(symbol);
     }
 
     public static bool IsClrPrimitiveType(ITypeSymbol symbol)

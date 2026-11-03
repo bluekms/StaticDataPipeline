@@ -43,6 +43,34 @@ public static class PrimitivePropertySchemaFactory
                 : new DateTimePropertySchema(propertyName, propertySymbol, attributeList);
         }
 
+        if (PrimitiveTypeChecker.IsDateTimeOffsetType(underlyingType))
+        {
+            return isNullable
+                ? new NullableDateTimeOffsetPropertySchema(propertyName, propertySymbol, attributeList)
+                : new DateTimeOffsetPropertySchema(propertyName, propertySymbol, attributeList);
+        }
+
+        if (PrimitiveTypeChecker.IsDateOnlyType(underlyingType))
+        {
+            return isNullable
+                ? new NullableDateOnlyPropertySchema(propertyName, propertySymbol, attributeList)
+                : new DateOnlyPropertySchema(propertyName, propertySymbol, attributeList);
+        }
+
+        if (PrimitiveTypeChecker.IsTimeOnlyType(underlyingType))
+        {
+            return isNullable
+                ? new NullableTimeOnlyPropertySchema(propertyName, propertySymbol, attributeList)
+                : new TimeOnlyPropertySchema(propertyName, propertySymbol, attributeList);
+        }
+
+        if (PrimitiveTypeChecker.IsGuidType(underlyingType))
+        {
+            return isNullable
+                ? new NullableGuidPropertySchema(propertyName, propertySymbol, attributeList)
+                : new GuidPropertySchema(propertyName, propertySymbol, attributeList);
+        }
+
         if (PrimitiveTypeChecker.IsTimeSpanType(underlyingType))
         {
             return isNullable

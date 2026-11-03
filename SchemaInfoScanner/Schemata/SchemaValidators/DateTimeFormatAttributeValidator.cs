@@ -18,8 +18,8 @@ internal partial class SchemaRuleValidator
         {
             RuleFor(x => x)
                 .Must(x =>
-                    IsDateTimeCollection(x) ||
-                    x is DateTimePropertySchema or NullableDateTimePropertySchema)
+                    IsDateTimeFormatCollection(x) ||
+                    IsDateTimeFormatPropertySchema(x))
                 .WithMessage(x =>
                     string.Format(
                         CultureInfo.CurrentCulture,
@@ -43,25 +43,34 @@ internal partial class SchemaRuleValidator
 
     private static bool IsDateTimeFormatRequired(PropertySchemaBase property)
     {
-        if (property is DateTimePropertySchema or NullableDateTimePropertySchema)
+        if (IsDateTimeFormatPropertySchema(property))
         {
             return true;
         }
 
-        return IsPrimitiveDateTimeCollection(property);
+        return IsPrimitiveDateTimeFormatCollection(property);
     }
 
-    private static bool IsDateTimeCollection(PropertySchemaBase property)
+    private static bool IsDateTimeFormatPropertySchema(PropertySchemaBase property)
     {
-        if (MapTypeChecker.HasDateTimeProperty(property.NamedTypeSymbol))
+        return property
+            is DateTimePropertySchema or NullableDateTimePropertySchema
+            or DateTimeOffsetPropertySchema or NullableDateTimeOffsetPropertySchema
+            or DateOnlyPropertySchema or NullableDateOnlyPropertySchema
+            or TimeOnlyPropertySchema or NullableTimeOnlyPropertySchema;
+    }
+
+    private static bool IsDateTimeFormatCollection(PropertySchemaBase property)
+    {
+        if (MapTypeChecker.HasDateTimeFormatProperty(property.NamedTypeSymbol))
         {
             return true;
         }
 
-        return IsPrimitiveDateTimeCollection(property);
+        return IsPrimitiveDateTimeFormatCollection(property);
     }
 
-    private static bool IsPrimitiveDateTimeCollection(PropertySchemaBase property)
+    private static bool IsPrimitiveDateTimeFormatCollection(PropertySchemaBase property)
     {
         if (!CollectionTypeChecker.IsPrimitiveCollection(property.NamedTypeSymbol))
         {
@@ -70,6 +79,6 @@ internal partial class SchemaRuleValidator
 
         var typeArgument = property.NamedTypeSymbol.TypeArguments.Single();
 
-        return PrimitiveTypeChecker.IsDateTimeType(typeArgument);
+        return PrimitiveTypeChecker.IsDateTimeFormatType(typeArgument);
     }
 }
