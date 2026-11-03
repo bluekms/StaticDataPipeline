@@ -81,6 +81,60 @@ public class ForeignKeyBrandingTargetEmissionTests(ITestOutputHelper testOutputH
         Assert.Empty(logger.Logs);
     }
 
+    [Fact]
+    public void Branding_collection_element_collects_branding_key_as_is()
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        const string source =
+            """
+            using Microsoft.Extensions.Logging;
+            using Sdp.Attributes;
+            using Sdp.Manager;
+            using Sdp.Table;
+            using System.Collections.Frozen;
+            using System.Collections.Immutable;
+
+            namespace Test;
+
+            [StaticDataRecord("Item", "S")]
+            public sealed partial record ItemRec([Key] ItemRec.ItemId Id, string Name)
+            {
+                public readonly record struct ItemId(int Value);
+            }
+
+            public sealed partial class ItemTable : StaticDataTable<ItemRec>;
+
+            [StaticDataRecord("Gacha", "S")]
+            public sealed partial record GachaRec(
+                int Id,
+                [Length(2)] [ForeignKey("Item", "Id")] FrozenSet<ItemRec.ItemId> PickupItemIds);
+
+            public sealed partial class GachaTable : StaticDataTable<GachaRec>;
+
+            public partial class GenManager(ILogger logger)
+                : StaticDataManager<GenManager.TableSet>(logger)
+            {
+                public sealed partial record TableSet(ItemTable? Item, GachaTable? Gacha);
+            }
+            """;
+
+        var output = SourceGeneratorTestHelper.RunWithFinal(source);
+        var diagnostics = output.Run.Results.SelectMany(r => r.Diagnostics).ToList();
+        Assert.Empty(diagnostics);
+
+        var tree = SourceGeneratorTestHelper.GetSingleTree(output.Run, "TableSetLoader.g.cs");
+        var generated = tree.ToString();
+        Assert.Contains("global::System.Collections.Generic.HashSet<global::Test.ItemRec.ItemId>", generated, StringComparison.Ordinal);
+        Assert.Contains(".Add(__t.Id);", generated, StringComparison.Ordinal);
+        Assert.Contains("foreach (var __v in __r.PickupItemIds)", generated, StringComparison.Ordinal);
+
+        var errors = SourceGeneratorTestHelper.GetCompilationErrors(output.Final);
+        Assert.Empty(errors);
+        Assert.Empty(logger.Logs);
+    }
+
     private TestOutputLogger<ForeignKeyBrandingTargetEmissionTests> CreateLogger()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
