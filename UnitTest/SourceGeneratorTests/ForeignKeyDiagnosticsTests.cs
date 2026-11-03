@@ -680,6 +680,109 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
         Assert.Empty(logger.Logs);
     }
 
+    [Fact]
+    public void Allows_branding_collection_element_to_reference_same_branding_key()
+    {
+        var logger = CreateLogger();
+
+        var source = BuildBrandingSource("[ForeignKey(\"Item\", \"Id\")] [Length(2)] FrozenSet<ItemRec.ItemId> ItemIds");
+
+        var diagnostics = RunDiagnostics(source);
+        Assert.Empty(diagnostics);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Allows_branding_array_element_to_reference_same_branding_key()
+    {
+        var logger = CreateLogger();
+
+        var source = BuildBrandingSource("[ForeignKey(\"Item\", \"Id\")] [Length(2)] ImmutableArray<ItemRec.ItemId> ItemIds");
+
+        var diagnostics = RunDiagnostics(source);
+        Assert.Empty(diagnostics);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Reports_SDP0211_when_branding_collection_element_references_other_branding_key()
+    {
+        var logger = CreateLogger();
+
+        var source = BuildBrandingSource("[ForeignKey(\"Currency\", \"Id\")] [Length(2)] FrozenSet<ItemRec.ItemId> ItemIds");
+
+        AssertReportedAsError(source, "SDP0211");
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Reports_SDP0211_when_branding_collection_element_references_primitive_key()
+    {
+        var logger = CreateLogger();
+
+        var source = BuildBrandingSource("[ForeignKey(\"Target\", \"Id\")] [Length(2)] FrozenSet<ItemRec.ItemId> ItemIds");
+
+        AssertReportedAsError(source, "SDP0211");
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Allows_branding_collection_element_with_switch_foreign_key()
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        const string source =
+            """
+            public enum PickupKind
+            {
+                Item,
+                Season1Item,
+            }
+
+            [StaticDataRecord("Item", "S")]
+            public sealed partial record ItemRec([Key] ItemRec.ItemId Id, string Name)
+            {
+                public readonly record struct ItemId(int Value);
+            }
+
+            public sealed partial class ItemTable(ImmutableArray<ItemRec> records)
+                : StaticDataTable<ItemRec>(records);
+
+            [StaticDataRecord("Season1Item", "S")]
+            public sealed partial record Season1ItemRec([Key] ItemRec.ItemId Id, string Name);
+
+            public sealed partial class Season1ItemTable(ImmutableArray<Season1ItemRec> records)
+                : StaticDataTable<Season1ItemRec>(records);
+
+            [StaticDataRecord("Consumer", "S")]
+            public sealed partial record ConsumerRec(
+                int Id,
+                PickupKind Kind,
+                [SwitchForeignKey("Kind", "Item", "Item", "Id")]
+                [SwitchForeignKey("Kind", "Season1Item", "Season1Item", "Id")]
+                [Length(2)]
+                FrozenSet<ItemRec.ItemId> PickupItemIds);
+
+            public sealed partial class ConsumerTable(ImmutableArray<ConsumerRec> records)
+                : StaticDataTable<ConsumerRec>(records);
+
+            public partial class GenManager(ILogger logger)
+                : StaticDataManager<GenManager.TableSet>(logger)
+            {
+                public sealed partial record TableSet(
+                    TargetTable? Target,
+                    ItemTable? Item,
+                    Season1ItemTable? Season1Item,
+                    ConsumerTable? Consumer);
+            }
+            """;
+
+        var diagnostics = RunDiagnostics(source);
+        Assert.Empty(diagnostics);
+        Assert.Empty(logger.Logs);
+    }
+
     private TestOutputLogger<ForeignKeyDiagnosticsTests> CreateLogger()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
