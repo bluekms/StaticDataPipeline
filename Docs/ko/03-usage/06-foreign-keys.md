@@ -37,6 +37,12 @@ public sealed partial record ItemRecord(
 
 검증 시 `CategoryId` 가 대상 테이블 안에 있는지 확인합니다.
 
+선행 퀘스트처럼 같은 테이블의 키를 가리키는 FK 도 그대로 쓸 수 있습니다.
+
+```csharp
+[NullString("")] [ForeignKey("QuestTable", "Id")] int? PrevQuestId
+```
+
 </br></br></br>
 
 ## 검증 단계
