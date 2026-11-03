@@ -92,4 +92,10 @@ internal static class SourceGeneratorTestHelper
             .GetDiagnostics()
             .Where(d => d.Severity == DiagnosticSeverity.Error)
             .ToList();
+
+    public static List<Diagnostic> GetCompilationWarningsAndErrors(CSharpCompilation final)
+        => final
+            .GetDiagnostics()
+            .Where(d => d.Severity >= DiagnosticSeverity.Warning)
+            .ToList();
 }
