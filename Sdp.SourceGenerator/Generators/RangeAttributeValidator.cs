@@ -198,6 +198,7 @@ internal sealed class RangeAttributeValidator(
             ScalarKind.Int64 => !ParsesAsInt64(minimum) || !ParsesAsInt64(maximum),
             ScalarKind.UInt64 => !ParsesAsUInt64(minimum) || !ParsesAsUInt64(maximum),
             ScalarKind.Decimal => !ParsesAsDecimal(minimum) || !ParsesAsDecimal(maximum),
+            ScalarKind.Char => minimum.Length != 1 || maximum.Length != 1,
             ScalarKind.DateTime or ScalarKind.DateOnly or ScalarKind.TimeOnly => param.DateTimeFormat is { } dateTimeFormat
                 && (!ParsesAsDateTime(minimum, dateTimeFormat) || !ParsesAsDateTime(maximum, dateTimeFormat)),
             ScalarKind.DateTimeOffset => param.DateTimeFormat is { } dateTimeOffsetFormat
@@ -343,6 +344,10 @@ internal sealed class RangeAttributeValidator(
                 return decimal.TryParse(minText, NumberStyles.Number, CultureInfo.InvariantCulture, out var decimalMin)
                     && decimal.TryParse(maxText, NumberStyles.Number, CultureInfo.InvariantCulture, out var decimalMax)
                     && decimalMin > decimalMax;
+            case ScalarKind.Char:
+                return minText.Length == 1
+                    && maxText.Length == 1
+                    && minText[0] > maxText[0];
             case ScalarKind.DateTime:
             case ScalarKind.DateOnly:
             case ScalarKind.TimeOnly:

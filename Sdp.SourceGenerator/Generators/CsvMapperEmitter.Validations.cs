@@ -60,7 +60,7 @@ internal static partial class CsvMapperEmitter
         }
         else
         {
-            // DateTime/DateTimeOffset/TimeSpan/숫자 : min/max 문자열을 값 타입으로 한 번만 파싱해 비교한다.
+            // DateTime/DateTimeOffset/TimeSpan/숫자/char : min/max 문자열을 값 타입으로 한 번만 파싱해 비교한다.
             EmitParsedBoundRangeHelper(sb, param, kind, indent, ownerToken);
         }
     }
