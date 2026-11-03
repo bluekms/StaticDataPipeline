@@ -53,6 +53,21 @@ CSV 셀에 `100` 만 적으면 `new CharId(100)` 으로 매핑됩니다. 또한 
 
 브랜딩 타입이 중첩 Record 안에 있을 때는 **마지막 스칼라 세그먼트만** 축약할 수 있습니다. 예를 들어 `record Middle(Inner Inner)`, `record Inner(long Value)` 를 `Middle Middle` 파라미터로 쓰면 헤더는 `Middle.Inner` 또는 `Middle.Inner.Value` 두 가지만 유효하고, `Middle` 하나로 줄이면 로드에 실패합니다.
 
+브랜딩 타입을 원소로 하는 컬렉션도 같습니다. 원소 하나가 한 칸으로 합쳐져 헤더는 `PickupItemIds[0]` 이 되고, `PickupItemIds[0].Value` 로 적어도 읽습니다. 같은 원소를 두 형태로 함께 적으면 추출에 실패합니다. Map 의 값 Record 가 파라미터 하나 (키) 뿐일 때도 같아서, `FrozenDictionary<int, Tag>` 에 `record Tag([Key] int Id)` 를 쓰면 헤더는 `Tags[0]` 이고 `Tags[0].Id` 로 적어도 읽습니다.
+
+```csharp
+[StaticDataRecord("Rpg", "Gacha")]
+public sealed partial record GachaRecord(
+    [Key] int Id,
+    [Length(2)] FrozenSet<ItemId> PickupItemIds);
+```
+
+생성 헤더:
+
+```
+Id    PickupItemIds[0]    PickupItemIds[1]
+```
+
 ---
 
 </br></br></br>

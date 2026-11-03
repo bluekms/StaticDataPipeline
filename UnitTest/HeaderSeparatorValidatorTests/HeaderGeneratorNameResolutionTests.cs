@@ -35,6 +35,22 @@ public class HeaderGeneratorNameResolutionTests(ITestOutputHelper testOutputHelp
         public sealed partial record ItemRecord([Key] int Id, Score Score);
         """;
 
+    // language=C#
+    private const string BrandedElementCollectionSource = """
+        using System.Collections.Frozen;
+        using Sdp.Attributes;
+
+        public sealed partial record ItemRecord([Key] ItemRecord.ItemId Id)
+        {
+            public readonly record struct ItemId(int Value);
+        }
+
+        [StaticDataRecord("Rpg", "Gacha")]
+        public sealed partial record GachaRecord(
+            [Key] int Id,
+            [Length(2)] FrozenSet<ItemRecord.ItemId> PickupItemIds);
+        """;
+
     [Fact]
     public void AmbiguousSimpleName_ListsCandidates()
     {
@@ -76,6 +92,29 @@ public class HeaderGeneratorNameResolutionTests(ITestOutputHelper testOutputHelp
         Assert.Contains("## A.ItemRecord", written, StringComparison.Ordinal);
         Assert.Contains("### Headers (TSV)", written, StringComparison.Ordinal);
         Assert.Contains("Id\tItem Name", written, StringComparison.Ordinal);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void BrandedElementCollection_WritesFoldedHeaders()
+    {
+        var logger = CreateLogger();
+        using var dir = new CsvTestDirectory();
+        dir.Write("Records.cs", BrandedElementCollectionSource);
+        var outputFileName = Path.Combine(dir.Path, "out.md");
+
+        var options = new GenerateHeaderOptions
+        {
+            RecordCsPath = dir.Path,
+            RecordName = "GachaRecord",
+            Separator = "\t",
+            OutputFileName = outputFileName,
+        };
+        GenerateHeaderHandler.Run(options, logger);
+
+        var written = File.ReadAllText(outputFileName);
+        Assert.Contains("Id\tPickupItemIds[0]\tPickupItemIds[1]", written, StringComparison.Ordinal);
+        Assert.DoesNotContain(".Value", written, StringComparison.Ordinal);
         Assert.Empty(logger.Logs);
     }
 

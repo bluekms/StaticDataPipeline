@@ -166,10 +166,10 @@
     <value>{0}: StaticDataRecord must have at most one [Key] member. Composite key is not supported; use a record key instead.</value>
   </data>
   <data name="DateTimeFormatAttributeNotApplicable" xml:space="preserve">
-    <value>{0}({1}): DateTime is not applicable, so DateTimeFormatAttribute cannot be used.</value>
+    <value>{0}({1}): not a DateTime / DateTimeOffset / DateOnly / TimeOnly type, so DateTimeFormatAttribute cannot be used.</value>
   </data>
   <data name="DateTimeFormatAttributeRequired" xml:space="preserve">
-    <value>{0}({1}): DateTime type must use DateTimeFormatAttribute.</value>
+    <value>{0}({1}): DateTime / DateTimeOffset / DateOnly / TimeOnly types must use DateTimeFormatAttribute.</value>
   </data>
   <data name="NullStringAttributeRequiredForNullable" xml:space="preserve">
     <value>{0}({1}): nullable type must use NullStringAttribute.</value>
@@ -193,7 +193,7 @@
     <value>{0}({1}): not a string, so RegularExpressionAttribute cannot be used.</value>
   </data>
   <data name="RangeAttributeNotApplicable" xml:space="preserve">
-    <value>{0}({1}): not a numeric / char / DateTime / TimeSpan / string / enum type, so RangeAttribute cannot be used.</value>
+    <value>{0}({1}): not a numeric / char / DateTime / DateTimeOffset / DateOnly / TimeOnly / TimeSpan / string / enum type, so RangeAttribute cannot be used.</value>
   </data>
   <data name="CountRangeAttributeOnlyForSingleColumnCollection" xml:space="preserve">
     <value>CountRangeAttribute can only be used with SingleColumnCollectionAttribute.</value>

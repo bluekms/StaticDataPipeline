@@ -104,9 +104,9 @@ public static class RequiredHeadersChecker
             var standardHeader = flattenedHeader.Name;
             var index = IndexOf(sheetHeaders, standardHeader);
 
-            // Single parameter record 하위 호환: "Id" -> "Id.Value" 폴백
-            var fallbackHeader = $"{standardHeader}.Value";
-            if (flattenedHeader.FromSingleValueRecord)
+            // Single parameter record 하위 호환: "Id" -> "Id.Value" 처럼 안쪽 파라미터 이름을 붙인 확장형도 받는다 (로더와 같은 규칙)
+            var fallbackHeader = flattenedHeader.ExpandedName;
+            if (fallbackHeader is not null)
             {
                 var fallbackIndex = IndexOf(sheetHeaders, fallbackHeader);
                 if (index is not -1 && fallbackIndex is not -1)
@@ -186,7 +186,7 @@ public static class RequiredHeadersChecker
     private static string? FindIgnoringCase(
         IReadOnlyList<string> sheetHeaders,
         RecordFlattener.FlattenedHeader flattenedHeader,
-        string fallbackHeader)
+        string? fallbackHeader)
     {
         foreach (var sheetHeader in sheetHeaders)
         {
@@ -195,7 +195,7 @@ public static class RequiredHeadersChecker
                 return sheetHeader;
             }
 
-            if (flattenedHeader.FromSingleValueRecord &&
+            if (fallbackHeader is not null &&
                 string.Equals(sheetHeader, fallbackHeader, StringComparison.OrdinalIgnoreCase))
             {
                 return sheetHeader;

@@ -169,6 +169,27 @@ public partial class FrozenDictionaryMappingTests(ITestOutputHelper testOutputHe
         Assert.Empty(logger.Logs);
     }
 
+    public sealed record Tag([Key] int Id);
+
+    [StaticDataRecord("Dict", "Tags")]
+    public sealed partial record TagsRecord(
+        [Length(2)] FrozenDictionary<int, Tag> Tags);
+
+    [Theory]
+    [InlineData("Tags[0],Tags[1]")]
+    [InlineData("Tags[0].Id,Tags[1].Id")]
+    public void MapFrozenDictionaryWithSingleValueRecordValue_AcceptsBothHeaderForms(string headerLine)
+    {
+        var logger = CreateLogger();
+
+        var csv = headerLine + "\n7,8";
+        var record = Assert.Single(CsvLoader.Parse(csv, TagsRecord.MapFromCsvRow));
+        Assert.Equal(2, record.Tags.Count);
+        Assert.Equal(7, record.Tags[7].Id);
+        Assert.Equal(8, record.Tags[8].Id);
+        Assert.Empty(logger.Logs);
+    }
+
     private TestOutputLogger<FrozenDictionaryMappingTests> CreateLogger()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
