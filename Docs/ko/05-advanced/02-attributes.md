@@ -321,6 +321,10 @@ TimeSpan Duration;
 [Range(typeof(string), "apple", "zebra")]
 string Tag;
 
+// char — 문자 하나로 경계를 적습니다. 문자 코드 순으로 비교됩니다
+[Range(typeof(char), "A", "E")]
+char Rank;
+
 // enum — 멤버 이름으로 경계 지정. underlying 정수로 비교됩니다
 [Range(typeof(Tier), "Low", "High")]
 Tier Grade;
