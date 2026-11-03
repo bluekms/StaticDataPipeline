@@ -174,6 +174,67 @@ public partial class TypedRangeMappingTests(ITestOutputHelper testOutputHelper)
         Assert.Empty(logger.Logs);
     }
 
+    [StaticDataRecord("TypedRange", "Char")]
+    public sealed partial record CharRangeRecord(
+        int Id,
+        [Range(typeof(char), "A", "E")] char Rank);
+
+    [Theory]
+    [InlineData("A")]
+    [InlineData("C")]
+    [InlineData("E")]
+    public void CharValueInRange_Maps(string cell)
+    {
+        var logger = CreateLogger();
+
+        var csv = $"Id,Rank\n1,{cell}";
+        var record = Assert.Single(CsvLoader.Parse(csv, CharRangeRecord.MapFromCsvRow));
+        Assert.Equal(cell[0], record.Rank);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Theory]
+    [InlineData("F")]
+    [InlineData("a")]
+    [InlineData("@")]
+    public void CharValueOutOfRange_Throws(string cell)
+    {
+        var logger = CreateLogger();
+
+        var csv = $"Id,Rank\n1,{cell}";
+        var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, CharRangeRecord.MapFromCsvRow));
+        var inner = Assert.IsType<ArgumentOutOfRangeException>(ex.InnerException);
+        Assert.Contains("[A, E]", inner.Message);
+        Assert.Empty(logger.Logs);
+    }
+
+    [StaticDataRecord("TypedRange", "NullableChar")]
+    public sealed partial record NullableCharRangeRecord(
+        int Id,
+        [NullString("")] [Range(typeof(char), "A", "E")] char? Rank);
+
+    [Fact]
+    public void NullableCharEmptyCell_MapsToNull()
+    {
+        var logger = CreateLogger();
+
+        var csv = "Id,Rank\n1,";
+        var record = Assert.Single(CsvLoader.Parse(csv, NullableCharRangeRecord.MapFromCsvRow));
+        Assert.Null(record.Rank);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void NullableCharValueOutOfRange_Throws()
+    {
+        var logger = CreateLogger();
+
+        var csv = "Id,Rank\n1,F";
+        var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, NullableCharRangeRecord.MapFromCsvRow));
+        Assert.IsType<ArgumentOutOfRangeException>(ex.InnerException);
+        Assert.Empty(logger.Logs);
+    }
+
     private TestOutputLogger<TypedRangeMappingTests> CreateLogger()
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);

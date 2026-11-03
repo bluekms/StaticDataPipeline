@@ -121,6 +121,7 @@ internal static class TypeClassifier
     {
         return IsNumeric(kind) || kind
             is ScalarKind.String
+            or ScalarKind.Char
             or ScalarKind.Enum
             or ScalarKind.DateTime
             or ScalarKind.DateTimeOffset
