@@ -254,8 +254,10 @@ public class RangeAttributeExplicitValueEnumTests(ITestOutputHelper testOutputHe
         Assert.Empty(logger.Logs);
     }
 
-    [Fact]
-    public void NonLiteralMemberValue_ThrowsWithMemberName()
+    [Theory]
+    [InlineData("0", "10", true)]
+    [InlineData("3", "10", false)]
+    public void NonLiteralMemberValue_IsEvaluatedByTheCompiler(string min, string max, bool accepted)
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<RangeAttributeExplicitValueEnumTests>() is not TestOutputLogger<RangeAttributeExplicitValueEnumTests> logger)
@@ -264,12 +266,12 @@ public class RangeAttributeExplicitValueEnumTests(ITestOutputHelper testOutputHe
         }
 
         // language=C#
-        var code = """
+        var code = $$"""
                    public enum Flags { A = 1, B = A << 1 }
 
                    [StaticDataRecord("Test", "TestSheet")]
                    public sealed partial record MyRecord(
-                       [Range(typeof(Flags), "0", "10")]
+                       [Range(typeof(Flags), "{{min}}", "{{max}}")]
                        Flags Property,
                    );
                    """;
@@ -277,17 +279,11 @@ public class RangeAttributeExplicitValueEnumTests(ITestOutputHelper testOutputHe
         var catalogs = RangeAttributeTestHelpers.CreateCatalogs(code, logger);
         var cells = new[] { new CellData("A1", "B") };
         var context = CompatibilityContext.CreateNoCollect(catalogs, cells);
+        var propertySchema = catalogs.RecordSchemaCatalog.StaticDataRecordSchemata[0].PropertySchemata[0];
 
-        foreach (var recordSchema in catalogs.RecordSchemaCatalog.StaticDataRecordSchemata)
-        {
-            foreach (var propertySchema in recordSchema.PropertySchemata)
-            {
-                var exception = Assert.Throws<InvalidOperationException>(() => propertySchema.CheckCompatibility(context));
-                Assert.Contains("'B'", exception.Message, StringComparison.Ordinal);
-                Assert.Contains("[Range]", exception.Message, StringComparison.Ordinal);
-            }
-        }
+        var exception = Record.Exception(() => propertySchema.CheckCompatibility(context));
 
+        Assert.Equal(accepted, exception is null);
         Assert.Empty(logger.Logs);
     }
 
@@ -326,8 +322,10 @@ public class RangeAttributeExplicitValueEnumTests(ITestOutputHelper testOutputHe
         Assert.Empty(logger.Logs);
     }
 
-    [Fact]
-    public void ImplicitMemberAfterNonLiteralMember_ThrowsNamingNonLiteralMember()
+    [Theory]
+    [InlineData("3", "3", true)]
+    [InlineData("4", "10", false)]
+    public void ImplicitMemberAfterNonLiteralMember_IsEvaluatedByTheCompiler(string min, string max, bool accepted)
     {
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
         if (factory.CreateLogger<RangeAttributeExplicitValueEnumTests>() is not TestOutputLogger<RangeAttributeExplicitValueEnumTests> logger)
@@ -336,12 +334,12 @@ public class RangeAttributeExplicitValueEnumTests(ITestOutputHelper testOutputHe
         }
 
         // language=C#
-        var code = """
+        var code = $$"""
                    public enum Flags { A = 1, B = A << 1, C }
 
                    [StaticDataRecord("Test", "TestSheet")]
                    public sealed partial record MyRecord(
-                       [Range(typeof(Flags), "0", "10")]
+                       [Range(typeof(Flags), "{{min}}", "{{max}}")]
                        Flags Property,
                    );
                    """;
@@ -349,17 +347,11 @@ public class RangeAttributeExplicitValueEnumTests(ITestOutputHelper testOutputHe
         var catalogs = RangeAttributeTestHelpers.CreateCatalogs(code, logger);
         var cells = new[] { new CellData("A1", "C") };
         var context = CompatibilityContext.CreateNoCollect(catalogs, cells);
+        var propertySchema = catalogs.RecordSchemaCatalog.StaticDataRecordSchemata[0].PropertySchemata[0];
 
-        foreach (var recordSchema in catalogs.RecordSchemaCatalog.StaticDataRecordSchemata)
-        {
-            foreach (var propertySchema in recordSchema.PropertySchemata)
-            {
-                var exception = Assert.Throws<InvalidOperationException>(() => propertySchema.CheckCompatibility(context));
-                Assert.Contains("'B'", exception.Message, StringComparison.Ordinal);
-                Assert.Contains("[Range]", exception.Message, StringComparison.Ordinal);
-            }
-        }
+        var exception = Record.Exception(() => propertySchema.CheckCompatibility(context));
 
+        Assert.Equal(accepted, exception is null);
         Assert.Empty(logger.Logs);
     }
 

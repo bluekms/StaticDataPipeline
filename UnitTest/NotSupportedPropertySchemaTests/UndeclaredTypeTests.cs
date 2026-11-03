@@ -13,7 +13,7 @@ public class UndeclaredTypeTests(ITestOutputHelper testOutputHelper)
     [InlineData("DayOfWeek Day")]
     [InlineData("System.DayOfWeek Day")]
     [InlineData("[NullString(\"\")] DayOfWeek? Day")]
-    public void ExternalEnum_IsRejectedWithDeclarationGuidance(string parameterDeclaration)
+    public void BclEnum_IsAccepted(string parameterDeclaration)
     {
         var logger = CreateLogger();
 
@@ -29,9 +29,32 @@ public class UndeclaredTypeTests(ITestOutputHelper testOutputHelper)
                     );
                     """;
 
+        var catalogs = CreateCatalogs(code, logger);
+
+        var recordSchema = Assert.Single(catalogs.RecordSchemaCatalog.StaticDataRecordSchemata);
+        Assert.Equal(2, recordSchema.PropertySchemata.Count);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void TypeFromUnreferencedAssembly_IsRejectedWithFolderGuidance()
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        const string code = """
+                            using Sdp.Attributes;
+
+                            [StaticDataRecord("Test", "TestSheet")]
+                            public sealed partial record MyRecord(
+                                [Key] int Id,
+                                Game.Shared.Grade Grade,
+                            );
+                            """;
+
         var ex = Assert.Throws<NotSupportedException>(() => CreateCatalogs(code, logger));
-        Assert.Contains("DayOfWeek", ex.Message);
-        Assert.Contains("MyRecord.Day", ex.Message);
+        Assert.Contains("Grade", ex.Message);
+        Assert.Contains("MyRecord.Grade", ex.Message);
     }
 
     [Fact]
