@@ -273,6 +273,8 @@ public sealed class ExcelSheetProcessor
         return sb.ToString();
     }
 
+    private static readonly DateTime ExcelTimeOnlyCellDate = new(1899, 12, 31);
+
     private static string FormatCellValue(object? value)
     {
         return value switch
@@ -287,6 +289,7 @@ public sealed class ExcelSheetProcessor
 
     // 열의 [DateTimeFormat] 으로 적은 문자열이 같은 시각으로 되읽히지 않으면(포맷이 시각을 담지 못함) 기본 표기로 두어
     // 뒤의 셀 값 검사가 실패하게 한다. 시각을 조용히 잘라 내지 않는다.
+    // 시각만 적은 셀은 ExcelDataReader 가 1900 윤년 버그 보정 때문에 1899-12-30 이 아니라 1899-12-31 에 시각을 얹어 돌려준다.
     private static string FormatCellValue(object? value, string? dateTimeFormat)
     {
         if (value is not DateTime dt || dateTimeFormat is null)
@@ -301,8 +304,19 @@ public sealed class ExcelSheetProcessor
             CultureInfo.InvariantCulture,
             DateTimeStyles.None,
             out var parsed);
+        if (!roundTrips)
+        {
+            return FormatCellValue(value);
+        }
 
-        return roundTrips && parsed == dt
+        if (parsed == dt)
+        {
+            return text;
+        }
+
+        var isTimeOnlyCell = dt.Date == ExcelTimeOnlyCellDate;
+
+        return isTimeOnlyCell && parsed.TimeOfDay == dt.TimeOfDay
             ? text
             : FormatCellValue(value);
     }
