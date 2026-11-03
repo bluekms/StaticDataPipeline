@@ -1,6 +1,7 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using Microsoft.Extensions.Logging;
+using SchemaInfoScanner;
 using Sdp.Attributes;
 using Sdp.Manager;
 using Sdp.Table;
@@ -67,6 +68,19 @@ public partial class ForeignKeyBrandingCollectionElementTests(ITestOutputHelper 
         1,10001,19999
         """;
 
+    // language=C#
+    private const string GachaRecordSource = """
+        public sealed partial record ItemRecord([Key] ItemRecord.ItemId Id, string Name)
+        {
+            public readonly record struct ItemId(int Value);
+        }
+
+        [StaticDataRecord("Gacha", "Sheet1")]
+        public sealed partial record GachaRecord(
+            int Id,
+            [Length(2)] [ForeignKey("Item", "Id")] FrozenSet<ItemRecord.ItemId> PickupItemIds);
+        """;
+
     private static CsvTestDirectory CreateDirectory(string gachaCsv)
     {
         var dir = new CsvTestDirectory();
@@ -109,6 +123,26 @@ public partial class ForeignKeyBrandingCollectionElementTests(ITestOutputHelper 
         var inner = Assert.Single(ex.InnerExceptions);
         Assert.Contains("PickupItemIds", inner.Message, StringComparison.Ordinal);
         Assert.Contains("19999", inner.Message, StringComparison.Ordinal);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public async Task Load_CsvHeadersFromRecordFlattener_Succeeds()
+    {
+        var logger = CreateLogger();
+        var parseResult = SimpleCordParser.Parse(GachaRecordSource, logger);
+        var gachaSchema = Assert.Single(parseResult.RawRecordSchemata);
+        var headers = RecordFlattener.Flatten(gachaSchema, parseResult.RecordSchemaCatalog, logger);
+        var headerLine = string.Join(",", headers);
+        Assert.Equal("Id,PickupItemIds[0],PickupItemIds[1]", headerLine);
+
+        using var dir = CreateDirectory(headerLine + "\n1,10001,10002");
+
+        var staticData = new BrandingCollectionElementStaticData(logger);
+        await staticData.LoadAsync(dir.Path);
+
+        var gacha = Assert.Single(staticData.GachaTable.Records);
+        Assert.Equal(2, gacha.PickupItemIds.Count);
         Assert.Empty(logger.Logs);
     }
 }
