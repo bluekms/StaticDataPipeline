@@ -48,7 +48,7 @@ ForeignKey 검증은 두 단계로 나뉩니다.
    - `recordColumnName` 이 대상 Record 의 파라미터에 존재하는가? (`SDP0206`)
    - 대상이 `[SingleColumnCollection]` 으로 묶인 컬럼은 아닌가? (`SDP0207`)
    - 대상 컬럼이 컬렉션 타입은 아닌가? (`SDP0214`)
-   - 참조 컬럼과 대상 컬럼의 타입이 같은가? (`SDP0211`) — nullable 은 비대칭이라 `int?` 참조 → `int` 대상은 허용되지만 `int` 참조 → `int?` 대상은 거부된다. 참조 컬럼이 `ImmutableArray<int>` 처럼 원소가 단일 값인 컬렉션이면 원소 타입으로 비교하고 로드 시 원소마다 검사한다 (nullable 원소의 `null` 은 건너뜀). Map 이나 원소가 Record 인 컬렉션은 참조 컬럼이 될 수 없다.
+   - 참조 컬럼과 대상 컬럼의 타입이 같은가? (`SDP0211`) — nullable 은 비대칭이라 `int?` 참조 → `int` 대상은 허용되지만 `int` 참조 → `int?` 대상은 거부된다. 기본 타입 참조 컬럼은 **같은 타입을 감싼 브랜딩 키** (`int` → `record struct ItemId(int Value)` 인 `Id`) 도 가리킬 수 있고, 이때 로더는 대상 키의 안쪽 값으로 비교한다 (한 컬럼이 키 타입이 다른 두 테이블을 가리킬 때 쓴다). 참조 컬럼이 `ImmutableArray<int>` 처럼 원소가 단일 값인 컬렉션이면 원소 타입으로 비교하고 로드 시 원소마다 검사한다 (nullable 원소의 `null` 은 건너뜀). 원소가 브랜딩 record 인 컬렉션 (`FrozenSet<ItemRecord.ItemId>`) 도 같다. Map 이나 원소가 일반 Record 인 컬렉션은 참조 컬럼이 될 수 없다.
    - 같은 파라미터에 `[ForeignKey]` 와 `[SwitchForeignKey]` 가 함께 붙어 있지 않은가? (`SDP0204`)
    - 같은 파라미터에 같은 대상이 두 번 붙어 있지 않은가? (`SDP0226`)
    - `[SwitchForeignKey]` 의 조건 컬럼이 같은 Record 안에 존재하는가? (`SDP0209`)
