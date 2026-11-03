@@ -16,7 +16,11 @@ internal static class FkTargetResolver
 
         if (collection.ElementKind == ScalarKind.Unsupported)
         {
-            return parameterType;
+            var elementBrandingValue = FindBrandingValueParameter(collection.ElementType);
+            if (elementBrandingValue is null)
+            {
+                return parameterType;
+            }
         }
 
         return collection.ElementType;
