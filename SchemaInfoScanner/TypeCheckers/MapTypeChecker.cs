@@ -145,7 +145,7 @@ public static class MapTypeChecker
                RecordTypeChecker.IsSupportedRecordType(valueSymbol);
     }
 
-    public static bool HasDateTimeProperty(INamedTypeSymbol symbol)
+    public static bool HasDateTimeFormatProperty(INamedTypeSymbol symbol)
     {
         if (!IsSupportedMapType(symbol))
         {
@@ -153,13 +153,13 @@ public static class MapTypeChecker
         }
 
         var keyTypeArgument = symbol.TypeArguments.First();
-        if (PrimitiveTypeChecker.IsDateTimeType(keyTypeArgument))
+        if (PrimitiveTypeChecker.IsDateTimeFormatType(keyTypeArgument))
         {
             return true;
         }
 
         var valueTypeArgument = symbol.TypeArguments.Last();
-        if (PrimitiveTypeChecker.IsDateTimeType(valueTypeArgument))
+        if (PrimitiveTypeChecker.IsDateTimeFormatType(valueTypeArgument))
         {
             return true;
         }
@@ -170,7 +170,7 @@ public static class MapTypeChecker
             .Where(x => !x.IsStatic)
             .Where(x => x.DeclaredAccessibility == Accessibility.Public)
             .Select(x => x.Type)
-            .Any(PrimitiveTypeChecker.IsDateTimeType);
+            .Any(PrimitiveTypeChecker.IsDateTimeFormatType);
     }
 
     public static bool HasTimeSpanProperty(INamedTypeSymbol symbol)

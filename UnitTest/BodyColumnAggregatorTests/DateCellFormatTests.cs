@@ -44,7 +44,32 @@ public class DateCellFormatTests(ITestOutputHelper testOutputHelper)
         Assert.Equal("2026-03-01 00:00:00", table.Rows[0].Data[1].Value);
     }
 
-    private BodyColumnAggregator.ExtractedTable Extract(string format, XLCellValue cellValue)
+    [Fact]
+    public void TimeCell_WithTimeFormat_UsesColumnFormat()
+    {
+        var table = Extract("HH:mm", ExcelTimeSerial(13, 45, 0), "TimeOnly", "HH:mm");
+
+        Assert.Equal("13:45", table.Rows[0].Data[1].Value);
+    }
+
+    [Fact]
+    public void TimeCellWithSeconds_WithMinuteFormat_Fails()
+    {
+        var exception = Assert.Throws<ExtractionException>(() => Extract("HH:mm", ExcelTimeSerial(13, 45, 30), "TimeOnly", "HH:mm"));
+
+        Assert.Contains("1899-12-31 13:45:30", exception.Message, StringComparison.Ordinal);
+    }
+
+    private static double ExcelTimeSerial(int hour, int minute, int second)
+    {
+        return new TimeSpan(hour, minute, second).TotalDays;
+    }
+
+    private BodyColumnAggregator.ExtractedTable Extract(
+        string format,
+        XLCellValue cellValue,
+        string type = "DateTime",
+        string? cellNumberFormat = null)
     {
         // language=C#
         var recordSource = $$"""
@@ -53,7 +78,7 @@ public class DateCellFormatTests(ITestOutputHelper testOutputHelper)
             namespace DateCell;
 
             [StaticDataRecord("Dates", "Items")]
-            public sealed record ItemRecord([Key] int Id, [DateTimeFormat("{{format}}")] DateTime SaleStart);
+            public sealed record ItemRecord([Key] int Id, [DateTimeFormat("{{format}}")] {{type}} SaleStart);
             """;
 
         var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
@@ -70,6 +95,11 @@ public class DateCellFormatTests(ITestOutputHelper testOutputHelper)
             sheet.Cell("B1").Value = "SaleStart";
             sheet.Cell("A2").Value = 1;
             sheet.Cell("B2").Value = cellValue;
+            if (cellNumberFormat is not null)
+            {
+                sheet.Cell("B2").Style.NumberFormat.Format = cellNumberFormat;
+            }
+
             workbook.SaveAs(Path.Combine(excelDirectory.Path, "Dates.xlsx"));
         }
 

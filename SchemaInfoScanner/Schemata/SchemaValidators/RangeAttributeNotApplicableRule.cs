@@ -41,6 +41,9 @@ internal partial class SchemaRuleValidator
             or DecimalPropertySchema or NullableDecimalPropertySchema
             or CharPropertySchema or NullableCharPropertySchema
             or DateTimePropertySchema or NullableDateTimePropertySchema
+            or DateTimeOffsetPropertySchema or NullableDateTimeOffsetPropertySchema
+            or DateOnlyPropertySchema or NullableDateOnlyPropertySchema
+            or TimeOnlyPropertySchema or NullableTimeOnlyPropertySchema
             or TimeSpanPropertySchema or NullableTimeSpanPropertySchema
             or StringPropertySchema or NullableStringPropertySchema
             or EnumPropertySchema or NullableEnumPropertySchema;

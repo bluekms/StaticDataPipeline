@@ -249,6 +249,91 @@ public partial class PrimitiveTypeTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("DateTimeOffset?", "yyyy-MM-dd HH:mm:ss zzz", "2025-05-26 01:05:00 +09:00")]
+    [InlineData("DateTimeOffset?", "yyyy-MM-dd HH:mm:ss zzz", "")]
+    [InlineData("DateOnly?", "yyyy-MM-dd", "2025-05-26")]
+    [InlineData("DateOnly?", "yyyy-MM-dd", "")]
+    [InlineData("TimeOnly?", "HH:mm", "01:05")]
+    [InlineData("TimeOnly?", "HH:mm", "")]
+    public void DateTimeFormatTypeTest(string type, string format, string argument)
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<PrimitiveTypeTests>() is not TestOutputLogger<PrimitiveTypeTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = $"""
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed partial record MyRecord(
+                        [DateTimeFormat("{format}")]
+                        [NullString("")]
+                        {type} Property,
+                    );
+                    """;
+
+        var catalogs = CreateCatalogs(code, logger);
+
+        var cells = new[]
+        {
+            new CellData("A1", argument)
+        };
+
+        var context = CompatibilityContext.CreateNoCollect(catalogs, cells);
+
+        foreach (var recordSchema in catalogs.RecordSchemaCatalog.StaticDataRecordSchemata)
+        {
+            foreach (var propertySchema in recordSchema.PropertySchemata)
+            {
+                propertySchema.CheckCompatibility(context);
+            }
+        }
+
+        Assert.Empty(logger.Logs);
+    }
+
+    [Theory]
+    [InlineData("Guid?", "6f9619ff-8b86-d011-b42d-00cf4fc964ff")]
+    [InlineData("Guid?", "")]
+    public void GuidTest(string type, string argument)
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<PrimitiveTypeTests>() is not TestOutputLogger<PrimitiveTypeTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = $"""
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed partial record MyRecord(
+                        [NullString("")]
+                        {type} Property,
+                    );
+                    """;
+
+        var catalogs = CreateCatalogs(code, logger);
+
+        var cells = new[]
+        {
+            new CellData("A1", argument)
+        };
+
+        var context = CompatibilityContext.CreateNoCollect(catalogs, cells);
+
+        foreach (var recordSchema in catalogs.RecordSchemaCatalog.StaticDataRecordSchemata)
+        {
+            foreach (var propertySchema in recordSchema.PropertySchemata)
+            {
+                propertySchema.CheckCompatibility(context);
+            }
+        }
+
+        Assert.Empty(logger.Logs);
+    }
+
+    [Theory]
     [InlineData("TimeSpan?", "1.02:03:04.5670000")] // 1일 2시간 3분 4.567초
     public void TimeSpanTest(string type, string argument)
     {

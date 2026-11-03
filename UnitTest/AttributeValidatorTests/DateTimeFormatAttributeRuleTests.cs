@@ -204,4 +204,144 @@ public partial class DateTimeFormatAttributeRuleTests(ITestOutputHelper testOutp
         Assert.Throws<InvalidAttributeUsageException>(() => RecordComplianceChecker.Check(recordSchemaCatalog, logger));
         Assert.Single(logger.Logs);
     }
+
+    [Theory]
+    [InlineData("DateTimeOffset", "yyyy-MM-dd HH:mm:ss zzz")]
+    [InlineData("DateOnly", "yyyy-MM-dd")]
+    [InlineData("TimeOnly", "HH:mm")]
+    public void DateTimeFormatTypeRequireTest(string type, string format)
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<DateTimeFormatAttributeRuleTests>() is not TestOutputLogger<DateTimeFormatAttributeRuleTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = $"""
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed partial record MyRecord(
+                        [DateTimeFormat("{format}")]
+                        {type} Property,
+                    );
+                    """;
+
+        var loadResult = RecordSchemaLoader.OnLoad(code, logger);
+        var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
+        var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
+
+        RecordComplianceChecker.Check(recordSchemaCatalog, logger);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Theory]
+    [InlineData("DateTimeOffset", "yyyy-MM-dd HH:mm:ss zzz")]
+    [InlineData("DateOnly", "yyyy-MM-dd")]
+    [InlineData("TimeOnly", "HH:mm")]
+    public void NullableDateTimeFormatTypeRequireTest(string type, string format)
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<DateTimeFormatAttributeRuleTests>() is not TestOutputLogger<DateTimeFormatAttributeRuleTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = $"""
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed partial record MyRecord(
+                        [DateTimeFormat("{format}")]
+                        [NullString("")]
+                        {type}? Property,
+                    );
+                    """;
+
+        var loadResult = RecordSchemaLoader.OnLoad(code, logger);
+        var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
+        var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
+
+        RecordComplianceChecker.Check(recordSchemaCatalog, logger);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Theory]
+    [InlineData("DateTimeOffset")]
+    [InlineData("DateOnly")]
+    [InlineData("TimeOnly")]
+    public void DateTimeFormatTypeMissingTest(string type)
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<DateTimeFormatAttributeRuleTests>() is not TestOutputLogger<DateTimeFormatAttributeRuleTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = $"""
+                    [StaticDataRecord("Test", "TestSheet")]
+                    public sealed partial record MyRecord(
+                        {type} Property,
+                    );
+                    """;
+
+        var loadResult = RecordSchemaLoader.OnLoad(code, logger);
+        var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
+        var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
+
+        Assert.Throws<InvalidAttributeUsageException>(() => RecordComplianceChecker.Check(recordSchemaCatalog, logger));
+        Assert.Single(logger.Logs);
+    }
+
+    [Fact]
+    public void GuidDisallowTest()
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<DateTimeFormatAttributeRuleTests>() is not TestOutputLogger<DateTimeFormatAttributeRuleTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = """
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed partial record MyRecord(
+                       [DateTimeFormat("yyyy-MM-dd")]
+                       Guid Property,
+                   );
+                   """;
+
+        var loadResult = RecordSchemaLoader.OnLoad(code, logger);
+        var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
+        var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
+
+        Assert.Throws<InvalidAttributeUsageException>(() => RecordComplianceChecker.Check(recordSchemaCatalog, logger));
+        Assert.Single(logger.Logs);
+    }
+
+    [Fact]
+    public void DateOnlyCollectionRequireTest()
+    {
+        var factory = new TestOutputLoggerFactory(testOutputHelper, LogLevel.Warning);
+        if (factory.CreateLogger<DateTimeFormatAttributeRuleTests>() is not TestOutputLogger<DateTimeFormatAttributeRuleTests> logger)
+        {
+            throw new InvalidOperationException("Logger creation failed.");
+        }
+
+        // language=C#
+        var code = """
+                   [StaticDataRecord("Test", "TestSheet")]
+                   public sealed partial record MyRecord(
+                       [DateTimeFormat("yyyy-MM-dd")]
+                       [Length(2)]
+                       FrozenSet<DateOnly> Property,
+                   );
+                   """;
+
+        var loadResult = RecordSchemaLoader.OnLoad(code, logger);
+        var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
+        var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
+
+        RecordComplianceChecker.Check(recordSchemaCatalog, logger);
+        Assert.Empty(logger.Logs);
+    }
 }

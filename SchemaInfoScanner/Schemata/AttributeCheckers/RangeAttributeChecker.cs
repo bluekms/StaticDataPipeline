@@ -104,6 +104,27 @@ public static class RangeAttributeChecker
             return (T)(object)DateTime.ParseExact(raw, format, CultureInfo.InvariantCulture, DateTimeStyles.None);
         }
 
+        if (typeof(T) == typeof(DateTimeOffset))
+        {
+            var format = propertySchema.GetAttributeValue<DateTimeFormatAttribute, string>();
+
+            return (T)(object)DateTimeOffset.ParseExact(raw, format, CultureInfo.InvariantCulture, DateTimeStyles.None);
+        }
+
+        if (typeof(T) == typeof(DateOnly))
+        {
+            var format = propertySchema.GetAttributeValue<DateTimeFormatAttribute, string>();
+
+            return (T)(object)DateOnly.ParseExact(raw, format, CultureInfo.InvariantCulture, DateTimeStyles.None);
+        }
+
+        if (typeof(T) == typeof(TimeOnly))
+        {
+            var format = propertySchema.GetAttributeValue<DateTimeFormatAttribute, string>();
+
+            return (T)(object)TimeOnly.ParseExact(raw, format, CultureInfo.InvariantCulture, DateTimeStyles.None);
+        }
+
         return (T)Convert.ChangeType(raw, typeof(T), CultureInfo.InvariantCulture);
     }
 
