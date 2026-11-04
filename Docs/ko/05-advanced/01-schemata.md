@@ -417,6 +417,7 @@ flowchart TB
 - 필수 Attribute: 없음
 - 사용 가능한 Attribute: [`[Range]`](./02-attributes.md#attr-range) (underlying integer 비교)
 - 비고: [`[Key]`](./02-attributes.md#attr-key) 와 함께 쓰면 추출기는 멤버 검사를 아예 건너뛰고 (`zzz` 같은 문자열도 추출 통과), 로드 매퍼는 멤버 이름·정수 문자열을 받되 미정의 정수 값은 캐스트로 통과시킵니다 (정수로 해석되지 않는 문자열은 로드 실패). 이 덕분에 ID 코드 공간으로 활용 가능 (→ [5.3 타입 브랜딩 패턴](./03-type-branding.md)).
+- 선언 위치: enum 은 Record 소스 폴더 안의 어느 `.cs` 파일에 선언해도 됩니다. `System.DayOfWeek` 처럼 BCL 에 있는 enum 은 선언 없이 그대로 쓸 수 있고, 멤버 이름 매칭 규칙은 직접 선언한 enum 과 같습니다. 유니티처럼 다른 런타임을 대상으로 한다면 그 런타임의 BCL 에도 있는 멤버만 데이터에 적습니다. 소비 프로젝트의 다른 어셈블리에 선언한 enum 은 추출기가 알 수 없으므로 Record 소스 폴더로 옮깁니다.
 
 </br>
 

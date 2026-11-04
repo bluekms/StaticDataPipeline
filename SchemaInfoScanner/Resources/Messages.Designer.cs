@@ -327,6 +327,9 @@ internal static class Messages
     internal static string AttributeArgumentMustNotBeNull
         => ResourceManager.GetString("AttributeArgumentMustNotBeNull", Culture)!;
 
+    internal static string RuntimeAssembliesNotFound
+        => ResourceManager.GetString("RuntimeAssembliesNotFound", Culture)!;
+
     internal static string TypeNotDeclaredInRecordSources
         => ResourceManager.GetString("TypeNotDeclaredInRecordSources", Culture)!;
 

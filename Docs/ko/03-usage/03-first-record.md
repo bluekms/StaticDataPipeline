@@ -62,7 +62,7 @@ Record 는 `partial` 로 선언합니다. 소스 제너레이터가 같은 타�
 
 ### `ItemCategory Category`
 
-`enum` 은 **문자열로 매칭** 됩니다. CSV 셀에 `Consumable` 이라고 적혀 있어야 `ItemCategory.Consumable` 로 파싱됩니다. 추출기는 enum 멤버 이름만 허용합니다. 로드 시 생성된 매퍼는 멤버 이름과 멤버의 정수 값 문자열(예: `1`) 을 모두 받습니다. 대소문자는 구분합니다. `[Key]` 가 붙은 enum 은 추출기가 멤버 검사를 건너뛰고, 로드 시에도 정의되지 않은 값이 캐스트로 통과합니다.
+`enum` 은 **문자열로 매칭** 됩니다. CSV 셀에 `Consumable` 이라고 적혀 있어야 `ItemCategory.Consumable` 로 파싱됩니다. 추출기는 enum 멤버 이름만 허용합니다. 로드 시 생성된 매퍼는 멤버 이름과 멤버의 정수 값 문자열(예: `1`) 을 모두 받습니다. 대소문자는 구분합니다. `[Key]` 가 붙은 enum 은 추출기가 멤버 검사를 건너뛰고, 로드 시에도 정의되지 않은 값이 캐스트로 통과합니다. enum 은 Record 와 같은 폴더의 어느 `.cs` 파일에 선언해도 되고, `System.DayOfWeek` 같은 BCL enum 을 그대로 써도 됩니다.
 
 </br></br></br>
 

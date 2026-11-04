@@ -21,11 +21,14 @@ public sealed record EnumPropertySchema(
 
         if (!AttributeAccessors.HasAttribute<KeyAttribute>(AttributeList))
         {
-            var enumName = new EnumName(NamedTypeSymbol);
-            var enumMembers = context.MetadataCatalogs.EnumMemberCatalog.GetEnumMembers(enumName);
+            var isMember = NamedTypeSymbol.GetMembers()
+                .OfType<IFieldSymbol>()
+                .Where(x => x.IsConst)
+                .Any(x => x.Name == value);
 
-            if (!enumMembers.Contains(value))
+            if (!isMember)
             {
+                var enumName = new EnumName(NamedTypeSymbol);
                 throw new InvalidOperationException(string.Format(
                     CultureInfo.CurrentCulture,
                     Messages.Composite.InvalidCellValueForEnum,
