@@ -26,6 +26,10 @@ Sdp 는 Record 의 파라미터 타입을 정적 분석해, 그 타입이 CSV �
   - [string](#string), [string?](#string-1)
   - [DateTime](#datetime), [DateTime?](#datetime-1)
   - [TimeSpan](#timespan), [TimeSpan?](#timespan-1)
+  - [DateOnly](#dateonly), [DateOnly?](#dateonly-1)
+  - [TimeOnly](#timeonly), [TimeOnly?](#timeonly-1)
+  - [DateTimeOffset](#datetimeoffset), [DateTimeOffset?](#datetimeoffset-1)
+  - [Guid](#guid), [Guid?](#guid-1)
   - [enum](#enum), [enum?](#enum-1)
 - 컬렉션
   - [기본 Array / Set](#기본-array--set)
@@ -55,13 +59,7 @@ flowchart TB
     Single -.-> Nullable["Nullable&lt;T&gt; 형태 지원"]
 ```
 
-다음 타입은 소스 제너레이터가 매퍼를 생성하고 생성 코드도 컴파일되지만, 추출기 (스캐너) 가 "지원하지 않는 property 타입" 으로 거부하므로 **추출기 미지원 (로드 전용)** 입니다. 정상 파이프라인 (추출기를 거친 CSV) 에서는 쓸 수 없습니다.
-
-|타입|빌드 요구 사항|비고|
-|-|-|-|
-|`Guid`|없음|추출기 미지원 (로드 전용)|
-|`DateTimeOffset`|[`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat) 필수 (없으면 `SDP0004`)|추출기 미지원 (로드 전용)|
-|`DateOnly`, `TimeOnly`|[`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat) 필수 (없으면 `SDP0004`)|추출기 미지원 (로드 전용). netstandard2.1 에 없는 타입이라 유니티 (사전 생성 반입) 에서는 컴파일되지 않음|
+`DateOnly` 와 `TimeOnly` 는 .NET 6 이상 타깃에서만 쓸 수 있습니다. Sdp 의 netstandard2.1 빌드 (유니티 사전 생성 반입) 에는 이 두 타입이 없으므로, 유니티가 소비하는 Record 에는 `DateTime` 또는 `DateTimeOffset` 을 씁니다. `DateTimeOffset` 과 `Guid` 는 모든 타깃에서 됩니다.
 
 각 항목은 다음 양식으로 정리합니다.
 
@@ -73,7 +71,8 @@ flowchart TB
 
 > **파싱 단계 보충** — 아래 항목의 "파싱" 표기는 추출 단계 (`ExcelColumnExtractor` 가 각 컬럼의 스키마로 셀 값을 검증) 기준입니다. 런타임은 소스 제너레이터가 Record 에 생성한 `MapFromCsvRow` 가 검증된 CSV 의 문자열을 다음과 같이 변환합니다.
 > - `enum` — 생성된 `switch` 로 멤버 이름(또는 정수 문자열) 을 매칭 (대소문자 구별). 정의되지 않은 값은 실패하며, `[Key]` enum 은 정의되지 않은 정수 값도 캐스트로 받는다 (쉼표로 조합한 값은 받지 않는다).
-> - `DateTime` / `TimeSpan` — `ParseExact` 를 `[DateTimeFormat]` / `[TimeSpanFormat]` 의 format 으로 호출.
+> - `DateTime` / `DateTimeOffset` / `DateOnly` / `TimeOnly` — `ParseExact` 를 `[DateTimeFormat]` 의 format 으로, `TimeSpan` — `ParseExact` 를 `[TimeSpanFormat]` 의 format 으로 호출.
+> - `Guid` — `Guid.Parse`. `D`·`B`·`N` 등 .NET 이 받는 표기와 대소문자를 모두 받습니다.
 > - `string` — 셀 값을 그대로 사용 (별도 변환 없음).
 > - 정수 타입 (`byte` ~ `ulong`) — `Parse(value, NumberStyles.Integer, InvariantCulture)`. 추출기도 같은 스타일로 검사하므로 셀 `1,000` 이나 `1.0` 은 추출 단계에서 거부됩니다. 정수 컬럼에는 자릿수 구분 기호와 소수점 없이 적어야 합니다.
 > - `float` / `double` — `Parse(value, NumberStyles.Float | NumberStyles.AllowThousands, InvariantCulture)`. 추출기와 같은 스타일.
@@ -346,6 +345,72 @@ flowchart TB
 
 </br>
 
+### `DateOnly`
+
+- 파싱: `DateOnly.TryParseExact(cell, format, InvariantCulture)`
+- 필수 Attribute: [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat)
+- 사용 가능한 Attribute: [`[Range]`](./02-attributes.md#attr-range)
+- .NET 6 이상 타깃 전용 (위 참고)
+
+</br>
+
+### `DateOnly?`
+
+- 파싱: 셀 값이 [`[NullString]`](./02-attributes.md#attr-nullstring) 과 같으면 `null`, 아니면 `DateOnly.TryParseExact`
+- 필수 Attribute: [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat), [`[NullString]`](./02-attributes.md#attr-nullstring)
+- 사용 가능한 Attribute: [`[Range]`](./02-attributes.md#attr-range)
+
+</br>
+
+### `TimeOnly`
+
+- 파싱: `TimeOnly.TryParseExact(cell, format, InvariantCulture)`
+- 필수 Attribute: [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat)
+- 사용 가능한 Attribute: [`[Range]`](./02-attributes.md#attr-range)
+- .NET 6 이상 타깃 전용 (위 참고). Excel 에 시각만 입력한 셀 (`13:45`) 은 추출기가 열의 `[DateTimeFormat]` 문자열로 변환합니다 ([3.1](../03-usage/01-record-to-excel.md)).
+
+</br>
+
+### `TimeOnly?`
+
+- 파싱: 셀 값이 [`[NullString]`](./02-attributes.md#attr-nullstring) 과 같으면 `null`, 아니면 `TimeOnly.TryParseExact`
+- 필수 Attribute: [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat), [`[NullString]`](./02-attributes.md#attr-nullstring)
+- 사용 가능한 Attribute: [`[Range]`](./02-attributes.md#attr-range)
+
+</br>
+
+### `DateTimeOffset`
+
+- 파싱: `DateTimeOffset.TryParseExact(cell, format, InvariantCulture)`
+- 필수 Attribute: [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat)
+- 사용 가능한 Attribute: [`[Range]`](./02-attributes.md#attr-range)
+- 포맷에 `zzz` 처럼 오프셋 지정자를 넣고 셀은 텍스트로 적습니다 (`2026-03-01 00:00:00 +09:00`). Excel 날짜 셀은 오프셋을 담지 못합니다.
+
+</br>
+
+### `DateTimeOffset?`
+
+- 파싱: 셀 값이 [`[NullString]`](./02-attributes.md#attr-nullstring) 과 같으면 `null`, 아니면 `DateTimeOffset.TryParseExact`
+- 필수 Attribute: [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat), [`[NullString]`](./02-attributes.md#attr-nullstring)
+- 사용 가능한 Attribute: [`[Range]`](./02-attributes.md#attr-range)
+
+</br>
+
+### `Guid`
+
+- 파싱: `Guid.TryParse(cell)`
+- 필수 Attribute: 없음
+- 사용 가능한 Attribute: 없음 ([`[Range]`](./02-attributes.md#attr-range) 와 [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat) 은 붙일 수 없습니다)
+
+</br>
+
+### `Guid?`
+
+- 파싱: 셀 값이 [`[NullString]`](./02-attributes.md#attr-nullstring) 과 같으면 `null`, 아니면 `Guid.TryParse`
+- 필수 Attribute: [`[NullString]`](./02-attributes.md#attr-nullstring)
+
+</br>
+
 ### `enum`
 
 - 파싱: 추출기는 enum 멤버 이름만 허용합니다 (정수 `1`, 대소문자가 다른 `weapon` 모두 추출 실패). 로드 시 생성된 매퍼는 멤버 이름과 멤버의 정수 값 문자열 (예: `1`) 을 모두 받습니다. 대소문자는 구분합니다. `[Key]` 가 아니면 정의된 값만 통과.
@@ -411,7 +476,7 @@ Id    Name    Tags[0]    Tags[1]    Tags[2]
 
 `[Length]` 는 선택입니다. 없으면 길이는 시트가 정합니다. 표준 헤더 생성기는 첫 묶음(`Tags[0]`)만 제시하고 데이터 작업자가 `Tags[1]`, `Tags[2]`, … 를 필요한 만큼 덧붙이며, 추출기는 시트에서 인덱스가 0 부터 이어지는 만큼을 읽고(0 개도 가능), 로드 매퍼도 CSV 헤더의 인덱스를 그대로 따릅니다. 모든 행의 길이를 고정하고 초과 인덱스를 막고 싶을 때 `[Length(n)]` 을 붙입니다. 단일 컬럼 방식에서 정확히 n 개를 요구하려면 `[CountRange(n, n)]` 으로 적습니다.
 
-원소가 `DateTime` / `TimeSpan` 이면 컬렉션 파라미터에 각각 [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat) / [`[TimeSpanFormat]`](./02-attributes.md#attr-timespanformat) 이 필수입니다.
+원소가 `DateTime`·`DateTimeOffset`·`DateOnly`·`TimeOnly` / `TimeSpan` 이면 컬렉션 파라미터에 각각 [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat) / [`[TimeSpanFormat]`](./02-attributes.md#attr-timespanformat) 이 필수입니다.
 
 ```csharp
 [StaticDataRecord("Events", "Schedules")]
@@ -555,7 +620,7 @@ Inventory[0].Key.Id    Inventory[0].Key.Type    Inventory[0].Level    Inventory[
 
 |Key 타입|지원|비고|
 |-|-|-|
-|원시 단일 값 (`int`, `string`, `DateTime`, enum, ...)|O|`DateTime` / `TimeSpan` 은 [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat) / [`[TimeSpanFormat]`](./02-attributes.md#attr-timespanformat) 필요. Map 파라미터가 아니라 **Value Record 의 `[Key]` 파라미터** 에 붙입니다 (키는 Value Record 를 매핑한 뒤 그 `[Key]` 값에서 꺼내므로)|
+|원시 단일 값 (`int`, `string`, `DateTime`, enum, ...)|O|`DateTime` 계열 (`DateTime`·`DateTimeOffset`·`DateOnly`·`TimeOnly`) / `TimeSpan` 은 [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat) / [`[TimeSpanFormat]`](./02-attributes.md#attr-timespanformat) 필요. Map 파라미터가 아니라 **Value Record 의 `[Key]` 파라미터** 에 붙입니다 (키는 Value Record 를 매핑한 뒤 그 `[Key]` 값에서 꺼내므로)|
 |Nullable (`K?`)|X|Map 의 Key 는 nullable 일 수 없음|
 |Record (단일/다중 필드)|O|Value 의 `[Key]` 파라미터 타입과 동일한 record 여야 함|
 

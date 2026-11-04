@@ -88,21 +88,24 @@ public sealed partial record ItemRecord(
 
 |항목|내용|
 |-|-|
-|대상|`DateTime` 또는 `DateTime?` 타입 파라미터 (컬렉션 원소 포함)|
+|대상|`DateTime`, `DateTimeOffset`, `DateOnly`, `TimeOnly` 타입 파라미터 (각 nullable 변형과 컬렉션 원소 포함)|
 |인자|`format` — .NET 표준 날짜/시간 포맷 문자열 ([표준](https://learn.microsoft.com/dotnet/standard/base-types/standard-date-and-time-format-strings), [사용자 지정](https://learn.microsoft.com/dotnet/standard/base-types/custom-date-and-time-format-strings))|
 |다중 허용|X|
-|검증 시점|스캐너 (존재 여부), 추출 (`DateTime.TryParseExact`), 로드 (`DateTime.ParseExact`)|
+|검증 시점|스캐너 (존재 여부), 추출 (해당 타입의 `TryParseExact`), 로드 (해당 타입의 `ParseExact`)|
 |누락 시|스캐너가 `DateTimeFormatAttributeRequired` 예외를 발생. 빌드 시 `SDP0004`|
-|오사용|비 `DateTime` 타입에 붙이면 스캐너가 `DateTimeFormatAttributeNotApplicable` 예외를 발생. 빌드 시 `SDP0016`|
+|오사용|위 네 타입이 아닌 파라미터에 붙이면 스캐너가 `DateTimeFormatAttributeNotApplicable` 예외를 발생. 빌드 시 `SDP0016`|
 
-`DateTime` 은 이 Attribute 없이는 사용할 수 없습니다. 추출 시 셀 값 검증과 런타임 매핑 모두 동일한 `format` 으로 `ParseExact` 를 호출하므로, format 과 어긋난 표기는 양쪽에서 실패합니다.
+위 네 타입은 이 Attribute 없이는 사용할 수 없습니다. 추출 시 셀 값 검증과 런타임 매핑 모두 동일한 `format` 으로 `ParseExact` 를 호출하므로, format 과 어긋난 표기는 양쪽에서 실패합니다.
 
 ```csharp
 [StaticDataRecord("Events", "Schedules")]
 public sealed partial record ScheduleRecord(
     int Id,
     string Title,
-    [DateTimeFormat("yyyy-MM-dd")] DateTime StartAt);
+    [DateTimeFormat("yyyy-MM-dd")] DateTime StartAt,
+    [DateTimeFormat("yyyy-MM-dd")] DateOnly Day,
+    [DateTimeFormat("HH:mm")] TimeOnly OpenAt,
+    [DateTimeFormat("yyyy-MM-dd HH:mm:ss zzz")] DateTimeOffset PublishedAt);
 ```
 
 ---
@@ -275,7 +278,7 @@ public sealed partial record ItemRecord(
 
 |항목|내용|
 |-|-|
-|대상|숫자형, `char`, `DateTime`, `TimeSpan`, `string`, `enum` 파라미터 (각 nullable 변형 포함)|
+|대상|숫자형, `char`, `DateTime`, `DateTimeOffset`, `DateOnly`, `TimeOnly`, `TimeSpan`, `string`, `enum` 파라미터 (각 nullable 변형 포함)|
 |인자|`(int, int)`, `(double, double)`, `(Type, string, string)` 세 가지 오버로드. `Type` 인자는 사용되지 않고 (경계 문자열은 파라미터 타입으로 해석), 오버로드 구분용으로만 쓰임|
 |다중 허용|X|
 |검증 시점|빌드 (오버로드·경계 정합성), 추출 (`SchemaInfoScanner` 의 `RangeAttributeChecker`), 로드 (record partial 에 생성되는 검증 헬퍼)|
@@ -284,7 +287,7 @@ public sealed partial record ItemRecord(
 |경계 오류|경계가 타입 범위를 벗어나면 빌드 시 `SDP0010`, 최솟값이 최댓값보다 크면 `SDP0015`|
 |누락 시|범위 검사 없이 진행|
 
-값이 범위를 벗어나면 `ExcelColumnExtractor` 의 셀 호환성 검사와 런타임 로드 양쪽에서 `ArgumentOutOfRangeException` 으로 실패합니다. 두 단계는 같은 경계 해석 규칙 — `string` 은 사전순 (`CompareOrdinal`), `DateTime` / `TimeSpan` 은 `[DateTimeFormat]` / `[TimeSpanFormat]` 의 포맷, `enum` 은 underlying 정수 — 을 사용하므로 검사 결과가 일치합니다.
+값이 범위를 벗어나면 `ExcelColumnExtractor` 의 셀 호환성 검사와 런타임 로드 양쪽에서 `ArgumentOutOfRangeException` 으로 실패합니다. 두 단계는 같은 경계 해석 규칙 — `string` 은 사전순 (`CompareOrdinal`), `char` 는 문자 코드 순, `DateTime` 계열 (`DateTime`·`DateTimeOffset`·`DateOnly`·`TimeOnly`) 은 `[DateTimeFormat]` 의 포맷, `TimeSpan` 은 `[TimeSpanFormat]` 의 포맷, `enum` 은 underlying 정수 — 을 사용하므로 검사 결과가 일치합니다.
 
 숫자형은 두 인자 오버로드를 그대로 씁니다. `int` 등에 `[Range(typeof(int), "1", "10")]` 처럼 `typeof` 형태를 쓰면 빌드 시 `SDP0011` 로 거부됩니다.
 
@@ -316,6 +319,15 @@ DateTime EventDate;
 [TimeSpanFormat("c")]
 [Range(typeof(TimeSpan), "00:00:00", "01:00:00")]
 TimeSpan Duration;
+
+// DateOnly / TimeOnly — 마찬가지로 [DateTimeFormat] 의 형식으로 경계를 적습니다
+[DateTimeFormat("yyyy-MM-dd")]
+[Range(typeof(DateOnly), "2026-03-01", "2027-02-28")]
+DateOnly Start;
+
+[DateTimeFormat("HH:mm")]
+[Range(typeof(TimeOnly), "08:00", "17:00")]
+TimeOnly StartTime;
 
 // string — 사전순 비교 (CompareOrdinal, 문화권 무관)
 [Range(typeof(string), "apple", "zebra")]
