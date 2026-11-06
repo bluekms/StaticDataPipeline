@@ -439,7 +439,7 @@ public partial class ForeignKeyTypeBrandingValidationTests(ITestOutputHelper tes
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         var inner = Assert.Single(ex.InnerExceptions);
-        Assert.Equal(Format(SdpMessages.Composite.SwitchFkValueNotFound, "PartLookupRecord", "PartId", "PartId { Value = 999 }", "WoodPart.Id", "Kind", "Wood"), inner.Message);
+        Assert.Equal(Format(SdpMessages.Composite.SwitchFkValueNotFound, "PartLookupRecord", "PartId", "999", "WoodPart.Id", "Kind", "Wood"), inner.Message);
         Assert.Empty(logger.Logs);
     }
 

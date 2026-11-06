@@ -45,18 +45,23 @@ public class SwitchForeignKeyTypedConditionEmissionTests(ITestOutputHelper testO
         """;
 
     [Theory]
-    [InlineData("RewardKind Kind", "Character", "__r.Kind == global::Test.RewardKind.Character")]
-    [InlineData("RewardKind Kind", "1", "__r.Kind == (global::Test.RewardKind)(1)")]
-    [InlineData("int Kind", "7", "__r.Kind == 7")]
-    [InlineData("ulong Kind", "18446744073709551615", "__r.Kind == 18446744073709551615UL")]
-    [InlineData("bool Kind", "true", "__r.Kind == true")]
-    [InlineData("char Kind", "A", "__r.Kind == 'A'")]
-    [InlineData("string Kind", "Gold", "__r.Kind == \"Gold\"")]
-    [InlineData("Guid Kind", "{0F8FAD5B-D9CB-469F-A165-70867728950E}", "__r.Kind == new global::System.Guid(\"0f8fad5b-d9cb-469f-a165-70867728950e\")")]
-    [InlineData("decimal Kind", "1.50", "__r.Kind == 1.50m")]
-    [InlineData("double Kind", "1.5", "__r.Kind == 1.5d")]
-    [InlineData("float Kind", "2", "__r.Kind == 2f")]
-    public void Emits_typed_literal_comparison(string conditionParameter, string conditionValue, string expected)
+    [InlineData("RewardKind Kind", "Character", "__r.Kind == global::Test.RewardKind.Character", "{__r.Kind}")]
+    [InlineData("RewardKind Kind", "1", "__r.Kind == (global::Test.RewardKind)(1)", "{__r.Kind}")]
+    [InlineData("int Kind", "7", "__r.Kind == 7", "{__r.Kind}")]
+    [InlineData("ulong Kind", "18446744073709551615", "__r.Kind == 18446744073709551615UL", "{__r.Kind}")]
+    [InlineData("bool Kind", "true", "__r.Kind == true", "{(__r.Kind ? \"true\" : \"false\")}")]
+    [InlineData("[NullString(\"\")] bool? Kind", "true", "__r.Kind == true", "{(__r.Kind == true ? \"true\" : __r.Kind == false ? \"false\" : \"\")}")]
+    [InlineData("char Kind", "A", "__r.Kind == 'A'", "{__r.Kind}")]
+    [InlineData("string Kind", "Gold", "__r.Kind == \"Gold\"", "{__r.Kind}")]
+    [InlineData("Guid Kind", "{0F8FAD5B-D9CB-469F-A165-70867728950E}", "__r.Kind == new global::System.Guid(\"0f8fad5b-d9cb-469f-a165-70867728950e\")", "{__r.Kind}")]
+    [InlineData("decimal Kind", "1.50", "__r.Kind == 1.50m", "{__r.Kind}")]
+    [InlineData("double Kind", "1.5", "__r.Kind == 1.5d", "{__r.Kind}")]
+    [InlineData("float Kind", "2", "__r.Kind == 2f", "{__r.Kind}")]
+    public void Emits_typed_literal_comparison(
+        string conditionParameter,
+        string conditionValue,
+        string expected,
+        string expectedDisplay)
     {
         var logger = CreateLogger();
 
@@ -71,7 +76,7 @@ public class SwitchForeignKeyTypedConditionEmissionTests(ITestOutputHelper testO
         var tree = SourceGeneratorTestHelper.GetSingleTree(output.Run, "TableSetLoader.g.cs");
         var generated = tree.ToString();
         Assert.Contains(expected, generated, StringComparison.Ordinal);
-        Assert.Contains("{__r.Kind}", generated, StringComparison.Ordinal);
+        Assert.Contains(expectedDisplay, generated, StringComparison.Ordinal);
         Assert.DoesNotContain("ToString(null, global::System.Globalization.CultureInfo.InvariantCulture)", generated, StringComparison.Ordinal);
 
         var errors = SourceGeneratorTestHelper.GetCompilationErrors(output.Final);
