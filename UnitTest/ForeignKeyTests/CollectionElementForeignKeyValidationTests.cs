@@ -104,7 +104,7 @@ public partial class CollectionElementForeignKeyValidationTests(ITestOutputHelpe
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         var inner = Assert.Single(ex.InnerExceptions);
-        Assert.Contains("9999", inner.Message);
+        Assert.Contains("HeroRecord[Id=1].SkillIds[1](9999)", inner.Message, StringComparison.Ordinal);
         Assert.Contains("Skill", inner.Message);
         Assert.Empty(logger.Logs);
     }
@@ -124,7 +124,7 @@ public partial class CollectionElementForeignKeyValidationTests(ITestOutputHelpe
         var ex = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
         var inner = Assert.Single(ex.InnerExceptions);
-        Assert.Contains("7", inner.Message);
+        Assert.Contains("PartyRecord[Id=1].HeroIds[1](7)", inner.Message, StringComparison.Ordinal);
         Assert.Contains("Hero", inner.Message);
         Assert.Empty(logger.Logs);
     }
