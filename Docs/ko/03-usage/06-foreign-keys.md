@@ -112,7 +112,17 @@ AggregateException: FK 검증에 실패했습니다.
 
 기본 문구는 영어이고 (`Sdp/Resources/Messages.resx`), 위처럼 한글로 나오는 것은 `CultureInfo.CurrentUICulture` 가 `ko` 일 때입니다. Record 에 `[Key]` 컬럼이 있으면 `ItemRecord[Id=4].CategoryId(99)` 처럼 키 값이 함께 표시되고, `[SwitchForeignKey]` 불일치는 값 뒤에 `(when Kind=Currency)` 가 붙습니다.
 
-여러 행이 어긋나 있으면 `InnerExceptions` 에 하나씩 담깁니다.
+메시지에 적히는 값과 자리는 다음 규칙을 따릅니다.
+
+|참조 컬럼|메시지 예|설명|
+|-|-|-|
+|`ImmutableArray<int>` (여러 칸)|`HeroRecord[Id=1].SkillIds[1](9999)`|대괄호 숫자는 헤더 `SkillIds[1]` 의 그 번호|
+|`[SingleColumnCollection]` 배열 (한 셀)|`PartyRecord[Id=1].HeroIds[1](7)`|셀 안에서 구분자로 나눈 순서. 0 부터 센다|
+|`FrozenSet<int>`|`GachaRecord[Grade=SSR].PickupItemIds(19999)`|집합은 순서가 없어 번호를 적지 않는다|
+|브랜딩 타입 컬럼 (`ItemId ItemId`)|`ShopRecord[Id=3].ItemId(19999)`|브랜딩의 안쪽 값을 적는다|
+|`bool` 조건의 `[SwitchForeignKey]`|`… (when IsPremium=true)`|선언에 적는 표기와 같이 소문자|
+
+여러 행이 어긋나 있으면 `InnerExceptions` 에 하나씩 담깁니다. 배열은 어긋난 원소마다 한 줄입니다.
 
 </br></br></br>
 
