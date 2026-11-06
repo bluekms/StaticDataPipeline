@@ -81,6 +81,17 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     }
 
     [Fact]
+    public async Task GradeTableDisabled_FailsReportCardViewNamingItsTables()
+    {
+        using var culture = CultureScope.Invariant();
+        var school = new SchoolStaticData(NullLogger.Instance);
+
+        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(fixture.CsvMain, ["GradeTable"]), LoadAssert.ViewsFailed);
+
+        LoadAssert.ContainsAll(Assert.Single(exception.InnerExceptions), "ReportCardView needs StudentTable, ClassRoomTable and GradeTable.");
+    }
+
+    [Fact]
     public async Task TwoTableValidateFailures_AreAggregated_AndCurrentKeepsPreviousSnapshot()
     {
         using var culture = CultureScope.Invariant();
