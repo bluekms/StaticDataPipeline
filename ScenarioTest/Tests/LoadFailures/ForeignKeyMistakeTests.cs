@@ -50,6 +50,34 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     }
 
     [Fact]
+    public async Task MonsterDropItemNotInItems_FailsWithElementIndexInPath()
+    {
+        using var culture = CultureScope.Invariant();
+        using var csv = fixture.CopyMainCsv();
+        CsvDocument.Edit(csv.FileOf("Rpg.Monsters.csv"), x => x.Set("Id", "Slime", "Drops[1].ItemId", "19999"));
+        var rpg = new RpgStaticData(NullLogger.Instance);
+
+        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.FkFailed);
+
+        var inner = Assert.Single(exception.InnerExceptions);
+        LoadAssert.ContainsAll(inner, "MonsterRecord[Id=Slime].Drops[1].ItemId(19999)", "ItemTable.Id");
+    }
+
+    [Fact]
+    public async Task ShopPriceCurrencyNotInCurrencies_FailsWithMapKeyInPath()
+    {
+        using var culture = CultureScope.Invariant();
+        using var csv = fixture.CopyMainCsv();
+        CsvDocument.Edit(csv.FileOf("Rpg.Shop.csv"), x => x.Set("ItemId", "10001", "Prices[1].Key.Currency", "999"));
+        var rpg = new RpgStaticData(NullLogger.Instance);
+
+        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.FkFailed);
+
+        var inner = Assert.Single(exception.InnerExceptions);
+        LoadAssert.ContainsAll(inner, "ShopServerRecord[ItemId=10001].Prices[Key=", "Kind = Sale", ".Key.Currency(999)", "CurrencyTable.Id");
+    }
+
+    [Fact]
     public async Task CurrencyRewardPointingAtItemId_FailsWhenKindIsCurrency()
     {
         using var culture = CultureScope.Invariant();

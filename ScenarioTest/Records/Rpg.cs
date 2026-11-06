@@ -76,11 +76,11 @@ public sealed record Position(int X, int Y);
 
 public sealed record Spawn(MapId Map, Position Pos);
 
-public sealed record Drop(int ItemId, [Range(typeof(decimal), "0", "100")] decimal Rate);
+public sealed record Drop([ForeignKey("ItemTable", "Id")] int ItemId, [Range(typeof(decimal), "0", "100")] decimal Rate);
 
 public sealed record Objective(ObjectiveType Type, int TargetId, [Range(1, 999)] int Count);
 
-public sealed record PriceKey(int Currency, PurchaseKind Kind);
+public sealed record PriceKey([ForeignKey("CurrencyTable", "Id")] int Currency, PurchaseKind Kind);
 
 public sealed record Price([Key] PriceKey Key, uint Amount, [NullString("")] string? Note);
 
@@ -120,14 +120,13 @@ public sealed partial record SkillRecord(
 
 // 몬스터. 명시 값 enum 키 + Range, 두 단계 중첩(Spawn.Pos), [Length] 고정 길이 컬렉션 둘(nullable enum 요소 / record 요소),
 // 쉼표 SingleColumnCollection 에 NullString 과 FK 가 함께 붙은 nullable enum 컬렉션(Skills "-"), 분:초 TimeSpanFormat.
+// record 요소 안의 FK(Drops[i].ItemId)는 요소마다 ItemTable 을 본다.
 [StaticDataRecord("Rpg", "Monsters")]
 public sealed partial record MonsterRecord(
     [Key] [Range(typeof(MonsterId), "1000", "9999")] MonsterId Id,
     string Name,
     Spawn Spawn,
     [Length(2)] [NullString("")] ImmutableArray<Element?> Weakness,
-
-    // #179 가 풀리면 Drop.ItemId 에 FK 를 붙인다.
     [Length(2)] ImmutableArray<Drop> Drops,
     [SingleColumnCollection(",")]
     [NullString("-")]
@@ -220,13 +219,12 @@ public sealed partial record AttendanceRecord(
 // 같은 시트(Rpg.Shop)를 두 Record 가 나눠 읽는다. 추출 CSV 는 두 Record 열의 합집합이다.
 // 서버 쪽은 키가 곧 FK 이고, Map 의 키가 record(PriceKey)이며, 한글 NullString("무제한")을 쓴다.
 // SaleStart 는 오프셋이 든 DateTimeOffset 이라 날짜 셀 대신 텍스트 셀로 넣는다.
+// Map 의 키 record 안에 붙인 FK(Prices[i].Key.Currency)는 값마다 CurrencyTable 을 본다.
 [StaticDataRecord("Rpg", "Shop")]
 public sealed partial record ShopServerRecord(
     [Key] [ForeignKey("ItemTable", "Id")] ItemRecord.ItemId ItemId,
     [NullString("무제한")] uint? Stock,
     [DateTimeFormat("yyyy-MM-dd HH:mm:ss zzz")] DateTimeOffset SaleStart,
-
-    // #179 가 풀리면 PriceKey.Currency 에 FK 를 붙인다.
     [Length(2)] FrozenDictionary<PriceKey, Price> Prices);
 
 // 같은 Shop 시트의 클라이언트 쪽 열. 두 Record 의 [Key] 는 같은 열이다. RegularExpression(아이콘 경로)과 byte 정렬 순서.
