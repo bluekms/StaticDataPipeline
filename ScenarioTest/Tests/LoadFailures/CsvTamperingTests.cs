@@ -12,7 +12,7 @@ public class CsvTamperingTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("School.Grades.csv"), x =>
+        CsvDocument.Edit(csv.FileOf("School.Grades.csv"), x =>
         {
             x.AddColumn("Scores[5].Subject", "Music");
             x.AddColumn("Scores[5].Score", "90");
@@ -20,7 +20,7 @@ public class CsvTamperingTests(ExtractedCsvFixture fixture)
         });
         var school = new SchoolStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Path), LoadAssert.TablesFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Root), LoadAssert.TablesFailed);
 
         LoadAssert.ContainsAll(exception, "exceeds declared length 5");
     }
@@ -30,10 +30,10 @@ public class CsvTamperingTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("School.Students.csv"), x => x.RemoveColumn("Phone"));
+        CsvDocument.Edit(csv.FileOf("School.Students.csv"), x => x.RemoveColumn("Phone"));
         var school = new SchoolStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Path), LoadAssert.TablesFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Root), LoadAssert.TablesFailed);
 
         LoadAssert.ContainsAll(exception, "Header 'Phone' not found in CSV.");
     }
@@ -46,7 +46,7 @@ public class CsvTamperingTests(ExtractedCsvFixture fixture)
         MoveAway(csv, "School.Clubs.csv");
         var school = new SchoolStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Path), LoadAssert.TablesFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Root), LoadAssert.TablesFailed);
 
         LoadAssert.ContainsAll(exception, "School.Clubs.csv");
     }
@@ -59,7 +59,7 @@ public class CsvTamperingTests(ExtractedCsvFixture fixture)
         MoveAway(csv, "Rpg.Items.csv");
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Path), LoadAssert.TablesFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.TablesFailed);
 
         LoadAssert.ContainsAll(exception, "Rpg.Items.csv");
     }
@@ -69,10 +69,10 @@ public class CsvTamperingTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("Rpg.Monsters.csv"), x => x.Set("Id", "BossDragon", "Skills", "Fireball,-,1003"));
+        CsvDocument.Edit(csv.FileOf("Rpg.Monsters.csv"), x => x.Set("Id", "BossDragon", "Skills", "Fireball,-,1003"));
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Path), LoadAssert.TablesFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.TablesFailed);
 
         LoadAssert.ContainsAll(exception, "'1003'", "SkillId");
     }
@@ -82,17 +82,17 @@ public class CsvTamperingTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("School.Students.csv"), x => x.Rows.Clear());
+        CsvDocument.Edit(csv.FileOf("School.Students.csv"), x => x.Rows.Clear());
         var school = new SchoolStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Path), LoadAssert.FkFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Root), LoadAssert.FkFailed);
 
         LoadAssert.ContainsAll(exception, "GradeRecord", "StudentTable.Id");
     }
 
     private static void MoveAway(TempDirectory csv, string fileName)
     {
-        var parking = Directory.CreateDirectory(Path.Combine(csv.Path, "parking"));
-        File.Move(csv.File(fileName), Path.Combine(parking.FullName, fileName));
+        var parking = Directory.CreateDirectory(Path.Combine(csv.Root, "parking"));
+        File.Move(csv.FileOf(fileName), Path.Combine(parking.FullName, fileName));
     }
 }

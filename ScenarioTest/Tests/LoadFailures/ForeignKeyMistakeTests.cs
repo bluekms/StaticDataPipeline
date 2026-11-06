@@ -12,10 +12,10 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("School.Students.csv"), x => x.Set("Id", "20260101", "ClassRoomId", "399"));
+        CsvDocument.Edit(csv.FileOf("School.Students.csv"), x => x.Set("Id", "20260101", "ClassRoomId", "399"));
         var school = new SchoolStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Path), LoadAssert.FkFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Root), LoadAssert.FkFailed);
 
         var inner = Assert.Single(exception.InnerExceptions);
         LoadAssert.ContainsAll(inner, "StudentRecord[Id=20260101]", "ClassRoomId", "399", "ClassRoomTable.Id");
@@ -26,10 +26,10 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("Library.Loans.csv"), x => x.Rows[2][x.Column("Borrower")] = "20250999");
+        CsvDocument.Edit(csv.FileOf("Library.Loans.csv"), x => x.Rows[2][x.Column("Borrower")] = "20250999");
         var school = new SchoolStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Path), LoadAssert.FkFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Root), LoadAssert.FkFailed);
 
         var inner = Assert.Single(exception.InnerExceptions);
         LoadAssert.ContainsAll(inner, "LoanRecord", "Borrower", "20250999", "StudentTable.Id");
@@ -40,10 +40,10 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("Rpg.Gacha.csv"), x => x.Set("Grade", "SSR", "PickupItemIds[1]", "19999"));
+        CsvDocument.Edit(csv.FileOf("Rpg.Gacha.csv"), x => x.Set("Grade", "SSR", "PickupItemIds[1]", "19999"));
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Path), LoadAssert.FkFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.FkFailed);
 
         var inner = Assert.Single(exception.InnerExceptions);
         LoadAssert.ContainsAll(inner, "GachaRecord", "PickupItemIds", "19999", "ItemTable.Id");
@@ -54,10 +54,10 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("Rpg.Rewards.csv"), x => x.Set("Id", "3", "TargetId", "10001"));
+        CsvDocument.Edit(csv.FileOf("Rpg.Rewards.csv"), x => x.Set("Id", "3", "TargetId", "10001"));
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Path), LoadAssert.FkFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.FkFailed);
 
         var inner = Assert.Single(exception.InnerExceptions);
         LoadAssert.ContainsAll(inner, "RewardRecord[Id=3]", "TargetId(10001)", "(when Kind=Currency)");
@@ -68,10 +68,10 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("Rpg.SeasonPass.csv"), x => x.Set("Id", "2", "RewardId", "99"));
+        CsvDocument.Edit(csv.FileOf("Rpg.SeasonPass.csv"), x => x.Set("Id", "2", "RewardId", "99"));
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Path), LoadAssert.FkFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.FkFailed);
 
         var inner = Assert.Single(exception.InnerExceptions);
         LoadAssert.ContainsAll(inner, "SeasonPassRecord[Id=2]", "RewardId(99)", "PremiumRewardTable.Id", "IsPremium=");
@@ -82,10 +82,10 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("Rpg.SeasonRewards.csv"), x => x.Set("Id", "1", "Season", "2026-07-01"));
+        CsvDocument.Edit(csv.FileOf("Rpg.SeasonRewards.csv"), x => x.Set("Id", "1", "Season", "2026-07-01"));
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Path), LoadAssert.FkFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.FkFailed);
 
         var inner = Assert.Single(exception.InnerExceptions);
         LoadAssert.ContainsAll(inner, "has no matching condition for 'Season=2026-07-01'");
@@ -96,10 +96,10 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("Rpg.Attendance.csv"), x => x.Set("Day", "1", "RewardId", "77777"));
+        CsvDocument.Edit(csv.FileOf("Rpg.Attendance.csv"), x => x.Set("Day", "1", "RewardId", "77777"));
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Path), LoadAssert.FkFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.FkFailed);
 
         var inner = Assert.Single(exception.InnerExceptions);
         LoadAssert.ContainsAll(inner, "AttendanceRecord", "RewardId", "77777", "ItemTable.Id", "CurrencyTable.Id");
@@ -110,10 +110,10 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("Rpg.PremiumRewards.csv"), x => x.Set("Id", "1", "ItemId", "19999"));
+        CsvDocument.Edit(csv.FileOf("Rpg.PremiumRewards.csv"), x => x.Set("Id", "1", "ItemId", "19999"));
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Path), LoadAssert.FkFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.FkFailed);
 
         var inner = Assert.Single(exception.InnerExceptions);
         LoadAssert.ContainsAll(inner, "PremiumRewardRecord", "ItemId", "19999", "ItemTable.Id");
@@ -124,10 +124,10 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("Rpg.SeasonRewards.csv"), x => x.Set("Id", "1", "ItemId", "29999"));
+        CsvDocument.Edit(csv.FileOf("Rpg.SeasonRewards.csv"), x => x.Set("Id", "1", "ItemId", "29999"));
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Path), LoadAssert.FkFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.FkFailed);
 
         var inner = Assert.Single(exception.InnerExceptions);
         LoadAssert.ContainsAll(
@@ -144,10 +144,10 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("Rpg.Quests.csv"), x => x.Set("Id", "3", "PrevQuestId", "99"));
+        CsvDocument.Edit(csv.FileOf("Rpg.Quests.csv"), x => x.Set("Id", "3", "PrevQuestId", "99"));
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Path), LoadAssert.FkFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.FkFailed);
 
         var inner = Assert.Single(exception.InnerExceptions);
         LoadAssert.ContainsAll(inner, "QuestRecord[Id=3]", "PrevQuestId", "99", "QuestTable.Id");
@@ -160,10 +160,10 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Of(cultureName);
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("School.Students.csv"), x => x.Set("Id", "20260101", "ClassRoomId", "399"));
+        CsvDocument.Edit(csv.FileOf("School.Students.csv"), x => x.Set("Id", "20260101", "ClassRoomId", "399"));
         var school = new SchoolStaticData(NullLogger.Instance);
 
-        var exception = await Record.ExceptionAsync(() => school.LoadAsync(csv.Path));
+        var exception = await Record.ExceptionAsync(() => school.LoadAsync(csv.Root));
 
         var aggregate = Assert.IsType<AggregateException>(exception);
         LoadAssert.ContainsAll(Assert.Single(aggregate.InnerExceptions), expected);

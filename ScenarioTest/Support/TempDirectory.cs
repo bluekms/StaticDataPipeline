@@ -4,20 +4,20 @@ public sealed class TempDirectory : IDisposable
 {
     public TempDirectory()
     {
-        Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "SdpScenario", Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(Path);
+        Root = Path.Combine(Path.GetTempPath(), "SdpScenario", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(Root);
     }
 
-    public string Path { get; }
+    public string Root { get; }
 
-    public string File(string fileName)
-        => System.IO.Path.Combine(Path, fileName);
+    public string FileOf(string fileName)
+        => Path.Combine(Root, fileName);
 
     public void Dispose()
     {
         try
         {
-            Directory.Delete(Path, recursive: true);
+            Directory.Delete(Root, recursive: true);
         }
         catch (IOException)
         {

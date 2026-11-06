@@ -31,7 +31,7 @@ public sealed class ExtractedCsvFixture : IDisposable
         var copy = new TempDirectory();
         foreach (var file in Directory.GetFiles(csvDirectory, "*.csv"))
         {
-            File.Copy(file, copy.File(Path.GetFileName(file)));
+            File.Copy(file, copy.FileOf(Path.GetFileName(file)));
         }
 
         return copy;

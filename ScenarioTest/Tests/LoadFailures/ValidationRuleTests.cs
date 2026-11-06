@@ -14,10 +14,10 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("Rpg.Gacha.csv"), x => x.Set("Grade", "R", "Rate", "79.999"));
+        CsvDocument.Edit(csv.FileOf("Rpg.Gacha.csv"), x => x.Set("Grade", "R", "Rate", "79.999"));
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Path), LoadAssert.TablesFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.TablesFailed);
 
         LoadAssert.ContainsAll(exception, "Gacha rates must add up to 100 but add up to 99.999");
     }
@@ -27,10 +27,10 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("School.Timetable.csv"), DoubleBookTeacher7);
+        CsvDocument.Edit(csv.FileOf("School.Timetable.csv"), DoubleBookTeacher7);
         var school = new SchoolStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Path), LoadAssert.TablesFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Root), LoadAssert.TablesFailed);
 
         LoadAssert.ContainsAll(exception, "Teacher 7 has two classes at Mon period 1.");
     }
@@ -40,10 +40,10 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("School.ClassRooms.csv"), x => x.Set("Id", "102", "HomeroomTeacherId", "7"));
+        CsvDocument.Edit(csv.FileOf("School.ClassRooms.csv"), x => x.Set("Id", "102", "HomeroomTeacherId", "7"));
         var school = new SchoolStaticData(NullLogger.Instance);
 
-        var exception = await Record.ExceptionAsync(() => school.LoadAsync(csv.Path));
+        var exception = await Record.ExceptionAsync(() => school.LoadAsync(csv.Root));
 
         var invalid = Assert.IsType<InvalidOperationException>(exception);
         Assert.Equal("Teacher 7 is the homeroom teacher of more than one class.", invalid.Message);
@@ -54,14 +54,14 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("School.Students.csv"), x =>
+        CsvDocument.Edit(csv.FileOf("School.Students.csv"), x =>
         {
             x.Set("Id", "20260104", "ClassRoomId", "101");
             x.Set("Id", "20260104", "Seat.Col", "3");
         });
         var school = new SchoolStaticData(NullLogger.Instance);
 
-        var exception = await Record.ExceptionAsync(() => school.LoadAsync(csv.Path));
+        var exception = await Record.ExceptionAsync(() => school.LoadAsync(csv.Root));
 
         var invalid = Assert.IsType<InvalidOperationException>(exception);
         Assert.Equal("Two students share seat (1, 3) in class 101.", invalid.Message);
@@ -72,10 +72,10 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("School.Teachers.csv"), AddIdleTeacher);
+        CsvDocument.Edit(csv.FileOf("School.Teachers.csv"), AddIdleTeacher);
         var school = new SchoolStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Path), LoadAssert.ViewsFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Root), LoadAssert.ViewsFailed);
 
         LoadAssert.ContainsAll(Assert.Single(exception.InnerExceptions), "Teachers without any class: 최민호");
     }
@@ -87,10 +87,10 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
         var school = await LoadedSchool();
         var previous = school.Current;
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("School.Timetable.csv"), DoubleBookTeacher7);
-        CsvDocument.Edit(csv.File("School.Calendar.csv"), x => x.Set("Id", "4", "End", "2026-09-23"));
+        CsvDocument.Edit(csv.FileOf("School.Timetable.csv"), DoubleBookTeacher7);
+        CsvDocument.Edit(csv.FileOf("School.Calendar.csv"), x => x.Set("Id", "4", "End", "2026-09-23"));
 
-        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Path), LoadAssert.TablesFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Root), LoadAssert.TablesFailed);
 
         Assert.Equal(2, exception.InnerExceptions.Count);
         Assert.Same(previous, school.Current);
@@ -103,14 +103,14 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
         var school = await LoadedSchool();
         var previous = school.Current;
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("School.Students.csv"), x =>
+        CsvDocument.Edit(csv.FileOf("School.Students.csv"), x =>
         {
             x.Set("Id", "20260101", "ClassRoomId", "399");
             x.Set("Id", "20260102", "ClubId", "9");
         });
-        CsvDocument.Edit(csv.File("Library.Loans.csv"), x => x.Rows[2][x.Column("Borrower")] = "20250999");
+        CsvDocument.Edit(csv.FileOf("Library.Loans.csv"), x => x.Rows[2][x.Column("Borrower")] = "20250999");
 
-        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Path), LoadAssert.FkFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Root), LoadAssert.FkFailed);
 
         Assert.Equal(3, exception.InnerExceptions.Count);
         Assert.Same(previous, school.Current);
@@ -123,10 +123,10 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
         var school = await LoadedSchool();
         var previous = school.Current;
         using var csv = fixture.CopyMainCsv();
-        CsvDocument.Edit(csv.File("School.Teachers.csv"), AddIdleTeacher);
-        CsvDocument.Edit(csv.File("School.Grades.csv"), x => x.DuplicateRow("StudentId.Value", "20260101"));
+        CsvDocument.Edit(csv.FileOf("School.Teachers.csv"), AddIdleTeacher);
+        CsvDocument.Edit(csv.FileOf("School.Grades.csv"), x => x.DuplicateRow("StudentId.Value", "20260101"));
 
-        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Path), LoadAssert.ViewsFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Root), LoadAssert.ViewsFailed);
 
         Assert.Equal(2, exception.InnerExceptions.Count);
         Assert.Same(previous, school.Current);

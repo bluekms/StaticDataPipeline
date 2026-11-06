@@ -12,10 +12,10 @@ public class IndexMistakeTests(ExtractedCsvFixture fixture)
     {
         using var culture = CultureScope.Invariant();
         using var csv = fixture.CopyScienceCsv();
-        CsvDocument.Edit(csv.File("Science.Elements.csv"), x => x.Set("Number", "79", "Symbol", "Fe"));
+        CsvDocument.Edit(csv.FileOf("Science.Elements.csv"), x => x.Set("Number", "79", "Symbol", "Fe"));
         var science = new ScienceStaticData(NullLogger.Instance);
 
-        var exception = await LoadAssert.FailsWithAggregate(() => science.LoadAsync(csv.Path), LoadAssert.TablesFailed);
+        var exception = await LoadAssert.FailsWithAggregate(() => science.LoadAsync(csv.Root), LoadAssert.TablesFailed);
 
         var inner = Assert.Single(exception.InnerExceptions);
         LoadAssert.ContainsAll(inner, "Duplicate key 'Fe'", "ElementRecord");
