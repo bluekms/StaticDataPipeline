@@ -66,9 +66,8 @@ public partial class SingleColumnNullableElementTests(ITestOutputHelper testOutp
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
         var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
-        var enumMemberCatalog = new EnumMemberCatalog(loadResult);
         RecordComplianceChecker.Check(recordSchemaCatalog, logger);
-        var catalogs = new MetadataCatalogs(recordSchemaCatalog, enumMemberCatalog);
+        var catalogs = new MetadataCatalogs(recordSchemaCatalog);
 
         var cells = new[] { new CellData("A1", cellValue), new CellData("B1", "Potion") };
         var context = CompatibilityContext.CreateNoCollect(catalogs, cells);

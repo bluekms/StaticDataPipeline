@@ -28,7 +28,6 @@ public partial class RecordScannerAsyncTests(ITestOutputHelper testOutputHelper)
 
         Assert.NotNull(catalogs);
         Assert.NotNull(catalogs.RecordSchemaCatalog);
-        Assert.NotNull(catalogs.EnumMemberCatalog);
         Assert.Empty(logger.Logs);
     }
 

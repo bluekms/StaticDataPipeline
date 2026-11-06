@@ -27,9 +27,7 @@ public static class RecordScanner
             LogError(logger, msg, null);
         }
 
-        var enumMemberCatalog = new EnumMemberCatalog(loadResults);
-
-        return new(recordSchemaCatalog, enumMemberCatalog);
+        return new(recordSchemaCatalog);
     }
 
     public static async Task<MetadataCatalogs> ScanAsync(string csPath, ILogger logger, CancellationToken cancellationToken = default)
@@ -50,9 +48,7 @@ public static class RecordScanner
             LogError(logger, msg, null);
         }
 
-        var enumMemberCatalog = new EnumMemberCatalog(loadResults);
-
-        return new(recordSchemaCatalog, enumMemberCatalog);
+        return new(recordSchemaCatalog);
     }
 
     private static readonly Action<ILogger, string, Exception?> LogError =

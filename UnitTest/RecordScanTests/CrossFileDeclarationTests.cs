@@ -69,7 +69,7 @@ public class CrossFileDeclarationTests(ITestOutputHelper testOutputHelper)
 
         var results = RecordSchemaLoader.Load(directory.Path, logger);
         var recordSchemaCatalog = CreateCatalog(results, logger);
-        var catalogs = new MetadataCatalogs(recordSchemaCatalog, new EnumMemberCatalog(results));
+        var catalogs = new MetadataCatalogs(recordSchemaCatalog);
         var player = Assert.Single(recordSchemaCatalog.StaticDataRecordSchemata);
         var gradeSchema = player.PropertySchemata.Single(x => x.PropertyName.Name == "Grade");
 

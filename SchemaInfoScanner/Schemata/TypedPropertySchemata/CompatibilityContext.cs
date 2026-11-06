@@ -41,7 +41,6 @@ public sealed class CompatibilityContext
         => new(metadataCatalogs, cells, CollectMode.KeyOnly, startPosition, pathPrefix);
 
     public MetadataCatalogs MetadataCatalogs { get; }
-    public EnumMemberCatalog EnumMemberCatalog => MetadataCatalogs.EnumMemberCatalog;
     public RecordSchemaCatalog RecordSchemaCatalog => MetadataCatalogs.RecordSchemaCatalog;
 
     public IReadOnlyList<CellData> Cells { get; }

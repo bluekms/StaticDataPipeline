@@ -64,7 +64,7 @@ public partial class GeneratorMirrorRuleTests(ITestOutputHelper testOutputHelper
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaCatalog = new RecordSchemaCatalog(new RecordSchemaSet(loadResult, logger));
         RecordComplianceChecker.Check(recordSchemaCatalog, logger);
-        var catalogs = new MetadataCatalogs(recordSchemaCatalog, new EnumMemberCatalog(loadResult));
+        var catalogs = new MetadataCatalogs(recordSchemaCatalog);
         var mapSchema = Assert.Single(recordSchemaCatalog.StaticDataRecordSchemata[0].PropertySchemata);
 
         var distinct = CompatibilityContext.CreateNoCollect(catalogs, [new("A1", "1"), new("B1", "Math"), new("C1", "2"), new("D1", "Art")]);
