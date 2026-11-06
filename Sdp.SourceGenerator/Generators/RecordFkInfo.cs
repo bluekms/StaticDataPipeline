@@ -6,9 +6,67 @@ namespace Sdp.SourceGenerator.Generators;
 internal sealed record RecordFkInfo(
     string TableSetMember,
     INamedTypeSymbol RecordSymbol,
-    ImmutableArray<FkParameter> Parameters);
+    FkScope Scope);
+
+internal sealed record FkScope(
+    ImmutableArray<FkParameter> Parameters,
+    ImmutableArray<FkChildScope> Children)
+{
+    public bool IsEmpty => Parameters.IsEmpty && Children.IsEmpty;
+}
+
+internal sealed record FkChildScope(
+    string PropertyName,
+    FkChildKind Kind,
+    INamedTypeSymbol RecordSymbol,
+    FkScope Scope);
+
+internal enum FkChildKind
+{
+    Record,
+    ArrayElement,
+    SetElement,
+    MapValue,
+}
+
+internal sealed record FkNestedPosition(
+    FkChildKind Kind,
+    NestedRecordInfo Nested,
+    bool IsNullable)
+{
+    public static FkNestedPosition? Find(ParameterAnalysis parameter)
+    {
+        if (parameter.Nested is { } nested)
+        {
+            return new FkNestedPosition(FkChildKind.Record, nested, parameter.IsNullable);
+        }
+
+        if (parameter.Collection is not { } collection)
+        {
+            return null;
+        }
+
+        var isElementNullable = TypeClassifier.IsNullable(collection.ElementType);
+        if (collection.ValueNested is { } valueNested)
+        {
+            return new FkNestedPosition(FkChildKind.MapValue, valueNested, isElementNullable);
+        }
+
+        if (collection.ElementNested is not { } elementNested)
+        {
+            return null;
+        }
+
+        var elementKind = collection.Kind == CollectionKind.FrozenSet
+            ? FkChildKind.SetElement
+            : FkChildKind.ArrayElement;
+
+        return new FkNestedPosition(elementKind, elementNested, isElementNullable);
+    }
+}
 
 internal sealed record FkParameter(
+    int Index,
     string PropertyName,
     ITypeSymbol ValueType,
     bool IsCollection,
