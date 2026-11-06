@@ -26,11 +26,26 @@ internal static class FkTargetResolver
         return collection.ElementType;
     }
 
-    public static bool IsCollectionFk(ITypeSymbol parameterType)
+    // valueType 은 같은 파라미터에 대한 ResolveFkValueType 의 결과다.
+    public static FkCollectionKind ResolveCollectionKind(ITypeSymbol parameterType, ITypeSymbol valueType)
     {
-        var valueType = ResolveFkValueType(parameterType);
+        if (SymbolEqualityComparer.Default.Equals(valueType, parameterType))
+        {
+            return FkCollectionKind.None;
+        }
 
-        return !SymbolEqualityComparer.Default.Equals(valueType, parameterType);
+        var collection = TypeClassifier.ClassifyCollection(TypeClassifier.UnwrapNullable(parameterType));
+
+        return collection is { Kind: CollectionKind.FrozenSet }
+            ? FkCollectionKind.Set
+            : FkCollectionKind.Array;
+    }
+
+    public static string? ResolveValueDisplayMember(ITypeSymbol valueType)
+    {
+        var brandingValue = FindBrandingValueParameter(TypeClassifier.UnwrapNullable(valueType));
+
+        return brandingValue?.Name;
     }
 
     private static IParameterSymbol? FindTargetParameter(
