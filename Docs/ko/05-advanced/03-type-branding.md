@@ -168,9 +168,21 @@ public sealed partial record QuestRecord(
 |[`[Range]`](./02-attributes.md#attr-range) (숫자 형태), [`[NullString]`](./02-attributes.md#attr-nullstring), [`[RegularExpression]`](./02-attributes.md#attr-regularexpression), [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat), [`[TimeSpanFormat]`](./02-attributes.md#attr-timespanformat)|내부 파라미터 (`Value`)|바깥 파라미터에 붙이면 빌드 시 `SDP0016` (예: `파라미터 'Id'의 타입에는 [Range]를 적용할 수 없습니다`)|
 |[`[Range]`](./02-attributes.md#attr-range) (`typeof` 형태)|내부 파라미터 (`Value`)|바깥 파라미터에 붙이면 빌드 시 `SDP0004`|
 |`[Key]` 의 enum 멤버 검사 생략|내부 파라미터 (`Value`)|바깥 파라미터의 `[Key]` 만으로는 내부 enum 의 멤버 검사가 생략되지 않음|
-|[`[Key]`](./02-attributes.md#attr-key) (추출기 중복 검사, Map 의 키), [`[ForeignKey]`](./02-attributes.md#attr-foreignkey), [`[SwitchForeignKey]`](./02-attributes.md#attr-switchforeignkey), [`[ColumnName]`](./02-attributes.md#attr-columnname)|바깥 파라미터 (`Id`)|—|
+|[`[Key]`](./02-attributes.md#attr-key) (추출기 중복 검사, Map 의 키), [`[ForeignKey]`](./02-attributes.md#attr-foreignkey), [`[SwitchForeignKey]`](./02-attributes.md#attr-switchforeignkey), [`[ColumnName]`](./02-attributes.md#attr-columnname)|바깥 파라미터 (`Id`)|`[ForeignKey]`, `[SwitchForeignKey]` 를 내부 파라미터에 붙이면 빌드 시 `SDP0229` (예: `'ItemId'는 타입 브랜딩 record 라서 안쪽 파라미터 'Value'에 붙인 [ForeignKey]는 검사되지 않습니다`). 나머지는 —|
 
 값 검증·변환 Attribute 는 실제로 셀 값을 읽는 내부 파라미터에, 컬럼 단위 의미 (헤더 이름, 키, 외래 키) 를 갖는 Attribute 는 바깥 파라미터에 붙입니다.
+
+외래 키는 "이 컬럼의 값이 저 테이블에 있어야 한다" 는 컬럼의 규칙이라 브랜딩 타입 자체에는 붙이지 않습니다. `SDP0229` 가 나면 내부 파라미터의 Attribute 를 지우고, 그 브랜딩 타입으로 선언한 파라미터 중 검사가 필요한 곳 앞으로 옮깁니다.
+
+```csharp
+// 고치기 전: SDP0229
+public record struct ItemId([ForeignKey("ItemTable", "Id")] int Value);
+public sealed record Drop(ItemId Item, decimal Rate);
+
+// 고친 뒤
+public record struct ItemId(int Value);
+public sealed record Drop([ForeignKey("ItemTable", "Id")] ItemId Item, decimal Rate);
+```
 
 ```csharp
 public record struct CharId([Range(1, 100_000)] int Value);
