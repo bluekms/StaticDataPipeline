@@ -308,25 +308,44 @@ internal static partial class TableSetLoaderEmitter
         var propertyTypeFullyQualifiedName = fkParameter.ValueType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var recordDisplayExpr = context.BuildDisplayExpression();
         var propertyNameLiteral = SymbolDisplay.FormatLiteral(fkParameter.PropertyName, quote: true);
+        var elementNameExpression = fkParameter.Collection == FkCollectionKind.Array
+            ? "global::System.FormattableString.Invariant($\"" + fkParameter.PropertyName + "[{__vi}]\")"
+            : propertyNameLiteral;
+        var valueDisplay = BuildValueDisplay(fkParameter);
         var sourceLiteral = SymbolDisplay.FormatLiteral(context.StaticPath + "." + fkParameter.PropertyName, quote: true);
         var missingReportedVariable = "__fkMissingReported" + fkParameter.Index.ToString(CultureInfo.InvariantCulture);
         var instanceAccess = context.InstanceVariable + ".";
+        var memberAccess = instanceAccess + EmitHelper.EscapeIdentifier(fkParameter.PropertyName);
 
         var isNullable = TypeClassifier.IsNullable(fkParameter.ValueType);
 
         sb.Append(indent).AppendLine("{");
         var body = indent;
-        if (fkParameter.IsCollection)
+        switch (fkParameter.Collection)
         {
-            sb.Append(indent).Append("    foreach (var __v in ").Append(instanceAccess)
-                .Append(EmitHelper.EscapeIdentifier(fkParameter.PropertyName)).AppendLine(")");
-            sb.Append(indent).AppendLine("    {");
-            body = indent + "    ";
-        }
-        else
-        {
-            sb.Append(indent).Append("    var __v = ").Append(instanceAccess)
-                .Append(EmitHelper.EscapeIdentifier(fkParameter.PropertyName)).AppendLine(";");
+            case FkCollectionKind.Array:
+            {
+                sb.Append(indent).Append("    for (var __vi = 0; __vi < ").Append(memberAccess)
+                    .AppendLine(".Length; __vi++)");
+                sb.Append(indent).AppendLine("    {");
+                sb.Append(indent).Append("        var __v = ").Append(memberAccess).AppendLine("[__vi];");
+                body = indent + "    ";
+                break;
+            }
+
+            case FkCollectionKind.Set:
+            {
+                sb.Append(indent).Append("    foreach (var __v in ").Append(memberAccess).AppendLine(")");
+                sb.Append(indent).AppendLine("    {");
+                body = indent + "    ";
+                break;
+            }
+
+            default:
+            {
+                sb.Append(indent).Append("    var __v = ").Append(memberAccess).AppendLine(";");
+                break;
+            }
         }
 
         var nullGuardIndent = body;
@@ -369,7 +388,7 @@ internal static partial class TableSetLoaderEmitter
             var targetsLiteral = SymbolDisplay.FormatLiteral(targets, quote: true);
             sb.Append(lineIndent).Append("__errors.Add(global::Sdp.Manager.TableSetLoaderHelper.FkValueNotFoundError(")
                 .AppendLine();
-            sb.Append(lineIndent).Append("    ").Append(recordDisplayExpr).Append(", ").Append(propertyNameLiteral).AppendLine(",");
+            sb.Append(lineIndent).Append("    ").Append(recordDisplayExpr).Append(", ").Append(elementNameExpression).AppendLine(",");
             sb.Append(lineIndent).Append("    global::System.FormattableString.Invariant($\"").Append(valueBody).Append("\"), ")
                 .Append(targetsLiteral).AppendLine("));");
         }
@@ -403,7 +422,7 @@ internal static partial class TableSetLoaderEmitter
             sb.Append(body).AppendLine("    {");
             sb.Append(body).Append("        if (").Append(allTargetsLoadedCondition).AppendLine(")");
             sb.Append(body).AppendLine("        {");
-            AppendValueNotFoundError(body + "            ", "{__v}", fkTargets);
+            AppendValueNotFoundError(body + "            ", valueDisplay, fkTargets);
             sb.Append(body).AppendLine("        }");
 
             sb.Append(body).AppendLine("        else");
@@ -430,7 +449,7 @@ internal static partial class TableSetLoaderEmitter
             sb.Append(body).AppendLine("    var __switchTargetLoaded = false;");
 
             var conditionAccess = instanceAccess + conditionColumnAccess;
-            var conditionDisplay = BuildConditionDisplay(conditionAccess, switchBranches[0].ConditionDisplayFormat);
+            var conditionDisplay = BuildConditionDisplay(conditionAccess, switchBranches[0]);
             var conditionColumnLiteral = SymbolDisplay.FormatLiteral(conditionColumn, quote: true);
 
             for (var branchIndex = 0; branchIndex < switchBranches.Count; branchIndex++)
@@ -459,8 +478,9 @@ internal static partial class TableSetLoaderEmitter
                 var branchTargetsLiteral = SymbolDisplay.FormatLiteral(branch.TableSetMember + "." + branch.TargetColumn, quote: true);
                 var errorIndent = body + "                ";
                 sb.Append(errorIndent).AppendLine("__errors.Add(global::Sdp.Manager.TableSetLoaderHelper.SwitchFkValueNotFoundError(");
-                sb.Append(errorIndent).Append("    ").Append(recordDisplayExpr).Append(", ").Append(propertyNameLiteral).AppendLine(",");
-                sb.Append(errorIndent).Append("    global::System.FormattableString.Invariant($\"{__v}\"), ").Append(branchTargetsLiteral).AppendLine(",");
+                sb.Append(errorIndent).Append("    ").Append(recordDisplayExpr).Append(", ").Append(elementNameExpression).AppendLine(",");
+                sb.Append(errorIndent).Append("    global::System.FormattableString.Invariant($\"").Append(valueDisplay).Append("\"), ")
+                    .Append(branchTargetsLiteral).AppendLine(",");
                 sb.Append(errorIndent).Append("    ").Append(conditionColumnLiteral)
                     .Append(", global::System.FormattableString.Invariant($\"").Append(conditionDisplay).AppendLine("\")));");
                 sb.Append(body).AppendLine("            }");
@@ -488,7 +508,7 @@ internal static partial class TableSetLoaderEmitter
             sb.Append(nullGuardIndent).AppendLine("    }");
         }
 
-        if (fkParameter.IsCollection)
+        if (fkParameter.Collection != FkCollectionKind.None)
         {
             sb.Append(indent).AppendLine("    }");
         }
@@ -496,14 +516,35 @@ internal static partial class TableSetLoaderEmitter
         sb.Append(indent).AppendLine("}");
     }
 
-    private static string BuildConditionDisplay(string conditionAccess, string? conditionDisplayFormat)
+    // bool 은 ToString() 이 "True" 라서 [SwitchForeignKey] 에 적는 표기(true, false)로 직접 찍는다.
+    private static string BuildConditionDisplay(string conditionAccess, FkBranch branch)
     {
-        if (conditionDisplayFormat is null)
+        switch (branch.ConditionDisplayKind)
+        {
+            case FkConditionDisplayKind.Boolean:
+                return "{(" + conditionAccess + " ? \"true\" : \"false\")}";
+            case FkConditionDisplayKind.NullableBoolean:
+                return "{(" + conditionAccess + " == true ? \"true\" : "
+                    + conditionAccess + " == false ? \"false\" : \"\")}";
+        }
+
+        if (branch.ConditionDisplayFormat is null)
         {
             return "{" + conditionAccess + "}";
         }
 
-        return "{" + conditionAccess + ":" + EscapeInterpolationFormat(conditionDisplayFormat) + "}";
+        return "{" + conditionAccess + ":" + EscapeInterpolationFormat(branch.ConditionDisplayFormat) + "}";
+    }
+
+    // 브랜딩 record 는 ToString() 이 "ItemId { Value = 3 }" 이라 안쪽 값만 찍는다.
+    private static string BuildValueDisplay(FkParameter fkParameter)
+    {
+        if (fkParameter.ValueDisplayMember is not { } valueDisplayMember)
+        {
+            return "{__v}";
+        }
+
+        return "{__v." + EmitHelper.EscapeIdentifier(valueDisplayMember) + "}";
     }
 
     private static string EscapeInterpolationFormat(string format)
@@ -552,13 +593,10 @@ internal static partial class TableSetLoaderEmitter
     private static string BuildKeyValueAccess(IParameterSymbol keyParameter, string instanceVariable)
     {
         var access = instanceVariable + "." + EmitHelper.EscapeIdentifier(keyParameter.Name);
-        if (keyParameter.Type is INamedTypeSymbol { IsValueType: true, IsRecord: true } keyType)
+        var valueDisplayMember = FkTargetResolver.ResolveValueDisplayMember(keyParameter.Type);
+        if (valueDisplayMember is not null)
         {
-            var primaryConstructor = SymbolResolver.FindPrimaryConstructor(keyType);
-            if (primaryConstructor is { Parameters.Length: 1 })
-            {
-                access += "." + EmitHelper.EscapeIdentifier(primaryConstructor.Parameters[0].Name);
-            }
+            access += "." + EmitHelper.EscapeIdentifier(valueDisplayMember);
         }
 
         return "{" + access + "}";
