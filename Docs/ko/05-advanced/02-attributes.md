@@ -117,7 +117,7 @@ public sealed partial record ScheduleRecord(
 
 |항목|내용|
 |-|-|
-|대상|Record 파라미터|
+|대상|Record 파라미터. 테이블 Record 안에 중첩된 record (record 하나, record 원소 컬렉션, Map 의 Value record) 의 파라미터 포함|
 |인자|`tableSetName` — TableSet 의 속성 (= 생성자 파라미터) 이름. `recordColumnName` — 대상 Record 의 속성 이름.|
 |다중 허용|O (`AllowMultiple = true`) — "여러 대상 중 하나라도 일치하면 유효" 방식|
 |검증 시점|스캐너 (FK/SFK 동시 부착 차단) + 빌드 (타겟 테이블·컬럼 존재, 타입 일치, 중복 타겟) + 로드 (참조 값 검증)|
@@ -129,6 +129,7 @@ public sealed partial record ScheduleRecord(
 |참조 컬럼과 타겟 컬럼의 타입이 다름|빌드 시 `SDP0211`|
 |참조 컬럼이 컬렉션 (`ImmutableArray`·`FrozenSet`, 원소가 단일 값)|허용 — 원소마다 검사하고 nullable 원소의 `null` 은 건너뜀. 원소 타입이 타겟과 다르거나 Map·Record 원소 컬렉션이면 `SDP0211`|
 |같은 타겟을 두 번 지정|빌드 시 `SDP0226`|
+|타입 브랜딩 record 의 안쪽 파라미터에 부착|빌드 시 `SDP0229`. 브랜딩 타입으로 선언한 파라미터 앞에 붙인다|
 |타겟 테이블이 `disabledTables` 로 빠짐|검증할 값이 있으면 로드 시 `FkTargetNotFound` 예외를 발생 (파라미터당 1회). 참조 값이 없으면 통과|
 |값 검증 실패|`AggregateException(FkValidationFailed, ...)` 내부에 `FkValueNotFound` 예외를 발생|
 
@@ -445,7 +446,7 @@ public sealed partial record QuestRecord(int Id, string Title);
 
 |항목|내용|
 |-|-|
-|대상|Record 파라미터|
+|대상|Record 파라미터. 테이블 Record 안에 중첩된 record 의 파라미터 포함 (조건 컬럼은 그 중첩 record 안에서 찾는다)|
 |인자|`conditionColumnName`, `conditionValue`, `tableSetName`, `recordColumnName`|
 |다중 허용|O (`AllowMultiple = true`)|
 |검증 시점|스캐너 (FK/SFK 동시 부착 차단, 중복 조건 차단) + 빌드 (조건 컬럼·타겟 존재, 조건값 형식, 중복 조건) + 로드 (조건 매칭, 참조 값 검증)|
@@ -455,7 +456,8 @@ public sealed partial record QuestRecord(int Id, string Title);
 |타겟이 TableSet 에 없음|빌드 시 `SDP0205`|
 |타겟이 `[SingleColumnCollection]` 컬럼|빌드 시 `SDP0207`|
 |타겟이 컬렉션 타입 컬럼|빌드 시 `SDP0214`|
-|`conditionColumnName` 이 같은 Record 안에 없음|빌드 시 `SDP0209`|
+|`conditionColumnName` 이 같은 Record 안에 없음|빌드 시 `SDP0209`. 중첩 record 안에 붙였다면 바깥 Record 의 컬럼은 조건이 될 수 없다|
+|타입 브랜딩 record 의 안쪽 파라미터에 부착|빌드 시 `SDP0229`. 브랜딩 타입으로 선언한 파라미터 앞에 붙인다|
 |조건 컬럼이 컬렉션 타입|빌드 시 `SDP0224`|
 |조건 컬럼이 단일 값 타입이 아님 (타입 브랜딩 record)|빌드 시 `SDP0227`|
 |실수·날짜·시간·string 조건값이 조건 컬럼 타입으로 해석되지 않음 (날짜·시간은 조건 컬럼의 포맷 기준)|빌드 시 `SDP0228`|
