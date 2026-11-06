@@ -10,7 +10,7 @@ namespace SchemaInfoScanner;
 
 public static class RecordSchemaLoader
 {
-    public sealed record Result(SemanticModel SemanticModel, List<RecordDeclarationSyntax> RecordDeclarationList, List<EnumDeclarationSyntax> EnumDeclarationList);
+    public sealed record Result(SemanticModel SemanticModel, List<RecordDeclarationSyntax> RecordDeclarationList);
 
     private static readonly string[] SkipCompileErrorIds =
     [
@@ -120,9 +120,8 @@ public static class RecordSchemaLoader
             var root = syntaxTree.GetRoot();
             var semanticModel = compilation.GetSemanticModel(syntaxTree);
             var recordDeclarationList = root.DescendantNodes().OfType<RecordDeclarationSyntax>().ToList();
-            var enumDeclarationList = root.DescendantNodes().OfType<EnumDeclarationSyntax>().ToList();
 
-            results.Add(new(semanticModel, recordDeclarationList, enumDeclarationList));
+            results.Add(new(semanticModel, recordDeclarationList));
         }
 
         return results;
