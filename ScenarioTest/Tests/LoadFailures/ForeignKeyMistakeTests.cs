@@ -18,7 +18,7 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
         var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Root), LoadAssert.FkFailed);
 
         var inner = Assert.Single(exception.InnerExceptions);
-        LoadAssert.ContainsAll(inner, "StudentRecord[Id=20260101]", "ClassRoomId", "399", "ClassRoomTable.Id");
+        LoadAssert.ContainsAll(inner, "StudentRecord[Id=20260101].ClassRoomId(399)", "ClassRoomTable.Id");
     }
 
     [Fact]
@@ -47,6 +47,20 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
 
         var inner = Assert.Single(exception.InnerExceptions);
         LoadAssert.ContainsAll(inner, "GachaRecord", "PickupItemIds", "19999", "ItemTable.Id");
+    }
+
+    [Fact]
+    public async Task MonsterSkillNotInSkills_FailsWithPositionInsideTheCell()
+    {
+        using var culture = CultureScope.Invariant();
+        using var csv = fixture.CopyMainCsv();
+        CsvDocument.Edit(csv.FileOf("Rpg.Skills.csv"), x => x.Rows.RemoveAll(row => row[x.Column("Id")] == "Heal"));
+        var rpg = new RpgStaticData(NullLogger.Instance);
+
+        var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.FkFailed);
+
+        var inner = Assert.Single(exception.InnerExceptions);
+        LoadAssert.ContainsAll(inner, "MonsterRecord[Id=BossDragon].Skills[2](Heal)", "SkillTable.Id");
     }
 
     [Fact]
@@ -102,7 +116,7 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
         var exception = await LoadAssert.FailsWithAggregate(() => rpg.LoadAsync(csv.Root), LoadAssert.FkFailed);
 
         var inner = Assert.Single(exception.InnerExceptions);
-        LoadAssert.ContainsAll(inner, "SeasonPassRecord[Id=2]", "RewardId(99)", "PremiumRewardTable.Id", "IsPremium=");
+        LoadAssert.ContainsAll(inner, "SeasonPassRecord[Id=2].RewardId(99)", "PremiumRewardTable.Id", "IsPremium=true");
     }
 
     [Fact]
