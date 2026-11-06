@@ -123,15 +123,19 @@ internal static class StaticDataManagerAnalyzer
             membersByName[tableInfo.ParameterName] = tableInfo.RecordSymbol;
         }
 
+        var recordParameters = new Dictionary<INamedTypeSymbol, ImmutableArray<ParameterAnalysis>>(SymbolEqualityComparer.Default);
+
         var foreignKeysValid = ForeignKeyAttributeValidator.Validate(
             tableInfos,
             membersByName,
+            recordParameters,
             diagnostics,
             cancellationToken);
 
         var recordFkInfos = ForeignKeyAnalyzer.CollectRecordFkInfos(
             tableInfos,
             membersByName,
+            recordParameters,
             cancellationToken);
 
         var canEmit = tableSetPartial

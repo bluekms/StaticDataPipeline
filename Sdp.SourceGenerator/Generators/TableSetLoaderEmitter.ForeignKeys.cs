@@ -26,26 +26,27 @@ internal static partial class TableSetLoaderEmitter
             sb.Append(indent).AppendLine("    {");
             sb.Append(indent).Append("        var __records = tableSet.").Append(memberAccess).AppendLine(".Records;");
 
-            var fkSetVariables = EmitFkTargetSets(sb, recordFkInfo, indent + "        ");
+            var fkParameters = new List<FkParameter>();
+            CollectFkParameters(recordFkInfo.Scope, fkParameters);
 
-            for (var parameterIndex = 0; parameterIndex < recordFkInfo.Parameters.Length; parameterIndex++)
+            var fkSetVariables = EmitFkTargetSets(sb, recordFkInfo.TableSetMember, fkParameters, indent + "        ");
+
+            foreach (var fkParameter in fkParameters)
             {
-                sb.Append(indent).Append("        var __fkMissingReported").Append(parameterIndex).AppendLine(" = false;");
+                sb.Append(indent).Append("        var __fkMissingReported").Append(fkParameter.Index).AppendLine(" = false;");
             }
 
-            for (var parameterIndex = 0; parameterIndex < recordFkInfo.Parameters.Length; parameterIndex++)
+            foreach (var fkParameter in fkParameters)
             {
-                EmitRuntimeParsedSwitchConditions(sb, recordFkInfo.Parameters[parameterIndex], parameterIndex, indent + "        ");
+                EmitRuntimeParsedSwitchConditions(sb, fkParameter, indent + "        ");
             }
 
             sb.AppendLine();
             sb.Append(indent).AppendLine("        foreach (var __r in __records)");
             sb.Append(indent).AppendLine("        {");
 
-            for (var parameterIndex = 0; parameterIndex < recordFkInfo.Parameters.Length; parameterIndex++)
-            {
-                EmitFkParameterCheck(sb, recordFkInfo.Parameters[parameterIndex], parameterIndex, recordFkInfo, fkSetVariables, indent + "            ");
-            }
+            var rootContext = FkEmitContext.Root(recordFkInfo.RecordSymbol);
+            EmitFkScope(sb, recordFkInfo.Scope, rootContext, fkSetVariables, indent + "            ");
 
             sb.Append(indent).AppendLine("        }");
             sb.Append(indent).AppendLine("    }");
@@ -59,10 +60,94 @@ internal static partial class TableSetLoaderEmitter
         sb.Append(indent).AppendLine("}");
     }
 
+    private static void CollectFkParameters(FkScope scope, List<FkParameter> fkParameters)
+    {
+        fkParameters.AddRange(scope.Parameters);
+
+        foreach (var child in scope.Children)
+        {
+            CollectFkParameters(child.Scope, fkParameters);
+        }
+    }
+
+    private static void EmitFkScope(
+        StringBuilder sb,
+        FkScope scope,
+        FkEmitContext context,
+        Dictionary<FkTargetSetKey, string> fkSetVariables,
+        string indent)
+    {
+        foreach (var fkParameter in scope.Parameters)
+        {
+            EmitFkParameterCheck(sb, fkParameter, context, fkSetVariables, indent);
+        }
+
+        foreach (var child in scope.Children)
+        {
+            EmitFkChildScope(sb, child, context, fkSetVariables, indent);
+        }
+    }
+
+    private static void EmitFkChildScope(
+        StringBuilder sb,
+        FkChildScope child,
+        FkEmitContext context,
+        Dictionary<FkTargetSetKey, string> fkSetVariables,
+        string indent)
+    {
+        var depth = (context.Depth + 1).ToString(CultureInfo.InvariantCulture);
+        var instanceVariable = "__s" + depth;
+        var memberAccess = context.InstanceVariable + "." + EmitHelper.EscapeIdentifier(child.PropertyName);
+        var childContext = context.Enter(child.PropertyName, instanceVariable);
+
+        switch (child.Kind)
+        {
+            case FkChildKind.Record:
+            {
+                sb.Append(indent).AppendLine("{");
+                sb.Append(indent).Append("    var ").Append(instanceVariable).Append(" = ").Append(memberAccess).AppendLine(";");
+                break;
+            }
+
+            case FkChildKind.ArrayElement:
+            {
+                var indexVariable = "__i" + depth;
+                sb.Append(indent).Append("for (var ").Append(indexVariable).Append(" = 0; ")
+                    .Append(indexVariable).Append(" < ").Append(memberAccess).Append(".Length; ")
+                    .Append(indexVariable).AppendLine("++)");
+                sb.Append(indent).AppendLine("{");
+                sb.Append(indent).Append("    var ").Append(instanceVariable).Append(" = ")
+                    .Append(memberAccess).Append("[").Append(indexVariable).AppendLine("];");
+                childContext = childContext.WithElement("[{" + indexVariable + "}]");
+                break;
+            }
+
+            case FkChildKind.SetElement:
+            {
+                sb.Append(indent).Append("foreach (var ").Append(instanceVariable).Append(" in ")
+                    .Append(memberAccess).AppendLine(")");
+                sb.Append(indent).AppendLine("{");
+                break;
+            }
+
+            case FkChildKind.MapValue:
+            {
+                sb.Append(indent).Append("foreach (var ").Append(instanceVariable).Append(" in ")
+                    .Append(memberAccess).AppendLine(".Values)");
+                sb.Append(indent).AppendLine("{");
+                childContext = childContext.WithElement(BuildKeyClause(child.RecordSymbol, instanceVariable));
+                break;
+            }
+        }
+
+        EmitFkScope(sb, child.Scope, childContext, fkSetVariables, indent + "    ");
+
+        sb.Append(indent).AppendLine("}");
+    }
+
     private static void EmitRuntimeParsedSwitchConditions(
         StringBuilder sb,
         FkParameter fkParameter,
-        int parameterIndex,
         string indent)
     {
         var switchBranches = fkParameter.Branches
@@ -76,7 +161,7 @@ internal static partial class TableSetLoaderEmitter
                 continue;
             }
 
-            sb.Append(indent).Append("var ").Append(SwitchConditionVariable(parameterIndex, branchIndex))
+            sb.Append(indent).Append("var ").Append(SwitchConditionVariable(fkParameter.Index, branchIndex))
                 .Append(" = ").Append(branch.ConditionLiteral!).AppendLine(";");
         }
     }
@@ -89,14 +174,63 @@ internal static partial class TableSetLoaderEmitter
 
     private sealed record FkTargetSetKey(string TableSetMember, string TargetColumn, string PropertyTypeName);
 
+    // DisplayBody 는 오류 메시지에 찍는 인스턴스 경로의 보간 문자열 본문이고(MonsterRecord[Id={__r.Id}].Drops[{__i1}]),
+    // StaticPath 는 인스턴스와 무관한 선언 경로다(MonsterRecord.Drops).
+    private sealed record FkEmitContext(
+        string InstanceVariable,
+        string DisplayBody,
+        bool DisplayHasInterpolation,
+        string StaticPath,
+        int Depth)
+    {
+        public static FkEmitContext Root(INamedTypeSymbol recordSymbol)
+        {
+            var keyClause = BuildKeyClause(recordSymbol, "__r");
+
+            return new FkEmitContext(
+                "__r",
+                recordSymbol.Name + keyClause,
+                keyClause.Length > 0,
+                recordSymbol.Name,
+                Depth: 0);
+        }
+
+        public FkEmitContext Enter(string propertyName, string instanceVariable)
+        {
+            return new FkEmitContext(
+                instanceVariable,
+                DisplayBody + "." + propertyName,
+                DisplayHasInterpolation,
+                StaticPath + "." + propertyName,
+                Depth + 1);
+        }
+
+        public FkEmitContext WithElement(string elementClause)
+        {
+            return this with
+            {
+                DisplayBody = DisplayBody + elementClause,
+                DisplayHasInterpolation = DisplayHasInterpolation || elementClause.Length > 0,
+            };
+        }
+
+        public string BuildDisplayExpression()
+        {
+            return DisplayHasInterpolation
+                ? "global::System.FormattableString.Invariant($\"" + DisplayBody + "\")"
+                : SymbolDisplay.FormatLiteral(DisplayBody, quote: true);
+        }
+    }
+
     private static Dictionary<FkTargetSetKey, string> EmitFkTargetSets(
         StringBuilder sb,
-        RecordFkInfo recordFkInfo,
+        string tableSetMember,
+        List<FkParameter> fkParameters,
         string indent)
     {
         var setVariables = new Dictionary<FkTargetSetKey, string>();
 
-        foreach (var fkParameter in recordFkInfo.Parameters)
+        foreach (var fkParameter in fkParameters)
         {
             var propertyTypeFullyQualifiedName = fkParameter.ValueType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             foreach (var branch in fkParameter.Branches)
@@ -110,7 +244,7 @@ internal static partial class TableSetLoaderEmitter
                 var setVariable = "__fkSet" + setVariables.Count.ToString(CultureInfo.InvariantCulture);
                 setVariables[setKey] = setVariable;
 
-                if (branch.TableSetMember == recordFkInfo.TableSetMember)
+                if (branch.TableSetMember == tableSetMember)
                 {
                     EmitSelfReferenceFkTargetSet(sb, branch, propertyTypeFullyQualifiedName, setVariable, indent);
                     continue;
@@ -167,23 +301,16 @@ internal static partial class TableSetLoaderEmitter
     private static void EmitFkParameterCheck(
         StringBuilder sb,
         FkParameter fkParameter,
-        int parameterIndex,
-        RecordFkInfo recordFkInfo,
+        FkEmitContext context,
         Dictionary<FkTargetSetKey, string> fkSetVariables,
         string indent)
     {
         var propertyTypeFullyQualifiedName = fkParameter.ValueType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-        var keyParameter = FindKeyParameter(recordFkInfo.RecordSymbol);
-        var keyClause = keyParameter is null
-            ? string.Empty
-            : "[" + keyParameter.Name + "=" + BuildKeyValueAccess(keyParameter) + "]";
-        var recordDisplayExpr = keyClause.Length == 0
-            ? SymbolDisplay.FormatLiteral(recordFkInfo.RecordSymbol.Name, quote: true)
-            : "global::System.FormattableString.Invariant($\"" + recordFkInfo.RecordSymbol.Name + keyClause + "\")";
+        var recordDisplayExpr = context.BuildDisplayExpression();
         var propertyNameLiteral = SymbolDisplay.FormatLiteral(fkParameter.PropertyName, quote: true);
-        var sourceLiteral = SymbolDisplay.FormatLiteral(
-            recordFkInfo.RecordSymbol.Name + "." + fkParameter.PropertyName, quote: true);
-        var missingReportedVariable = "__fkMissingReported" + parameterIndex.ToString(CultureInfo.InvariantCulture);
+        var sourceLiteral = SymbolDisplay.FormatLiteral(context.StaticPath + "." + fkParameter.PropertyName, quote: true);
+        var missingReportedVariable = "__fkMissingReported" + fkParameter.Index.ToString(CultureInfo.InvariantCulture);
+        var instanceAccess = context.InstanceVariable + ".";
 
         var isNullable = TypeClassifier.IsNullable(fkParameter.ValueType);
 
@@ -191,14 +318,14 @@ internal static partial class TableSetLoaderEmitter
         var body = indent;
         if (fkParameter.IsCollection)
         {
-            sb.Append(indent).Append("    foreach (var __v in __r.")
+            sb.Append(indent).Append("    foreach (var __v in ").Append(instanceAccess)
                 .Append(EmitHelper.EscapeIdentifier(fkParameter.PropertyName)).AppendLine(")");
             sb.Append(indent).AppendLine("    {");
             body = indent + "    ";
         }
         else
         {
-            sb.Append(indent).Append("    var __v = __r.")
+            sb.Append(indent).Append("    var __v = ").Append(instanceAccess)
                 .Append(EmitHelper.EscapeIdentifier(fkParameter.PropertyName)).AppendLine(";");
         }
 
@@ -302,16 +429,17 @@ internal static partial class TableSetLoaderEmitter
             sb.Append(body).AppendLine("    var __matched = false;");
             sb.Append(body).AppendLine("    var __switchTargetLoaded = false;");
 
-            var conditionDisplay = BuildConditionDisplay(conditionColumnAccess, switchBranches[0].ConditionDisplayFormat);
+            var conditionAccess = instanceAccess + conditionColumnAccess;
+            var conditionDisplay = BuildConditionDisplay(conditionAccess, switchBranches[0].ConditionDisplayFormat);
             var conditionColumnLiteral = SymbolDisplay.FormatLiteral(conditionColumn, quote: true);
 
             for (var branchIndex = 0; branchIndex < switchBranches.Count; branchIndex++)
             {
                 var branch = switchBranches[branchIndex];
                 var conditionOperand = branch.ConditionParsesAtRuntime
-                    ? SwitchConditionVariable(parameterIndex, branchIndex)
+                    ? SwitchConditionVariable(fkParameter.Index, branchIndex)
                     : branch.ConditionLiteral!;
-                var conditionExpression = "__r." + conditionColumnAccess + " == " + conditionOperand;
+                var conditionExpression = conditionAccess + " == " + conditionOperand;
 
                 var setKey = new FkTargetSetKey(branch.TableSetMember, branch.TargetColumn, propertyTypeFullyQualifiedName);
                 var setVariable = fkSetVariables[setKey];
@@ -368,14 +496,14 @@ internal static partial class TableSetLoaderEmitter
         sb.Append(indent).AppendLine("}");
     }
 
-    private static string BuildConditionDisplay(string conditionColumnAccess, string? conditionDisplayFormat)
+    private static string BuildConditionDisplay(string conditionAccess, string? conditionDisplayFormat)
     {
         if (conditionDisplayFormat is null)
         {
-            return "{__r." + conditionColumnAccess + "}";
+            return "{" + conditionAccess + "}";
         }
 
-        return "{__r." + conditionColumnAccess + ":" + EscapeInterpolationFormat(conditionDisplayFormat) + "}";
+        return "{" + conditionAccess + ":" + EscapeInterpolationFormat(conditionDisplayFormat) + "}";
     }
 
     private static string EscapeInterpolationFormat(string format)
@@ -410,9 +538,20 @@ internal static partial class TableSetLoaderEmitter
         return null;
     }
 
-    private static string BuildKeyValueAccess(IParameterSymbol keyParameter)
+    private static string BuildKeyClause(INamedTypeSymbol record, string instanceVariable)
     {
-        var access = "__r." + EmitHelper.EscapeIdentifier(keyParameter.Name);
+        var keyParameter = FindKeyParameter(record);
+        if (keyParameter is null)
+        {
+            return string.Empty;
+        }
+
+        return "[" + keyParameter.Name + "=" + BuildKeyValueAccess(keyParameter, instanceVariable) + "]";
+    }
+
+    private static string BuildKeyValueAccess(IParameterSymbol keyParameter, string instanceVariable)
+    {
+        var access = instanceVariable + "." + EmitHelper.EscapeIdentifier(keyParameter.Name);
         if (keyParameter.Type is INamedTypeSymbol { IsValueType: true, IsRecord: true } keyType)
         {
             var primaryConstructor = SymbolResolver.FindPrimaryConstructor(keyType);

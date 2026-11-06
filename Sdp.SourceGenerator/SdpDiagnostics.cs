@@ -382,6 +382,14 @@ internal static class SdpDiagnostics
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
+    public static readonly DiagnosticDescriptor ForeignKeyInsideTypeBrandingRecord = new(
+        id: "SDP0229",
+        title: "ForeignKey cannot be applied inside a type branding record",
+        messageFormat: "'{0}'는 타입 브랜딩 record 라서 안쪽 파라미터 '{1}'에 붙인 [{2}]는 검사되지 않습니다. '{0}' 타입으로 선언한 파라미터 중 검사가 필요한 곳 앞에 붙이세요.",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     public static readonly DiagnosticDescriptor ViewSetRecordMustBePartial = new(
         id: "SDP0301",
         title: "ViewSet record must be partial",
