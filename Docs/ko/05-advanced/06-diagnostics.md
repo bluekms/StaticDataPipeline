@@ -39,7 +39,7 @@
 |`SDP0206`|FK 타겟 컬럼이 대상 Record 에 없다|Record 파라미터 이름과 맞춘다|
 |`SDP0207`|FK 타겟 컬럼이 `[SingleColumnCollection]` 이다|단일 값 컬럼을 타겟으로 지정한다|
 |`SDP0208`|`[SwitchForeignKey]` 의 조건 (컬럼, 값) 조합이 중복된다|중복 분기를 제거한다|
-|`SDP0209`|`[SwitchForeignKey]` 의 조건 컬럼이 같은 Record 에 없다|조건 컬럼 이름을 맞춘다|
+|`SDP0209`|`[SwitchForeignKey]` 의 조건 컬럼이 같은 Record 에 없다 (중첩 record 안에 붙였다면 그 중첩 record)|조건 컬럼 이름을 맞춘다. 바깥 Record 의 컬럼은 조건으로 쓸 수 없으므로 조건 컬럼을 같은 record 안에 둔다|
 |`SDP0210`|한 파라미터의 `[SwitchForeignKey]` 들이 서로 다른 조건 컬럼을 쓴다|같은 조건 컬럼으로 통일한다|
 |`SDP0211`|FK 참조 값의 타입이 타겟 컬럼 타입과 다르다 (컬렉션 참조는 원소 타입 기준)|타입을 맞춘다. FK `int?` → 타겟 `int` 는 허용되지만 FK `int` → 타겟 `int?` 는 이 진단이다. Map 이나 원소가 Record 인 컬렉션은 참조 컬럼이 될 수 없다|
 |`SDP0212`|enum 조건 컬럼에 대해 `[SwitchForeignKey]` 조건값이 어떤 멤버와도 맞지 않는다|멤버 이름 하나 또는 정수 값으로 고친다. `"Read, Write"` 같은 조합은 `[Flags]` enum 이어도 받지 않는다|
@@ -59,6 +59,8 @@
 |`SDP0226`|같은 파라미터에 같은 (TableSet, 컬럼) 타겟의 `[ForeignKey]` 가 두 번 붙어 있다|하나만 남긴다|
 |`SDP0227`|`[SwitchForeignKey]` 조건 컬럼이 단일 값 타입이 아니다 (타입 브랜딩 record)|단일 값 컬럼을 조건으로 쓴다|
 |`SDP0228`|실수·날짜·시간·string 조건 컬럼에 대해 `[SwitchForeignKey]` 조건값을 그 타입의 값으로 해석할 수 없다|조건값을 고친다. 날짜·시간은 조건 컬럼의 `[DateTimeFormat]` / `[TimeSpanFormat]` 과 같은 표기로 적는다|
+|`SDP0229`|타입 브랜딩 record 의 안쪽 파라미터에 `[ForeignKey]` 또는 `[SwitchForeignKey]` 가 붙어 있다|안쪽의 Attribute 를 지우고, 그 브랜딩 타입으로 선언한 파라미터 중 검사가 필요한 곳 앞에 붙인다 ([5.3](./03-type-branding.md))|
+|`SDP0230`|`[Ignore]` 파라미터에 `[ForeignKey]` 또는 `[SwitchForeignKey]` 가 붙어 있다. 읽을 값이 없어 검사할 수 없다|`[Ignore]` 를 지우거나 외래 키 Attribute 를 지운다|
 
 </br></br></br>
 

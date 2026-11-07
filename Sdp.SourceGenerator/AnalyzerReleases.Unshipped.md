@@ -52,6 +52,8 @@ SDP0225 | Sdp.SourceGenerator | Error | SwitchForeignKey equivalent condition va
 SDP0226 | Sdp.SourceGenerator | Error | ForeignKey duplicate target
 SDP0227 | Sdp.SourceGenerator | Error | SwitchForeignKey condition column must be a single-value type
 SDP0228 | Sdp.SourceGenerator | Error | SwitchForeignKey condition value cannot be parsed as the condition column type
+SDP0229 | Sdp.SourceGenerator | Error | ForeignKey cannot be applied inside a type branding record
+SDP0230 | Sdp.SourceGenerator | Error | ForeignKey cannot be applied to an ignored parameter
 SDP0301 | Sdp.SourceGenerator | Error | ViewSet record must be partial
 SDP0302 | Sdp.SourceGenerator | Error | ViewSet member must be non-nullable
 SDP0303 | Sdp.SourceGenerator | Error | StaticDataView subclass must be partial

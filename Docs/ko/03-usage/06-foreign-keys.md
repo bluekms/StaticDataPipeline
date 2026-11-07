@@ -57,11 +57,15 @@ ForeignKey 검증은 두 단계로 나뉩니다.
    - 참조 컬럼과 대상 컬럼의 타입이 같은가? (`SDP0211`) — nullable 은 비대칭이라 `int?` 참조 → `int` 대상은 허용되지만 `int` 참조 → `int?` 대상은 거부된다. 기본 타입 참조 컬럼은 **같은 타입을 감싼 브랜딩 키** (`int` → `record struct ItemId(int Value)` 인 `Id`) 도 가리킬 수 있고, 이때 로더는 대상 키의 안쪽 값으로 비교한다 (한 컬럼이 키 타입이 다른 두 테이블을 가리킬 때 쓴다). 참조 컬럼이 `ImmutableArray<int>` 처럼 원소가 단일 값인 컬렉션이면 원소 타입으로 비교하고 로드 시 원소마다 검사한다 (nullable 원소의 `null` 은 건너뜀). 원소가 브랜딩 record 인 컬렉션 (`FrozenSet<ItemRecord.ItemId>`) 도 같다. Map 이나 원소가 일반 Record 인 컬렉션은 참조 컬럼이 될 수 없다.
    - 같은 파라미터에 `[ForeignKey]` 와 `[SwitchForeignKey]` 가 함께 붙어 있지 않은가? (`SDP0204`)
    - 같은 파라미터에 같은 대상이 두 번 붙어 있지 않은가? (`SDP0226`)
-   - `[SwitchForeignKey]` 의 조건 컬럼이 같은 Record 안에 존재하는가? (`SDP0209`)
+   - `[SwitchForeignKey]` 의 조건 컬럼이 같은 Record 안에 존재하는가? (`SDP0209`) — 중첩 record 안에 붙였다면 그 중첩 record 안에서 찾는다.
    - 한 파라미터에 붙은 `[SwitchForeignKey]` 들이 모두 같은 조건 컬럼을 쓰는가? (`SDP0210`)
    - `[SwitchForeignKey]` 의 조건 컬럼이 단일 값 타입인가? (컬렉션 `SDP0224`, 타입 브랜딩 record `SDP0227`)
    - `[SwitchForeignKey]` 의 `conditionValue` 가 조건 컬럼 타입의 값으로 해석되는가? (enum 멤버명·정수 `SDP0212`, 정수 `SDP0220`, bool `SDP0221`, char `SDP0222`, Guid `SDP0223`, 실수·날짜·시간 `SDP0228`)
    - `[SwitchForeignKey]` 의 같은 조건이 두 번 이상 등장하지 않는가? (`SDP0208`, 표기만 다른 같은 값은 `SDP0225`)
+   - 타입 브랜딩 record 의 안쪽 파라미터에 붙어 있지 않은가? (`SDP0229`)
+   - `[Ignore]` 파라미터에 붙어 있지 않은가? (`SDP0230`) — 읽지 않는 컬럼은 검사할 값이 없다.
+
+   위 검사는 테이블 Record 의 파라미터뿐 아니라 그 안에 중첩된 record 의 파라미터에도 똑같이 적용된다 ([중첩 record 안의 외래 키](#nested-foreign-keys)).
 2. **로드 시점 — `LoadAsync` 가 실제 값을 확인**
    - 대상 테이블이 `disabledTables` 로 빠지지 않았는가? (검사할 값이 있는데 대상이 하나도 로드되지 않았으면 `FkTargetNotFound`, 파라미터당 한 번만 보고)
    - 실제 CSV 값이 대상 테이블의 해당 컬럼 값 집합 안에 있는가? (`FkValueNotFound`)
@@ -265,10 +269,63 @@ Id,Kind,TargetId,Amount
 
 </br></br></br>
 
+<a id="nested-foreign-keys"></a>
+## 중첩 record 안의 외래 키
+
+`[ForeignKey]` 와 `[SwitchForeignKey]` 는 테이블 Record 의 파라미터뿐 아니라 **그 안에 중첩된 record 의 파라미터** 에도 붙일 수 있습니다. 중첩 record 하나, record 를 원소로 하는 컬렉션, Map 의 Value record 가 모두 대상이고 깊이 제한은 없습니다.
+
+```csharp
+public sealed record Drop(
+    [ForeignKey("ItemTable", "Id")] int ItemId,
+    decimal Rate);
+
+[StaticDataRecord("GameItems", "Monsters")]
+public sealed partial record MonsterRecord(
+    [Key] int Id,
+    string Name,
+    [Length(3)] ImmutableArray<Drop> Drops);
+```
+
+`Drops[2].ItemId` 칸에 `ItemTable` 에 없는 `9999` 를 적으면 로드가 다음과 같이 실패합니다.
+
+```
+AggregateException: FK 검증에 실패했습니다.
+  - MonsterRecord[Id=1001].Drops[2].ItemId(9999)이(가) [ItemTable.Id] 중 어디에도 존재하지 않습니다.
+```
+
+메시지의 경로는 중첩된 자리에 따라 다음과 같이 적힙니다.
+
+|중첩된 자리|선언 예|경로 표기|
+|-|-|-|
+|record 하나|`Reward FirstKill`|`MonsterRecord[Id=1001].FirstKill.ItemId(9999)`|
+|`ImmutableArray<record>`|`ImmutableArray<Drop> Drops`|`MonsterRecord[Id=1001].Drops[2].ItemId(9999)` — 대괄호 숫자는 헤더 `Drops[2]` 의 그 번호|
+|`FrozenSet<record>`|`FrozenSet<Objective> Objectives`|`MonsterRecord[Id=1001].Objectives.TargetId(9999)` — 집합은 순서가 없어 번호를 적지 않는다|
+|Map 의 Value record|`FrozenDictionary<int, LootSlot> Lootbox`|`MonsterRecord[Id=1001].Lootbox[Slot=5].ItemId(9999)` — Value record 의 `[Key]` 파라미터 이름과 값|
+
+대상 테이블이 `disabledTables` 로 빠졌을 때의 `FkTargetNotFound` 는 원소를 가리키지 않으므로 `MonsterRecord.Drops.ItemId` 처럼 번호 없이 파라미터당 한 번 보고합니다.
+
+지켜야 할 규칙은 두 가지입니다.
+
+- **`[SwitchForeignKey]` 의 조건 컬럼은 그 Attribute 가 붙은 record 안에 있어야 합니다.** 중첩 record `Drop` 안에 붙였다면 조건 컬럼도 `Drop` 의 파라미터여야 하고, 바깥 `MonsterRecord` 의 컬럼은 가리킬 수 없습니다 (`SDP0209`).
+- **타입 브랜딩 record 의 안쪽 파라미터에는 붙일 수 없습니다** (`SDP0229`). 브랜딩 타입으로 선언한 파라미터 앞에 붙입니다. [5.3 타입 브랜딩](../05-advanced/03-type-branding.md) 의 "Attribute 부착 위치" 를 참고하세요.
+
+```csharp
+public sealed record Drop(
+    RewardKind Kind,
+    [SwitchForeignKey(nameof(Kind), "Item",     "ItemTable",     "Id")]
+    [SwitchForeignKey(nameof(Kind), "Currency", "CurrencyTable", "Id")]
+    int TargetId);
+```
+
+nullable 중첩 record (`Drop?`) 는 Sdp 가 지원하지 않는 선언이라 빌드가 거부하므로 그 안의 FK 도 대상이 아닙니다.
+
+</br></br></br>
+
 ## 정리
 
 - `[ForeignKey(tableSet, column)]` — 단일 대상. 여러 번 붙이면 "어느 하나에 있으면 유효" 가 된다.
 - `[SwitchForeignKey(conditionColumn, conditionValue, tableSet, column)]` — 분기 대상. 같은 파라미터에 여러 번 붙여 분기 표를 만든다.
+- 두 Attribute 모두 중첩 record 의 파라미터에도 붙일 수 있고, 어긋난 자리는 `Drops[2].ItemId` 같은 경로로 보고된다. `[SwitchForeignKey]` 의 조건 컬럼은 같은 record 안에서만 찾는다.
 - 선언의 구조 (타겟 테이블·컬럼 존재, 타입 일치 — nullable 은 참조 컬럼 쪽에만 허용되고 컬렉션 참조는 원소 타입 기준, 조건 중복) 는 빌드 시점 진단으로, 실제 참조 값은 `LoadAsync` 에서 검증되며 (컬렉션 참조는 원소마다), 로드 시점 실패는 `AggregateException` 으로 한 번에 통보된다.
 - `disabledTables` 로 대상 테이블을 건너뛰면 그 테이블을 참조하는 값은 검증할 수 없으므로, 로드된 다른 대상에서도 찾지 못한 값이 하나라도 있으면 `FkTargetNotFound` 로 실패한다 (참조 값이 없으면 통과하고, 참조하는 쪽 테이블도 함께 빠지면 검사 자체가 생략된다) — 독립된 그룹만 disable 하는 것이 안전하다.
 
