@@ -57,7 +57,7 @@ public partial class NestedRecordForeignKeyTests(ITestOutputHelper testOutputHel
     private sealed record Drop(
         [ForeignKey("Item", "Id")] int ItemId,
         int Rate,
-        [Ignore] [ForeignKey("Item", "Id")] int LegacyItemId);
+        [Ignore] int LegacyItemId);
 
     private sealed record Objective(
         RewardKind Kind,
@@ -75,7 +75,7 @@ public partial class NestedRecordForeignKeyTests(ITestOutputHelper testOutputHel
         [Length(2)] ImmutableArray<Drop> Drops,
         [Length(2)] FrozenSet<Objective> Objectives,
         [Length(2)] FrozenDictionary<int, LootSlot> Lootbox,
-        [Ignore] [ForeignKey("Item", "Id")] int LegacyItemId);
+        [Ignore] int LegacyItemId);
 
     private sealed record Link([NullString("")] [ForeignKey("Node", "Id")] int? TargetId, int Weight);
 
@@ -117,7 +117,7 @@ public partial class NestedRecordForeignKeyTests(ITestOutputHelper testOutputHel
     }
 
     [Fact]
-    public async Task Load_AllNestedReferencesExist_SucceedsAndSkipsIgnoredParameters()
+    public async Task Load_AllNestedReferencesExist_Succeeds()
     {
         var logger = CreateLogger();
 

@@ -201,6 +201,52 @@ public class NestedRecordForeignKeyGeneratorTests(ITestOutputHelper testOutputHe
         Assert.Empty(logger.Logs);
     }
 
+    [Theory]
+    [InlineData("""[ForeignKey("Item", "Id")]""", "[ForeignKey]")]
+    [InlineData("""[SwitchForeignKey("Kind", "Item", "Item", "Id")]""", "[SwitchForeignKey]")]
+    public void Reports_SDP0230_when_foreign_key_is_on_ignored_parameter(string attribute, string expectedName)
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        var source =
+            $$"""
+            [StaticDataRecord("Monster", "S")]
+            public sealed partial record MonsterRec(
+                [Key] int Id,
+                RewardKind Kind,
+                [Ignore] {{attribute}} int LegacyItemId);
+            """;
+
+        var diagnostic = Assert.Single(RunDiagnostics(source), d => d.Id == "SDP0230");
+        Assert.Equal(DiagnosticSeverity.Error, diagnostic.Severity);
+        var message = diagnostic.GetMessage(System.Globalization.CultureInfo.InvariantCulture);
+        Assert.Contains("'MonsterRec'", message, StringComparison.Ordinal);
+        Assert.Contains("'LegacyItemId'", message, StringComparison.Ordinal);
+        Assert.Contains(expectedName, message, StringComparison.Ordinal);
+        Assert.Empty(logger.Logs);
+    }
+
+    [Fact]
+    public void Reports_SDP0230_when_foreign_key_is_on_ignored_parameter_of_nested_record()
+    {
+        var logger = CreateLogger();
+
+        // language=C#
+        const string source =
+            """
+            public sealed record Drop(int Rate, [Ignore] [ForeignKey("Item", "Id")] int LegacyItemId);
+
+            [StaticDataRecord("Monster", "S")]
+            public sealed partial record MonsterRec([Key] int Id, [Length(2)] ImmutableArray<Drop> Drops);
+            """;
+
+        var diagnostic = Assert.Single(RunDiagnostics(source), d => d.Id == "SDP0230");
+        var message = diagnostic.GetMessage(System.Globalization.CultureInfo.InvariantCulture);
+        Assert.Contains("'Drop'", message, StringComparison.Ordinal);
+        Assert.Empty(logger.Logs);
+    }
+
     [Fact]
     public void Allows_foreign_key_on_single_parameter_table_record()
     {
