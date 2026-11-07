@@ -4,6 +4,8 @@ namespace Sdp.SourceGenerator.Generators;
 
 internal sealed record FkTargetResolution(string? TargetUnwrapMember);
 
+internal sealed record FkValueShape(ITypeSymbol ValueType, FkCollectionKind Collection, string? ValueDisplayMember);
+
 internal static class FkTargetResolver
 {
     public static ITypeSymbol ResolveFkValueType(ITypeSymbol parameterType)
@@ -26,8 +28,17 @@ internal static class FkTargetResolver
         return collection.ElementType;
     }
 
-    // valueType 은 같은 파라미터에 대한 ResolveFkValueType 의 결과다.
-    public static FkCollectionKind ResolveCollectionKind(ITypeSymbol parameterType, ITypeSymbol valueType)
+    public static FkValueShape ResolveValueShape(ITypeSymbol parameterType)
+    {
+        var valueType = ResolveFkValueType(parameterType);
+        var collection = ResolveCollectionKind(parameterType, valueType);
+        var valueDisplayMember = ResolveValueDisplayMember(valueType);
+
+        return new FkValueShape(valueType, collection, valueDisplayMember);
+    }
+
+    // ResolveFkValueType 이 파라미터 타입을 그대로 돌려줬다면 컬렉션으로 다루지 않는 자리다.
+    private static FkCollectionKind ResolveCollectionKind(ITypeSymbol parameterType, ITypeSymbol valueType)
     {
         if (SymbolEqualityComparer.Default.Equals(valueType, parameterType))
         {

@@ -230,14 +230,14 @@ internal static class ForeignKeyAnalyzer
             return null;
         }
 
-        var valueType = FkTargetResolver.ResolveFkValueType(param.Type);
+        var valueShape = FkTargetResolver.ResolveValueShape(param.Type);
 
         return new FkParameter(
             parameterIndex,
             param.Name,
-            valueType,
-            FkTargetResolver.ResolveCollectionKind(param.Type, valueType),
-            FkTargetResolver.ResolveValueDisplayMember(valueType),
+            valueShape.ValueType,
+            valueShape.Collection,
+            valueShape.ValueDisplayMember,
             branchBuilder.ToImmutable());
     }
 
