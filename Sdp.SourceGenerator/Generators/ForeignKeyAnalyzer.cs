@@ -220,6 +220,7 @@ internal static class ForeignKeyAnalyzer
                     conditionLiteral.Code,
                     conditionLiteral.ParsesAtRuntime,
                     dateTimeFormat ?? timeSpanFormat,
+                    ResolveConditionDisplayKind(conditionProperty.Type),
                     switchResolution.TargetUnwrapMember));
             }
         }
@@ -229,11 +230,27 @@ internal static class ForeignKeyAnalyzer
             return null;
         }
 
+        var valueShape = FkTargetResolver.ResolveValueShape(param.Type);
+
         return new FkParameter(
             parameterIndex,
             param.Name,
-            FkTargetResolver.ResolveFkValueType(param.Type),
-            FkTargetResolver.IsCollectionFk(param.Type),
+            valueShape.ValueType,
+            valueShape.Collection,
+            valueShape.ValueDisplayMember,
             branchBuilder.ToImmutable());
+    }
+
+    private static FkConditionDisplayKind ResolveConditionDisplayKind(ITypeSymbol conditionColumnType)
+    {
+        var conditionType = TypeClassifier.UnwrapNullable(conditionColumnType);
+        if (conditionType.SpecialType != SpecialType.System_Boolean)
+        {
+            return FkConditionDisplayKind.Default;
+        }
+
+        return TypeClassifier.IsNullable(conditionColumnType)
+            ? FkConditionDisplayKind.NullableBoolean
+            : FkConditionDisplayKind.Boolean;
     }
 }

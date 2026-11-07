@@ -69,8 +69,23 @@ internal sealed record FkParameter(
     int Index,
     string PropertyName,
     ITypeSymbol ValueType,
-    bool IsCollection,
+    FkCollectionKind Collection,
+    string? ValueDisplayMember,
     ImmutableArray<FkBranch> Branches);
+
+internal enum FkCollectionKind
+{
+    None,
+    Array,
+    Set,
+}
+
+internal enum FkConditionDisplayKind
+{
+    Default,
+    Boolean,
+    NullableBoolean,
+}
 
 internal sealed record FkBranch(
     string TableSetMember,
@@ -81,6 +96,7 @@ internal sealed record FkBranch(
     string? ConditionLiteral,
     bool ConditionParsesAtRuntime,
     string? ConditionDisplayFormat,
+    FkConditionDisplayKind ConditionDisplayKind,
     string? TargetUnwrapMember)
 {
     public static FkBranch ForeignKey(string tableSetMember, string targetColumn, string? targetUnwrapMember)
@@ -94,6 +110,7 @@ internal sealed record FkBranch(
             ConditionLiteral: null,
             ConditionParsesAtRuntime: false,
             ConditionDisplayFormat: null,
+            ConditionDisplayKind: FkConditionDisplayKind.Default,
             targetUnwrapMember);
     }
 
@@ -105,6 +122,7 @@ internal sealed record FkBranch(
         string conditionLiteral,
         bool conditionParsesAtRuntime,
         string? conditionDisplayFormat,
+        FkConditionDisplayKind conditionDisplayKind,
         string? targetUnwrapMember)
     {
         return new FkBranch(
@@ -116,6 +134,7 @@ internal sealed record FkBranch(
             conditionLiteral,
             conditionParsesAtRuntime,
             conditionDisplayFormat,
+            conditionDisplayKind,
             targetUnwrapMember);
     }
 }
