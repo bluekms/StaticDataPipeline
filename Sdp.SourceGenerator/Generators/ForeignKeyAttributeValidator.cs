@@ -150,6 +150,7 @@ internal static class ForeignKeyAttributeValidator
         {
             var fkAttrs = new List<AttributeData>();
             var switchFkAttrs = new List<AttributeData>();
+            var isIgnored = false;
 
             foreach (var attr in param.GetAttributes())
             {
@@ -166,6 +167,17 @@ internal static class ForeignKeyAttributeValidator
                 {
                     switchFkAttrs.Add(attr);
                 }
+                else if (attr.AttributeClass.Name == SdpAttributeNames.Ignore)
+                {
+                    isIgnored = true;
+                }
+            }
+
+            if (isIgnored)
+            {
+                valid &= ValidateIgnoredParameter(recordType, param, fkAttrs, switchFkAttrs, diagnostics);
+
+                continue;
             }
 
             if (fkAttrs.Count > 0 && switchFkAttrs.Count > 0)
@@ -209,6 +221,42 @@ internal static class ForeignKeyAttributeValidator
                         .ValidateConditionValueEquivalence(recordType, param, switchFkAttrs, diagnostics);
                 }
             }
+        }
+
+        return valid;
+    }
+
+    private static bool ValidateIgnoredParameter(
+        INamedTypeSymbol recordType,
+        IParameterSymbol param,
+        List<AttributeData> fkAttrs,
+        List<AttributeData> switchFkAttrs,
+        List<Diagnostic> diagnostics)
+    {
+        var valid = true;
+
+        if (fkAttrs.Count > 0)
+        {
+            diagnostics.Add(Diagnostic.Create(
+                SdpDiagnostics.ForeignKeyOnIgnoredParameter,
+                ParameterLocation(param),
+                recordType.Name,
+                param.Name,
+                "ForeignKey"));
+
+            valid = false;
+        }
+
+        if (switchFkAttrs.Count > 0)
+        {
+            diagnostics.Add(Diagnostic.Create(
+                SdpDiagnostics.ForeignKeyOnIgnoredParameter,
+                ParameterLocation(param),
+                recordType.Name,
+                param.Name,
+                "SwitchForeignKey"));
+
+            valid = false;
         }
 
         return valid;

@@ -390,6 +390,14 @@ internal static class SdpDiagnostics
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
+    public static readonly DiagnosticDescriptor ForeignKeyOnIgnoredParameter = new(
+        id: "SDP0230",
+        title: "ForeignKey cannot be applied to an ignored parameter",
+        messageFormat: "record '{0}'의 [Ignore] 파라미터 '{1}'에 붙인 [{2}]는 검사되지 않습니다. 둘 중 하나를 지우세요.",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     public static readonly DiagnosticDescriptor ViewSetRecordMustBePartial = new(
         id: "SDP0301",
         title: "ViewSet record must be partial",

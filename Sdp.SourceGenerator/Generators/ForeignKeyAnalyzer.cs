@@ -89,12 +89,6 @@ internal static class ForeignKeyAnalyzer
 
         for (var parameterIndex = 0; parameterIndex < parameters.Length; parameterIndex++)
         {
-            // [Ignore] 파라미터는 CSV 에서 읽지 않고 기본값으로 채워지므로 검사할 값이 없다.
-            if (parameters[parameterIndex].IsIgnored)
-            {
-                continue;
-            }
-
             var param = primaryCtor.Parameters[parameterIndex];
             var fkParameter = AnalyzeFkParameter(recordType, param, membersByName, nextParameterIndex);
             if (fkParameter is not null)
