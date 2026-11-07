@@ -107,9 +107,6 @@ public partial class RecordSchemaLoaderAsyncTests(ITestOutputHelper testOutputHe
             Assert.Equal(
                 syncResults[i].RecordDeclarationList.Count,
                 asyncResults[i].RecordDeclarationList.Count);
-            Assert.Equal(
-                syncResults[i].EnumDeclarationList.Count,
-                asyncResults[i].EnumDeclarationList.Count);
         }
 
         Assert.Empty(logger.Logs);

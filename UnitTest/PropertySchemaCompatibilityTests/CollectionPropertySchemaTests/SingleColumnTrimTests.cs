@@ -59,9 +59,8 @@ public partial class SingleColumnTrimTests(ITestOutputHelper testOutputHelper)
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
         var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
-        var enumMemberCatalog = new EnumMemberCatalog(loadResult);
         RecordComplianceChecker.Check(recordSchemaCatalog, logger);
-        var catalogs = new MetadataCatalogs(recordSchemaCatalog, enumMemberCatalog);
+        var catalogs = new MetadataCatalogs(recordSchemaCatalog);
 
         var cells = new[] { new CellData("A1", cellValue) };
         var context = CompatibilityContext.CreateCollectKey(catalogs, cells);

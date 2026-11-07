@@ -108,7 +108,7 @@ public partial class AttributeArgumentEvaluationTests(ITestOutputHelper testOutp
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
         var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
         RecordComplianceChecker.Check(recordSchemaCatalog, logger);
-        var catalogs = new MetadataCatalogs(recordSchemaCatalog, new EnumMemberCatalog(loadResult));
+        var catalogs = new MetadataCatalogs(recordSchemaCatalog);
 
         return new Setup(Assert.Single(recordSchemaCatalog.StaticDataRecordSchemata[0].PropertySchemata), catalogs);
     }

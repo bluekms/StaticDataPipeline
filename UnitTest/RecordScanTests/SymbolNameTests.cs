@@ -54,7 +54,7 @@ public partial class SymbolNameTests(ITestOutputHelper testOutputHelper)
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaCatalog = new RecordSchemaCatalog(new RecordSchemaSet(loadResult, logger));
         RecordComplianceChecker.Check(recordSchemaCatalog, logger);
-        var catalogs = new MetadataCatalogs(recordSchemaCatalog, new EnumMemberCatalog(loadResult));
+        var catalogs = new MetadataCatalogs(recordSchemaCatalog);
         var kindSchema = recordSchemaCatalog.StaticDataRecordSchemata[0].PropertySchemata[1];
 
         kindSchema.CheckCompatibility(CompatibilityContext.CreateNoCollect(catalogs, [new CellData("B2", "Archer")]));

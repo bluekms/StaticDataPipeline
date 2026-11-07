@@ -124,9 +124,8 @@ public partial class EnumKeyTests(ITestOutputHelper testOutputHelper)
         var loadResult = RecordSchemaLoader.OnLoad(code, logger);
         var recordSchemaSet = new RecordSchemaSet(loadResult, logger);
         var recordSchemaCatalog = new RecordSchemaCatalog(recordSchemaSet);
-        var enumMemberCatalog = new EnumMemberCatalog(loadResult);
         RecordComplianceChecker.Check(recordSchemaCatalog, logger);
 
-        return new(recordSchemaCatalog, enumMemberCatalog);
+        return new(recordSchemaCatalog);
     }
 }
