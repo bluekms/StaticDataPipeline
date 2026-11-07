@@ -63,6 +63,7 @@ ForeignKey 검증은 두 단계로 나뉩니다.
    - `[SwitchForeignKey]` 의 `conditionValue` 가 조건 컬럼 타입의 값으로 해석되는가? (enum 멤버명·정수 `SDP0212`, 정수 `SDP0220`, bool `SDP0221`, char `SDP0222`, Guid `SDP0223`, 실수·날짜·시간 `SDP0228`)
    - `[SwitchForeignKey]` 의 같은 조건이 두 번 이상 등장하지 않는가? (`SDP0208`, 표기만 다른 같은 값은 `SDP0225`)
    - 타입 브랜딩 record 의 안쪽 파라미터에 붙어 있지 않은가? (`SDP0229`)
+   - `[Ignore]` 파라미터에 붙어 있지 않은가? (`SDP0230`) — 읽지 않는 컬럼은 검사할 값이 없다.
 
    위 검사는 테이블 Record 의 파라미터뿐 아니라 그 안에 중첩된 record 의 파라미터에도 똑같이 적용된다 ([중첩 record 안의 외래 키](#nested-foreign-keys)).
 2. **로드 시점 — `LoadAsync` 가 실제 값을 확인**
