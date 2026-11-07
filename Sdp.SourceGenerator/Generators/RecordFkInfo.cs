@@ -110,7 +110,7 @@ internal sealed record FkBranch(
             ConditionLiteral: null,
             ConditionParsesAtRuntime: false,
             ConditionDisplayFormat: null,
-            FkConditionDisplayKind.Default,
+            ConditionDisplayKind: FkConditionDisplayKind.Default,
             targetUnwrapMember);
     }
 
