@@ -45,7 +45,6 @@ internal static class ForeignKeyAttributeValidator
         return allValid;
     }
 
-    // 같은 record 선언이 여러 자리에 쓰여도 진단은 선언마다 한 번만 낸다.
     private static bool ValidateRecordTree(
         INamedTypeSymbol recordType,
         ImmutableArray<ParameterAnalysis> parameters,
@@ -54,7 +53,8 @@ internal static class ForeignKeyAttributeValidator
         HashSet<INamedTypeSymbol> validatedBrandings,
         List<Diagnostic> diagnostics)
     {
-        if (!validatedRecords.Add(recordType))
+        var isFirstVisit = validatedRecords.Add(recordType);
+        if (!isFirstVisit)
         {
             return true;
         }
@@ -72,7 +72,8 @@ internal static class ForeignKeyAttributeValidator
             var nestedType = position.Nested.Symbol;
             if (position.Nested.IsTypeBrandingRecord)
             {
-                if (validatedBrandings.Add(nestedType))
+                var isFirstBrandingVisit = validatedBrandings.Add(nestedType);
+                if (isFirstBrandingVisit)
                 {
                     valid &= ValidateTypeBrandingRecord(nestedType, diagnostics);
                 }
@@ -115,7 +116,8 @@ internal static class ForeignKeyAttributeValidator
                 continue;
             }
 
-            if (!reportedAttributes.Add(attributeName))
+            var isNewAttribute = reportedAttributes.Add(attributeName);
+            if (!isNewAttribute)
             {
                 continue;
             }
@@ -156,11 +158,11 @@ internal static class ForeignKeyAttributeValidator
                     continue;
                 }
 
-                if (attr.AttributeClass!.Name == "ForeignKeyAttribute")
+                if (attr.AttributeClass!.Name == SdpAttributeNames.ForeignKey)
                 {
                     fkAttrs.Add(attr);
                 }
-                else if (attr.AttributeClass.Name == "SwitchForeignKeyAttribute")
+                else if (attr.AttributeClass.Name == SdpAttributeNames.SwitchForeignKey)
                 {
                     switchFkAttrs.Add(attr);
                 }

@@ -23,7 +23,8 @@ internal static class ForeignKeyAnalyzer
                 continue;
             }
 
-            if (!cache.TryGetValue(table.RecordSymbol, out var scope))
+            var isCached = cache.TryGetValue(table.RecordSymbol, out var scope);
+            if (!isCached)
             {
                 scope = AnalyzeRootScope(table.RecordSymbol, membersByName, recordParameters, cancellationToken);
                 cache[table.RecordSymbol] = scope;
@@ -47,7 +48,8 @@ internal static class ForeignKeyAnalyzer
         Dictionary<INamedTypeSymbol, ImmutableArray<ParameterAnalysis>> recordParameters,
         CancellationToken cancellationToken)
     {
-        if (!recordParameters.TryGetValue(recordType, out var parameters))
+        var isCached = recordParameters.TryGetValue(recordType, out var parameters);
+        if (!isCached)
         {
             parameters = ParameterAnalyzer.CollectParameters(primaryCtor, cancellationToken);
             recordParameters[recordType] = parameters;
@@ -124,6 +126,7 @@ internal static class ForeignKeyAnalyzer
         }
 
         // nullable 중첩 record 는 매퍼가 만들지 못해 빌드가 멈추므로 검사 코드를 만들지 않는다.
+        // 브랜딩 record 는 안쪽 FK 가 SDP0229 로 거부되고, 브랜딩 파라미터 자체의 FK 는 AnalyzeFkParameter 가 다룬다.
         if (position.IsNullable || position.Nested.IsTypeBrandingRecord)
         {
             return null;
@@ -164,7 +167,7 @@ internal static class ForeignKeyAnalyzer
 
             var args = attr.ConstructorArguments;
 
-            if (attr.AttributeClass!.Name == "ForeignKeyAttribute" &&
+            if (attr.AttributeClass!.Name == SdpAttributeNames.ForeignKey &&
                 args.Length >= 2 &&
                 args[0].Value is string tableSetName &&
                 args[1].Value is string columnName)
@@ -177,7 +180,7 @@ internal static class ForeignKeyAnalyzer
 
                 branchBuilder.Add(FkBranch.ForeignKey(tableSetName, columnName, resolution.TargetUnwrapMember));
             }
-            else if (attr.AttributeClass.Name == "SwitchForeignKeyAttribute" &&
+            else if (attr.AttributeClass.Name == SdpAttributeNames.SwitchForeignKey &&
                      args.Length >= 4 &&
                      args[0].Value is string conditionColumn &&
                      args[1].Value is string conditionValue &&
