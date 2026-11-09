@@ -1,0 +1,4 @@
+Grade,Rate,PickupItemIds[0],PickupItemIds[1]
+SSR,2,10003,10002
+SR,18,10002,10001
+R,80,10001,10003

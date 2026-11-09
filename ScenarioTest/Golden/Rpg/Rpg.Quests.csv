@@ -1,0 +1,4 @@
+Id,Title,PrevQuestId,Giver,Objectives[0].Type,Objectives[0].TargetId,Objectives[0].Count,Objectives[1].Type,Objectives[1].TargetId,Objectives[1].Count,RequiredLevel,BonusGold
+1,슬라임 퇴치,,501,Kill,1001,5,Talk,501,1,1,100
+2,고블린 소탕,1,501,Kill,1002,3,Collect,10001,2,5,
+3,용의 둥지,2,,Kill,9001,1,Collect,10003,1,30,50000
