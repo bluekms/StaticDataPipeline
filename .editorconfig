@@ -36,6 +36,10 @@ dotnet_diagnostic.IDE0305.severity = none   # 컬렉션 초기화 단순화 (의
 dotnet_diagnostic.SA1210.severity = error   # using 지시문 알파벳 순서
 
 # ASP.NET Core 및 Razor 설정
+
+
+# CS1591: 공개된 형식 또는 멤버에 대한 XML 주석이 없습니다.
+dotnet_diagnostic.CS1591.severity = silent
 [**/*.cshtml]
 csharp_indent_case_contents = true
 csharp_indent_switch_labels = true
