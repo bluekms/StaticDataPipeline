@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="5.0.0-1.25277.114">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.7" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Analyzers\Analyzers\Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\CLICommonLibrary\CLICommonLibrary.csproj" />
+    <ProjectReference Include="..\Sdp\Sdp.csproj" />
+    <ProjectReference Include="..\Sdp.SourceGenerator\Sdp.SourceGenerator.csproj"
+                      OutputItemType="Analyzer" />
+    <ProjectReference Include="..\ExcelColumnExtractor\ExcelColumnExtractor.csproj" />
+    <ProjectReference Include="..\StaticDataHeaderGenerator\StaticDataHeaderGenerator.csproj" />
+    <ProjectReference Include="..\SchemaInfoScanner\SchemaInfoScanner.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Records\Invalid\**" />
+    <None Include="Records\**\*.cs" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Excel\**" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Golden\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
