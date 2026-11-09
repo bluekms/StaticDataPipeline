@@ -1,0 +1,4 @@
+Id,Name,MeetingDays,RequiresAudition,MeetingTime
+3,로봇공학반,Tuesday / Thursday,true,16:30
+5,합창단,Monday,false,
+7,독서토론,Wednesday,미정,15:40
