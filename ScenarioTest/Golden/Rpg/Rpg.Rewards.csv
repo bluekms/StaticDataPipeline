@@ -1,0 +1,4 @@
+Id,Kind,TargetId,Amount
+1,Item,10001,1
+2,Currency,901,500
+3,Currency,902,10

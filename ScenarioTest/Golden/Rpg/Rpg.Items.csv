@@ -1,0 +1,4 @@
+Id,Name,Description,Rarity,Slot,Price,MaxStack,Stats.Atk,Stats.Def,Stats.Spd,Tags[0],Tags[1],Tags[2]
+10001,회복 물약,"HP를 50, MP를 10 회복",Common,,150,99,0,0,1,healing,consumable,starter
+10002,철 검,대장간에서 갓 나온 한손검,Uncommon,Weapon,300,-,12,0,1.15,melee,iron,starter
+10003,가죽 갑옷,질긴 소가죽을 덧댄 갑옷,Rare,Armor,450,-,0,8,0.95,armor,leather,
