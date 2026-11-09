@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Analyzers.Tests", "Analyzer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sdp.SourceGenerator", "Sdp.SourceGenerator\Sdp.SourceGenerator.csproj", "{3D7E31D3-D913-4EC6-A57C-A89E603F29EE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScenarioTest", "ScenarioTest\ScenarioTest.csproj", "{7E2343B6-DA2E-4134-BB7C-8B86B9C1CCAC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -150,6 +152,18 @@ Global
 		{3D7E31D3-D913-4EC6-A57C-A89E603F29EE}.Release|x64.Build.0 = Release|Any CPU
 		{3D7E31D3-D913-4EC6-A57C-A89E603F29EE}.Release|x86.ActiveCfg = Release|Any CPU
 		{3D7E31D3-D913-4EC6-A57C-A89E603F29EE}.Release|x86.Build.0 = Release|Any CPU
+		{7E2343B6-DA2E-4134-BB7C-8B86B9C1CCAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E2343B6-DA2E-4134-BB7C-8B86B9C1CCAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E2343B6-DA2E-4134-BB7C-8B86B9C1CCAC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7E2343B6-DA2E-4134-BB7C-8B86B9C1CCAC}.Debug|x64.Build.0 = Debug|Any CPU
+		{7E2343B6-DA2E-4134-BB7C-8B86B9C1CCAC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7E2343B6-DA2E-4134-BB7C-8B86B9C1CCAC}.Debug|x86.Build.0 = Debug|Any CPU
+		{7E2343B6-DA2E-4134-BB7C-8B86B9C1CCAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E2343B6-DA2E-4134-BB7C-8B86B9C1CCAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E2343B6-DA2E-4134-BB7C-8B86B9C1CCAC}.Release|x64.ActiveCfg = Release|Any CPU
+		{7E2343B6-DA2E-4134-BB7C-8B86B9C1CCAC}.Release|x64.Build.0 = Release|Any CPU
+		{7E2343B6-DA2E-4134-BB7C-8B86B9C1CCAC}.Release|x86.ActiveCfg = Release|Any CPU
+		{7E2343B6-DA2E-4134-BB7C-8B86B9C1CCAC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
