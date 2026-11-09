@@ -1,0 +1,5 @@
+StudentId.Value,Scores[0].Subject,Scores[0].Score,Scores[0].Rank,Scores[1].Subject,Scores[1].Score,Scores[1].Rank,Scores[2].Subject,Scores[2].Score,Scores[2].Rank,Scores[3].Subject,Scores[3].Score,Scores[3].Rank,Scores[4].Subject,Scores[4].Score,Scores[4].Rank,출석일수(3~7월)
+20260101,Korean,92,A,Math,88,B,English,95,A,Science,81,B,Social,77,C,"21,19,20,x,18"
+20260102,Korean,70,C,Math,65,D,English,80,B,Science,72,C,Social,85,B,"21,19,20,20,18"
+20250215,Korean,85,B,Math,91,A,English,78,C,Science,88,B,History,90,A,"20,18,21,19,17"
+20240308,Korean,95,A,Math,97,A,English,89,B,Science,93,A,Social,84,B,"22,20,21,20,18"
