@@ -1,0 +1,9 @@
+Number,Symbol,Name,AtomicMass,Density,Electronegativity,MeltingPointK,Group,CommonOxidation,DiscoveredYear,Category
+1,H,수소,1.008,8.988E-05,2.2,13.99,1,1,1766,Nonmetal
+2,He,헬륨,4.0026,0.0001785,N/A,0.95,18,,1895,NobleGas
+6,C,탄소,12.011,2.267,2.55,3823,14,4,고대,Nonmetal
+8,O,산소,15.999,0.001429,3.44,54.36,16,-2,1774,Nonmetal
+26,Fe,철,55.845,7.874,1.83,1811,8,3,고대,TransitionMetal
+79,Au,금,196.97,19.3,2.54,1337.33,11,3,고대,TransitionMetal
+57,La,란타넘,138.91,6.145,1.1,1193,,3,1839,Lanthanide
+118,Og,오가네손,294,N/A,N/A,N/A,18,,2002,NobleGas
