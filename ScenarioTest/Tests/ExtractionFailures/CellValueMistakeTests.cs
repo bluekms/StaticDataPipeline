@@ -45,7 +45,7 @@ public class CellValueMistakeTests
         var result = workspace.RunMain();
 
         ExtractionAssert.FailsWith(result, "Invalid value ' Math '");
-        var warning = Assert.Single(ExtractionAssert.WarningsExceptLoansStartCell(result));
+        var warning = Assert.Single(result.Warnings);
         Assert.Contains("' Math '", warning, StringComparison.Ordinal);
     }
 }

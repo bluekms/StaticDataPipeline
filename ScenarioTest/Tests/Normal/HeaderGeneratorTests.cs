@@ -89,7 +89,7 @@ public class HeaderGeneratorTests(ExtractedCsvFixture fixture)
 
     private HashSet<string> ReadSheetHeaders(HeaderSection section)
     {
-        var headerRow = section.Sheet == "Loans" ? 1 : 3;
+        const int headerRow = 3;
         using var book = new XLWorkbook(fixture.WorkbookPath(section.Workbook));
         var sheet = book.Worksheet(section.Sheet);
 

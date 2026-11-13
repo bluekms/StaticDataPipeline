@@ -14,7 +14,7 @@ public class WarningOnlyTests
         var result = workspace.RunMain();
 
         ExtractionAssert.Succeeded(result);
-        var warning = Assert.Single(ExtractionAssert.WarningsExceptLoansStartCell(result));
+        var warning = Assert.Single(result.Warnings);
         Assert.Contains("'#,##0'", warning, StringComparison.Ordinal);
         Assert.Contains("'9999999999'", warning, StringComparison.Ordinal);
         Golden.AssertEquals("Rpg/Rpg.Currencies.csv", Path.Combine(workspace.CsvMain, "Rpg.Currencies.csv"));
@@ -29,7 +29,7 @@ public class WarningOnlyTests
         var result = workspace.RunMain();
 
         ExtractionAssert.Succeeded(result);
-        var warning = Assert.Single(ExtractionAssert.WarningsExceptLoansStartCell(result));
+        var warning = Assert.Single(result.Warnings);
         Assert.Contains("' 하늘이 '", warning, StringComparison.Ordinal);
         var students = CsvDocument.Load(Path.Combine(workspace.CsvMain, "School.Students.csv"));
         Assert.Equal(" 하늘이 ", students.Row("Id", "20260101")[students.ColumnIndex("Nickname")]);
@@ -44,11 +44,33 @@ public class WarningOnlyTests
         var result = workspace.RunMain();
 
         ExtractionAssert.Succeeded(result);
-        Assert.Empty(ExtractionAssert.WarningsExceptLoansStartCell(result));
+        Assert.Empty(result.Warnings);
         Assert.Contains(
             result.InformationLines,
             x => x.Contains("'Library.Reservations' has no data rows", StringComparison.Ordinal));
         var reservations = CsvDocument.Load(Path.Combine(workspace.CsvMain, "Library.Reservations.csv"));
         Assert.Empty(reservations.Rows);
+    }
+
+    [Fact]
+    public void LoansStartCellInAttribute_OverridesCliStartCell_AndWarnsOnce()
+    {
+        const string declaration = "[StaticDataRecord(\"Library\", \"Loans\")]";
+        const string declarationWithStartCell = "[StaticDataRecord(\"Library\", \"Loans\", \"A1\")]";
+        using var workspace = new ScenarioWorkspace();
+        workspace.UseBroken("Library/Loans/LoansStartAtA1");
+        var recordPath = Path.Combine(workspace.Records, "SchoolLibrary.cs");
+        var recordSource = File.ReadAllText(recordPath);
+        Assert.Contains(declaration, recordSource, StringComparison.Ordinal);
+        var sourceWithStartCell = recordSource.Replace(declaration, declarationWithStartCell, StringComparison.Ordinal);
+        File.WriteAllText(recordPath, sourceWithStartCell);
+
+        var result = workspace.RunMain();
+
+        ExtractionAssert.Succeeded(result);
+        var warning = Assert.Single(result.Warnings);
+        Assert.Contains("LoanRecord", warning, StringComparison.Ordinal);
+        Assert.Contains("'A1'", warning, StringComparison.Ordinal);
+        Golden.AssertEquals("Library/Library.Loans.csv", Path.Combine(workspace.CsvMain, "Library.Loans.csv"));
     }
 }
