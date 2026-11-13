@@ -12,24 +12,20 @@ public sealed class ScenarioWorkspace : IDisposable
         Root = root.Root;
         ExcelMain = Path.Combine(Root, "excel", "Main");
         ExcelScience = Path.Combine(Root, "excel", "Science");
-        Records = Path.Combine(Root, "records");
-        ScienceRecord = Path.Combine(Records, "Science", "Science.cs");
+        Records = Path.Combine(Root, "records", "Main");
+        ScienceRecord = Path.Combine(Root, "records", "Science", "Science.cs");
         CsvMain = Path.Combine(Root, "csv", "Main");
         CsvScience = Path.Combine(Root, "csv", "Science");
         LogRoot = Path.Combine(Root, "log");
 
-        var sourceExcel = Path.Combine(SourceTree.OutputDirectory, "Excel");
+        var sourceExcel = Path.Combine(AppContext.BaseDirectory, "Excel");
         CopyFiles(Path.Combine(sourceExcel, "Main"), ExcelMain, "*.xlsx");
         CopyFiles(Path.Combine(sourceExcel, "Science"), ExcelScience, "*.xlsx");
 
-        var sourceRecords = Path.Combine(SourceTree.OutputDirectory, "Records");
-        Directory.CreateDirectory(Records);
-        File.Copy(Path.Combine(sourceRecords, "SchoolLibrary.cs"), Path.Combine(Records, "SchoolLibrary.cs"));
-        File.Copy(Path.Combine(sourceRecords, "SchoolTypes.cs"), Path.Combine(Records, "SchoolTypes.cs"));
-        File.Copy(Path.Combine(sourceRecords, "Rpg.cs"), Path.Combine(Records, "Rpg.cs"));
-        Directory.CreateDirectory(Path.Combine(Records, "Science"));
-        File.Copy(Path.Combine(sourceRecords, "Science.cs"), ScienceRecord);
-        CopyFiles(Path.Combine(sourceRecords, "Invalid"), Path.Combine(Records, "Invalid"), "*.cs");
+        var sourceRecords = Path.Combine(AppContext.BaseDirectory, "Records");
+        CopyFiles(Path.Combine(sourceRecords, "Main"), Records, "*.cs");
+        CopyFiles(Path.Combine(sourceRecords, "Science"), Path.Combine(Root, "records", "Science"), "*.cs");
+        CopyFiles(Path.Combine(sourceRecords, "Invalid"), Path.Combine(Root, "records", "Invalid"), "*.cs");
         Directory.CreateDirectory(LogRoot);
     }
 
@@ -51,7 +47,7 @@ public sealed class ScenarioWorkspace : IDisposable
 
     public string InvalidRecord(string fileName)
     {
-        return Path.Combine(Records, "Invalid", fileName);
+        return Path.Combine(Root, "records", "Invalid", fileName);
     }
 
     public string WorkbookPath(string workbook)
@@ -68,7 +64,7 @@ public sealed class ScenarioWorkspace : IDisposable
     public void UseBroken(string brokenPath)
     {
         var workbook = brokenPath.Split('/')[0];
-        var file = Path.Combine(SourceTree.OutputDirectory, "Excel", "Broken", brokenPath + ".xlsx");
+        var file = Path.Combine(AppContext.BaseDirectory, "Excel", "Broken", brokenPath + ".xlsx");
         var exists = File.Exists(file);
         if (!exists)
         {
