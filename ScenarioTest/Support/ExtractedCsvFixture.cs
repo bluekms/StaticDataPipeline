@@ -13,7 +13,6 @@ public sealed class ExtractedCsvFixture : IDisposable
         AllHeadersPath = Path.Combine(workspace.Root, "headers", "AllHeaders.md");
         AllHeadersResult = workspace.RunHeaderGenerator("all-header", "-r", workspace.Records, "-o", AllHeadersPath);
 
-        // 추출 결과는 컬렉션의 모든 테스트가 함께 읽는다. 누가 제자리에서 고치면 다른 테스트가 오염되므로 잠가 둔다.
         SetReadOnly(CsvMain, true);
         SetReadOnly(CsvScience, true);
     }
@@ -65,7 +64,6 @@ public sealed class ExtractedCsvFixture : IDisposable
         workspace.Dispose();
     }
 
-    // 추출이 실패해 폴더가 없으면 그대로 둔다. 실패는 추출 결과를 보는 테스트가 드러낸다.
     private static void SetReadOnly(string directory, bool readOnly)
     {
         var exists = Directory.Exists(directory);

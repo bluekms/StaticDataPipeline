@@ -2,6 +2,7 @@ using System.Globalization;
 
 namespace ScenarioTest.Support;
 
+// 시나리오 하나가 쓰는 작업 폴더
 public sealed class ScenarioWorkspace : IDisposable
 {
     private readonly TempDirectory root = new();
@@ -60,7 +61,6 @@ public sealed class ScenarioWorkspace : IDisposable
         return Path.Combine(ExcelMain, workbook + ".xlsx");
     }
 
-    // Excel/Broken/<워크북>/<시트>/<사례>.xlsx 로 같은 이름의 정상 워크북을 바꿔 끼운다. 폴더가 Excel/Main 의 워크북·시트 구조를 따른다.
     public void UseBroken(string brokenPath)
     {
         var workbook = brokenPath.Split('/')[0];

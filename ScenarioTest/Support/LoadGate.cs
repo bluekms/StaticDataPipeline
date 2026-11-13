@@ -1,7 +1,10 @@
 namespace ScenarioTest.Support;
 
-// 동시 LoadAsync 거부 시나리오용. Manager 의 Validate 안에서 첫 로드를 붙잡아 두 번째 호출이 반드시
-// 진행 중인 로드와 겹치게 한다. 붙잡지 않으면 CSV 가 작고 캐시돼 있을 때 첫 로드가 동기적으로 끝나 경합이 된다.
+// 동시 LoadAsync 거부 시나리오
+// 1. school.LoadAsync(...)
+// 2. gate.WaitUntilHeld(first)
+// 3. 로드 중 Gate?.Hold()
+// 4. school.LoadAsync(...)를 또 호출해서 거부되는것을 확인
 public sealed class LoadGate : IDisposable
 {
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(30);

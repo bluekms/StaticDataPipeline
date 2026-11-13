@@ -2,6 +2,7 @@ using System.Text;
 
 namespace ScenarioTest.Support;
 
+// 로드 단계에서 csv가 손상된 경우를 재현하기 위함
 public sealed class CsvDocument
 {
     private const string SharedCsvEditMessage =
@@ -110,7 +111,6 @@ public sealed class CsvDocument
         Rows.Add([.. Row(keyHeader, keyValue)]);
     }
 
-    // ExtractedCsvFixture 는 추출 결과를 읽기 전용으로 잠근다. 잠긴 파일을 덮어쓰려 하면 OS 오류 대신 이유를 알린다.
     private static void ThrowIfShared(string path)
     {
         var exists = File.Exists(path);

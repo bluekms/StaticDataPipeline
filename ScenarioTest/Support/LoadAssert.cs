@@ -6,7 +6,6 @@ public static class LoadAssert
     public const string FkFailed = "FK validation failed.";
     public const string ViewsFailed = "One or more views failed to build.";
 
-    // 메시지 조각 단언은 영어 기준이라 로드를 Invariant 컬처로 돌린다.
     public static async Task<AggregateException> FailsWithAggregate(Func<Task> load, string expectedMessageStart)
     {
         using var culture = CultureScope.Invariant();
