@@ -4,6 +4,11 @@ namespace ScenarioTest.Support;
 
 public sealed class CsvDocument
 {
+    private const string SharedCsvEditMessage =
+        "이 CSV 는 컬렉션의 모든 테스트가 함께 읽는 추출 결과라 읽기 전용이다. " +
+        "제자리에서 고치면 다른 테스트가 오염된다. " +
+        "ExtractedCsvFixture.CopyMainCsv() 나 CopyScienceCsv() 로 사본을 떠서 그 사본을 고쳐야 한다.";
+
     private static readonly UTF8Encoding Utf8NoBom = new(false);
 
     private CsvDocument(List<string> headers, List<List<string>> rows)
@@ -36,6 +41,8 @@ public sealed class CsvDocument
 
     public void Save(string path)
     {
+        ThrowIfShared(path);
+
         var sb = new StringBuilder();
         AppendRecord(sb, Headers);
         foreach (var row in Rows)
@@ -101,6 +108,23 @@ public sealed class CsvDocument
     public void DuplicateRow(string keyHeader, string keyValue)
     {
         Rows.Add([.. Row(keyHeader, keyValue)]);
+    }
+
+    // ExtractedCsvFixture 는 추출 결과를 읽기 전용으로 잠근다. 잠긴 파일을 덮어쓰려 하면 OS 오류 대신 이유를 알린다.
+    private static void ThrowIfShared(string path)
+    {
+        var exists = File.Exists(path);
+        if (!exists)
+        {
+            return;
+        }
+
+        var attributes = File.GetAttributes(path);
+        var readOnly = attributes.HasFlag(FileAttributes.ReadOnly);
+        if (readOnly)
+        {
+            throw new InvalidOperationException(FormattableString.Invariant($"{SharedCsvEditMessage} 경로: {path}"));
+        }
     }
 
     private static void AppendRecord(StringBuilder sb, List<string> cells)
