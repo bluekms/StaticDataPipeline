@@ -50,4 +50,5 @@
 | `Rpg/Currencies/CurrencyCapThousandsFormat.xlsx` | Cap 두 칸에 천 단위 서식(#,##0)을 입혔다. 값은 그대로 읽히고 서식만 경고로 알린다. | 실패하지 않는다(경고만 남기거나 다음 단계에서 걸린다) |
 | `School/Students/NicknameWithSpaces.xlsx` | 별명 앞뒤에 공백이 있다. 문자열 열은 공백을 경고로 알리되 값은 그대로 둔다. | 실패하지 않는다(경고만 남기거나 다음 단계에서 걸린다) |
 | `Library/Reservations/ReservationRowsBackgroundOnly.xlsx` | 데이터 행 없이 B4:E12 에 배경색만 칠했다. 서식만 있는 행은 데이터로 보지 않는다. | 실패하지 않는다(경고만 남기거나 다음 단계에서 걸린다) |
+| `Library/Loans/LoansStartAtA1.xlsx` | Loans 표가 다른 시트와 달리 A1 에서 시작한다. 테스트가 LoanRecord 속성에 시작 셀 "A1" 을 적어 넣고 돌리면 속성이 `--start-cell B3` 보다 우선해 그대로 읽히고, 둘이 달라 경고 하나가 남는다. | 실패하지 않는다(경고만 남기거나 다음 단계에서 걸린다) |
 | `School/Students/TransferStudentAdded.xlsx` | 전학생 한 명(20260105 윤하린)을 마지막 행 아래에 추가했다. 다음 버전 폴더로 추출해 리로드하면 7명이 된다. | 실패하지 않는다(경고만 남기거나 다음 단계에서 걸린다) |

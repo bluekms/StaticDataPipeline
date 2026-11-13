@@ -53,7 +53,7 @@ public class WorkbookMistakeTests
 
         ExtractionAssert.FailsWith(result, "is hidden", "Items");
         Assert.Single(result.Errors);
-        Assert.Empty(ExtractionAssert.WarningsExceptLoansStartCell(result));
+        Assert.Empty(result.Warnings);
         Assert.False(File.Exists(Path.Combine(workspace.CsvMain, "Rpg.Items.csv")));
     }
 

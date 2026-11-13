@@ -20,18 +20,4 @@ public static class ExtractionAssert
                 $"로그에 '{fragment}' 가 없다.\n{result.AllText}"));
         }
     }
-
-    // Loans 시트는 Record 속성의 시작 셀 "A1" 이 CLI 의 B3 보다 우선해 정상 추출에서도 경고 하나를 남긴다. 그 경고만 뺀다.
-    public static List<string> WarningsExceptLoansStartCell(CliResult result)
-    {
-        return result.Warnings
-            .Where(x => !IsLoansStartCellWarning(x))
-            .ToList();
-    }
-
-    private static bool IsLoansStartCellWarning(string warning)
-    {
-        return warning.Contains("LoanRecord", StringComparison.Ordinal)
-            && warning.Contains("'A1'", StringComparison.Ordinal);
-    }
 }

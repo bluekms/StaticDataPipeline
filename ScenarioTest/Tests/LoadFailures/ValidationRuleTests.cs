@@ -133,7 +133,7 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
         var result = workspace.RunMain();
 
         ExtractionAssert.Succeeded(result);
-        var warning = Assert.Single(ExtractionAssert.WarningsExceptLoansStartCell(result));
+        var warning = Assert.Single(result.Warnings);
         Assert.Contains("0.000%", warning, StringComparison.Ordinal);
         var exception = await LoadAssert.FailsWithAggregate(Load.Rpg(workspace.CsvMain), LoadAssert.TablesFailed);
         LoadAssert.ContainsAll(exception, "가챠 확률의 합은 100 이어야 하는데 1");

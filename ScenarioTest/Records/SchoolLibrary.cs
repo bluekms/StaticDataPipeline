@@ -105,9 +105,9 @@ public sealed partial record BookRecord(
     short PublishedYear,
     [NullString("-")] char? ShelfCode);
 
-// 대출. [Key] 가 없다(같은 학생이 같은 책을 반납 후 다시 빌릴 수 있어 중복 행을 허용). 시작 셀 "A1" 이 CLI 의 --start-cell B3 보다 우선해 정상 추출의 유일한 경고를 남긴다.
+// 대출. [Key] 가 없다(같은 학생이 같은 책을 반납 후 다시 빌릴 수 있어 중복 행을 허용).
 // Borrower 는 다른 워크북(School)의 학번을 가리킨다.
-[StaticDataRecord("Library", "Loans", "A1")]
+[StaticDataRecord("Library", "Loans")]
 public sealed partial record LoanRecord(
     [ForeignKey("BookTable", "Id")] BookId BookId,
     [ForeignKey("StudentTable", "Id")] StudentRecord.StudentId Borrower,

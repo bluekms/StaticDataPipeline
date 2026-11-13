@@ -36,15 +36,13 @@ public class NormalExtractionTests(ExtractedCsvFixture fixture)
     ];
 
     [Fact]
-    public void MainWorkbooksWithB3StartCell_MatchGolden_AndOnlyWarnAboutLoansStartCell()
+    public void MainWorkbooksWithB3StartCell_MatchGolden_WithoutWarnings()
     {
         var result = fixture.MainResult;
 
         ExtractionAssert.Succeeded(result);
         Assert.Empty(result.Errors);
-        var warning = Assert.Single(result.Warnings);
-        Assert.Contains("LoanRecord", warning, StringComparison.Ordinal);
-        Assert.Contains("'A1'", warning, StringComparison.Ordinal);
+        Assert.Empty(result.Warnings);
         Assert.Contains(
             result.InformationLines,
             x => x.Contains("'Library.Reservations' has no data rows", StringComparison.Ordinal));
@@ -128,8 +126,7 @@ public class NormalExtractionTests(ExtractedCsvFixture fixture)
         var result = workspace.RunMain();
 
         ExtractionAssert.Succeeded(result);
-        var warning = Assert.Single(result.Warnings);
-        Assert.Contains("LoanRecord", warning, StringComparison.Ordinal);
+        Assert.Empty(result.Warnings);
         Golden.AssertEquals("School/School.Students.csv", Path.Combine(workspace.CsvMain, "School.Students.csv"));
     }
 
