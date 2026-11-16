@@ -8,7 +8,7 @@ public sealed class CsvDocument
     private const string SharedCsvEditMessage =
         "이 CSV 는 컬렉션의 모든 테스트가 함께 읽는 추출 결과라 읽기 전용이다. " +
         "제자리에서 고치면 다른 테스트가 오염된다. " +
-        "ExtractedCsvFixture.CopyMainCsv() 나 CopyScienceCsv() 로 사본을 떠서 그 사본을 고쳐야 한다.";
+        "ExtractedCsvFixture 의 CopySchoolCsv(), CopyRpgCsv(), CopyScienceCsv() 로 사본을 떠서 그 사본을 고쳐야 한다.";
 
     private static readonly UTF8Encoding Utf8NoBom = new(false);
 

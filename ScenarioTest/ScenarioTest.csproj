@@ -36,9 +36,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Records\Invalid\**" />
-    <None Include="Records\**\*.cs" CopyToOutputDirectory="PreserveNewest" />
-    <None Update="Excel\**" CopyToOutputDirectory="PreserveNewest" />
-    <None Update="Golden\**" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Remove="InvalidRecords\**" />
+    <None Include="Feature\*\Records\*.cs;InvalidRecords\*.cs" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Feature\*\Excel\**;Feature\*\Golden\**;Feature\*\Broken\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

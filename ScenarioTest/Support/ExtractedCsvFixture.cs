@@ -6,26 +6,39 @@ public sealed class ExtractedCsvFixture : IDisposable
 
     public ExtractedCsvFixture()
     {
-        CsvMain = workspace.CsvMain;
+        CsvSchool = workspace.CsvSchool;
+        CsvRpg = workspace.CsvRpg;
         CsvScience = workspace.CsvScience;
-        MainResult = workspace.RunMain();
+        SchoolResult = workspace.RunSchool();
+        RpgResult = workspace.RunRpg();
         ScienceResult = workspace.RunScience();
-        AllHeadersPath = Path.Combine(workspace.Root, "headers", "AllHeaders.md");
-        AllHeadersResult = workspace.RunHeaderGenerator("all-header", "-r", workspace.Records, "-o", AllHeadersPath);
+        SchoolHeadersPath = Path.Combine(workspace.Root, "headers", "AllHeaders.School.md");
+        SchoolHeadersResult = workspace.RunHeaderGenerator("all-header", "-r", workspace.RecordsSchool, "-o", SchoolHeadersPath);
+        RpgHeadersPath = Path.Combine(workspace.Root, "headers", "AllHeaders.Rpg.md");
+        RpgHeadersResult = workspace.RunHeaderGenerator("all-header", "-r", workspace.RecordsRpg, "-o", RpgHeadersPath);
 
-        SetReadOnly(CsvMain, true);
+        SetReadOnly(CsvSchool, true);
+        SetReadOnly(CsvRpg, true);
         SetReadOnly(CsvScience, true);
     }
 
-    public CliResult MainResult { get; }
+    public CliResult SchoolResult { get; }
+
+    public CliResult RpgResult { get; }
 
     public CliResult ScienceResult { get; }
 
-    public CliResult AllHeadersResult { get; }
+    public CliResult SchoolHeadersResult { get; }
 
-    public string AllHeadersPath { get; }
+    public CliResult RpgHeadersResult { get; }
 
-    public string CsvMain { get; }
+    public string SchoolHeadersPath { get; }
+
+    public string RpgHeadersPath { get; }
+
+    public string CsvSchool { get; }
+
+    public string CsvRpg { get; }
 
     public string CsvScience { get; }
 
@@ -34,9 +47,25 @@ public sealed class ExtractedCsvFixture : IDisposable
         return workspace.WorkbookPath(workbook);
     }
 
-    public TempDirectory CopyMainCsv()
+    public TempDirectory CopySchoolCsv()
     {
-        return Copy(CsvMain);
+        return Copy(CsvSchool);
+    }
+
+    public TempDirectory CopyRpgCsv()
+    {
+        return Copy(CsvRpg);
+    }
+
+    public TempDirectory CopyCsvFor(string csvFileName)
+    {
+        var isRpg = csvFileName.StartsWith("Rpg.", StringComparison.Ordinal);
+        if (isRpg)
+        {
+            return CopyRpgCsv();
+        }
+
+        return CopySchoolCsv();
     }
 
     public TempDirectory CopyScienceCsv()
@@ -59,7 +88,8 @@ public sealed class ExtractedCsvFixture : IDisposable
 
     public void Dispose()
     {
-        SetReadOnly(CsvMain, false);
+        SetReadOnly(CsvSchool, false);
+        SetReadOnly(CsvRpg, false);
         SetReadOnly(CsvScience, false);
         workspace.Dispose();
     }

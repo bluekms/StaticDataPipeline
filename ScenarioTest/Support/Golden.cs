@@ -4,11 +4,12 @@ public static class Golden
 {
     private const string UpdateHint = "의도한 변경이면 ScenarioTest/update-golden.bat 로 골든을 다시 만든다.";
 
-    public static void AssertEquals(string goldenRelativePath, string actualPath)
+    public static void AssertEquals(string feature, string fileName, string actualPath)
     {
         Assert.True(File.Exists(actualPath), FormattableString.Invariant($"실제 파일이 없다: {actualPath}"));
 
-        var expectedPath = Path.Combine(AppContext.BaseDirectory, "Golden", goldenRelativePath);
+        var goldenRelativePath = Path.Combine("Feature", feature, "Golden", fileName);
+        var expectedPath = Path.Combine(AppContext.BaseDirectory, goldenRelativePath);
         Assert.True(File.Exists(expectedPath), FormattableString.Invariant(
             $"골든 파일이 없다: {expectedPath}\n{UpdateHint}"));
 

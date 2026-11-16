@@ -11,36 +11,45 @@ public sealed class ScenarioWorkspace : IDisposable
     public ScenarioWorkspace()
     {
         Root = root.Root;
-        ExcelMain = Path.Combine(Root, "excel", "Main");
+        ExcelSchool = Path.Combine(Root, "excel", "School");
+        ExcelRpg = Path.Combine(Root, "excel", "Rpg");
         ExcelScience = Path.Combine(Root, "excel", "Science");
-        Records = Path.Combine(Root, "records", "Main");
+        RecordsSchool = Path.Combine(Root, "records", "School");
+        RecordsRpg = Path.Combine(Root, "records", "Rpg");
         ScienceRecord = Path.Combine(Root, "records", "Science", "Science.cs");
-        CsvMain = Path.Combine(Root, "csv", "Main");
+        CsvSchool = Path.Combine(Root, "csv", "School");
+        CsvRpg = Path.Combine(Root, "csv", "Rpg");
         CsvScience = Path.Combine(Root, "csv", "Science");
         LogRoot = Path.Combine(Root, "log");
 
-        var sourceExcel = Path.Combine(AppContext.BaseDirectory, "Excel");
-        CopyFiles(Path.Combine(sourceExcel, "Main"), ExcelMain, "*.xlsx");
-        CopyFiles(Path.Combine(sourceExcel, "Science"), ExcelScience, "*.xlsx");
-
-        var sourceRecords = Path.Combine(AppContext.BaseDirectory, "Records");
-        CopyFiles(Path.Combine(sourceRecords, "Main"), Records, "*.cs");
-        CopyFiles(Path.Combine(sourceRecords, "Science"), Path.Combine(Root, "records", "Science"), "*.cs");
-        CopyFiles(Path.Combine(sourceRecords, "Invalid"), Path.Combine(Root, "records", "Invalid"), "*.cs");
+        var source = AppContext.BaseDirectory;
+        CopyFiles(Path.Combine(source, "Feature", "School", "Excel"), ExcelSchool, "*.xlsx");
+        CopyFiles(Path.Combine(source, "Feature", "Rpg", "Excel"), ExcelRpg, "*.xlsx");
+        CopyFiles(Path.Combine(source, "Feature", "Science", "Excel"), ExcelScience, "*.xlsx");
+        CopyFiles(Path.Combine(source, "Feature", "School", "Records"), RecordsSchool, "*.cs");
+        CopyFiles(Path.Combine(source, "Feature", "Rpg", "Records"), RecordsRpg, "*.cs");
+        CopyFiles(Path.Combine(source, "Feature", "Science", "Records"), Path.Combine(Root, "records", "Science"), "*.cs");
+        CopyFiles(Path.Combine(source, "InvalidRecords"), Path.Combine(Root, "records", "Invalid"), "*.cs");
         Directory.CreateDirectory(LogRoot);
     }
 
     public string Root { get; }
 
-    public string ExcelMain { get; }
+    public string ExcelSchool { get; }
+
+    public string ExcelRpg { get; }
 
     public string ExcelScience { get; }
 
-    public string Records { get; }
+    public string RecordsSchool { get; }
+
+    public string RecordsRpg { get; }
 
     public string ScienceRecord { get; }
 
-    public string CsvMain { get; }
+    public string CsvSchool { get; }
+
+    public string CsvRpg { get; }
 
     public string CsvScience { get; }
 
@@ -58,13 +67,18 @@ public sealed class ScenarioWorkspace : IDisposable
             return Path.Combine(ExcelScience, "Science.xlsx");
         }
 
-        return Path.Combine(ExcelMain, workbook + ".xlsx");
+        if (workbook == "Rpg")
+        {
+            return Path.Combine(ExcelRpg, "Rpg.xlsx");
+        }
+
+        return Path.Combine(ExcelSchool, workbook + ".xlsx");
     }
 
     public void UseBroken(string brokenPath)
     {
         var workbook = brokenPath.Split('/')[0];
-        var file = Path.Combine(AppContext.BaseDirectory, "Excel", "Broken", brokenPath + ".xlsx");
+        var file = Path.Combine(AppContext.BaseDirectory, "Feature", FeatureOf(workbook), "Broken", brokenPath + ".xlsx");
         var exists = File.Exists(file);
         if (!exists)
         {
@@ -74,9 +88,48 @@ public sealed class ScenarioWorkspace : IDisposable
         File.Copy(file, WorkbookPath(workbook), overwrite: true);
     }
 
-    public CliResult RunMain(params string[] extraArgs)
+    private static string FeatureOf(string workbook)
     {
-        string[] args = ["-r", Records, "-e", ExcelMain, "-o", CsvMain, "-s", "B3", .. extraArgs];
+        if (workbook == "Science")
+        {
+            return "Science";
+        }
+
+        if (workbook == "Rpg")
+        {
+            return "Rpg";
+        }
+
+        return "School";
+    }
+
+    public CliResult RunBroken(string brokenPath)
+    {
+        UseBroken(brokenPath);
+
+        var workbook = brokenPath.Split('/')[0];
+        if (workbook == "Science")
+        {
+            return RunScience();
+        }
+
+        if (workbook == "Rpg")
+        {
+            return RunRpg();
+        }
+
+        return RunSchool();
+    }
+
+    public CliResult RunSchool(params string[] extraArgs)
+    {
+        string[] args = ["-r", RecordsSchool, "-e", ExcelSchool, "-o", CsvSchool, "-s", "B3", .. extraArgs];
+        return RunExtractor(args);
+    }
+
+    public CliResult RunRpg(params string[] extraArgs)
+    {
+        string[] args = ["-r", RecordsRpg, "-e", ExcelRpg, "-o", CsvRpg, "-s", "B3", .. extraArgs];
         return RunExtractor(args);
     }
 
