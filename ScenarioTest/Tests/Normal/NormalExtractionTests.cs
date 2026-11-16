@@ -5,11 +5,23 @@ namespace ScenarioTest.Tests.Normal;
 [Collection(CliCollectionDefinition.Name)]
 public class NormalExtractionTests(ExtractedCsvFixture fixture)
 {
-    private static readonly string[] MainCsvFiles =
+    private static readonly string[] SchoolCsvFiles =
     [
         "Library.Books.csv",
         "Library.Loans.csv",
         "Library.Reservations.csv",
+        "School.Cafeteria.csv",
+        "School.Calendar.csv",
+        "School.ClassRooms.csv",
+        "School.Clubs.csv",
+        "School.Grades.csv",
+        "School.Students.csv",
+        "School.Teachers.csv",
+        "School.Timetable.csv",
+    ];
+
+    private static readonly string[] RpgCsvFiles =
+    [
         "Rpg.Attendance.csv",
         "Rpg.Buffs.csv",
         "Rpg.Currencies.csv",
@@ -25,20 +37,12 @@ public class NormalExtractionTests(ExtractedCsvFixture fixture)
         "Rpg.SeasonRewards.csv",
         "Rpg.Shop.csv",
         "Rpg.Skills.csv",
-        "School.Cafeteria.csv",
-        "School.Calendar.csv",
-        "School.ClassRooms.csv",
-        "School.Clubs.csv",
-        "School.Grades.csv",
-        "School.Students.csv",
-        "School.Teachers.csv",
-        "School.Timetable.csv",
     ];
 
     [Fact]
-    public void MainWorkbooksWithB3StartCell_MatchGolden_WithoutWarnings()
+    public void SchoolAndLibraryWorkbooksWithB3StartCell_MatchGolden_WithoutWarnings()
     {
-        var result = fixture.MainResult;
+        var result = fixture.SchoolResult;
 
         ExtractionAssert.Succeeded(result);
         Assert.Empty(result.Errors);
@@ -46,7 +50,18 @@ public class NormalExtractionTests(ExtractedCsvFixture fixture)
         Assert.Contains(
             result.InformationLines,
             x => x.Contains("'Library.Reservations' has no data rows", StringComparison.Ordinal));
-        AssertMainCsvMatchesGolden(fixture.CsvMain);
+        AssertCsvMatchesGolden("School", SchoolCsvFiles, fixture.CsvSchool);
+    }
+
+    [Fact]
+    public void RpgWorkbookWithB3StartCell_MatchesGolden_WithoutWarnings()
+    {
+        var result = fixture.RpgResult;
+
+        ExtractionAssert.Succeeded(result);
+        Assert.Empty(result.Errors);
+        Assert.Empty(result.Warnings);
+        AssertCsvMatchesGolden("Rpg", RpgCsvFiles, fixture.CsvRpg);
     }
 
     [Fact]
@@ -57,16 +72,16 @@ public class NormalExtractionTests(ExtractedCsvFixture fixture)
         ExtractionAssert.Succeeded(result);
         Assert.Empty(result.Errors);
         Assert.Empty(result.Warnings);
-        Golden.AssertEquals("Science/Science.Elements.csv", Path.Combine(fixture.CsvScience, "Science.Elements.csv"));
+        Golden.AssertEquals("Science", "Science.Elements.csv", Path.Combine(fixture.CsvScience, "Science.Elements.csv"));
     }
 
     [Fact]
     public void ExtractedCsv_IsUtf8WithoutBom_AndQuotesMultiLineTitle()
     {
-        ExtractionAssert.Succeeded(fixture.MainResult);
-        var bytes = File.ReadAllBytes(Path.Combine(fixture.CsvMain, "Library.Books.csv"));
+        ExtractionAssert.Succeeded(fixture.SchoolResult);
+        var bytes = File.ReadAllBytes(Path.Combine(fixture.CsvSchool, "Library.Books.csv"));
         Assert.False(bytes is [0xEF, 0xBB, 0xBF, ..]);
-        var books = CsvDocument.Load(Path.Combine(fixture.CsvMain, "Library.Books.csv"));
+        var books = CsvDocument.Load(Path.Combine(fixture.CsvSchool, "Library.Books.csv"));
         Assert.Equal("도서관의\n밤", books.Row("Id", "3")[books.ColumnIndex("Title")]);
         Assert.Equal("\"나무\" 그리고, 숲", books.Row("Id", "1")[books.ColumnIndex("Title")]);
     }
@@ -76,9 +91,9 @@ public class NormalExtractionTests(ExtractedCsvFixture fixture)
     {
         using var workspace = new ScenarioWorkspace();
 
-        var first = workspace.RunMain("--version", "2026-1");
-        var second = workspace.RunMain("--version", "2026-1");
-        var forced = workspace.RunMain("--version", "2026-1", "--force");
+        var first = workspace.RunSchool("--version", "2026-1");
+        var second = workspace.RunSchool("--version", "2026-1");
+        var forced = workspace.RunSchool("--version", "2026-1", "--force");
 
         ExtractionAssert.Succeeded(first);
         Assert.Equal(1, second.ExitCode);
@@ -90,15 +105,15 @@ public class NormalExtractionTests(ExtractedCsvFixture fixture)
     public void ExcelLockFileOldXlsAndBackupSubfolder_AreIgnored()
     {
         using var workspace = new ScenarioWorkspace();
-        File.WriteAllBytes(Path.Combine(workspace.ExcelMain, "~$School.xlsx"), []);
-        File.WriteAllBytes(Path.Combine(workspace.ExcelMain, "old.xls"), []);
-        var backup = Directory.CreateDirectory(Path.Combine(workspace.ExcelMain, "backup"));
+        File.WriteAllBytes(Path.Combine(workspace.ExcelSchool, "~$School.xlsx"), []);
+        File.WriteAllBytes(Path.Combine(workspace.ExcelSchool, "old.xls"), []);
+        var backup = Directory.CreateDirectory(Path.Combine(workspace.ExcelSchool, "backup"));
         File.Copy(workspace.WorkbookPath("School"), Path.Combine(backup.FullName, "School.xlsx"));
 
-        var result = workspace.RunMain();
+        var result = workspace.RunSchool();
 
         ExtractionAssert.Succeeded(result);
-        AssertMainCsvMatchesGolden(workspace.CsvMain);
+        AssertCsvMatchesGolden("School", SchoolCsvFiles, workspace.CsvSchool);
     }
 
     [Fact]
@@ -110,11 +125,11 @@ public class NormalExtractionTests(ExtractedCsvFixture fixture)
         CliResult result;
         using (new FileStream(workspace.WorkbookPath("School"), FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
         {
-            result = workspace.RunMain();
+            result = workspace.RunSchool();
         }
 
         Assert.True(result.ExitCode == 0, result.AllText);
-        AssertMainCsvMatchesGolden(workspace.CsvMain);
+        AssertCsvMatchesGolden("School", SchoolCsvFiles, workspace.CsvSchool);
     }
 
     [Fact]
@@ -123,25 +138,24 @@ public class NormalExtractionTests(ExtractedCsvFixture fixture)
         using var workspace = new ScenarioWorkspace();
         workspace.UseBroken("School/Students/MemoColumnFormulaAndPercent");
 
-        var result = workspace.RunMain();
+        var result = workspace.RunSchool();
 
         ExtractionAssert.Succeeded(result);
         Assert.Empty(result.Warnings);
-        Golden.AssertEquals("School/School.Students.csv", Path.Combine(workspace.CsvMain, "School.Students.csv"));
+        Golden.AssertEquals("School", "School.Students.csv", Path.Combine(workspace.CsvSchool, "School.Students.csv"));
     }
 
-    private static void AssertMainCsvMatchesGolden(string csvDirectory)
+    private static void AssertCsvMatchesGolden(string feature, string[] expectedFiles, string csvDirectory)
     {
         var actualFiles = Directory.GetFiles(csvDirectory, "*.csv")
             .Select(Path.GetFileName)
             .Order(StringComparer.Ordinal)
             .ToList();
-        Assert.Equal(MainCsvFiles, actualFiles);
+        Assert.Equal(expectedFiles, actualFiles);
 
-        foreach (var file in MainCsvFiles)
+        foreach (var file in expectedFiles)
         {
-            var workbook = file[..file.IndexOf('.', StringComparison.Ordinal)];
-            Golden.AssertEquals(Path.Combine(workbook, file), Path.Combine(csvDirectory, file));
+            Golden.AssertEquals(feature, file, Path.Combine(csvDirectory, file));
         }
     }
 }

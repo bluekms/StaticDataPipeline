@@ -10,7 +10,7 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     [Fact]
     public async Task GachaRatesAddingUpTo99_999_FailsGachaTableValidate()
     {
-        using var csv = fixture.CopyMainCsv();
+        using var csv = fixture.CopyRpgCsv();
         csv.Edit("Rpg.Gacha.csv", x => x.Set("Grade", "R", "Rate", "79.999"));
 
         var exception = await LoadAssert.FailsWithAggregate(Load.Rpg(csv.Root), LoadAssert.TablesFailed);
@@ -21,7 +21,7 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     [Fact]
     public async Task TeacherBookedInTwoClassesAtOnce_FailsTimetableTableValidate()
     {
-        using var csv = fixture.CopyMainCsv();
+        using var csv = fixture.CopySchoolCsv();
         csv.Edit("School.Timetable.csv", DoubleBookTeacher7);
 
         var exception = await LoadAssert.FailsWithAggregate(Load.School(csv.Root), LoadAssert.TablesFailed);
@@ -32,7 +32,7 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     [Fact]
     public async Task OneTeacherHomeroomOfTwoClasses_FailsManagerValidate()
     {
-        using var csv = fixture.CopyMainCsv();
+        using var csv = fixture.CopySchoolCsv();
         csv.Edit("School.ClassRooms.csv", x => x.Set("Id", "102", "HomeroomTeacherId", "7"));
 
         var exception = await Record.ExceptionAsync(Load.School(csv.Root));
@@ -44,7 +44,7 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     [Fact]
     public async Task TwoStudentsInSameSeatOfSameClass_FailsManagerValidate()
     {
-        using var csv = fixture.CopyMainCsv();
+        using var csv = fixture.CopySchoolCsv();
         csv.Edit("School.Students.csv", x =>
         {
             x.Set("Id", "20260104", "ClassRoomId", "101");
@@ -60,7 +60,7 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     [Fact]
     public async Task TeacherWithoutAnyClass_FailsTeacherScheduleView()
     {
-        using var csv = fixture.CopyMainCsv();
+        using var csv = fixture.CopySchoolCsv();
         csv.Edit("School.Teachers.csv", AddIdleTeacher);
 
         await LoadAssert.FailsWithSingle(Load.School(csv.Root), LoadAssert.ViewsFailed, "수업이 없는 교사: 최민호");
@@ -70,7 +70,7 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     public async Task GradeTableDisabled_FailsReportCardViewNamingItsTables()
     {
         await LoadAssert.FailsWithSingle(
-            Load.School(fixture.CsvMain, ["GradeTable"]),
+            Load.School(fixture.CsvSchool, ["GradeTable"]),
             LoadAssert.ViewsFailed,
             "ReportCardView 에는 StudentTable, ClassRoomTable, GradeTable 이 필요하다.");
     }
@@ -80,7 +80,7 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     {
         var school = await LoadedSchool();
         var previous = school.Current;
-        using var csv = fixture.CopyMainCsv();
+        using var csv = fixture.CopySchoolCsv();
         csv.Edit("School.Timetable.csv", DoubleBookTeacher7);
         csv.Edit("School.Calendar.csv", x => x.Set("Id", "4", "End", "2026-09-23"));
 
@@ -95,7 +95,7 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     {
         var school = await LoadedSchool();
         var previous = school.Current;
-        using var csv = fixture.CopyMainCsv();
+        using var csv = fixture.CopySchoolCsv();
         csv.Edit("School.Students.csv", x =>
         {
             x.Set("Id", "20260101", "ClassRoomId", "399");
@@ -114,7 +114,7 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     {
         var school = await LoadedSchool();
         var previous = school.Current;
-        using var csv = fixture.CopyMainCsv();
+        using var csv = fixture.CopySchoolCsv();
         csv.Edit("School.Teachers.csv", AddIdleTeacher);
         csv.Edit("School.Grades.csv", x => x.DuplicateRow("StudentId.Value", "20260101"));
 
@@ -130,12 +130,12 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
         using var workspace = new ScenarioWorkspace();
         workspace.UseBroken("Rpg/Gacha/GachaRatesAsPercentCells");
 
-        var result = workspace.RunMain();
+        var result = workspace.RunRpg();
 
         ExtractionAssert.Succeeded(result);
         var warning = Assert.Single(result.Warnings);
         Assert.Contains("0.000%", warning, StringComparison.Ordinal);
-        var exception = await LoadAssert.FailsWithAggregate(Load.Rpg(workspace.CsvMain), LoadAssert.TablesFailed);
+        var exception = await LoadAssert.FailsWithAggregate(Load.Rpg(workspace.CsvRpg), LoadAssert.TablesFailed);
         LoadAssert.ContainsAll(exception, "가챠 확률의 합은 100 이어야 하는데 1");
     }
 
@@ -161,7 +161,7 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     private async Task<SchoolStaticData> LoadedSchool()
     {
         var school = new SchoolStaticData(NullLogger.Instance);
-        await school.LoadAsync(fixture.CsvMain);
+        await school.LoadAsync(fixture.CsvSchool);
 
         return school;
     }

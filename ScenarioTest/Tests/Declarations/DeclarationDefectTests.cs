@@ -27,26 +27,26 @@ public class DeclarationDefectTests
             "-r",
             workspace.InvalidRecord(recordFile),
             "-e",
-            workspace.ExcelMain,
+            workspace.ExcelSchool,
             "-o",
-            workspace.CsvMain,
+            workspace.CsvSchool,
             "-s",
             "B3");
 
         ExtractionAssert.FailsWith(result, expected);
-        Assert.False(Directory.Exists(workspace.CsvMain));
+        Assert.False(Directory.Exists(workspace.CsvSchool));
     }
 
     [Fact]
     public void SameTypeDeclaredInTwoFiles_FailsWithCompileError()
     {
         using var workspace = new ScenarioWorkspace();
-        var schoolTypes = Path.Combine(workspace.Records, "SchoolTypes.cs");
-        File.Copy(schoolTypes, Path.Combine(workspace.Records, "SchoolTypesCopy.cs"));
+        var schoolTypes = Path.Combine(workspace.RecordsSchool, "SchoolTypes.cs");
+        File.Copy(schoolTypes, Path.Combine(workspace.RecordsSchool, "SchoolTypesCopy.cs"));
 
-        var result = workspace.RunMain();
+        var result = workspace.RunSchool();
 
         ExtractionAssert.FailsWith(result, "CS0101", "already contains a definition for 'Weekday'");
-        Assert.False(Directory.Exists(workspace.CsvMain));
+        Assert.False(Directory.Exists(workspace.CsvSchool));
     }
 }

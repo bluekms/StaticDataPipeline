@@ -14,9 +14,7 @@ public class HeaderMistakeTests
     public void WrongHeader_FailsExtraction(string brokenWorkbook, params string[] expected)
     {
         using var workspace = new ScenarioWorkspace();
-        workspace.UseBroken(brokenWorkbook);
-
-        ExtractionAssert.FailsWith(workspace.RunMain(), expected);
+        ExtractionAssert.FailsWith(workspace.RunBroken(brokenWorkbook), expected);
     }
 
     [Fact]
@@ -25,9 +23,9 @@ public class HeaderMistakeTests
         using var workspace = new ScenarioWorkspace();
         workspace.UseBroken("School/Students/PhoneColumnDeleted");
 
-        var result = workspace.RunMain();
+        var result = workspace.RunSchool();
 
         ExtractionAssert.FailsWith(result, "Header not found: Phone");
-        Assert.False(File.Exists(Path.Combine(workspace.CsvMain, "School.Students.csv")));
+        Assert.False(File.Exists(Path.Combine(workspace.CsvSchool, "School.Students.csv")));
     }
 }

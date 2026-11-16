@@ -33,12 +33,12 @@ public class WorkbookMistakeTests
     public void ExcelFolderEmptied_Fails()
     {
         using var workspace = new ScenarioWorkspace();
-        foreach (var file in Directory.GetFiles(workspace.ExcelMain))
+        foreach (var file in Directory.GetFiles(workspace.ExcelSchool))
         {
             File.Delete(file);
         }
 
-        var result = workspace.RunMain();
+        var result = workspace.RunSchool();
 
         ExtractionAssert.FailsWith(result);
     }
@@ -49,12 +49,12 @@ public class WorkbookMistakeTests
         using var workspace = new ScenarioWorkspace();
         workspace.UseBroken("Rpg/Items/ItemsSheetHidden");
 
-        var result = workspace.RunMain();
+        var result = workspace.RunRpg();
 
         ExtractionAssert.FailsWith(result, "is hidden", "Items");
         Assert.Single(result.Errors);
         Assert.Empty(result.Warnings);
-        Assert.False(File.Exists(Path.Combine(workspace.CsvMain, "Rpg.Items.csv")));
+        Assert.False(File.Exists(Path.Combine(workspace.CsvRpg, "Rpg.Items.csv")));
     }
 
     [Fact]
@@ -63,7 +63,7 @@ public class WorkbookMistakeTests
         using var workspace = new ScenarioWorkspace();
         workspace.UseBroken("Rpg/Items/ItemPricesByFormula");
 
-        var result = workspace.RunMain();
+        var result = workspace.RunRpg();
 
         ExtractionAssert.FailsWith(result, "has formulas in cells", "(12 cells)");
         var error = Assert.Single(result.Errors, x => x.Contains("has formulas in cells", StringComparison.Ordinal));

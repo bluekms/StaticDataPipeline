@@ -12,10 +12,10 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
     [Fact]
     public async Task SchoolCsv_LoadsWithReportCardsAndTeacherSchedules()
     {
-        ExtractionAssert.Succeeded(fixture.MainResult);
+        ExtractionAssert.Succeeded(fixture.SchoolResult);
         var school = new SchoolStaticData(NullLogger.Instance);
 
-        await school.LoadAsync(fixture.CsvMain);
+        await school.LoadAsync(fixture.CsvSchool);
 
         var snapshot = school.Current;
         var card = snapshot.Views.ReportCardView.Get(new StudentRecord.StudentId(20260101));
@@ -91,7 +91,7 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
     {
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        await rpg.LoadAsync(fixture.CsvMain);
+        await rpg.LoadAsync(fixture.CsvRpg);
 
         var tables = rpg.Current;
         var monsters = tables.MonsterTable!;
@@ -135,7 +135,7 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
     public async Task ItemTable_GetThrowsForUnknownId_TryGetReturnsFalse()
     {
         var rpg = new RpgStaticData(NullLogger.Instance);
-        await rpg.LoadAsync(fixture.CsvMain);
+        await rpg.LoadAsync(fixture.CsvRpg);
         var items = rpg.Current.ItemTable;
 
         var found = items.TryGet(new ItemRecord.ItemId(19999), out var missing);
@@ -151,7 +151,7 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
     public async Task TeacherScheduleView_UnknownTeacher_ReturnsEmptyList()
     {
         var school = new SchoolStaticData(NullLogger.Instance);
-        await school.LoadAsync(fixture.CsvMain);
+        await school.LoadAsync(fixture.CsvSchool);
         var view = school.Current.Views.TeacherScheduleView;
 
         Assert.Equal(2, view.Get(new TeacherRecord.TeacherId(7)).Count);
@@ -162,7 +162,7 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
     public async Task ReportCardView_GetThrowsForUnknownStudent_TryGetReturnsFalse()
     {
         var school = new SchoolStaticData(NullLogger.Instance);
-        await school.LoadAsync(fixture.CsvMain);
+        await school.LoadAsync(fixture.CsvSchool);
         var view = school.Current.Views.ReportCardView;
 
         var found = view.TryGet(new StudentRecord.StudentId(20239999), out var missing);
@@ -182,9 +182,9 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
         var school = new SchoolStaticData(NullLogger.Instance) { Gate = gate };
         Assert.Null(school.Current);
 
-        var first = Task.Run(() => school.LoadAsync(fixture.CsvMain));
+        var first = Task.Run(() => school.LoadAsync(fixture.CsvSchool));
         gate.WaitUntilHeld(first);
-        var second = await Record.ExceptionAsync(() => school.LoadAsync(fixture.CsvMain));
+        var second = await Record.ExceptionAsync(() => school.LoadAsync(fixture.CsvSchool));
         gate.Release();
         await first;
 
@@ -197,7 +197,7 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
     {
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        await rpg.LoadAsync(fixture.CsvMain, ["GachaTable"]);
+        await rpg.LoadAsync(fixture.CsvRpg, ["GachaTable"]);
 
         Assert.Null(rpg.Current.GachaTable);
         Assert.NotNull(rpg.Current.ItemTable);
@@ -208,7 +208,7 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
     {
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        await rpg.LoadAsync(fixture.CsvMain, ["itemTable"]);
+        await rpg.LoadAsync(fixture.CsvRpg, ["itemTable"]);
 
         Assert.Equal(3, rpg.Current.ItemTable.Records.Length);
     }
@@ -216,7 +216,7 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
     [Fact]
     public async Task DisabledCurrencies_FailsFkTargetNotFoundForEveryReferencingTable()
     {
-        var exception = await LoadAssert.FailsWithAggregate(Load.Rpg(fixture.CsvMain, ["CurrencyTable"]), LoadAssert.FkFailed);
+        var exception = await LoadAssert.FailsWithAggregate(Load.Rpg(fixture.CsvRpg, ["CurrencyTable"]), LoadAssert.FkFailed);
 
         var messages = exception.InnerExceptions.Select(x => x.Message).ToList();
         Assert.Contains(messages, x => x.StartsWith("RewardRecord.TargetId", StringComparison.Ordinal));
@@ -231,7 +231,7 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
         using var culture = CultureScope.Invariant();
         var rpg = new RpgStaticData(NullLogger.Instance);
 
-        var exception = await Record.ExceptionAsync(() => rpg.LoadAsync(fixture.CsvMain, ["ItemTable"]));
+        var exception = await Record.ExceptionAsync(() => rpg.LoadAsync(fixture.CsvRpg, ["ItemTable"]));
 
         Assert.NotNull(exception);
         LoadAssert.ContainsAll(exception, "'ItemTable' is non-nullable");

@@ -9,9 +9,11 @@ public class HeaderGeneratorTests(ExtractedCsvFixture fixture)
     [Fact]
     public void AllHeaders_MatchGolden_AndSkipIgnoredDraftRecord()
     {
-        ExtractionAssert.Succeeded(fixture.AllHeadersResult);
-        Golden.AssertEquals("AllHeaders.md", fixture.AllHeadersPath);
-        var text = File.ReadAllText(fixture.AllHeadersPath);
+        ExtractionAssert.Succeeded(fixture.SchoolHeadersResult);
+        ExtractionAssert.Succeeded(fixture.RpgHeadersResult);
+        Golden.AssertEquals("School", "AllHeaders.md", fixture.SchoolHeadersPath);
+        Golden.AssertEquals("Rpg", "AllHeaders.md", fixture.RpgHeadersPath);
+        var text = File.ReadAllText(fixture.RpgHeadersPath);
         Assert.DoesNotContain("DraftBuffRecord", text, StringComparison.Ordinal);
         Assert.DoesNotContain("SortCache", text, StringComparison.Ordinal);
     }
@@ -19,11 +21,15 @@ public class HeaderGeneratorTests(ExtractedCsvFixture fixture)
     [Fact]
     public void GeneratedHeaders_AreAllPresentInWorkbookSheets()
     {
-        ExtractionAssert.Succeeded(fixture.AllHeadersResult);
+        ExtractionAssert.Succeeded(fixture.SchoolHeadersResult);
+        ExtractionAssert.Succeeded(fixture.RpgHeadersResult);
 
-        var sections = HeaderSection.Parse(File.ReadAllLines(fixture.AllHeadersPath));
+        var schoolSections = HeaderSection.Parse(File.ReadAllLines(fixture.SchoolHeadersPath));
+        var rpgSections = HeaderSection.Parse(File.ReadAllLines(fixture.RpgHeadersPath));
+        List<HeaderSection> sections = [.. schoolSections, .. rpgSections];
 
-        Assert.Equal(27, sections.Count);
+        Assert.Equal(11, schoolSections.Count);
+        Assert.Equal(16, rpgSections.Count);
         foreach (var section in sections)
         {
             var sheetHeaders = ReadSheetHeaders(section);
@@ -52,7 +58,7 @@ public class HeaderGeneratorTests(ExtractedCsvFixture fixture)
         var tab = workspace.RunHeaderGenerator(
             "header",
             "-r",
-            workspace.Records,
+            workspace.RecordsSchool,
             "-n",
             "StudentRecord",
             "-o",
@@ -60,7 +66,7 @@ public class HeaderGeneratorTests(ExtractedCsvFixture fixture)
         var comma = workspace.RunHeaderGenerator(
             "header",
             "-r",
-            workspace.Records,
+            workspace.RecordsSchool,
             "-n",
             "StudentRecord",
             "--separator",
@@ -81,7 +87,7 @@ public class HeaderGeneratorTests(ExtractedCsvFixture fixture)
     {
         using var workspace = new ScenarioWorkspace();
 
-        var result = workspace.RunHeaderGenerator("header", "-r", workspace.Records, "-n", "SubjectScore");
+        var result = workspace.RunHeaderGenerator("header", "-r", workspace.RecordsSchool, "-n", "SubjectScore");
 
         Assert.Equal(1, result.ExitCode);
         Assert.Contains(result.Errors, x => x.Contains("SubjectScore", StringComparison.Ordinal));

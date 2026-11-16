@@ -5,7 +5,7 @@ namespace ScenarioTest.Tests.ExtractionFailures;
 [Collection(CliCollectionDefinition.Name)]
 public class CellValueMistakeTests
 {
-    // Excel/Broken 의 워크북(노란 칸이 틀린 자리, 메모가 설명)과 추출 로그에 들어 있어야 하는 조각.
+    // 주제별 Broken 폴더의 워크북(노란 칸이 틀린 자리, 메모가 설명)과 추출 로그에 들어 있어야 하는 조각.
     [Theory]
     [InlineData("School/Students/StudentGenderLowercase", "Invalid value 'female'", "Gender")]
     [InlineData("School/Students/StudentGenderNumber", "Invalid value '1'", "Gender")]
@@ -31,9 +31,7 @@ public class CellValueMistakeTests
     public void WrongCellValue_FailsExtractionNamingTheValue(string brokenWorkbook, params string[] expected)
     {
         using var workspace = new ScenarioWorkspace();
-        workspace.UseBroken(brokenWorkbook);
-
-        ExtractionAssert.FailsWith(workspace.RunMain(), expected);
+        ExtractionAssert.FailsWith(workspace.RunBroken(brokenWorkbook), expected);
     }
 
     [Fact]
@@ -42,7 +40,7 @@ public class CellValueMistakeTests
         using var workspace = new ScenarioWorkspace();
         workspace.UseBroken("School/Teachers/TeacherSubjectWithSpaces");
 
-        var result = workspace.RunMain();
+        var result = workspace.RunSchool();
 
         ExtractionAssert.FailsWith(result, "Invalid value ' Math '");
         var warning = Assert.Single(result.Warnings);

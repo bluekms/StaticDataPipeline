@@ -27,7 +27,7 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
         string value,
         params string[] expected)
     {
-        using var csv = fixture.CopyMainCsv();
+        using var csv = fixture.CopyCsvFor(csvFile);
         csv.Edit(csvFile, x => x.Set(keyHeader, key, header, value));
 
         await LoadAssert.FailsWithSingle(Load.ForCsv(csv.Root, csvFile), LoadAssert.FkFailed, expected);
@@ -36,7 +36,7 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     [Fact]
     public async Task LoanBorrowerNotEnrolled_FailsAcrossWorkbooks()
     {
-        using var csv = fixture.CopyMainCsv();
+        using var csv = fixture.CopySchoolCsv();
         csv.Edit("Library.Loans.csv", x => x.Rows[2][x.ColumnIndex("Borrower")] = "20250999");
 
         await LoadAssert.FailsWithSingle(Load.School(csv.Root), LoadAssert.FkFailed, "LoanRecord", "Borrower", "20250999", "StudentTable.Id");
@@ -45,7 +45,7 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     [Fact]
     public async Task MonsterSkillNotInSkills_FailsWithPositionInsideTheCell()
     {
-        using var csv = fixture.CopyMainCsv();
+        using var csv = fixture.CopyRpgCsv();
         csv.Edit("Rpg.Skills.csv", x => x.Rows.RemoveAll(row => row[x.ColumnIndex("Id")] == "Heal"));
 
         await LoadAssert.FailsWithSingle(Load.Rpg(csv.Root), LoadAssert.FkFailed, "MonsterRecord[Id=BossDragon].Skills[2](Heal)", "SkillTable.Id");
@@ -57,7 +57,7 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     public async Task FkMessageLanguage_FollowsUICultureWithEnglishFallback(string cultureName, string expected)
     {
         using var culture = CultureScope.Of(cultureName);
-        using var csv = fixture.CopyMainCsv();
+        using var csv = fixture.CopySchoolCsv();
         csv.Edit("School.Students.csv", x => x.Set("Id", "20260101", "ClassRoomId", "399"));
         var school = new SchoolStaticData(NullLogger.Instance);
 
