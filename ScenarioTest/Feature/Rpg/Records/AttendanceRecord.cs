@@ -6,5 +6,9 @@ namespace ScenarioTest.Records.Rpg;
 [StaticDataRecord("Rpg", "Attendance")]
 public sealed partial record AttendanceRecord(
     [Key] [Range(1, 7)] byte Day,
-    [ForeignKey("ItemTable", "Id")] [ForeignKey("CurrencyTable", "Id")] int RewardId,
+
+    [ForeignKey("ItemTable", "Id")]
+    [ForeignKey("CurrencyTable", "Id")]
+    int RewardId,
+
     [Range(1, 9999)] uint Amount);

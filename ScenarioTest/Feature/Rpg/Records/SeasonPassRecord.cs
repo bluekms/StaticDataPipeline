@@ -6,8 +6,11 @@ namespace ScenarioTest.Records.Rpg;
 [StaticDataRecord("Rpg", "SeasonPass")]
 public sealed partial record SeasonPassRecord(
     [Key] int Id,
+
     [Range(1, 100)] byte Level,
+
     bool IsPremium,
+
     [SwitchForeignKey(nameof(IsPremium), "false", "FreeRewardTable", "Id")]
     [SwitchForeignKey(nameof(IsPremium), "true", "PremiumRewardTable", "Id")]
     int RewardId);

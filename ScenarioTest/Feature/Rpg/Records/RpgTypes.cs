@@ -27,6 +27,7 @@ public enum SkillId
 public enum MonsterId
 {
     Slime = 1001,
+    Goblin = 1002,
     BossDragon = 9001,
 }
 
@@ -42,13 +43,6 @@ public enum RewardKind
 {
     Item,
     Currency,
-}
-
-public enum ObjectiveType
-{
-    Kill,
-    Collect,
-    Talk,
 }
 
 public enum PurchaseKind
@@ -72,10 +66,24 @@ public sealed record Position(int X, int Y);
 
 public sealed record Spawn(MapId Map, Position Pos);
 
-public sealed record Drop([ForeignKey("ItemTable", "Id")] int ItemId, [Range(typeof(decimal), "0", "100")] decimal Rate);
+public sealed record Drop(
+    [ForeignKey("ItemTable", "Id")] ItemRecord.ItemId ItemId,
+    [Range(typeof(decimal), "0", "100")] decimal Rate);
 
-public sealed record Objective(ObjectiveType Type, int TargetId, [Range(1, 999)] int Count);
+public sealed record KillGoal(
+    [ForeignKey("MonsterTable", "Id")] MonsterId Monster,
+    [Range(1, 999)] int Count);
 
-public sealed record PriceKey([ForeignKey("CurrencyTable", "Id")] int Currency, PurchaseKind Kind);
+public sealed record CollectGoal(
+    [ForeignKey("ItemTable", "Id")] ItemRecord.ItemId Item,
+    [Range(1, 999)] int Count);
+
+public sealed record QuestReward(
+    [ForeignKey("ItemTable", "Id")] ItemRecord.ItemId Item,
+    [Range(1, 999)] int Count);
+
+public sealed record PriceKey(
+    [ForeignKey("CurrencyTable", "Id")] CurrencyRecord.CurrencyId Currency,
+    PurchaseKind Kind);
 
 public sealed record Price([Key] PriceKey Key, uint Amount, [NullString("")] string? Note);

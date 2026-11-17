@@ -6,6 +6,21 @@ namespace ScenarioTest.Tests.LoadFailures;
 public class CsvTamperingTests(ExtractedCsvFixture fixture)
 {
     [Fact]
+    public async Task QuestKillTargetHandEditedToUnknownMonster_FailsNamingFileRowAndColumn()
+    {
+        using var csv = fixture.CopyRpgCsv();
+        csv.Edit("Rpg.Quests.csv", x => x.Set("Id", "2", "Kill.Monster", "Orc"));
+
+        await LoadAssert.FailsWithSingle(
+            Load.Rpg(csv.Root),
+            LoadAssert.TablesFailed,
+            "[Rpg.Quests.csv] CSV row 3",
+            "'Orc' is not a defined member of",
+            "MonsterId",
+            "column 'Kill.Monster'");
+    }
+
+    [Fact]
     public async Task StudentsCsvEmptied_FailsGradeForeignKeysAgainstEmptyTable()
     {
         using var csv = fixture.CopySchoolCsv();

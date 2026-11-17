@@ -29,14 +29,16 @@ public class NormalExtractionTests(ExtractedCsvFixture fixture)
         "Rpg.Gacha.csv",
         "Rpg.Items.csv",
         "Rpg.Monsters.csv",
+        "Rpg.OldSeasonItems.csv",
         "Rpg.PremiumRewards.csv",
         "Rpg.Quests.csv",
         "Rpg.Rewards.csv",
-        "Rpg.Season1Items.csv",
+        "Rpg.SeasonItems.csv",
         "Rpg.SeasonPass.csv",
         "Rpg.SeasonRewards.csv",
         "Rpg.Shop.csv",
         "Rpg.Skills.csv",
+        "Rpg.Stages.csv",
     ];
 
     [Fact]

@@ -1,10 +1,13 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Globalization;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
 using Sdp.Csv;
 using UnitTest.Utility;
 using Xunit.Abstractions;
+using SdpMessages = Sdp.Resources.Messages;
 
 namespace UnitTest.CsvMappingBehaviorTests;
 
@@ -33,7 +36,8 @@ public partial class FixedLengthExcessColumnMappingTests(ITestOutputHelper testO
 
         var csv = "Id,Ids[0],Ids[1],Ids[2]\n1,10,20,30";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, FixedArrayRecord.MapFromCsvRow));
-        Assert.IsType<ArgumentException>(ex.InnerException);
+        var inner = Assert.IsType<ArgumentException>(ex.InnerException);
+        Assert.Equal(Format(SdpMessages.Composite.MappedColumnExceedsLength, "Ids[2]", 2, "Ids"), inner.Message);
         Assert.Empty(logger.Logs);
     }
 
@@ -58,7 +62,8 @@ public partial class FixedLengthExcessColumnMappingTests(ITestOutputHelper testO
 
         var csv = "Id,Ids[0],Ids[1],Ids[2]\n1,10,20,30";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, FixedSetRecord.MapFromCsvRow));
-        Assert.IsType<ArgumentException>(ex.InnerException);
+        var inner = Assert.IsType<ArgumentException>(ex.InnerException);
+        Assert.Equal(Format(SdpMessages.Composite.MappedColumnExceedsLength, "Ids[2]", 2, "Ids"), inner.Message);
         Assert.Empty(logger.Logs);
     }
 
@@ -75,8 +80,14 @@ public partial class FixedLengthExcessColumnMappingTests(ITestOutputHelper testO
         var csv = "Id,Items[0].Key,Items[0].Name,Items[1].Key,Items[1].Name,Items[2].Key,Items[2].Name\n"
                 + "1,1,A,2,B,3,C";
         var ex = Assert.Throws<InvalidOperationException>(() => CsvLoader.Parse(csv, FixedDictRecord.MapFromCsvRow));
-        Assert.IsType<ArgumentException>(ex.InnerException);
+        var inner = Assert.IsType<ArgumentException>(ex.InnerException);
+        Assert.Equal(Format(SdpMessages.Composite.MappedColumnExceedsLength, "Items[2].Key", 2, "Items"), inner.Message);
         Assert.Empty(logger.Logs);
+    }
+
+    private static string Format(CompositeFormat format, params object[] args)
+    {
+        return string.Format(CultureInfo.CurrentCulture, format, args);
     }
 
     private TestOutputLogger<FixedLengthExcessColumnMappingTests> CreateLogger()

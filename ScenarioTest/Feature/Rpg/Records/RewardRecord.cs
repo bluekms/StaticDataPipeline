@@ -6,8 +6,11 @@ namespace ScenarioTest.Records.Rpg;
 [StaticDataRecord("Rpg", "Rewards")]
 public sealed partial record RewardRecord(
     [Key] int Id,
+
     RewardKind Kind,
+
     [SwitchForeignKey(nameof(Kind), "Item", "ItemTable", "Id")]
     [SwitchForeignKey(nameof(Kind), "Currency", "CurrencyTable", "Id")]
     int TargetId,
+
     [Range(typeof(long), "1", "9223372036854775807")] long Amount);

@@ -141,19 +141,20 @@ Id	ItemId	Count
 - Id
 - Title
 - PrevQuestId
-- Giver
-- Objectives[0].Type
-- Objectives[0].TargetId
-- Objectives[0].Count
-- Objectives[1].Type
-- Objectives[1].TargetId
-- Objectives[1].Count
+- Kill.Monster
+- Kill.Count
+- Collect.Item
+- Collect.Count
+- Rewards[0].Item
+- Rewards[0].Count
+- Rewards[1].Item
+- Rewards[1].Count
 - RequiredLevel
 - BonusGold
 
 ### Headers (TSV)
 ```
-Id	Title	PrevQuestId	Giver	Objectives[0].Type	Objectives[0].TargetId	Objectives[0].Count	Objectives[1].Type	Objectives[1].TargetId	Objectives[1].Count	RequiredLevel	BonusGold
+Id	Title	PrevQuestId	Kill.Monster	Kill.Count	Collect.Item	Collect.Count	Rewards[0].Item	Rewards[0].Count	Rewards[1].Item	Rewards[1].Count	RequiredLevel	BonusGold
 ```
 
 ## ScenarioTest.Records.Rpg.RewardRecord
@@ -171,9 +172,9 @@ Id	Title	PrevQuestId	Giver	Objectives[0].Type	Objectives[0].TargetId	Objectives[
 Id	Kind	TargetId	Amount
 ```
 
-## ScenarioTest.Records.Rpg.Season1ItemRecord
+## ScenarioTest.Records.Rpg.SeasonItemRecord
 - Excel File: `Rpg.xlsx`
-- Sheet Name: `Season1Items`
+- Sheet Name: `OldSeasonItems`
 
 ### Headers (List)
 - Id
@@ -182,6 +183,20 @@ Id	Kind	TargetId	Amount
 ### Headers (TSV)
 ```
 Id	Name
+```
+
+## ScenarioTest.Records.Rpg.SeasonItemRecordV2
+- Excel File: `Rpg.xlsx`
+- Sheet Name: `SeasonItems`
+
+### Headers (List)
+- Id
+- Name
+- Rarity
+
+### Headers (TSV)
+```
+Id	Name	Rarity
 ```
 
 ## ScenarioTest.Records.Rpg.SeasonPassRecord
@@ -205,12 +220,12 @@ Id	Level	IsPremium	RewardId
 
 ### Headers (List)
 - Id
-- Season
+- SeasonStartDay
 - ItemId
 
 ### Headers (TSV)
 ```
-Id	Season	ItemId
+Id	SeasonStartDay	ItemId
 ```
 
 ## ScenarioTest.Records.Rpg.ShopClientRecord
@@ -221,10 +236,11 @@ Id	Season	ItemId
 - ItemId
 - IconPath
 - DisplayOrder
+- Stock
 
 ### Headers (TSV)
 ```
-ItemId	IconPath	DisplayOrder
+ItemId	IconPath	DisplayOrder	Stock
 ```
 
 ## ScenarioTest.Records.Rpg.ShopServerRecord

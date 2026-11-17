@@ -101,13 +101,33 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
         Assert.Equal(new MapId(3), monsters.Get(MonsterId.Slime).Spawn.Map);
         Assert.Equal(TimeSpan.FromMinutes(30), monsters.Get(MonsterId.BossDragon).RespawnAt);
 
-        var potionShop = tables.ShopServerTable!.Get(new ItemRecord.ItemId(10001));
+        var shop = tables.ShopTable!;
+        Assert.Equal(2, shop.Records.Length);
+        var potionShop = shop.Get(new ItemRecord.ItemId(10001));
+        Assert.Equal("icons/potion.png", potionShop.IconPath);
         Assert.Null(potionShop.Stock);
         Assert.Equal(new DateTimeOffset(2026, 3, 1, 0, 0, 0, TimeSpan.FromHours(9)), potionShop.SaleStart);
         Assert.Equal(2, potionShop.Prices.Count);
-        Assert.Equal("봄 이벤트", potionShop.Prices[new PriceKey(901, PurchaseKind.Sale)].Note);
-        Assert.Null(potionShop.Prices[new PriceKey(901, PurchaseKind.Normal)].Note);
-        Assert.Equal(2, tables.ShopClientTable!.Records.Length);
+        var shopCurrency = new CurrencyRecord.CurrencyId(901);
+        Assert.Equal("봄 이벤트", potionShop.Prices[new PriceKey(shopCurrency, PurchaseKind.Sale)].Note);
+        Assert.Null(potionShop.Prices[new PriceKey(shopCurrency, PurchaseKind.Normal)].Note);
+        Assert.Equal(50u, shop.Get(new ItemRecord.ItemId(10002)).Stock);
+
+        // 한 시트를 두 Record 가 나눠 읽는다. RequiredLevel, DailyLimit 은 양쪽이 같은 열을 읽는다.
+        var serverStages = tables.StageServerTable!;
+        Assert.Equal(3, serverStages.Records.Length);
+        var dragonStage = serverStages.Get(new StageServerRecord.StageId(3));
+        Assert.Equal(MonsterId.BossDragon, dragonStage.Boss);
+        Assert.Equal(180, dragonStage.MinClearSeconds);
+        Assert.Equal(3u, dragonStage.DailyLimit);
+        Assert.Null(serverStages.Get(new StageServerRecord.StageId(1)).DailyLimit);
+        var clientStages = tables.StageClientTable!.Records;
+        Assert.Equal(3, clientStages.Length);
+        var goblinStage = clientStages.Single(x => x.Id == new StageServerRecord.StageId(2));
+        Assert.Equal("고블린 숲", goblinStage.Name);
+        Assert.Null(goblinStage.Bgm);
+        Assert.Equal(5, goblinStage.RequiredLevel);
+        Assert.Equal(3u, clientStages.Single(x => x.Id == new StageServerRecord.StageId(3)).DailyLimit);
 
         Assert.Equal(2, tables.BuffTable!.Records.Length);
         Assert.Equal(2, tables.DebuffTable!.Records.Length);
@@ -121,9 +141,23 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
         Assert.Equal(1.15f, items.Records[1].Stats.Speed);
         Assert.Equal("철 검", items.Get(new ItemRecord.ItemId(10002)).Name);
         Assert.Equal(9999999999L, tables.CurrencyTable!.Records[0].Cap);
+
+        // 코드 이름 SeasonItemTable 은 OldSeasonItems 시트를, SeasonItemTableV2 는 SeasonItems 시트를 읽는다.
+        var oldSeasonItems = tables.SeasonItemTable!.Records;
+        Assert.Equal(3, oldSeasonItems.Length);
+        Assert.Equal("시즌1 기념 검", oldSeasonItems.Single(x => x.Id == new SeasonItemRecord.SeasonItemId(20001)).Name);
+        var newSeasonItems = tables.SeasonItemTableV2!.Records;
+        Assert.Equal(2, newSeasonItems.Length);
+        var bow = newSeasonItems.Single(x => x.Id == new SeasonItemRecordV2.SeasonItemId(30001));
+        Assert.Equal("시즌2 기념 활", bow.Name);
+        Assert.Equal(Rarity.Rare, bow.Rarity);
+
         var dragonNest = tables.QuestTable!.Records.Single(x => x.Id == new QuestRecord.QuestId(3));
-        Assert.Null(dragonNest.Giver);
         Assert.Equal(2, dragonNest.PrevQuestId);
+        Assert.Equal(new KillGoal(MonsterId.BossDragon, 1), dragonNest.Kill);
+        Assert.Equal(new CollectGoal(new ItemRecord.ItemId(10003), 1), dragonNest.Collect);
+        Assert.Equal(2, dragonNest.Rewards.Count);
+        Assert.Contains(new QuestReward(new ItemRecord.ItemId(10001), 10), (IReadOnlySet<QuestReward>)dragonNest.Rewards);
         Assert.Null(tables.QuestTable.Records.Single(x => x.Id == new QuestRecord.QuestId(1)).PrevQuestId);
         Assert.Equal(100m, tables.GachaTable!.Records.Sum(x => x.Rate));
         var ssr = tables.GachaTable.Records.Single(x => x.Grade == GachaGrade.SSR);

@@ -2,7 +2,7 @@ using Sdp.Attributes;
 
 namespace ScenarioTest.Records.Rpg;
 
-// SeasonPass 의 IsPremium=true 쪽 대상.
+// StaticDataRecord 인 SeasonPassRecord 의 SFK IsPremium=true 쪽 대상.
 [StaticDataRecord("Rpg", "PremiumRewards")]
 public sealed partial record PremiumRewardRecord(
     [Key] PremiumRewardRecord.PremiumRewardId Id,

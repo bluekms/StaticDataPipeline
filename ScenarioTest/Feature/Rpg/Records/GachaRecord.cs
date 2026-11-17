@@ -7,5 +7,9 @@ namespace ScenarioTest.Records.Rpg;
 [StaticDataRecord("Rpg", "Gacha")]
 public sealed partial record GachaRecord(
     [Key] GachaGrade Grade,
+
     [Range(typeof(decimal), "0.001", "100")] decimal Rate,
-    [Length(2)] [ForeignKey("ItemTable", "Id")] FrozenSet<ItemRecord.ItemId> PickupItemIds);
+
+    [Length(2)]
+    [ForeignKey("ItemTable", "Id")]
+    FrozenSet<ItemRecord.ItemId> PickupItemIds);
