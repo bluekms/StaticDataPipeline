@@ -101,6 +101,9 @@ internal static class CsvMapperPipeline
 
         specificallyRejected.UnionWith(ValidateFrozenDictionaryKeys(symbol, syntax, allParameters, diagnostics));
 
+        var rejectedSingleValueRecords = ValidateSingleValueRecordInnerValues(symbol, syntax, allParameters, diagnostics);
+        specificallyRejected.UnionWith(rejectedSingleValueRecords);
+
         var unsupportedParameterNames = parameters
             .Where(static param => !ParameterEmittability.IsParameterEmittable(param))
             .Where(param => !specificallyRejected.Contains(param.Name))
@@ -331,6 +334,42 @@ internal static class CsvMapperPipeline
                     collection.Length));
                 rejected.Add(qualified.Path);
             }
+        }
+
+        return rejected;
+    }
+
+    private static HashSet<string> ValidateSingleValueRecordInnerValues(
+        INamedTypeSymbol symbol,
+        RecordDeclarationSyntax syntax,
+        List<QualifiedParameter> allParameters,
+        List<Diagnostic> diagnostics)
+    {
+        var rejected = new HashSet<string>();
+
+        foreach (var qualified in allParameters)
+        {
+            var param = qualified.Parameter;
+            var singleValueRecord = param.Nested ?? param.Collection?.ElementNested;
+            if (singleValueRecord is not { IsTypeBrandingRecord: true })
+            {
+                continue;
+            }
+
+            var innerValue = singleValueRecord.Parameters[0];
+            if (!innerValue.IsNullable)
+            {
+                continue;
+            }
+
+            diagnostics.Add(Diagnostic.Create(
+                SdpDiagnostics.SingleValueRecordInnerMustBeNonNullable,
+                syntax.Identifier.GetLocation(),
+                symbol.ToDisplayString(),
+                qualified.Path,
+                singleValueRecord.Symbol.Name,
+                innerValue.Name));
+            rejected.Add(qualified.Path);
         }
 
         return rejected;

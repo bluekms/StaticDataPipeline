@@ -64,6 +64,7 @@ internal static class SupportedTypeChecker
             NullableSingleValueRecordChecker.CheckDirect(property);
         }
 
+        SingleValueRecordChecker.CheckDirect(property);
         RecordTypeChecker.Check(recordSchema, recordSchemaCatalog, visited, logger);
     }
 

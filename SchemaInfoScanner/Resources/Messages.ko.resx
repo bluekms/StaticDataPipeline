@@ -171,6 +171,9 @@
   <data name="DateTimeFormatAttributeRequired" xml:space="preserve">
     <value>{0}({1}): DateTime / DateTimeOffset / DateOnly / TimeOnly 타입은 반드시 DateTimeFormatAttribute를 사용해야 합니다.</value>
   </data>
+  <data name="SingleValueRecordInnerMustBeNonNullable" xml:space="preserve">
+    <value>{0}은(는) 지원하지 않습니다. 값 하나를 감싼 레코드는 안쪽 값이 nullable 이 아니어야 하는데 {1}이(가) nullable 입니다. 안쪽 값의 ? 를 지우고, 값이 없을 수 있는 자리에서 레코드 타입에 ? 와 [NullString] 을 붙이세요.</value>
+  </data>
   <data name="NullStringAttributeRequiredForNullable" xml:space="preserve">
     <value>{0}({1}): nullable 타입은 NullStringAttribute를 사용해야 합니다.</value>
   </data>

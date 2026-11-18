@@ -47,6 +47,7 @@ internal static class ArrayTypeChecker
         }
 
         var innerRecordSchema = property.FindInnerRecordSchema(recordSchemaCatalog);
+        SingleValueRecordChecker.CheckElement(property);
         RecordTypeChecker.Check(innerRecordSchema, recordSchemaCatalog, visited, logger);
     }
 

@@ -25,6 +25,7 @@ SDP0017 | Sdp.SourceGenerator | Error | FrozenDictionary value record must have 
 SDP0018 | Sdp.SourceGenerator | Error | FrozenDictionary key type must match the value record's [Key] parameter
 SDP0019 | Sdp.SourceGenerator | Error | CountRange bounds must be non-negative
 SDP0020 | Sdp.SourceGenerator | Error | Attribute argument must not be null
+SDP0021 | Sdp.SourceGenerator | Error | Single-value record must wrap a non-nullable value
 SDP0202 | Sdp.SourceGenerator | Error | TableSet record must be partial
 SDP0203 | Sdp.SourceGenerator | Error | StaticDataTable subclass must be partial
 SDP0204 | Sdp.SourceGenerator | Error | [ForeignKey] and [SwitchForeignKey] cannot coexist
