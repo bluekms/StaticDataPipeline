@@ -35,10 +35,10 @@ public class NullableMemberKeyTests(ITestOutputHelper testOutputHelper)
     private const string NullableOnlyMemberSource = """
         [StaticDataRecord("Shop", "Tags")]
         public sealed partial record TagRecord(
-            [Length(2)] FrozenSet<Tag> Tags
+            [Length(2)] [NullString("-")] FrozenSet<Tag?> Tags
         );
 
-        public sealed record Tag([NullString("-")] string? Label);
+        public sealed record Tag(string Label);
         """;
 
     [Fact]

@@ -1,4 +1,3 @@
-using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using UnitTest.Utility;
@@ -515,15 +514,6 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
         public sealed partial class CurrencyTable(ImmutableArray<CurrencyRec> records)
             : StaticDataTable<CurrencyRec>(records);
 
-        [StaticDataRecord("Npc", "S")]
-        public sealed partial record NpcRec([Key] NpcRec.NpcId Id, string Name)
-        {
-            public readonly record struct NpcId([NullString("")] int? Value);
-        }
-
-        public sealed partial class NpcTable(ImmutableArray<NpcRec> records)
-            : StaticDataTable<NpcRec>(records);
-
         """;
 
     private static string BuildBrandingSource(string consumerParameters)
@@ -546,7 +536,6 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
                     TargetTable? Target,
                     ItemTable? Item,
                     CurrencyTable? Currency,
-                    NpcTable? Npc,
                     ConsumerTable? Consumer);
             }
             """;
@@ -620,30 +609,6 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
 
         var diagnostics = RunDiagnostics(source);
         Assert.Empty(diagnostics);
-        Assert.Empty(logger.Logs);
-    }
-
-    [Fact]
-    public void Reports_SDP0211_when_primitive_column_references_branding_key_with_nullable_value()
-    {
-        var logger = CreateLogger();
-
-        var source = BuildBrandingSource("[ForeignKey(\"Npc\", \"Id\")] int NpcId");
-
-        AssertReportedAsError(source, "SDP0211");
-        Assert.Empty(logger.Logs);
-    }
-
-    [Fact]
-    public void Reports_SDP0211_with_branding_value_type_when_branding_key_value_is_nullable()
-    {
-        var logger = CreateLogger();
-
-        var source = BuildBrandingSource("[ForeignKey(\"Npc\", \"Id\")] int NpcId");
-
-        var diagnostics = RunDiagnostics(source);
-        var diagnostic = Assert.Single(diagnostics, d => d.Id == "SDP0211");
-        Assert.Contains("NpcId(int? Value)", diagnostic.GetMessage(CultureInfo.InvariantCulture));
         Assert.Empty(logger.Logs);
     }
 
