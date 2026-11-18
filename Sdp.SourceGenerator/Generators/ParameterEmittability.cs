@@ -41,8 +41,8 @@ internal static class ParameterEmittability
 
             if (collection.ElementNested is { } elementNested)
             {
-                // nullable record 지원하지 않음
-                if (TypeClassifier.IsNullable(collection.ElementType))
+                var isElementNullable = TypeClassifier.IsNullable(collection.ElementType);
+                if (isElementNullable && !IsNullableBrandingEmittable(elementNested, param.NullString))
                 {
                     return false;
                 }
@@ -103,7 +103,7 @@ internal static class ParameterEmittability
 
     private static bool CanEmitRecord(ParameterAnalysis param)
     {
-        if (param.IsNullable)
+        if (param.IsNullable && !IsNullableBrandingEmittable(param.Nested!, param.NullString))
         {
             return false;
         }
@@ -114,6 +114,17 @@ internal static class ParameterEmittability
         }
 
         return param.Nested!.Parameters.All(IsParameterEmittable);
+    }
+
+    // 스캐너의 NullableSingleValueRecordChecker 와 같은 규칙이어야 한다.
+    private static bool IsNullableBrandingEmittable(NestedRecordInfo nested, string? nullString)
+    {
+        if (nullString is null)
+        {
+            return false;
+        }
+
+        return nested.IsTypeBrandingRecord;
     }
 
     private static bool CanEmitPrimitive(ParameterAnalysis param)

@@ -42,6 +42,11 @@ internal static partial class CsvMapperEmitter
 
         if (param.Nested is { } nested)
         {
+            if (param.IsNullable)
+            {
+                return $"{HelperName(NullableBrandingHelperPrefix, ownerToken, param.Name)}(headers, values, {keyExpr})";
+            }
+
             return $"__MapNested_{nestedTokens[nested.Symbol]}(headers, values, {keyExpr})";
         }
 
