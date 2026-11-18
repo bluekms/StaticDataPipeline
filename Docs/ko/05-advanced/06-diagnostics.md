@@ -25,6 +25,7 @@
 |`SDP0017`|`FrozenDictionary` value record 에 `[Key]` 가 정확히 하나가 아니다|value record 에 `[Key]` 하나를 둔다|
 |`SDP0018`|`FrozenDictionary` 키 타입이 value record 의 `[Key]` 타입과 다르다|키 타입을 맞춘다|
 |`SDP0019`|`[CountRange]` 경계값이 음수다|0 이상으로 고친다|
+|`SDP0021`|값 하나를 감싼 record (타입 브랜딩) 의 내부 파라미터가 nullable 이다|내부 파라미터의 `?` 를 지우고, 값이 없을 수 있는 자리에 브랜딩 타입의 `?` 와 `[NullString]` 을 붙인다 ([5.3 타입 브랜딩 패턴](./03-type-branding.md))|
 
 </br></br></br>
 

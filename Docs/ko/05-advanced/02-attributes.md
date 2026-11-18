@@ -258,7 +258,7 @@ public sealed partial record ItemRecord(
 |다중 허용|X|
 |검증 시점|스캐너 (존재 여부), 로드 (치환)|
 |누락 시|스캐너가 `NullStringAttributeRequiredForNullable` (또는 ...Array, ...Set, ...Map) 예외를 발생. 빌드 시 `SDP0004`|
-|오사용|Non-nullable 에 붙이면 스캐너가 `NullStringAttributeNotAllowed` 예외를 발생. 빌드 시 `SDP0016` (Non-nullable, Record, `FrozenDictionary` 파라미터 모두)|
+|오사용|Non-nullable 에 붙이면 스캐너가 `NullStringAttributeNotAllowed` 예외를 발생. 빌드 시 `SDP0016` (Non-nullable, nullable 타입 브랜딩이 아닌 Record, `FrozenDictionary` 파라미터 모두)|
 
 CSV 셀 값이 이 문자열과 일치하면 `null` 로 해석합니다. 흔히 `"NULL"`, `""`, `"N/A"` 등을 씁니다.
 
