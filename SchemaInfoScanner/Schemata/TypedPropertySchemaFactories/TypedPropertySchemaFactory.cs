@@ -22,6 +22,10 @@ public static class TypedPropertySchemaFactory
     {
         MapTypeChecker.CheckNonNullableKeyAndValue(propertyName, propertySymbol);
 
+        var recordSymbol = RecordTypeChecker.UnwrapNullable(propertySymbol);
+        var isNullableValueType = !SymbolEqualityComparer.Default.Equals(recordSymbol, propertySymbol);
+        var allowsNull = propertyName.IsNullableTypeSyntax || isNullableValueType;
+
         if (PrimitiveTypeChecker.IsSupportedPrimitiveType(propertySymbol))
         {
             return PrimitivePropertySchemaFactory.Create(propertyName, propertySymbol, attributeList);
@@ -42,23 +46,25 @@ public static class TypedPropertySchemaFactory
                 ? PrimitiveSetPropertySchemaFactory.CreateForSingleColumn(propertyName, propertySymbol, attributeList)
                 : PrimitiveSetPropertySchemaFactory.Create(propertyName, propertySymbol, attributeList);
         }
-        else if (RecordTypeChecker.IsSupportedRecordType(propertySymbol))
+        else if (RecordTypeChecker.IsSupportedRecordType(recordSymbol))
         {
             return RecordPropertySchemaFactory.Create(
                 propertyName,
-                propertySymbol,
+                recordSymbol,
                 attributeList,
                 parentRecordSymbol,
-                context);
+                context,
+                allowsNull);
         }
-        else if (RecordTypeChecker.TryFindNestedRecordTypeSymbol(parentRecordSymbol, propertySymbol, out var nestedRecordSymbol))
+        else if (RecordTypeChecker.TryFindNestedRecordTypeSymbol(parentRecordSymbol, recordSymbol, out var nestedRecordSymbol))
         {
             return RecordPropertySchemaFactory.Create(
                 propertyName,
                 nestedRecordSymbol,
                 attributeList,
                 parentRecordSymbol,
-                context);
+                context,
+                allowsNull);
         }
         else if (ArrayTypeChecker.IsSupportedArrayType(propertySymbol))
         {

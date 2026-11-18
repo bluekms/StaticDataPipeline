@@ -35,10 +35,7 @@ internal static class ArrayTypeChecker
 
         if (typeArgument.NullableAnnotation is NullableAnnotation.Annotated)
         {
-            throw new NotSupportedException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.NullableRecordArrayNotSupported,
-                property.PropertyName.FullName));
+            NullableSingleValueRecordChecker.CheckElement(property, Messages.Composite.NullableRecordArrayNotSupported);
         }
 
         if (property.HasAttribute<SingleColumnCollectionAttribute>())

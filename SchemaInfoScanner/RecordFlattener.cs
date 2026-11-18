@@ -113,7 +113,7 @@ public static class RecordFlattener
             else if (CollectionTypeChecker.IsSupportedCollectionType(parameter.NamedTypeSymbol))
             {
                 var typeArgument = (INamedTypeSymbol)parameter.NamedTypeSymbol.TypeArguments.Single();
-                var innerRecordSchema = recordSchemaCatalog.Find(typeArgument);
+                var innerRecordSchema = recordSchemaCatalog.Find(RecordTypeChecker.UnwrapNullable(typeArgument));
 
                 if (IsSingleValueRecord(innerRecordSchema))
                 {
@@ -190,8 +190,7 @@ public static class RecordFlattener
 
     private static bool IsSingleValueRecord(RecordSchema recordSchema)
     {
-        return recordSchema.PropertySchemata.Count == 1 &&
-               PrimitiveTypeChecker.IsSupportedPrimitiveType(recordSchema.PropertySchemata[0].NamedTypeSymbol);
+        return RecordTypeChecker.IsSingleValueRecord(recordSchema.NamedTypeSymbol, recordSchema.PropertySchemata);
     }
 
     private static string? FindDateTimeFormat(PropertySchemaBase parameter)

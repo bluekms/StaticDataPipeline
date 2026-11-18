@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner.Catalogs;
 using SchemaInfoScanner.Extensions;
@@ -75,6 +76,39 @@ internal static class RecordTypeChecker
             .Select(x => x.Name);
 
         return !RecordMethodNames.Except(methodSymbols).Any();
+    }
+
+    // 생성기의 NestedRecordInfo.IsTypeBrandingRecord 와 같은 기준이어야 한다. [Ignore] 파라미터도 생성자 파라미터로 센다.
+    public static bool IsSingleValueRecord(INamedTypeSymbol recordSymbol, IReadOnlyList<PropertySchemaBase> members)
+    {
+        if (members.Count != 1 || !PrimitiveTypeChecker.IsSupportedPrimitiveType(members[0].NamedTypeSymbol))
+        {
+            return false;
+        }
+
+        var primaryConstructor = recordSymbol.InstanceConstructors
+            .Where(x => !x.IsImplicitlyDeclared)
+            .FirstOrDefault(IsPrimaryConstructor);
+
+        return primaryConstructor is { Parameters.Length: 1 };
+    }
+
+    private static bool IsPrimaryConstructor(IMethodSymbol constructor)
+    {
+        return constructor.DeclaringSyntaxReferences
+            .Select(x => x.GetSyntax())
+            .Any(x => x is RecordDeclarationSyntax { ParameterList: not null });
+    }
+
+    public static INamedTypeSymbol UnwrapNullable(INamedTypeSymbol symbol)
+    {
+        if (symbol.OriginalDefinition.SpecialType is SpecialType.System_Nullable_T &&
+            symbol.TypeArguments is [INamedTypeSymbol underlying])
+        {
+            return underlying;
+        }
+
+        return symbol;
     }
 
     public static bool TryFindNestedRecordTypeSymbol(

@@ -6,6 +6,7 @@ using SchemaInfoScanner.NameObjects;
 using SchemaInfoScanner.Resources;
 using SchemaInfoScanner.Schemata;
 using SchemaInfoScanner.Schemata.SchemaValidators;
+using SchemaInfoScanner.Schemata.TypedPropertySchemata.RecordTypes;
 
 namespace SchemaInfoScanner.TypeCheckers;
 
@@ -56,12 +57,11 @@ internal static class SupportedTypeChecker
             throw new NotSupportedException(msg, innerException);
         }
 
-        if (property.PropertyName.IsNullableTypeSyntax)
+        var isDeclaredNullable = property.PropertyName.IsNullableTypeSyntax ||
+                                 property is RecordPropertySchema { AllowsNull: true };
+        if (isDeclaredNullable)
         {
-            throw new NotSupportedException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.NullableRecordNotSupported,
-                property.PropertyName.FullName));
+            NullableSingleValueRecordChecker.CheckDirect(property);
         }
 
         RecordTypeChecker.Check(recordSchema, recordSchemaCatalog, visited, logger);

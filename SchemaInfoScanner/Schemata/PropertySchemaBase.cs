@@ -26,7 +26,7 @@ public abstract record PropertySchemaBase(
         return PropertyName.FullName;
     }
 
-    public bool IsNullable()
+    public virtual bool IsNullable()
     {
         return PrimitiveTypeChecker.IsNullablePrimitiveType(NamedTypeSymbol);
     }

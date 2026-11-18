@@ -44,12 +44,14 @@ public static class RecordArrayPropertySchemaFactory
                 typeArgumentSymbol.Name));
         }
 
+        var allowsNull = typeArgumentSymbol.NullableAnnotation is NullableAnnotation.Annotated;
         var nestedSchema = RecordPropertySchemaFactory.Create(
             propertyName,
-            typeArgumentSymbol,
+            RecordTypeChecker.UnwrapNullable(typeArgumentSymbol),
             attributeList,
             parentRecordSymbol,
-            context);
+            context,
+            allowsNull);
 
         var genericArgumentSchema = new RecordTypeGenericArgumentSchema(
             RecordTypeGenericArgumentSchema.CollectionKind.Array,
