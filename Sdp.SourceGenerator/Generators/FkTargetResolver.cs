@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Sdp.SourceGenerator.Generators;
 
-internal sealed record FkTargetResolution(string? TargetUnwrapMember);
+internal sealed record FkTargetResolution(string? TargetUnwrapMember, bool IsTargetNullable);
 
 internal sealed record FkValueShape(ITypeSymbol ValueType, FkCollectionKind Collection, string? ValueDisplayMember);
 
@@ -18,7 +18,8 @@ internal static class FkTargetResolver
 
         if (collection.ElementKind == ScalarKind.Unsupported)
         {
-            var elementBrandingValue = FindBrandingValueParameter(collection.ElementType);
+            var unwrappedElementType = TypeClassifier.UnwrapNullable(collection.ElementType);
+            var elementBrandingValue = FindBrandingValueParameter(unwrappedElementType);
             if (elementBrandingValue is null)
             {
                 return parameterType;
@@ -185,6 +186,6 @@ internal static class FkTargetResolver
             return null;
         }
 
-        return new FkTargetResolution(brandingValue?.Name);
+        return new FkTargetResolution(brandingValue?.Name, TypeClassifier.IsNullable(targetParam.Type));
     }
 }

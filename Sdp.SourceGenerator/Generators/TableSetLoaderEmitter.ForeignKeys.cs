@@ -286,7 +286,7 @@ internal static partial class TableSetLoaderEmitter
                     .Append(" = new global::System.Collections.Generic.HashSet<").Append(propertyTypeFullyQualifiedName).AppendLine(">();");
                 sb.Append(indent).Append("    foreach (var __t in tableSet.").Append(targetMemberAccess).AppendLine(".Records)");
                 sb.Append(indent).AppendLine("    {");
-                sb.Append(indent).Append("        ").Append(setVariable).Append(".Add(__t.")
+                sb.Append(indent).Append("        ").Append(setVariable).Append(".Add(")
                     .Append(BuildTargetValueAccess(branch)).AppendLine(");");
                 sb.Append(indent).AppendLine("    }");
                 sb.Append(indent).AppendLine("}");
@@ -308,7 +308,7 @@ internal static partial class TableSetLoaderEmitter
             .Append(" = new global::System.Collections.Generic.HashSet<").Append(propertyTypeFullyQualifiedName).AppendLine(">();");
         sb.Append(indent).AppendLine("foreach (var __t in __records)");
         sb.Append(indent).AppendLine("{");
-        sb.Append(indent).Append("    ").Append(setVariable).Append(".Add(__t.")
+        sb.Append(indent).Append("    ").Append(setVariable).Append(".Add(")
             .Append(BuildTargetValueAccess(branch)).AppendLine(");");
         sb.Append(indent).AppendLine("}");
         sb.AppendLine();
@@ -316,13 +316,25 @@ internal static partial class TableSetLoaderEmitter
 
     private static string BuildTargetValueAccess(FkBranch branch)
     {
-        var access = EmitHelper.EscapeIdentifier(branch.TargetColumn);
-        if (branch.TargetUnwrapMember is { } targetUnwrapMember)
+        var access = "__t." + EmitHelper.EscapeIdentifier(branch.TargetColumn);
+        if (!branch.IsTargetNullable)
         {
-            access += "." + EmitHelper.EscapeIdentifier(targetUnwrapMember);
+            if (branch.TargetUnwrapMember is { } unwrapMember)
+            {
+                access += "." + EmitHelper.EscapeIdentifier(unwrapMember);
+            }
+
+            return access;
         }
 
-        return access;
+        // 대상 열이 nullable 이고 값이 참조 타입이면 HashSet<T>.Add 가 CS8604 경고를 낸다.
+        // null 이 집합에 들어가도 FK 값이 null 인 행은 검사를 건너뛰므로 결과는 같다.
+        if (branch.TargetUnwrapMember is { } nullableUnwrapMember)
+        {
+            return "(" + access + "?." + EmitHelper.EscapeIdentifier(nullableUnwrapMember) + ")!";
+        }
+
+        return access + "!";
     }
 
     private static void EmitFkParameterCheck(
@@ -566,7 +578,10 @@ internal static partial class TableSetLoaderEmitter
             return "{__v}";
         }
 
-        return "{__v." + EmitHelper.EscapeIdentifier(valueDisplayMember) + "}";
+        var isNullableStructBranding = TypeClassifier.IsNullableValueType(fkParameter.ValueType);
+        var brandingAccess = isNullableStructBranding ? "__v." + nameof(Nullable<int>.Value) : "__v";
+
+        return "{" + brandingAccess + "." + EmitHelper.EscapeIdentifier(valueDisplayMember) + "}";
     }
 
     private static string EscapeInterpolationFormat(string format)

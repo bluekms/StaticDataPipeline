@@ -119,7 +119,7 @@ internal static class ForeignKeyAnalyzer
             return null;
         }
 
-        // nullable 중첩 record 는 매퍼가 만들지 못해 빌드가 멈추므로 검사 코드를 만들지 않는다.
+        // nullable 중첩 record 는 타입 브랜딩만 매퍼가 만들고 나머지는 빌드가 멈추므로 검사 코드를 만들지 않는다.
         // 브랜딩 record 는 안쪽 FK 가 SDP0229 로 거부되고, 브랜딩 파라미터 자체의 FK 는 AnalyzeFkParameter 가 다룬다.
         if (position.IsNullable || position.Nested.IsTypeBrandingRecord)
         {
@@ -172,7 +172,7 @@ internal static class ForeignKeyAnalyzer
                     continue;
                 }
 
-                branchBuilder.Add(FkBranch.ForeignKey(tableSetName, columnName, resolution.TargetUnwrapMember));
+                branchBuilder.Add(FkBranch.ForeignKey(tableSetName, columnName, resolution));
             }
             else if (attr.AttributeClass.Name == SdpAttributeNames.SwitchForeignKey &&
                      args.Length >= 4 &&
@@ -221,7 +221,7 @@ internal static class ForeignKeyAnalyzer
                     conditionLiteral.ParsesAtRuntime,
                     dateTimeFormat ?? timeSpanFormat,
                     ResolveConditionDisplayKind(conditionProperty.Type),
-                    switchResolution.TargetUnwrapMember));
+                    switchResolution));
             }
         }
 
