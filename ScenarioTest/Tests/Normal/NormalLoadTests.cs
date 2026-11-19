@@ -122,7 +122,7 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
         Assert.Equal("철 검", items.Get(new ItemRecord.ItemId(10002)).Name);
         Assert.Equal(9999999999L, tables.CurrencyTable!.Records[0].Cap);
         var dragonNest = tables.QuestTable!.Records.Single(x => x.Id == new QuestRecord.QuestId(3));
-        Assert.Equal(new NpcId(null), dragonNest.Giver);
+        Assert.Null(dragonNest.Giver);
         Assert.Equal(2, dragonNest.PrevQuestId);
         Assert.Null(tables.QuestTable.Records.Single(x => x.Id == new QuestRecord.QuestId(1)).PrevQuestId);
         Assert.Equal(100m, tables.GachaTable!.Records.Sum(x => x.Rate));

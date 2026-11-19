@@ -66,8 +66,6 @@ public enum GachaGrade
 
 public record struct MapId(int Value);
 
-public record struct NpcId([NullString("")] int? Value);
-
 public sealed record Stats(int Atk, int Def, [ColumnName("Spd")] float Speed);
 
 public sealed record Position(int X, int Y);
