@@ -39,11 +39,10 @@ public partial class MissingCsvFileTests(ITestOutputHelper testOutputHelper)
             StudentTable? Student);
     }
 
-    // nullable 멤버여도 CSV 가 없으면 건너뛰지 않고 실패한다. 건너뛰려면 disabledTables 에 넣어야 한다.
     [Theory]
     [InlineData("School.Sheet1.csv")]
     [InlineData("Student.Sheet1.csv")]
-    public async Task Load_CsvFileMissing_FailsWithFileName(string missingFile)
+    public async Task Load_CsvFileMissing_FailsWithFileNameEvenForNullableMember(string missingFile)
     {
         var logger = CreateLogger();
 
