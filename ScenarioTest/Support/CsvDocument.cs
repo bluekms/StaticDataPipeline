@@ -82,25 +82,6 @@ public sealed class CsvDocument
         Row(keyHeader, keyValue)[ColumnIndex(header)] = value;
     }
 
-    public void RemoveColumn(string header)
-    {
-        var column = ColumnIndex(header);
-        Headers.RemoveAt(column);
-        foreach (var row in Rows)
-        {
-            row.RemoveAt(column);
-        }
-    }
-
-    public void AddColumn(string header, string value)
-    {
-        Headers.Add(header);
-        foreach (var row in Rows)
-        {
-            row.Add(value);
-        }
-    }
-
     public void AddRow(params string[] cells)
     {
         Rows.Add([.. cells]);
