@@ -30,6 +30,51 @@ public static class TableSetLoaderHelper
         return table;
     }
 
+    public static void ThrowIfUnknownDisabledTables(List<string>? disabledTables, string[] tableNames)
+    {
+        if (disabledTables is null)
+        {
+            return;
+        }
+
+        var unknownNames = new List<string>();
+        foreach (var disabledTable in disabledTables.Distinct())
+        {
+            if (Array.IndexOf(tableNames, disabledTable) >= 0)
+            {
+                continue;
+            }
+
+            var similar = Array.Find(
+                tableNames,
+                x => string.Equals(x, disabledTable, StringComparison.OrdinalIgnoreCase));
+            if (similar is null)
+            {
+                unknownNames.Add($"'{disabledTable}'");
+
+                continue;
+            }
+
+            unknownNames.Add(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.UnknownDisabledTableSimilarHint,
+                disabledTable,
+                similar));
+        }
+
+        if (unknownNames.Count == 0)
+        {
+            return;
+        }
+
+        var message = string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.UnknownDisabledTables,
+            string.Join(", ", unknownNames));
+
+        throw new ArgumentException(message, nameof(disabledTables));
+    }
+
     public static string TablesFailedToLoadMessage
         => Messages.TablesFailedToLoad;
 

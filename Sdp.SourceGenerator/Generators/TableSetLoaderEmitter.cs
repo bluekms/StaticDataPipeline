@@ -47,6 +47,14 @@ internal static partial class TableSetLoaderEmitter
         sb.Append(indent).AppendLine("    global::Microsoft.Extensions.Logging.ILogger logger)");
         sb.Append(indent).AppendLine("{");
 
+        var tableNameLiterals = analysis.Tables
+            .Select(static x => SymbolDisplay.FormatLiteral(x.ParameterName, quote: true));
+        var tableNameList = string.Join(", ", tableNameLiterals);
+        sb.Append(indent).AppendLine("    global::Sdp.Manager.TableSetLoaderHelper.ThrowIfUnknownDisabledTables(");
+        sb.Append(indent).AppendLine("        disabledTables,");
+        sb.Append(indent).Append("        new string[] { ").Append(tableNameList).AppendLine(" });");
+        sb.AppendLine();
+
         for (var i = 0; i < analysis.Tables.Length; i++)
         {
             var table = analysis.Tables[i];
