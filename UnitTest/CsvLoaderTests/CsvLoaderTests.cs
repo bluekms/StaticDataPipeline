@@ -227,7 +227,8 @@ public partial class CsvLoaderTests(ITestOutputHelper testOutputHelper)
         var expectedLocation = string.Format(
             CultureInfo.CurrentCulture,
             Messages.Composite.CsvRowWithoutFile,
-            3);
+            3,
+            nameof(SimpleRecord));
 
         Assert.Contains(expectedShortage, ex.Message, StringComparison.Ordinal);
         Assert.Contains(expectedLocation, ex.Message, StringComparison.Ordinal);

@@ -39,12 +39,12 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
 
         var exception = await LoadAssert.FailsWithAggregate(Load.Rpg(csv.Root), LoadAssert.TablesFailed);
 
-        // StageClientRecord 와 StageServerRecord 가 같은 열을 읽어 같은 문구가 두 번 나온다. 문구에 Record 이름은 없다.
-        Assert.Equal(2, exception.InnerExceptions.Count);
-        foreach (var inner in exception.InnerExceptions)
-        {
-            LoadAssert.ContainsAll(inner, "[Rpg.Stages.csv] CSV row 2: 'RequiredLevel' must be within [1, 99].");
-        }
+        var messages = exception.InnerExceptions.Select(x => x.Message).ToList();
+        Assert.Equal(2, messages.Count);
+        var clientMessage = "[Rpg.Stages.csv] CSV row 2 (StageClientRecord): 'RequiredLevel' must be within [1, 99].";
+        var serverMessage = "[Rpg.Stages.csv] CSV row 2 (StageServerRecord): 'RequiredLevel' must be within [1, 99].";
+        Assert.Contains(messages, x => x.StartsWith(clientMessage, StringComparison.Ordinal));
+        Assert.Contains(messages, x => x.StartsWith(serverMessage, StringComparison.Ordinal));
     }
 
     [Fact]
