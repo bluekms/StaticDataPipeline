@@ -246,6 +246,9 @@
   <data name="InvalidCellValueForEnum" xml:space="preserve">
     <value>Invalid value '{0}' in cell {1}. Expected a member of {2}.</value>
   </data>
+  <data name="InvalidCellValueForKeyEnum" xml:space="preserve">
+    <value>Invalid value '{0}' in cell {1}. Expected a member of {2} or an integer of its underlying type.</value>
+  </data>
   <data name="SingleColumnCellEmptyValue" xml:space="preserve">
     <value>Cell {0} contains an empty value for {1}.</value>
   </data>

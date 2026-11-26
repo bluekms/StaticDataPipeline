@@ -246,6 +246,9 @@
   <data name="InvalidCellValueForEnum" xml:space="preserve">
     <value>셀 {1}의 값 '{0}'이 잘못되었습니다. {2}의 멤버여야 합니다.</value>
   </data>
+  <data name="InvalidCellValueForKeyEnum" xml:space="preserve">
+    <value>셀 {1}의 값 '{0}'이 잘못되었습니다. {2}의 멤버이거나 그 기반 타입의 정수여야 합니다.</value>
+  </data>
   <data name="SingleColumnCellEmptyValue" xml:space="preserve">
     <value>셀 {0}에 {1}에 대한 빈 값이 포함되어 있습니다.</value>
   </data>
