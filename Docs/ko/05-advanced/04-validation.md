@@ -78,7 +78,7 @@ FK 값, 사용자 `Validate`, 뷰 빌드는 **로드에서만** 검사됩니다.
 |`[Range]` 값 범위|—|O|O||
 |`[RegularExpression]` 패턴 일치|—|O|O||
 |`[CountRange]` 분할 원소 개수|—|O|O|단일 컬럼 컬렉션|
-|Primary Key 시트 내 중복|—|O|—|`[Key]` 컬럼. 로드는 자동 검사 없음 — `UniqueIndex` 가 opt-in 으로 보장|
+|Primary Key 중복|—|O|O|`[Key]` 컬럼. 로드는 테이블을 만들기 전에 CSV 의 모든 행에서 검사하므로 인덱스를 선언하지 않은 테이블도 잡는다. `[Key]` 가 없는 Record 는 검사하지 않는다|
 
 ### D. 외래 키
 
@@ -110,7 +110,7 @@ FK 값, 사용자 `Validate`, 뷰 빌드는 **로드에서만** 검사됩니다.
 |non-nullable 테이블의 disable 금지|—|—|O|`NonNullableTableDisabled`|
 |`disabledTables` 의 이름이 TableSet 멤버인지|—|—|O|멤버가 아닌 이름이 있으면 테이블을 읽기 전에 `ArgumentException`. 대소문자만 다른 멤버가 있으면 그 이름을 알려 준다|
 |`LoadAsync` 동시 진입 금지|—|—|O||
-|`UniqueIndex` 키 중복|—|—|O|테이블/뷰 생성 시, opt-in|
+|`UniqueIndex` 키 중복|—|—|O|테이블/뷰 생성 시, opt-in. `[Key]` 가 아닌 열로 만든 인덱스의 중복이 여기서 잡힌다|
 
 ### F. 사용자 정의 검증
 
@@ -124,7 +124,7 @@ FK 값, 사용자 `Validate`, 뷰 빌드는 **로드에서만** 검사됩니다.
 
 ## 추출을 거친 CSV 만 운영에 올린다
 
-셀 값 검사(C) 중 `[Range]`·`[RegularExpression]`·`[CountRange]` 는 추출과 로드 양쪽에서 같은 규칙으로 동작합니다. 그러나 Primary Key 중복은 추출 단계에서만, 선언 정합성 검사(A·B)는 선언 검사와 빌드 시점에서만 수행되고 로드에서는 수행되지 않습니다. 추출 단계를 거치지 않은 CSV 를 런타임에 직접 넣으면 이런 검사가 빠지므로, 정상적인 파이프라인은 항상 추출기를 거친 CSV 만 운영에 올립니다.
+셀 값 검사(C) 중 `[Range]`·`[RegularExpression]`·`[CountRange]` 는 추출과 로드 양쪽에서 같은 규칙으로 동작합니다. Primary Key 중복도 양쪽에서 검사합니다. 그러나 같은 시트 컬럼을 가리키는 헤더 중복은 추출 단계에서만, 선언 정합성 검사(A·B)는 선언 검사와 빌드 시점에서만 수행되고 로드에서는 수행되지 않습니다. 추출 단계를 거치지 않은 CSV 를 런타임에 직접 넣으면 이런 검사가 빠지므로, 정상적인 파이프라인은 항상 추출기를 거친 CSV 만 운영에 올립니다.
 
 ---
 
