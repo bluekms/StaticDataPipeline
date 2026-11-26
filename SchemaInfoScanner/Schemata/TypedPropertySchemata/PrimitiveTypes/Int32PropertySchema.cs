@@ -18,7 +18,7 @@ public sealed record Int32PropertySchema(
     {
         var cell = context.Consume();
 
-        if (!int.TryParse(cell.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
+        if (!IntegerCell.TryParse<int>(cell.Value, out var value))
         {
             throw new InvalidOperationException(
                 string.Format(

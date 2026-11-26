@@ -18,7 +18,7 @@ public sealed record UInt64PropertySchema(
     {
         var cell = context.Consume();
 
-        if (!ulong.TryParse(cell.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
+        if (!IntegerCell.TryParse<ulong>(cell.Value, out var value))
         {
             throw new InvalidOperationException(
                 string.Format(
