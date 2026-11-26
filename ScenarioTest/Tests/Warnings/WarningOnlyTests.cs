@@ -1,0 +1,77 @@
+using ScenarioTest.Support;
+
+namespace ScenarioTest.Tests.Warnings;
+
+[Collection(CliCollectionDefinition.Name)]
+public class WarningOnlyTests
+{
+    [Fact]
+    public void CurrencyCapWithThousandsSeparatorFormat_WarnsOnceAndKeepsStoredValue()
+    {
+        using var workspace = new ScenarioWorkspace();
+        workspace.UseBroken("Rpg/Currencies/CurrencyCapThousandsFormat");
+
+        var result = workspace.RunRpg();
+
+        ExtractionAssert.Succeeded(result);
+        var warning = Assert.Single(result.Warnings);
+        Assert.Contains("'#,##0'", warning, StringComparison.Ordinal);
+        Assert.Contains("'9999999999'", warning, StringComparison.Ordinal);
+        Golden.AssertEquals("Rpg", "Rpg.Currencies.csv", Path.Combine(workspace.CsvRpg, "Rpg.Currencies.csv"));
+    }
+
+    [Fact]
+    public void NicknameWithSurroundingSpaces_WarnsWithQuotedValueAndKeepsSpaces()
+    {
+        using var workspace = new ScenarioWorkspace();
+        workspace.UseBroken("School/Students/NicknameWithSpaces");
+
+        var result = workspace.RunSchool();
+
+        ExtractionAssert.Succeeded(result);
+        var warning = Assert.Single(result.Warnings);
+        Assert.Contains("' 하늘이 '", warning, StringComparison.Ordinal);
+        var students = CsvDocument.Load(Path.Combine(workspace.CsvSchool, "School.Students.csv"));
+        Assert.Equal(" 하늘이 ", students.Row("Id", "20260101")[students.ColumnIndex("Nickname")]);
+    }
+
+    [Fact]
+    public void RecommendationRowsWithOnlyBackgroundColor_AreTreatedAsNoData()
+    {
+        using var workspace = new ScenarioWorkspace();
+        workspace.UseBroken("Library/Recommendations/RecommendationRowsBackgroundOnly");
+
+        var result = workspace.RunSchool();
+
+        ExtractionAssert.Succeeded(result);
+        Assert.Empty(result.Warnings);
+        Assert.Contains(
+            result.InformationLines,
+            x => x.Contains("'Library.Recommendations' has no data rows", StringComparison.Ordinal));
+        var recommendations = CsvDocument.Load(Path.Combine(workspace.CsvSchool, "Library.Recommendations.csv"));
+        Assert.Empty(recommendations.Rows);
+    }
+
+    [Fact]
+    public void BookTalksStartCellInAttribute_OverridesCliStartCell_AndWarnsOnce()
+    {
+        const string declaration = "[StaticDataRecord(\"Library\", \"BookTalks\")]";
+        const string declarationWithStartCell = "[StaticDataRecord(\"Library\", \"BookTalks\", \"A1\")]";
+        using var workspace = new ScenarioWorkspace();
+        workspace.UseBroken("Library/BookTalks/BookTalksStartAtA1");
+        var recordPath = Path.Combine(workspace.RecordsSchool, "BookTalkRecord.cs");
+        var recordSource = File.ReadAllText(recordPath);
+        Assert.Contains(declaration, recordSource, StringComparison.Ordinal);
+        var sourceWithStartCell = recordSource.Replace(declaration, declarationWithStartCell, StringComparison.Ordinal);
+        File.WriteAllText(recordPath, sourceWithStartCell);
+
+        var result = workspace.RunSchool();
+
+        ExtractionAssert.Succeeded(result);
+        var warning = Assert.Single(result.Warnings);
+        Assert.Contains("BookTalkRecord", warning, StringComparison.Ordinal);
+        Assert.Contains("'A1'", warning, StringComparison.Ordinal);
+        var bookTalksCsv = Path.Combine(workspace.CsvSchool, "Library.BookTalks.csv");
+        Golden.AssertEquals("School", "Library.BookTalks.csv", bookTalksCsv);
+    }
+}

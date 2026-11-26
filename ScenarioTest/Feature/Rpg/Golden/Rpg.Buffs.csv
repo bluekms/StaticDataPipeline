@@ -1,0 +1,5 @@
+Id,Name,IsDebuff,DurationSec
+1,공격력 증가,false,600
+2,방어력 증가,false,600
+3,독,true,30
+4,둔화,true,15
