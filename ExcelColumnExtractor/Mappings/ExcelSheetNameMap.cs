@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using ExcelColumnExtractor.NameObjects;
+using ExcelColumnExtractor.Resources;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.Schemata;
 using Sdp.Attributes;
@@ -13,9 +15,35 @@ public sealed class ExcelSheetNameMap(IReadOnlyDictionary<string, ExcelSheetName
     public ExcelSheetName Get(RecordSchema rawRecordSchema)
     {
         var values = rawRecordSchema.GetAttributeValueList<StaticDataRecordAttribute>();
-        var excelSheetNameString = $"{values[0]}.{values[1]}";
+        var workbookName = values[0];
+        var sheetName = values[1];
+        var excelSheetNameString = $"{workbookName}.{sheetName}";
 
-        return sheetNames[excelSheetNameString];
+        var found = sheetNames.TryGetValue(excelSheetNameString, out var excelSheetName);
+        if (found)
+        {
+            return excelSheetName!;
+        }
+
+        var sheetsInWorkbook = sheetNames.Values
+            .Where(x => x.WorkbookName == workbookName)
+            .Select(x => x.SheetName)
+            .ToList();
+        if (sheetsInWorkbook.Count == 0)
+        {
+            throw new ArgumentException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.WorkbookNotFound,
+                workbookName,
+                sheetName));
+        }
+
+        throw new ArgumentException(string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.SheetNotFoundInWorkbook,
+            sheetName,
+            workbookName,
+            string.Join(", ", sheetsInWorkbook)));
     }
 
     internal bool TryGet(string excelFileName, string sheetName, [MaybeNullWhen(false)] out ExcelSheetName excelSheetName)

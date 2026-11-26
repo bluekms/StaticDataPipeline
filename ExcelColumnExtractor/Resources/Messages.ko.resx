@@ -48,6 +48,12 @@
   <data name="SheetNotFound" xml:space="preserve">
     <value>'{0}' 시트를 찾을 수 없습니다.</value>
   </data>
+  <data name="SheetNotFoundInWorkbook" xml:space="preserve">
+    <value>'{1}' 워크북에 '{0}' 시트가 없습니다. 워크북에 있는 시트: {2}</value>
+  </data>
+  <data name="WorkbookNotFound" xml:space="preserve">
+    <value>'{0}' 워크북을 찾을 수 없습니다. Record 가 이 워크북의 '{1}' 시트를 읽습니다.</value>
+  </data>
   <data name="InvalidStartCellAddress" xml:space="preserve">
     <value>잘못된 시작 셀 주소: '{0}'. 예: A1, B10</value>
   </data>
