@@ -113,7 +113,7 @@ public static class TypedPropertySchemaFactory
             propertySymbol.Name));
     }
 
-    private static bool IsDeclaredOutsideRecordSources(INamedTypeSymbol symbol)
+    internal static bool IsDeclaredOutsideRecordSources(INamedTypeSymbol symbol)
     {
         var underlyingType = symbol.OriginalDefinition.SpecialType is SpecialType.System_Nullable_T
             ? symbol.TypeArguments[0]

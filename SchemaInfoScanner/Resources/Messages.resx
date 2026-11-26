@@ -277,7 +277,7 @@
     <value>Runtime assemblies were not found (TRUSTED_PLATFORM_ASSEMBLIES is empty), so record sources cannot be compiled.</value>
   </data>
   <data name="TypeNotDeclaredInRecordSources" xml:space="preserve">
-    <value>The type '{1}' of {0} is not found in the record source folder or in the runtime libraries. Types from other assemblies cannot be used; declare the type in a file under the record source folder.</value>
+    <value>The type '{1}' of {0} is not found in the record source folder or in the runtime libraries. Types from other assemblies cannot be used; declare the type in a file under the record source folder. For a runtime library type such as System.DayOfWeek, write its full name or add a using directive in the file; the project's implicit usings are not applied.</value>
   </data>
   <data name="NotSupportedPropertyType" xml:space="preserve">
     <value>{0}({1}) is not a supported property type.</value>
