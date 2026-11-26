@@ -108,6 +108,7 @@ FK 값, 사용자 `Validate`, 뷰 빌드는 **로드에서만** 검사됩니다.
 |View 생성자(`TableSet`) 존재|—|O|—|`SDP0304`|
 |View 의 TableSet 이 매니저의 TableSet 과 일치|—|O|—|`SDP0308`|
 |non-nullable 테이블의 disable 금지|—|—|O|`NonNullableTableDisabled`|
+|`disabledTables` 의 이름이 TableSet 멤버인지|—|—|O|멤버가 아닌 이름이 있으면 테이블을 읽기 전에 `ArgumentException`. 대소문자만 다른 멤버가 있으면 그 이름을 알려 준다|
 |`LoadAsync` 동시 진입 금지|—|—|O||
 |`UniqueIndex` 키 중복|—|—|O|테이블/뷰 생성 시, opt-in|
 

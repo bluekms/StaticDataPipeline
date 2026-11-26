@@ -129,7 +129,7 @@ CI 에서 일부 테이블만 빠르게 검증하거나, 개발 서버에서 아
 await staticData.LoadAsync("./csv", disabledTables: new List<string> { "ItemTable" });
 ```
 
-- 파라미터 이름 기준으로 매칭합니다. `"ItemTable"` 은 TableSet 의 파라미터 `ItemTable` 에 대응합니다. 대소문자를 구분하며 (`"itemTable"` 은 매칭되지 않음), TableSet 에 없는 이름은 오류 없이 무시됩니다.
+- 파라미터 이름 기준으로 매칭합니다. `"ItemTable"` 은 TableSet 의 파라미터 `ItemTable` 에 대응합니다. 대소문자를 구분합니다. TableSet 에 없는 이름이 하나라도 있으면 테이블을 읽기 전에 로드가 `ArgumentException` 으로 실패하고, 대소문자만 다른 이름(`"itemTable"`)은 오류 문구가 실제 이름을 알려 줍니다.
 - 해당 테이블은 로드되지 않고 TableSet 속성에 `null` 이 들어갑니다. non-nullable 로 선언한 테이블을 disable 하면 `NonNullableTableDisabled` 로 로드가 실패합니다.
 - 해당 테이블을 대상으로 한 FK 가 다른 테이블에 있다면 검증이 실패합니다 — 대상이 없는데 참조할 수 없기 때문입니다. 따라서 실제로는 서로 독립된 그룹 단위로만 disable 하는 것이 안전합니다.
 
