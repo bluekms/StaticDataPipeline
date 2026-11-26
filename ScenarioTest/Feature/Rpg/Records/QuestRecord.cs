@@ -10,10 +10,9 @@ public sealed partial record QuestRecord(
 
     string Title,
 
-    // nullable 브랜딩은 매퍼가 받지 않아 int? 로 둔다. 이슈 #209 가 해결되면 QuestId? 로 바꾼다.
     [NullString("")]
     [ForeignKey("QuestTable", "Id")]
-    int? PrevQuestId,
+    QuestRecord.QuestId? PrevQuestId,
 
     KillGoal Kill,
 

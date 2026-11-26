@@ -160,7 +160,7 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
         Assert.Equal(Rarity.Rare, bow.Rarity);
 
         var dragonNest = tables.QuestTable!.Records.Single(x => x.Id == new QuestRecord.QuestId(3));
-        Assert.Equal(2, dragonNest.PrevQuestId);
+        Assert.Equal(new QuestRecord.QuestId(2), dragonNest.PrevQuestId);
         Assert.Equal(new KillGoal(MonsterId.BossDragon, 1), dragonNest.Kill);
         Assert.Equal(new CollectGoal(new ItemRecord.ItemId(10003), 1), dragonNest.Collect);
         Assert.Equal(2, dragonNest.Rewards.Count);

@@ -80,7 +80,7 @@ erDiagram
     }
     QuestTable {
         QuestId Id PK
-        int PrevQuestId FK
+        QuestId PrevQuestId FK
         KillGoal Kill FK
         CollectGoal Collect FK
         QuestReward[] Rewards FK
