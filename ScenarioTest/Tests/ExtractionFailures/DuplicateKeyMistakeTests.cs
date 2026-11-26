@@ -11,6 +11,10 @@ public class DuplicateKeyMistakeTests
     public void DuplicatePrimaryKey_FailsExtraction(string brokenWorkbook, params string[] expected)
     {
         using var workspace = new ScenarioWorkspace();
-        ExtractionAssert.FailsWith(workspace.RunBroken(brokenWorkbook), expected);
+
+        var result = workspace.RunBroken(brokenWorkbook);
+
+        ExtractionAssert.FailsWith(result, expected);
+        ExtractionAssert.HasNoStackTrace(result);
     }
 }

@@ -12,4 +12,4 @@
 
 | 파일 | 설명 | 추출기가 말해야 하는 것 |
 |---|---|---|
-| `Science/Elements/ElementsSheetRenamed.xlsx` | 시트 이름을 Element(단수)로 바꿨다. Record 가 가리키는 시트 이름과 같아야 한다. | `The given key 'Science.Elements' was not present in the dictionary.` |
+| `Science/Elements/ElementsSheetRenamed.xlsx` | 시트 이름을 Element(단수)로 바꿨다. Record 가 가리키는 시트 이름과 같아야 한다. | `Sheet 'Elements' not found in workbook 'Science'. Sheets in the workbook: Element` |

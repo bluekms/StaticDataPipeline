@@ -66,6 +66,12 @@ internal static class Messages
     internal static string SheetNotFound
         => ResourceManager.GetString("SheetNotFound", Culture)!;
 
+    internal static string SheetNotFoundInWorkbook
+        => ResourceManager.GetString("SheetNotFoundInWorkbook", Culture)!;
+
+    internal static string WorkbookNotFound
+        => ResourceManager.GetString("WorkbookNotFound", Culture)!;
+
     internal static string InvalidStartCellAddress
         => ResourceManager.GetString("InvalidStartCellAddress", Culture)!;
 
@@ -133,6 +139,8 @@ internal static class Messages
         internal static CompositeFormat DuplicateRequiredHeader => CompositeFormat.Parse(Messages.DuplicateRequiredHeader);
         internal static CompositeFormat DuplicateSheetHeader => CompositeFormat.Parse(Messages.DuplicateSheetHeader);
         internal static CompositeFormat SheetNotFound => CompositeFormat.Parse(Messages.SheetNotFound);
+        internal static CompositeFormat SheetNotFoundInWorkbook => CompositeFormat.Parse(Messages.SheetNotFoundInWorkbook);
+        internal static CompositeFormat WorkbookNotFound => CompositeFormat.Parse(Messages.WorkbookNotFound);
         internal static CompositeFormat InvalidStartCellAddress => CompositeFormat.Parse(Messages.InvalidStartCellAddress);
         internal static CompositeFormat UnexpectedEndOfSheetWithStartCell => CompositeFormat.Parse(Messages.UnexpectedEndOfSheetWithStartCell);
         internal static CompositeFormat FileOrDirectoryNotExist => CompositeFormat.Parse(Messages.FileOrDirectoryNotExist);

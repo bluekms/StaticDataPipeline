@@ -26,6 +26,7 @@ public class HeaderMistakeTests
         var result = workspace.RunSchool();
 
         ExtractionAssert.FailsWith(result, "Header not found: Phone");
+        ExtractionAssert.HasNoStackTrace(result);
         Assert.False(File.Exists(Path.Combine(workspace.CsvSchool, "School.Students.csv")));
     }
 }
