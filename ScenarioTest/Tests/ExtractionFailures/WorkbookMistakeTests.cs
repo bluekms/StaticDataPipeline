@@ -6,31 +6,35 @@ namespace ScenarioTest.Tests.ExtractionFailures;
 public class WorkbookMistakeTests
 {
     [Fact]
-    public void ElementsSheetRenamedToSingular_FailsWithKeyNotPresentNamingTheSheet()
+    public void ElementsSheetRenamedToSingular_FailsNamingMissingSheetAndSheetsInWorkbook()
     {
         using var workspace = new ScenarioWorkspace();
         workspace.UseBroken("Science/Elements/ElementsSheetRenamed");
 
         var result = workspace.RunScience();
 
-        ExtractionAssert.FailsWith(result, "The given key 'Science.Elements' was not present in the dictionary.");
+        ExtractionAssert.FailsWith(
+            result,
+            "Sheet 'Elements' not found in workbook 'Science'. Sheets in the workbook: Element");
+        ExtractionAssert.HasNoStackTrace(result);
         Assert.False(File.Exists(Path.Combine(workspace.CsvScience, "Science.Elements.csv")));
     }
 
     [Fact]
-    public void ScienceWorkbookMissingFromFolder_FailsWithoutCsv()
+    public void ScienceWorkbookMissingFromFolder_FailsNamingWorkbook_WithoutCsv()
     {
         using var workspace = new ScenarioWorkspace();
         File.Delete(workspace.WorkbookPath("Science"));
 
         var result = workspace.RunScience();
 
-        ExtractionAssert.FailsWith(result);
+        ExtractionAssert.FailsWith(result, "Workbook 'Science' not found. A Record reads its sheet 'Elements'.");
+        ExtractionAssert.HasNoStackTrace(result);
         Assert.False(File.Exists(Path.Combine(workspace.CsvScience, "Science.Elements.csv")));
     }
 
     [Fact]
-    public void ExcelFolderEmptied_Fails()
+    public void ExcelFolderEmptied_FailsNamingMissingWorkbooks()
     {
         using var workspace = new ScenarioWorkspace();
         foreach (var file in Directory.GetFiles(workspace.ExcelSchool))
@@ -40,7 +44,8 @@ public class WorkbookMistakeTests
 
         var result = workspace.RunSchool();
 
-        ExtractionAssert.FailsWith(result);
+        ExtractionAssert.FailsWith(result, "Workbook 'School' not found.", "Workbook 'Library' not found.");
+        ExtractionAssert.HasNoStackTrace(result);
     }
 
     [Fact]

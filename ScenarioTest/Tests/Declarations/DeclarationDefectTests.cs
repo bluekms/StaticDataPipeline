@@ -34,6 +34,7 @@ public class DeclarationDefectTests
             "B3");
 
         ExtractionAssert.FailsWith(result, expected);
+        ExtractionAssert.HasStackTrace(result);
         Assert.False(Directory.Exists(workspace.CsvSchool));
     }
 

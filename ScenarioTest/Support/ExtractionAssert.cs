@@ -8,6 +8,22 @@ public static class ExtractionAssert
             $"종료 코드가 0 이어야 하는데 {result.ExitCode} 이다.\n{result.AllText}"));
     }
 
+    public static void HasNoStackTrace(CliResult result)
+    {
+        var stackTraceLines = result.LogLines
+            .Where(x => x.StartsWith("   at ", StringComparison.Ordinal))
+            .ToList();
+        Assert.True(stackTraceLines.Count == 0, FormattableString.Invariant(
+            $"로그에 스택 트레이스가 {stackTraceLines.Count} 줄 있다.\n{result.AllText}"));
+    }
+
+    public static void HasStackTrace(CliResult result)
+    {
+        var hasStackTraceLine = result.LogLines.Any(x => x.StartsWith("   at ", StringComparison.Ordinal));
+        Assert.True(hasStackTraceLine, FormattableString.Invariant(
+            $"로그에 스택 트레이스가 없다.\n{result.AllText}"));
+    }
+
     public static void FailsWith(CliResult result, params string[] fragments)
     {
         Assert.True(result.ExitCode == 1, FormattableString.Invariant(
