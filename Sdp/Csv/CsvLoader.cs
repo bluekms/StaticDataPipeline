@@ -68,11 +68,13 @@ public static class CsvLoader
                         CultureInfo.CurrentCulture,
                         Messages.Composite.CsvRowWithFile,
                         Path.GetFileName(filePath),
-                        i + 1)
+                        i + 1,
+                        typeof(TRecord).Name)
                     : string.Format(
                         CultureInfo.CurrentCulture,
                         Messages.Composite.CsvRowWithoutFile,
-                        i + 1);
+                        i + 1,
+                        typeof(TRecord).Name);
                 throw new InvalidOperationException(
                     string.Format(
                         CultureInfo.CurrentCulture,
