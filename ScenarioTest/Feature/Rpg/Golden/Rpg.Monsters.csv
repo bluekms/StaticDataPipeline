@@ -1,0 +1,4 @@
+Id,Name,Spawn.Map,Spawn.Pos.X,Spawn.Pos.Y,Weakness[0],Weakness[1],Drops[0].ItemId,Drops[0].Rate,Drops[1].ItemId,Drops[1].Rate,Skills,Exp,RespawnAt
+Slime,슬라임,3,120,45,Fire,,10001,35.5,10002,5,-,12,00:30
+1002,고블린,3,200,80,Fire,Holy,10002,10,10001,50,Fireball,40,01:00
+BossDragon,화룡,9,512,512,Ice,Holy,10003,100,10002,100,"Fireball,-,Heal",5000,30:00

@@ -1,0 +1,4 @@
+Id,Name,RequiredLevel,DailyLimit,ScenePath,Bgm,Boss,MinClearSeconds
+1,초원 입구,1,무제한,scenes/meadow_gate.unity,bgm_meadow,Slime,20
+2,고블린 숲,5,무제한,scenes/goblin_forest.unity,,Goblin,45
+3,용의 둥지,30,3,scenes/dragon_nest.unity,bgm_boss,BossDragon,180
