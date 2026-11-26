@@ -77,7 +77,8 @@ public static class BodyColumnAggregator
             catch (Exception e)
             {
                 failures.Add(new(recordSchema, e));
-                LogError(logger, recordSchema, e.Message, e);
+                var exceptionForLog = InputFailure.ExceptionForLog(e);
+                LogError(logger, recordSchema, e.Message, exceptionForLog);
             }
         }
 
