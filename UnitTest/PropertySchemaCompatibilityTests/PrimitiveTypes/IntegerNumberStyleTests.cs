@@ -31,6 +31,33 @@ public partial class IntegerNumberStyleTests(ITestOutputHelper testOutputHelper)
     }
 
     [Theory]
+    [InlineData("byte", "256")]
+    [InlineData("byte", "-1")]
+    [InlineData("sbyte", "128")]
+    [InlineData("sbyte", "-129")]
+    [InlineData("short", "32768")]
+    [InlineData("short", "-32769")]
+    [InlineData("ushort", "65536")]
+    [InlineData("ushort", "-1")]
+    [InlineData("int", "2147483648")]
+    [InlineData("int", "-2147483649")]
+    [InlineData("uint", "4294967296")]
+    [InlineData("uint", "-1")]
+    [InlineData("long", "9223372036854775808")]
+    [InlineData("long", "-9223372036854775809")]
+    [InlineData("ulong", "18446744073709551616")]
+    [InlineData("ulong", "-1")]
+    public void IntegerCell_BeyondTheRangeOfItsType_IsRejected(string type, string argument)
+    {
+        var logger = CreateLogger();
+        var context = CreateContext(type, argument, logger);
+
+        var propertySchema = Assert.Single(context.Catalogs.RecordSchemaCatalog.StaticDataRecordSchemata[0].PropertySchemata);
+        Assert.Throws<InvalidOperationException>(() => propertySchema.CheckCompatibility(context.Context));
+        Assert.Empty(logger.Logs);
+    }
+
+    [Theory]
     [InlineData("int", "1000")]
     [InlineData("int", "-1000")]
     [InlineData("long", "9223372036854775807")]

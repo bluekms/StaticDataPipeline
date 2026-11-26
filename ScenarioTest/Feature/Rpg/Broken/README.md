@@ -16,6 +16,7 @@
 | `Rpg/Items/ItemPriceDecimalText.xlsx` | 정수 열(Price)에 150.0 을 적었다. 소수점은 받지 않는다. | `'150.0'` |
 | `Rpg/Items/ItemIdOutsideBand.xlsx` | 아이템 Id 대역은 10000~19999 인데 99999 를 적었다. | `Value(99999) must be between 10000 and 19999` |
 | `Rpg/Monsters/MonsterSkillUndeclared.xlsx` | 스킬 목록에 선언되지 않은 Lightning 이 들어갔다. SkillId enum 의 이름만 받는다. | `'Lightning'` |
+| `Rpg/Skills/SkillIdUndeclaredName.xlsx` | 스킬 Id 칸에 SkillId enum 에 없는 이름 Lightning 을 적었다. 키 enum 칸은 enum 의 이름이나 정수만 받는다. | `Invalid value 'Lightning'` / `or an integer of its underlying type` |
 | `Rpg/Shop/ShopSaleStartWithoutOffset.xlsx` | 판매 시작 시각에 시간대 오프셋(+09:00)이 없다. 이 열의 형식은 yyyy-MM-dd HH:mm:ss zzz 다. | `'2026-03-01 00:00:00'` |
 | `Rpg/Shop/ShopSaleDurationWithoutUnit.xlsx` | 판매 기간에 단위 '일' 을 빼고 숫자 7 만 적었다. 이 열의 형식은 d'일' 이라 7일 처럼 적어야 한다. | `'7'` |
 | `Rpg/Items/TagsFirstColumnDeleted.xlsx` | 배열 열 Tags[0] 을 지워 Tags[1], Tags[2] 만 남았다. 인덱스 헤더는 [0] 부터 이어져야 한다. | `Indexed headers for 'Tags' must run contiguously from [0]` |
