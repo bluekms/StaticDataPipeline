@@ -20,6 +20,16 @@ public static class RecordPropertySchemaFactory
         INamedTypeSymbol parentRecordSymbol,
         SchemaFactoryContext context)
     {
+        // 컬렉션 요소처럼 TypedPropertySchemaFactory 의 같은 검사를 거치지 않고 오는 경로가 있다.
+        if (TypedPropertySchemaFactory.IsDeclaredOutsideRecordSources(propertySymbol))
+        {
+            throw new NotSupportedException(string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.TypeNotDeclaredInRecordSources,
+                propertyName.FullName,
+                propertySymbol.ToDisplayString()));
+        }
+
         if (!RecordTypeChecker.IsSupportedRecordType(propertySymbol))
         {
             throw new NotSupportedException(string.Format(

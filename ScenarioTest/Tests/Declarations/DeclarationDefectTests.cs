@@ -15,11 +15,12 @@ public class DeclarationDefectTests
     [InlineData("MapValueWithoutKey.cs", "KeyAttribute must be used in one of the parameters")]
     [InlineData("CircularRecord.cs", "Circular reference detected")]
     [InlineData("UndeclaredType.cs", "is not found in the record source folder or in the runtime libraries")]
+    [InlineData("BclEnumWithoutUsing.cs", "The type 'DayOfWeek'", "the project's implicit usings are not applied")]
     [InlineData("FkAndSwitchFkTogether.cs", "cannot be used together on the same parameter")]
     [InlineData("GuidWithRange.cs", "RangeAttribute cannot be used")]
     [InlineData("GuidWithDateTimeFormat.cs", "DateTimeFormatAttribute cannot be used")]
     [InlineData("DateOnlyWithoutFormat.cs", "must use DateTimeFormatAttribute")]
-    public void DefectiveRecordDeclaration_FailsBeforeReadingExcel(string recordFile, string expected)
+    public void DefectiveRecordDeclaration_FailsBeforeReadingExcel(string recordFile, params string[] expected)
     {
         using var workspace = new ScenarioWorkspace();
 

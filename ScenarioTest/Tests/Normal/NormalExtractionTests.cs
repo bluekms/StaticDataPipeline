@@ -136,6 +136,23 @@ public class NormalExtractionTests(ExtractedCsvFixture fixture)
     }
 
     [Fact]
+    public void BclEnumWithoutNamespace_IsExtracted_WhenRecordFolderHasGlobalUsing()
+    {
+        using var workspace = new ScenarioWorkspace();
+        var clubRecord = Path.Combine(workspace.RecordsSchool, "ClubRecord.cs");
+        var source = File.ReadAllText(clubRecord);
+        var sourceWithoutNamespace = source.Replace("System.DayOfWeek", "DayOfWeek", StringComparison.Ordinal);
+        Assert.NotEqual(source, sourceWithoutNamespace);
+        File.WriteAllText(clubRecord, sourceWithoutNamespace);
+        File.WriteAllText(Path.Combine(workspace.RecordsSchool, "GlobalUsings.cs"), "global using System;");
+
+        var result = workspace.RunSchool();
+
+        ExtractionAssert.Succeeded(result);
+        AssertCsvMatchesGolden("School", SchoolCsvFiles, workspace.CsvSchool);
+    }
+
+    [Fact]
     public void FormulaAndPercentFormatInMemoColumn_AreNotReported()
     {
         using var workspace = new ScenarioWorkspace();

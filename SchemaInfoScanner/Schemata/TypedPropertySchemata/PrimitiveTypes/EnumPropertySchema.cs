@@ -26,7 +26,7 @@ public sealed record EnumPropertySchema(
 
         if (!isMember)
         {
-            // 키 enum 칸은 enum 에 없는 숫자도 받는다. 로더가 기반 정수 타입으로 읽어 캐스팅하므로 그 타입으로 읽히는 값만 통과시킨다.
+            // 로더가 키 enum 칸의 숫자를 기반 정수 타입으로 읽어 캐스팅하므로 추출도 그 타입으로 읽히는 값만 받는다.
             var isKey = AttributeAccessors.HasAttribute<KeyAttribute>(AttributeList);
             var isAccepted = isKey && IsUnderlyingInteger(NamedTypeSymbol, value);
             if (!isAccepted)
