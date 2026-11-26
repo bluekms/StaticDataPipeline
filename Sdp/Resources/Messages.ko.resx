@@ -33,6 +33,9 @@
   <data name="DuplicateKey" xml:space="preserve">
     <value>{1}에 중복된 키 '{0}'이(가) 있습니다.</value>
   </data>
+  <data name="CsvDuplicateKey" xml:space="preserve">
+    <value>[{0}] {2}에 중복된 키 '{1}'이(가) 있습니다.</value>
+  </data>
   <data name="KeyNotFound" xml:space="preserve">
     <value>{1}에서 키 '{0}'을(를) 찾을 수 없습니다.</value>
   </data>
