@@ -30,6 +30,12 @@ internal static class Messages
     internal static string NonNullableTableDisabled
         => ResourceManager.GetString("NonNullableTableDisabled", Culture)!;
 
+    internal static string UnknownDisabledTables
+        => ResourceManager.GetString("UnknownDisabledTables", Culture)!;
+
+    internal static string UnknownDisabledTableSimilarHint
+        => ResourceManager.GetString("UnknownDisabledTableSimilarHint", Culture)!;
+
     internal static string FkTargetNotFound
         => ResourceManager.GetString("FkTargetNotFound", Culture)!;
 
@@ -151,6 +157,8 @@ internal static class Messages
     {
 #if NET8_0_OR_GREATER
         internal static CompositeFormat NonNullableTableDisabled => CompositeFormat.Parse(Messages.NonNullableTableDisabled);
+        internal static CompositeFormat UnknownDisabledTables => CompositeFormat.Parse(Messages.UnknownDisabledTables);
+        internal static CompositeFormat UnknownDisabledTableSimilarHint => CompositeFormat.Parse(Messages.UnknownDisabledTableSimilarHint);
         internal static CompositeFormat FkTargetNotFound => CompositeFormat.Parse(Messages.FkTargetNotFound);
         internal static CompositeFormat FkValueNotFound => CompositeFormat.Parse(Messages.FkValueNotFound);
         internal static CompositeFormat SwitchFkConditionValueNotMatched => CompositeFormat.Parse(Messages.SwitchFkConditionValueNotMatched);
@@ -187,6 +195,8 @@ internal static class Messages
         // netstandard2.1 에는 CompositeFormat 이 없어 원본 포맷 문자열을 그대로 노출한다.
         // 호출부의 string.Format 은 string 오버로드로 동일하게 동작한다.
         internal static string NonNullableTableDisabled => Messages.NonNullableTableDisabled;
+        internal static string UnknownDisabledTables => Messages.UnknownDisabledTables;
+        internal static string UnknownDisabledTableSimilarHint => Messages.UnknownDisabledTableSimilarHint;
         internal static string FkTargetNotFound => Messages.FkTargetNotFound;
         internal static string FkValueNotFound => Messages.FkValueNotFound;
         internal static string SwitchFkConditionValueNotMatched => Messages.SwitchFkConditionValueNotMatched;

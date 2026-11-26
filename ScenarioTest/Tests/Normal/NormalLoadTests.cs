@@ -246,13 +246,28 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
     }
 
     [Fact]
-    public async Task DisabledTableNameWithWrongCase_IsIgnored()
+    public async Task DisabledTableNameWithWrongCase_FailsAsArgumentErrorSuggestingTheRealName()
     {
-        var rpg = new RpgStaticData(NullLogger.Instance);
+        using var culture = CultureScope.Invariant();
 
-        await rpg.LoadAsync(fixture.CsvRpg, ["itemTable"]);
+        var exception = await Record.ExceptionAsync(Load.Rpg(fixture.CsvRpg, ["itemTable"]));
 
-        Assert.Equal(3, rpg.Current.ItemTable.Records.Length);
+        var argumentException = Assert.IsType<ArgumentException>(exception);
+        var expected = "disabledTables has names that are not members of the TableSet: "
+            + "'itemTable' (did you mean 'ItemTable'?).";
+        Assert.StartsWith(expected, argumentException.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task DisabledTableNamesMisspelled_FailsAsArgumentErrorNamingOnlyThem()
+    {
+        using var culture = CultureScope.Invariant();
+
+        var exception = await Record.ExceptionAsync(Load.Rpg(fixture.CsvRpg, ["GachaTables", "ItemTable", "ShopTables"]));
+
+        var argumentException = Assert.IsType<ArgumentException>(exception);
+        var expected = "disabledTables has names that are not members of the TableSet: 'GachaTables', 'ShopTables'.";
+        Assert.StartsWith(expected, argumentException.Message, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -12,6 +12,12 @@
   <data name="NonNullableTableDisabled" xml:space="preserve">
     <value>Table '{0}' is non-nullable and cannot be disabled; declare the TableSet member as nullable to allow disabling it.</value>
   </data>
+  <data name="UnknownDisabledTables" xml:space="preserve">
+    <value>disabledTables has names that are not members of the TableSet: {0}.</value>
+  </data>
+  <data name="UnknownDisabledTableSimilarHint" xml:space="preserve">
+    <value>'{0}' (did you mean '{1}'?)</value>
+  </data>
   <data name="FkTargetNotFound" xml:space="preserve">
     <value>{0}: FK target '{1}' not loaded or disabled.</value>
   </data>
