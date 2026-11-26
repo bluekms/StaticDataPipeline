@@ -22,6 +22,7 @@ public class CellValueMistakeTests
     [InlineData("Rpg/Items/ItemPriceDecimalText", "'150.0'")]
     [InlineData("Rpg/Items/ItemIdOutsideBand", "Value(99999) must be between 10000 and 19999")]
     [InlineData("Rpg/Monsters/MonsterSkillUndeclared", "'Lightning'")]
+    [InlineData("Rpg/Skills/SkillIdUndeclaredName", "Invalid value 'Lightning'", "or an integer of its underlying type")]
     [InlineData("Rpg/Shop/ShopSaleStartWithoutOffset", "'2026-03-01 00:00:00'")]
     [InlineData("Rpg/Shop/ShopSaleDurationWithoutUnit", "'7'")]
     [InlineData("School/Cafeteria/CafeteriaMenuDoubleComma", "contains an empty value")]

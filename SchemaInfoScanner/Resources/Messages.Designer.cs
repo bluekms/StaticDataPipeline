@@ -261,6 +261,9 @@ internal static class Messages
     internal static string InvalidCellValueForEnum
         => ResourceManager.GetString("InvalidCellValueForEnum", Culture)!;
 
+    internal static string InvalidCellValueForKeyEnum
+        => ResourceManager.GetString("InvalidCellValueForKeyEnum", Culture)!;
+
     internal static string SingleColumnCellEmptyValue
         => ResourceManager.GetString("SingleColumnCellEmptyValue", Culture)!;
 
@@ -399,6 +402,7 @@ internal static class Messages
         internal static CompositeFormat TimeSpanFormatAttributeNotApplicable => CompositeFormat.Parse(Messages.TimeSpanFormatAttributeNotApplicable);
         internal static CompositeFormat TimeSpanFormatAttributeRequired => CompositeFormat.Parse(Messages.TimeSpanFormatAttributeRequired);
         internal static CompositeFormat InvalidCellValueForEnum => CompositeFormat.Parse(Messages.InvalidCellValueForEnum);
+        internal static CompositeFormat InvalidCellValueForKeyEnum => CompositeFormat.Parse(Messages.InvalidCellValueForKeyEnum);
         internal static CompositeFormat SingleColumnCellEmptyValue => CompositeFormat.Parse(Messages.SingleColumnCellEmptyValue);
         internal static CompositeFormat LengthAttributeNotApplicable => CompositeFormat.Parse(Messages.LengthAttributeNotApplicable);
         internal static CompositeFormat KeyAttributeNotForCollection => CompositeFormat.Parse(Messages.KeyAttributeNotForCollection);

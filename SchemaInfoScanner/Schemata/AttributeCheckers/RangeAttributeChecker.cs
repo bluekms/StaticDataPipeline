@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using SchemaInfoScanner.Collectors;
 using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.Resources;
+using SchemaInfoScanner.Schemata.TypedPropertySchemata.PrimitiveTypes;
 using Sdp.Attributes;
 
 namespace SchemaInfoScanner.Schemata.AttributeCheckers;
@@ -130,7 +131,7 @@ public static class RangeAttributeChecker
 
     private static long ParseEnumValueOrName(INamedTypeSymbol enumType, string raw)
     {
-        if (long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var asLong))
+        if (IntegerCell.TryParse<long>(raw, out var asLong))
         {
             return asLong;
         }
