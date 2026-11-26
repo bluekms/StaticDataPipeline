@@ -14,7 +14,7 @@ public class CsvTamperingTests(ExtractedCsvFixture fixture)
         await LoadAssert.FailsWithSingle(
             Load.Rpg(csv.Root),
             LoadAssert.TablesFailed,
-            "[Rpg.Quests.csv] CSV row 3",
+            "[Rpg.Quests.csv] CSV row 3 (QuestRecord)",
             "'Orc' is not a defined member of",
             "MonsterId",
             "column 'Kill.Monster'");
