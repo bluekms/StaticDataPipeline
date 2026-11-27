@@ -69,6 +69,16 @@ public partial class StaticDataTableSampleTests
     }
 
     [Fact]
+    public void GetByName_ByOtherColumn_ReturnsRecord()
+    {
+        var table = LoadTable();
+
+        var shield = table.GetByName("Shield");
+
+        Assert.Equal(3, shield.Id);
+    }
+
+    [Fact]
     public void TryGet_ByExistingKey_ReturnsTrueAndRecord()
     {
         var table = LoadTable();
