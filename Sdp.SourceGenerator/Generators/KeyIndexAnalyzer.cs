@@ -13,8 +13,8 @@ internal static class KeyIndexAnalyzer
         INamedTypeSymbol staticDataTableBase,
         INamedTypeSymbol record)
     {
-        // 사용자 base 를 거쳐 상속한 Table 과 그 base 는 어느 쪽이 인덱스를 가질지 정할 수 없어 만들지 않는다.
-        if (table.IsAbstract || !SymbolEqualityComparer.Default.Equals(table.BaseType, staticDataTableBase))
+        // 사용자 base 를 거쳐 상속한 Table 은 base 와 어느 쪽이 인덱스를 가질지 정할 수 없어 만들지 않는다.
+        if (!SymbolEqualityComparer.Default.Equals(table.BaseType, staticDataTableBase))
         {
             return null;
         }
@@ -63,7 +63,12 @@ internal static class KeyIndexAnalyzer
                 return true;
             }
 
-            if (method.Parameters.Length > 0 && SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, keyType))
+            if (method.Parameters.Length == 0)
+            {
+                continue;
+            }
+
+            if (SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, keyType))
             {
                 return true;
             }
