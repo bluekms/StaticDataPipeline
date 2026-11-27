@@ -148,7 +148,8 @@ internal static class ForeignKeyAttributeValidator
 
         foreach (var param in primaryCtor.Parameters)
         {
-            var fkAttrs = new List<AttributeData>();
+            // [ForeignKey] 는 파라미터에 하나만 붙는다. 둘 이상이면 컴파일러가 CS0579 로 빌드를 멈춘다.
+            AttributeData? foreignKey = null;
             var switchFkAttrs = new List<AttributeData>();
             var isIgnored = false;
 
@@ -161,7 +162,7 @@ internal static class ForeignKeyAttributeValidator
 
                 if (attr.AttributeClass!.Name == SdpAttributeNames.ForeignKey)
                 {
-                    fkAttrs.Add(attr);
+                    foreignKey ??= attr;
                 }
                 else if (attr.AttributeClass.Name == SdpAttributeNames.SwitchForeignKey)
                 {
@@ -175,12 +176,12 @@ internal static class ForeignKeyAttributeValidator
 
             if (isIgnored)
             {
-                valid &= ValidateIgnoredParameter(recordType, param, fkAttrs, switchFkAttrs, diagnostics);
+                valid &= ValidateIgnoredParameter(recordType, param, foreignKey, switchFkAttrs, diagnostics);
 
                 continue;
             }
 
-            if (fkAttrs.Count > 0 && switchFkAttrs.Count > 0)
+            if (foreignKey is not null && switchFkAttrs.Count > 0)
             {
                 diagnostics.Add(Diagnostic.Create(
                     SdpDiagnostics.ForeignKeySwitchConflict,
@@ -191,9 +192,9 @@ internal static class ForeignKeyAttributeValidator
                 valid = false;
             }
 
-            foreach (var attr in fkAttrs)
+            if (foreignKey is not null)
             {
-                ForeignKeyTargetValidator.Validate(attr, param, membersByName, diagnostics);
+                ForeignKeyTargetValidator.Validate(foreignKey, param, membersByName, diagnostics);
             }
 
             if (switchFkAttrs.Count > 0)
@@ -227,13 +228,13 @@ internal static class ForeignKeyAttributeValidator
     private static bool ValidateIgnoredParameter(
         INamedTypeSymbol recordType,
         IParameterSymbol param,
-        List<AttributeData> fkAttrs,
+        AttributeData? foreignKey,
         List<AttributeData> switchFkAttrs,
         List<Diagnostic> diagnostics)
     {
         var valid = true;
 
-        if (fkAttrs.Count > 0)
+        if (foreignKey is not null)
         {
             diagnostics.Add(Diagnostic.Create(
                 SdpDiagnostics.ForeignKeyOnIgnoredParameter,
