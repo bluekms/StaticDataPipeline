@@ -34,13 +34,23 @@ internal static class TableSetLoaderEmitter
         return sb.ToString();
     }
 
-    private static bool HasTablesSharingRecord(StaticDataManagerAnalysis analysis)
+    private static int FindEarlierTableOfSameRecord(StaticDataManagerAnalysis analysis, int tableIndex)
     {
-        var records = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+        var record = analysis.Tables[tableIndex].RecordSymbol;
+        if (record is null)
+        {
+            return -1;
+        }
 
-        return analysis.Tables
-            .Where(static x => x.RecordSymbol is not null)
-            .Any(x => !records.Add(x.RecordSymbol!));
+        for (var i = 0; i < tableIndex; i++)
+        {
+            if (SymbolEqualityComparer.Default.Equals(analysis.Tables[i].RecordSymbol, record))
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     private static void EmitLoadAsync(
@@ -101,7 +111,19 @@ internal static class TableSetLoaderEmitter
         sb.Append(indent).AppendLine("    var __errors = new global::System.Collections.Generic.List<global::System.Exception>();");
         for (var i = 0; i < analysis.Tables.Length; i++)
         {
-            sb.Append(indent).Append("    if (__t").Append(i).Append(".IsFaulted) __errors.AddRange(__t").Append(i).AppendLine(".Exception!.InnerExceptions);");
+            var sameCsvReader = FindEarlierTableOfSameRecord(analysis, i);
+            if (sameCsvReader < 0)
+            {
+                sb.Append(indent).Append("    if (__t").Append(i).Append(".IsFaulted) __errors.AddRange(__t").Append(i).AppendLine(".Exception!.InnerExceptions);");
+            }
+            else
+            {
+                // 같은 CSV 를 읽는 Table 들은 같은 행에서 같은 오류를 낸다. 먼저 읽은 Table 이 알린 것은 다시 담지 않는다.
+                sb.Append(indent).Append("    if (__t").Append(i)
+                    .Append(".IsFaulted) global::Sdp.Manager.TableSetLoaderHelper.AddErrorsNotReportedBy(__errors, __t").Append(i)
+                    .Append(".Exception!.InnerExceptions, __t").Append(sameCsvReader).AppendLine(");");
+            }
+
             sb.Append(indent).Append("    else if (__t").Append(i).Append(".IsCanceled) __errors.Add(new global::System.Threading.Tasks.TaskCanceledException(__t").Append(i).AppendLine("));");
             if (!analysis.Tables[i].IsNullable)
             {
@@ -109,12 +131,6 @@ internal static class TableSetLoaderEmitter
                     .Append(".Result is null) __errors.Add(global::Sdp.Manager.TableSetLoaderHelper.NonNullableTableDisabledError(")
                     .Append(SymbolDisplay.FormatLiteral(analysis.Tables[i].ParameterName, quote: true)).AppendLine("));");
             }
-        }
-
-        if (HasTablesSharingRecord(analysis))
-        {
-            // 같은 CSV 를 읽는 Table 들은 같은 행에서 같은 오류를 낸다.
-            sb.Append(indent).AppendLine("    __errors = global::Sdp.Manager.TableSetLoaderHelper.RemoveRepeatedErrors(__errors);");
         }
 
         sb.Append(indent).AppendLine("    if (__errors.Count > 0)");

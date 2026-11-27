@@ -119,22 +119,6 @@ public static class TableSetLoaderHelper
             conditionValue));
     }
 
-    public static List<Exception> RemoveRepeatedErrors(List<Exception> errors)
-    {
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-        var distinct = new List<Exception>(errors.Count);
-        foreach (var error in errors)
-        {
-            var identity = error.GetType().FullName + "\u0000" + error.Message;
-            if (seen.Add(identity))
-            {
-                distinct.Add(error);
-            }
-        }
-
-        return distinct;
-    }
-
     public static Exception DuplicateKeyError(string fileName, string recordName, string key)
     {
         return new InvalidOperationException(string.Format(
@@ -163,5 +147,30 @@ public static class TableSetLoaderHelper
             propertyName,
             conditionColumn,
             conditionValue));
+    }
+
+    public static void AddErrorsNotReportedBy(List<Exception> errors, IEnumerable<Exception> candidates, Task sameCsvReader)
+    {
+        var reported = new HashSet<string>(StringComparer.Ordinal);
+        if (sameCsvReader.Exception is { } readerFailure)
+        {
+            foreach (var error in readerFailure.InnerExceptions)
+            {
+                reported.Add(ErrorIdentity(error));
+            }
+        }
+
+        foreach (var candidate in candidates)
+        {
+            if (!reported.Contains(ErrorIdentity(candidate)))
+            {
+                errors.Add(candidate);
+            }
+        }
+    }
+
+    private static string ErrorIdentity(Exception error)
+    {
+        return error.GetType().FullName + ": " + error.Message;
     }
 }
