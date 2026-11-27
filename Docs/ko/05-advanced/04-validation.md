@@ -62,7 +62,7 @@ FK 값, 사용자 `Validate`, 뷰 빌드는 **로드에서만** 검사됩니다.
 |`[Range]` 적용 가능 타입|O|—|—|`bool`·컬렉션·record 금지|
 |`[CountRange]` 정합성|O|—|—|`[SingleColumnCollection]` 필요, `[Length]` 배타, minCount ≥ 0, minCount ≤ maxCount (빌드는 `SDP0007` / `SDP0005` / `SDP0019` / `SDP0015`)|
 |`[SingleColumnCollection]` 정합성|O|—|—|Map 불가, 원소 primitive 만, `[Length]` 배타 (빌드는 `SDP0013`)|
-|`[Key]` 정합성|O|—|—|Record 당 최대 1개·non-nullable·컬렉션 불가는 선언 검사 / Map Value 의 `[Key]` 정확히 하나는 선언 검사와 빌드 시 `SDP0017` — 로드는 Key 존재를 검사하지 않고 Map 키 중복과 Primary Key 중복(C)만 검사|
+|`[Key]` 정합성|O|—|—|Record 당 최대 1개·non-nullable·컬렉션 불가는 선언 검사 (빌드는 최대 1개가 `SDP0003`, non-nullable 이 `SDP0022`) / Map Value 의 `[Key]` 정확히 하나는 선언 검사와 빌드 시 `SDP0017` — 로드는 Key 존재를 검사하지 않고 Map 키 중복과 Primary Key 중복(C)만 검사|
 |`[StaticDataRecord]` 존재|O|O|—|선언 검사 대상 식별 / 추출 대상 0개 시 종료 / 테이블의 Record 에 없으면 빌드 시 `SDP0215`|
 
 ### C. 셀 값
@@ -78,7 +78,7 @@ FK 값, 사용자 `Validate`, 뷰 빌드는 **로드에서만** 검사됩니다.
 |`[Range]` 값 범위|—|O|O||
 |`[RegularExpression]` 패턴 일치|—|O|O||
 |`[CountRange]` 분할 원소 개수|—|O|O|단일 컬럼 컬렉션|
-|Primary Key 중복|—|O|O|`[Key]` 컬럼. 로드는 테이블을 만들기 전에 CSV 의 모든 행에서 검사하므로 인덱스를 선언하지 않은 테이블도 잡는다. `[Key]` 가 없는 Record 는 검사하지 않는다. `[Key]` 를 nullable 로 선언한 Record 도 검사하지 않는다 (그 선언은 선언 검사가 거부한다)|
+|Primary Key 중복|—|O|O|`[Key]` 컬럼. 로드는 테이블을 만들기 전에 CSV 의 모든 행에서 검사하므로 인덱스를 선언하지 않은 테이블도 잡는다. `[Key]` 가 없는 Record 는 검사하지 않는다|
 
 ### D. 외래 키
 

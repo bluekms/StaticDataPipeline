@@ -27,7 +27,7 @@ public record struct ItemId(int Value);
 - 직접 파라미터와, 여러 열로 펼치는 `ImmutableArray<T>` / `FrozenSet<T>` 의 원소에 쓸 수 있습니다. Map 의 키와 값에는 쓸 수 없습니다.
 - [`[NullString]`](./02-attributes.md#attr-nullstring) 이 없으면 스캐너가 `NullStringAttributeRequiredForNullable` 예외를 발생시키고 빌드는 `SDP0004` 입니다.
 - [`[ForeignKey]`](./02-attributes.md#attr-foreignkey) / [`[SwitchForeignKey]`](./02-attributes.md#attr-switchforeignkey) 는 값이 `null` 이면 검사를 건너뜁니다.
-- [`[Key]`](./02-attributes.md#attr-key) 파라미터는 nullable 일 수 없습니다.
+- [`[Key]`](./02-attributes.md#attr-key) 파라미터는 nullable 일 수 없습니다 (빌드 시 `SDP0022`).
 
 브랜딩 타입의 내부 파라미터는 nullable 로 둘 수 없습니다. "값 없음" 은 값이 없을 수 있는 자리에서 브랜딩 타입에 `?` 를 붙여서만 표현합니다. 내부 파라미터가 nullable 이면 스캐너가 `SingleValueRecordInnerMustBeNonNullable` 예외를 발생시키고 빌드는 `SDP0021` 입니다.
 
