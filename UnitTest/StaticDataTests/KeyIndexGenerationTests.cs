@@ -67,6 +67,30 @@ public partial class KeyIndexGenerationTests
         }
     }
 
+    private sealed partial class FailingVisibleItemTable(ImmutableArray<ItemRecord> records)
+        : StaticDataTable<ItemRecord>(records.Where(x => !x.IsHidden).ToImmutableArray())
+    {
+        protected override void Validate()
+        {
+            throw new InvalidOperationException("visible items are invalid");
+        }
+    }
+
+    private sealed partial class FailingHiddenItemTable(ImmutableArray<ItemRecord> records)
+        : StaticDataTable<ItemRecord>(records.Where(x => x.IsHidden).ToImmutableArray())
+    {
+        protected override void Validate()
+        {
+            throw new InvalidOperationException("hidden items are invalid");
+        }
+    }
+
+    private sealed partial class FailingSplitStaticData(ILogger logger)
+        : StaticDataManager<FailingSplitStaticData.TableSet>(logger)
+    {
+        public sealed partial record TableSet(FailingVisibleItemTable? Visible, FailingHiddenItemTable? Hidden);
+    }
+
     private sealed partial class SplitStaticData(ILogger logger)
         : StaticDataManager<SplitStaticData.TableSet>(logger)
     {
@@ -111,23 +135,35 @@ public partial class KeyIndexGenerationTests
     }
 
     [Fact]
-    public void UserDeclaredGet_IsKept_AndTryGetIsStillGenerated()
+    public void UserDeclaredGet_IsKept()
     {
         var table = new ItemWithOwnGetTable(Parse(ItemsCsv, ItemRecord.MapFromCsvRow));
 
         Assert.Equal("Shield", table.Get(99).Name);
-        Assert.False(table.TryGet(99, out _));
     }
 
     [Theory]
     [InlineData(typeof(KeylessTable))]
     [InlineData(typeof(ItemByNameTable))]
-    public void KeylessOrOptedOutTable_HasNoGeneratedLookup(Type tableType)
+    [InlineData(typeof(ItemWithOwnGetTable))]
+    public void KeylessOptedOutOrSelfIndexedTable_HasNoGeneratedLookup(Type tableType)
     {
-        const BindingFlags declaredPublic = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+        const BindingFlags declared = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
-        Assert.Null(tableType.GetMethod("Get", declaredPublic));
-        Assert.Null(tableType.GetMethod("TryGet", declaredPublic));
+        Assert.Null(tableType.GetMethod("TryGet", declared));
+        Assert.Null(tableType.GetField("__keyIndex", declared));
+    }
+
+    [Fact]
+    public async Task TablesSharingOneRecord_KeepErrorsOfTheirOwn()
+    {
+        using var dir = new CsvTestDirectory();
+        dir.Write("Items.Sheet1.csv", ItemsCsv);
+        var staticData = new FailingSplitStaticData(NullLogger.Instance);
+
+        var exception = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
+
+        Assert.Equal(2, exception.InnerExceptions.Count);
     }
 
     [Fact]
