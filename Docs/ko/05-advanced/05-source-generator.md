@@ -9,7 +9,7 @@ Sdp 2.0 부터 CSV 매핑, 테이블 로드, FK 검증, View 빌드 코드는 �
 |선언|생성되는 멤버|생성 파일|
 |-|-|-|
 |`[StaticDataRecord]` 가 붙은 record|`MapFromCsvRow(CsvHeaderIndex, string[])` — CSV 한 행을 Record 로 변환. 타입 변환, `[Range]` / `[RegularExpression]` / `[CountRange]` 검증, `[NullString]` 치환이 여기에 들어 있다|`{Record}.CsvMapper.g.cs`|
-|`StaticDataTable<TRecord>` 서브클래스|`LoadAsync(csvDir, logger)` — `{파일}.{시트}.csv` 를 읽어 테이블을 만들고 `Validate()` 를 호출. 테이블에 생성자를 직접 선언하지 않으면 `ImmutableArray<TRecord>` 하나를 받는 생성자도 함께 생성|`{Table}.TableFactory.g.cs`|
+|`StaticDataTable<TRecord>` 서브클래스|`LoadAsync(csvDir, logger)` — `{파일}.{시트}.csv` 를 읽고, Record 에 `[Key]` 가 있으면 키 중복을 검사한 뒤 테이블을 만들고 `Validate()` 를 호출. 테이블에 생성자를 직접 선언하지 않으면 `ImmutableArray<TRecord>` 하나를 받는 생성자도 함께 생성|`{Table}.TableFactory.g.cs`|
 |TableSet record|`LoadAsync(csvDir, disabledTables, logger)` — 모든 테이블을 병렬 로드. `ValidateForeignKeys(tableSet)` — `[ForeignKey]` / `[SwitchForeignKey]` 값 검증|`{TableSet}.TableSetLoader.g.cs`|
 |`StaticDataManager` 서브클래스|추상 훅 `LoadTableSetAsync`, `ValidateForeignKeys` 의 override — 위 생성 코드로 연결. `StaticDataManager<TTableSet, TViewSet>` 를 상속한 경우에만 `BuildViewSet` 의 override 도 생성 (타입 인자 하나짜리 매니저도 지원)|`{Manager}.StaticDataManager.g.cs`|
 |`StaticDataView<TTableSet>` 서브클래스|`BuildView(tableSet)` — 생성자를 호출하고 `Validate()` 실행|`{View}.ViewFactory.g.cs`|
