@@ -578,49 +578,14 @@ internal static partial class TableSetLoaderEmitter
             .Replace("}", "}}");
     }
 
-    private static IParameterSymbol? FindKeyParameter(INamedTypeSymbol record)
-    {
-        var primaryConstructor = SymbolResolver.FindPrimaryConstructor(record);
-        if (primaryConstructor is null)
-        {
-            return null;
-        }
-
-        foreach (var param in primaryConstructor.Parameters)
-        {
-            foreach (var attr in param.GetAttributes())
-            {
-                if (attr.AttributeClass?.Name == "KeyAttribute"
-                    && attr.AttributeClass.ContainingNamespace?.ToDisplayString() == "Sdp.Attributes")
-                {
-                    return param;
-                }
-            }
-        }
-
-        return null;
-    }
-
     private static string BuildKeyClause(INamedTypeSymbol record, string instanceVariable)
     {
-        var keyParameter = FindKeyParameter(record);
+        var keyParameter = KeyParameterResolver.Find(record);
         if (keyParameter is null)
         {
             return string.Empty;
         }
 
-        return "[" + keyParameter.Name + "=" + BuildKeyValueAccess(keyParameter, instanceVariable) + "]";
-    }
-
-    private static string BuildKeyValueAccess(IParameterSymbol keyParameter, string instanceVariable)
-    {
-        var access = instanceVariable + "." + EmitHelper.EscapeIdentifier(keyParameter.Name);
-        var valueDisplayMember = FkTargetResolver.ResolveValueDisplayMember(keyParameter.Type);
-        if (valueDisplayMember is not null)
-        {
-            access += "." + EmitHelper.EscapeIdentifier(valueDisplayMember);
-        }
-
-        return "{" + access + "}";
+        return "[" + keyParameter.Name + "=" + KeyParameterResolver.BuildValueDisplay(keyParameter, instanceVariable) + "]";
     }
 }

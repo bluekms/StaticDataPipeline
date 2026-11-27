@@ -8,7 +8,7 @@ internal static class KeyDuplicateCheckEmitter
 {
     public static void Emit(StringBuilder sb, INamedTypeSymbol recordSymbol, string fileNameLiteral, string indent)
     {
-        var keyParameter = FindKeyParameter(recordSymbol);
+        var keyParameter = KeyParameterResolver.Find(recordSymbol);
         if (keyParameter is null)
         {
             return;
@@ -23,7 +23,7 @@ internal static class KeyDuplicateCheckEmitter
         var keyTypeName = keyParameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var keyAccess = "__r." + EmitHelper.EscapeIdentifier(keyParameter.Name);
         var recordNameLiteral = SymbolDisplay.FormatLiteral(recordSymbol.Name, quote: true);
-        var keyDisplay = BuildKeyDisplay(keyParameter, keyAccess);
+        var keyDisplay = KeyParameterResolver.BuildValueDisplay(keyParameter, "__r");
 
         sb.Append(indent).Append("var __keys = new global::System.Collections.Generic.HashSet<").Append(keyTypeName).AppendLine(">();");
         sb.Append(indent).AppendLine("foreach (var __r in records)");
@@ -36,39 +36,5 @@ internal static class KeyDuplicateCheckEmitter
         sb.Append(indent).AppendLine("    }");
         sb.Append(indent).AppendLine("}");
         sb.AppendLine();
-    }
-
-    // 브랜딩 record 는 ToString() 이 "ItemId { Value = 3 }" 이라 안쪽 값만 찍는다.
-    private static string BuildKeyDisplay(IParameterSymbol keyParameter, string keyAccess)
-    {
-        var valueDisplayMember = FkTargetResolver.ResolveValueDisplayMember(keyParameter.Type);
-        if (valueDisplayMember is null)
-        {
-            return "{" + keyAccess + "}";
-        }
-
-        return "{" + keyAccess + "." + EmitHelper.EscapeIdentifier(valueDisplayMember) + "}";
-    }
-
-    private static IParameterSymbol? FindKeyParameter(INamedTypeSymbol record)
-    {
-        var primaryConstructor = SymbolResolver.FindPrimaryConstructor(record);
-        if (primaryConstructor is null)
-        {
-            return null;
-        }
-
-        foreach (var param in primaryConstructor.Parameters)
-        {
-            foreach (var attr in param.GetAttributes())
-            {
-                if (attr.AttributeClass?.Name == SdpAttributeNames.Key && SdpAttributeNames.IsSdpAttribute(attr))
-                {
-                    return param;
-                }
-            }
-        }
-
-        return null;
     }
 }
