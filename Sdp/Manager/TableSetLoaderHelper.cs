@@ -7,6 +7,8 @@ namespace Sdp.Manager;
 
 public static class TableSetLoaderHelper
 {
+    private const string CsvErrorMark = "Sdp.CsvError";
+
     public static async Task<T?> LoadTableOrSkipAsync<T>(
         string csvDir,
         string tableName,
@@ -147,5 +149,50 @@ public static class TableSetLoaderHelper
             propertyName,
             conditionColumn,
             conditionValue));
+    }
+
+    public static void AddErrorsNotReportedBy(
+        List<Exception> errors,
+        IReadOnlyCollection<Exception> candidates,
+        params Task[] sameCsvReaders)
+    {
+        var reported = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var sameCsvReader in sameCsvReaders)
+        {
+            if (sameCsvReader.Exception is null)
+            {
+                continue;
+            }
+
+            foreach (var error in sameCsvReader.Exception.InnerExceptions.Where(IsCsvError))
+            {
+                reported.Add(ErrorIdentity(error));
+            }
+        }
+
+        foreach (var candidate in candidates)
+        {
+            if (IsCsvError(candidate) && reported.Contains(ErrorIdentity(candidate)))
+            {
+                continue;
+            }
+
+            errors.Add(candidate);
+        }
+    }
+
+    public static void MarkAsCsvError(Exception error)
+    {
+        error.Data[CsvErrorMark] = true;
+    }
+
+    private static bool IsCsvError(Exception error)
+    {
+        return error.Data.Contains(CsvErrorMark);
+    }
+
+    private static string ErrorIdentity(Exception error)
+    {
+        return error.GetType().FullName + ": " + error.Message;
     }
 }

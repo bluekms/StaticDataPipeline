@@ -26,6 +26,12 @@ internal static class TableFactoryEmitter
 
         EmitFactoryMethod(sb, analysis, memberIndent);
 
+        if (analysis.KeyIndex is { } keyIndex)
+        {
+            sb.AppendLine();
+            EmitKeyIndex(sb, analysis, keyIndex, memberIndent);
+        }
+
         sb.Append(indent).AppendLine("}");
         EmitHelper.CloseContainingTypes(sb, scope);
 
@@ -39,6 +45,39 @@ internal static class TableFactoryEmitter
             .Append(analysis.FullyQualifiedRecordName).AppendLine("> records)");
         sb.Append(indent).AppendLine("    : base(records)");
         sb.Append(indent).AppendLine("{");
+        sb.Append(indent).AppendLine("}");
+    }
+
+    private static void EmitKeyIndex(
+        StringBuilder sb,
+        StaticDataTableAnalysis.TableFactory analysis,
+        KeyIndexInfo keyIndex,
+        string indent)
+    {
+        var recordName = analysis.FullyQualifiedRecordName;
+        var indexType = "global::Sdp.Table.UniqueIndex<" + recordName + ", " + keyIndex.FullyQualifiedKeyTypeName + ">";
+
+        // 필드 초기화는 base 생성자보다 먼저 돌므로, base 생성자가 부르는 BuildKeyIndex 가 넣은 값이 남는다.
+        sb.Append(indent).Append("private ").Append(indexType).AppendLine(" __keyIndex = null!;");
+        sb.AppendLine();
+        sb.Append(indent).AppendLine("protected override void BuildKeyIndex()");
+        sb.Append(indent).AppendLine("{");
+        sb.Append(indent).Append("    __keyIndex = new ").Append(indexType).Append("(Records, static x => x.")
+            .Append(EmitHelper.EscapeIdentifier(keyIndex.KeyParameterName)).AppendLine(");");
+        sb.Append(indent).AppendLine("}");
+
+        sb.AppendLine();
+        sb.Append(indent).Append("public ").Append(recordName).Append(" Get(")
+            .Append(keyIndex.FullyQualifiedKeyTypeName).AppendLine(" key)");
+        sb.Append(indent).AppendLine("{");
+        sb.Append(indent).AppendLine("    return __keyIndex.Get(key);");
+        sb.Append(indent).AppendLine("}");
+        sb.AppendLine();
+        sb.Append(indent).Append("public bool TryGet(").Append(keyIndex.FullyQualifiedKeyTypeName)
+            .Append(" key, [global::System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out ")
+            .Append(recordName).AppendLine("? record)");
+        sb.Append(indent).AppendLine("{");
+        sb.Append(indent).AppendLine("    return __keyIndex.TryGet(key, out record);");
         sb.Append(indent).AppendLine("}");
     }
 
@@ -56,11 +95,24 @@ internal static class TableFactoryEmitter
         sb.Append(indent).AppendLine("    global::Microsoft.Extensions.Logging.ILogger logger)");
         sb.Append(indent).AppendLine("{");
         sb.Append(indent).Append("    var path = global::System.IO.Path.Combine(csvDir, ").Append(fileNameLit).AppendLine(");");
-        sb.Append(indent).Append("    var records = await global::Sdp.Csv.CsvLoader.LoadAsync<")
+        sb.Append(indent).Append("    global::System.Collections.Immutable.ImmutableArray<")
+            .Append(analysis.FullyQualifiedRecordName).AppendLine("> records;");
+
+        // CSV 를 읽고 키를 검사하다 난 오류는 같은 CSV 를 읽는 Table 마다 똑같이 난다. 표시해 두면 로더가 한 번만 알린다.
+        sb.Append(indent).AppendLine("    try");
+        sb.Append(indent).AppendLine("    {");
+        sb.Append(indent).Append("        records = await global::Sdp.Csv.CsvLoader.LoadAsync<")
             .Append(analysis.FullyQualifiedRecordName).Append(">(path, ")
             .Append(analysis.FullyQualifiedRecordName).Append(".MapFromCsvRow, ")
             .Append(analysis.FullyQualifiedRecordName).AppendLine(".IsEmptyCsvRow).ConfigureAwait(false);");
-        KeyDuplicateCheckEmitter.Emit(sb, analysis.RecordSymbol, fileNameLit, indent + "    ");
+        KeyDuplicateCheckEmitter.Emit(sb, analysis.RecordSymbol, fileNameLit, indent + "        ");
+        sb.Append(indent).AppendLine("    }");
+        sb.Append(indent).AppendLine("    catch (global::System.Exception __csvError)");
+        sb.Append(indent).AppendLine("    {");
+        sb.Append(indent).AppendLine("        global::Sdp.Manager.TableSetLoaderHelper.MarkAsCsvError(__csvError);");
+        sb.Append(indent).AppendLine("        throw;");
+        sb.Append(indent).AppendLine("    }");
+        sb.AppendLine();
         sb.Append(indent).Append("    var __table = new ").Append(analysis.FullyQualifiedTypeName).AppendLine("(records);");
         sb.Append(indent).AppendLine("    __table.Validate();");
         sb.Append(indent).AppendLine("    return __table;");

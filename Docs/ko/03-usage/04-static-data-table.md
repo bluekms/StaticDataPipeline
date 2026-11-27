@@ -39,33 +39,21 @@ foreach (var item in table.Records)
 
 </br></br></br>
 
-## UniqueIndex 로 키 조회 추가
+## 키로 한 행 찾기
 
-기본 키로 한 행을 직접 꺼내는 조회가 필요하다면 `UniqueIndex` 를 만들고 Getter 를 노출합니다.
+Record 에 `[Key]` 가 있으면 소스 제너레이터가 Table 에 기본 키 인덱스와 `Get`, `TryGet` 을 만들어 줍니다. Table 에는 아무것도 쓰지 않아도 됩니다.
 
 ```csharp
-using System.Collections.Immutable;
-using Sdp.Table;
+[StaticDataRecord("Items", "Items")]
+public sealed partial record ItemRecord(
+    [Key] int Id,
+    string Name,
+    int Price,
+    ItemCategory Category);
 
-public sealed partial class ItemTable : StaticDataTable<ItemRecord>
-{
-    private readonly UniqueIndex<ItemRecord, int> byId;
-
-    public ItemTable(ImmutableArray<ItemRecord> records)
-        : base(records)
-    {
-        byId = new UniqueIndex<ItemRecord, int>(records, x => x.Id);
-    }
-
-    public ItemRecord Get(int id)
-        => byId.Get(id);
-
-    public bool TryGet(int id, out ItemRecord? record)
-        => byId.TryGet(id, out record);
-}
+public sealed partial class ItemTable(ImmutableArray<ItemRecord> records)
+    : StaticDataTable<ItemRecord>(records);
 ```
-
-`UniqueIndex` 는 생성 시점에 키 중복을 검사합니다. 같은 `Id` 가 둘 이상이면 `InvalidOperationException` 을 던집니다.
 
 ```csharp
 var potion = table.Get(1);
@@ -78,7 +66,50 @@ if (table.TryGet(2, out var sword))
 
 `Get` 은 키가 없으면 `KeyNotFoundException` 을 던지고, `TryGet` 은 `false` 를 반환합니다. 키 존재가 보장되지 않는 조회에는 `TryGet` 을 사용합니다.
 
-다른 컬럼으로도 같은 방식의 조회가 필요하면 `UniqueIndex<ItemRecord, string> byName` 처럼 인덱스를 추가하면 됩니다. 키가 유일하지 않은 그룹 조회는 `MultiIndex` 를 씁니다.
+- 조회에 쓰는 타입은 `[Key]` 파라미터의 타입입니다. 타입 브랜딩 키 (`ItemRecord.ItemId`) 나 중첩 record 키도 그 타입 그대로 받습니다.
+- 인덱스는 Table 이 만들어질 때 Table 이 가진 `Records` 로 만듭니다. 생성자에서 행을 걸러 내는 Table 은 걸러진 뒤의 행만 찾습니다.
+- `[Key]` 가 없는 Record 의 Table 에는 아무것도 만들지 않습니다.
+- 키 타입을 받는 `Get` 이나 `TryGet` 을 Table 에 직접 선언했으면 인덱스와 두 메서드를 만들지 않습니다. 직접 만든 인덱스가 있다고 봅니다.
+- `StaticDataTable<TRecord>` 를 직접 상속하지 않고 다른 Table 을 거쳐 상속한 Table 에는 만들지 않습니다.
+
+키는 있지만 다른 경로로만 찾는 Table, 그리고 직접 만든 키 인덱스를 `Find` 같은 다른 이름으로 노출하는 Table 은 `[NoKeyIndex]` 로 인덱스 생성을 끕니다. 끄지 않으면 같은 키의 인덱스가 둘이 됩니다. 인덱스 하나만큼의 메모리와 로드 시간을 아낍니다. 꺼도 로드의 키 중복 검사는 그대로 동작합니다.
+
+```csharp
+[NoKeyIndex]
+public sealed partial class ElementTable : StaticDataTable<ElementRecord>
+{
+    // 원자 번호가 키지만 기호로만 찾는다
+}
+```
+
+</br></br></br>
+
+## 다른 컬럼으로 찾기 — UniqueIndex
+
+키가 아닌 컬럼으로 한 행을 찾아야 하면 `UniqueIndex` 를 만들고 Getter 를 노출합니다.
+
+```csharp
+using System.Collections.Immutable;
+using Sdp.Table;
+
+public sealed partial class ItemTable : StaticDataTable<ItemRecord>
+{
+    private readonly UniqueIndex<ItemRecord, string> byName;
+
+    public ItemTable(ImmutableArray<ItemRecord> records)
+        : base(records)
+    {
+        byName = new UniqueIndex<ItemRecord, string>(records, x => x.Name);
+    }
+
+    public ItemRecord GetByName(string name)
+    {
+        return byName.Get(name);
+    }
+}
+```
+
+`UniqueIndex` 는 생성 시점에 값의 중복을 검사합니다. 같은 `Name` 이 둘 이상이면 `InvalidOperationException` 을 던집니다. 값이 유일하지 않은 그룹 조회는 `MultiIndex` 를 씁니다. 여러 컬럼을 묶은 키는 그 컬럼들을 담은 record 를 키 타입으로 해서 같은 방식으로 선언합니다.
 
 </br></br></br>
 
@@ -124,7 +155,8 @@ public sealed partial class ItemTable : StaticDataTable<ItemRecord>
 
 - `StaticDataTable<TRecord>` 를 상속하는 `partial` 클래스로 둔다. 생성자는 생략하면 소스 제너레이터가 만들어 주고, 직접 쓸 때는 `ImmutableArray<TRecord>` 하나를 받는 생성자를 둔다.
 - `Records` 는 CSV 의 행 순서를 유지한다.
-- 키 조회나 그룹 조회는 `UniqueIndex` / `MultiIndex` 를 멤버로 두고 Getter 로 노출한다.
+- Record 에 `[Key]` 가 있으면 `Get`, `TryGet` 이 생성된다. 필요 없으면 `[NoKeyIndex]` 로 끈다.
+- 다른 컬럼의 조회나 그룹 조회는 `UniqueIndex` / `MultiIndex` 를 멤버로 두고 Getter 로 노출한다.
 - 실제 CSV 로드는 `StaticDataManager` 가 담당한다.
 
 ---

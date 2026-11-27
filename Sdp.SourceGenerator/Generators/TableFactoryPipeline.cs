@@ -114,7 +114,8 @@ internal static class TableFactoryPipeline
             diagnostics,
             recordSource.ExcelFileName,
             recordSource.SheetName,
-            hasUserDefinedConstructor);
+            hasUserDefinedConstructor,
+            KeyIndexAnalyzer.Analyze(symbol, baseType, recordType));
     }
 
     private static INamedTypeSymbol? FindStaticDataTableBase(INamedTypeSymbol symbol)

@@ -19,7 +19,8 @@ internal abstract record StaticDataTableAnalysis(
         IReadOnlyList<Diagnostic> Diagnostics,
         string ExcelFileName,
         string SheetName,
-        bool HasUserDefinedConstructor)
+        bool HasUserDefinedConstructor,
+        KeyIndexInfo? KeyIndex)
         : StaticDataTableAnalysis(Symbol, RecordSymbol, Diagnostics)
     {
         public string TypeName => Symbol.Name;

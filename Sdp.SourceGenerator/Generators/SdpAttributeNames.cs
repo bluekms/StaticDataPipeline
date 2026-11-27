@@ -10,6 +10,7 @@ internal static class SdpAttributeNames
     public const string StaticDataRecordMetadataName = Namespace + "." + StaticDataRecord;
     public const string ColumnName = "ColumnNameAttribute";
     public const string Key = "KeyAttribute";
+    public const string NoKeyIndex = "NoKeyIndexAttribute";
     public const string NullString = "NullStringAttribute";
     public const string DateTimeFormat = "DateTimeFormatAttribute";
     public const string TimeSpanFormat = "TimeSpanFormatAttribute";

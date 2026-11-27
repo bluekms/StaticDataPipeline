@@ -4,18 +4,5 @@ using Sdp.Table;
 
 namespace ScenarioTest.Tables;
 
-public sealed partial class StageServerTable : StaticDataTable<StageServerRecord>
-{
-    private readonly UniqueIndex<StageServerRecord, StageServerRecord.StageId> byId;
-
-    public StageServerTable(ImmutableArray<StageServerRecord> records)
-        : base(records)
-    {
-        byId = new UniqueIndex<StageServerRecord, StageServerRecord.StageId>(records, x => x.Id);
-    }
-
-    public StageServerRecord Get(StageServerRecord.StageId id)
-    {
-        return byId.Get(id);
-    }
-}
+public sealed partial class StageServerTable(ImmutableArray<StageServerRecord> records)
+    : StaticDataTable<StageServerRecord>(records);

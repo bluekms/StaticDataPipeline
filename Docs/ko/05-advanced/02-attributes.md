@@ -13,6 +13,7 @@ Sdp 가 제공하는 Attribute 를 사전순으로 정리합니다.
 - [`[Ignore]`](#attr-ignore)
 - [`[Key]`](#attr-key)
 - [`[Length]`](#attr-length)
+- [`[NoKeyIndex]`](#attr-nokeyindex)
 - [`[NullString]`](#attr-nullstring)
 - [`[Range]`](#attr-range)
 - [`[RegularExpression]`](#attr-regularexpression)
@@ -234,6 +235,22 @@ public sealed partial record ItemRecord(
 ```
 
 자세한 예는 [5.1 컬렉션](./01-schemata.md#컬렉션) 을 참고하세요.
+
+---
+
+<a id="attr-nokeyindex"></a>
+</br></br></br>
+
+## `[NoKeyIndex]`
+
+|항목|내용|
+|-|-|
+|대상|`StaticDataTable<TRecord>` 를 상속한 Table 클래스|
+|인자|없음|
+|다중 허용|X|
+|검증 시점|빌드 (소스 제너레이터가 기본 키 인덱스와 `Get`, `TryGet` 을 만들지 않는다)|
+
+Record 에 `[Key]` 가 있으면 Table 에 기본 키 인덱스가 생성됩니다. 키로 찾지 않는 Table 은 이 Attribute 로 생성을 끕니다. 로드의 키 중복 검사에는 영향이 없습니다. 자세한 내용은 [3.4 StaticDataTable 구현](../03-usage/04-static-data-table.md) 을 참고하세요.
 
 ---
 
