@@ -24,9 +24,9 @@ public sealed partial class GameStaticData(ILogger<GameStaticData> logger)
     : StaticDataManager<GameStaticData.TableSet, GameStaticData.ViewSet>(logger)
 {
     public sealed partial record TableSet(
-        EventTable? EventTable,
-        WeaponTable? WeaponTable,
-        ArmorTable? ArmorTable);
+        EventTable EventTable,
+        WeaponTable WeaponTable,
+        ArmorTable ArmorTable);
 
     public sealed partial record ViewSet(
         EventBundleView EventBundleView,
@@ -34,12 +34,13 @@ public sealed partial class GameStaticData(ILogger<GameStaticData> logger)
 }
 ```
 
-네 가지 규칙입니다.
+다섯 가지 규칙입니다.
 
 1. **2-제네릭 베이스 사용** — TableSet 만 다루는 경우의 베이스는 `StaticDataManager<TTableSet>` 이지만, 뷰까지 합성하려면 `StaticDataManager<TTableSet, TViewSet>` 베이스를 상속한다. `ILogger` 를 그대로 base 로 전달하는 부분은 동일.
 2. **각 뷰 파라미터는 non-nullable** — TableSet 은 `disabledTables` 옵션으로 일부가 빠질 수 있어 nullable 이지만, ViewSet 은 생성된 빌드 코드가 모든 슬롯을 항상 채우므로 nullable 로 선언하면 빌드 시 `SDP0302` 오류가 난다.
 3. **`Current` 한 곳만 외부에 노출한다.** `Current` 는 `TableAndViewSet(Tables, Views)` 묶음을 가리키며, 한 묶음으로 atomic 하게 교체된다. [3.5](./05-static-data-manager.md) 에서 봤듯이 매니저 서브클래스에서 뷰별 편의 프로퍼티를 풀어 두지 않는다 — 호출부에서 `var tables = staticData.Current;` 로 한 번 받아 그 안의 `Tables` / `Views` 로 꺼낸다.
 4. **Manager, TableSet, ViewSet, 각 View 를 모두 `partial` 로 선언한다.** 소스 제너레이터가 ViewSet 에는 각 View 를 만들어 조립하는 코드를, View 에는 팩토리를 생성한다. 빠뜨리면 빌드 시 오류가 난다 — ViewSet 은 `SDP0301`, View 는 `SDP0303`, TableSet 은 `SDP0202`, Manager 는 `SDP0219`, 이들을 감싸는 바깥 타입은 `SDP0002`.
+5. **뷰가 쓰는 테이블은 TableSet 에서 non-nullable 로 선언한다.** 위 예제의 세 테이블에 `?` 가 없는 이유다. 뷰는 끌 수 없으므로 뷰가 쓰는 테이블도 끌 수 없고, 그 사실을 선언에 그대로 적는다. 자세한 내용은 아래 [disabledTables 와의 관계](#disabledtables-와의-관계) 에서 다룬다.
 
 </br></br></br>
 
@@ -65,11 +66,11 @@ public sealed partial class EventBundleView(GameStaticData.TableSet tables)
 
     private static UniqueIndex<EventBundle, int> Build(GameStaticData.TableSet t)
     {
-        var weaponsByEvent = new MultiIndex<WeaponRecord, int>(t.WeaponTable!.Records, x => x.EventId);
-        var armorsByEvent = new MultiIndex<ArmorRecord, int>(t.ArmorTable!.Records, x => x.EventId);
+        var weaponsByEvent = new MultiIndex<WeaponRecord, int>(t.WeaponTable.Records, x => x.EventId);
+        var armorsByEvent = new MultiIndex<ArmorRecord, int>(t.ArmorTable.Records, x => x.EventId);
 
         var bundles = new List<EventBundle>();
-        foreach (var ev in t.EventTable!.Records)
+        foreach (var ev in t.EventTable.Records)
         {
             var equipment = new List<Equipment>();
             foreach (var weapon in weaponsByEvent.Get(ev.Id))
@@ -102,7 +103,7 @@ public sealed partial class EventBundleView(GameStaticData.TableSet tables)
 ```csharp
 protected override void Validate()
 {
-    if (Tables.EventTable!.Records.Length == 0)
+    if (Tables.EventTable.Records.Length == 0)
     {
         throw new InvalidOperationException("EventTable is empty.");
     }
@@ -132,12 +133,18 @@ public sealed partial class EventBundleView(GameStaticData.TableSet tables)
 
 ## disabledTables 와의 관계
 
-위 `EventBundleView` 는 생성자 안에서 `t.EventTable`, `t.WeaponTable`, `t.ArmorTable` 을 모두 `!` 로 꺼냅니다. 이 셋 중 하나라도 [3.5](./05-static-data-manager.md#특정-테이블-건너뛰기) 의 `disabledTables` 옵션으로 비활성화되어 있다면, 빌드 도중 `NullReferenceException` 이 발생하고 **그 시도 전체가 `ViewsFailedToBuild` 안에 모입니다.**
+뷰는 끌 수 없습니다. 그래서 뷰가 쓰는 테이블이 [3.5](./05-static-data-manager.md#특정-테이블-건너뛰기) 의 `disabledTables` 옵션으로 빠지면 뷰를 만들 수 없고 로드는 실패합니다. 이 관계를 TableSet 선언에 그대로 적습니다.
 
-따라서 다음 두 가지 중 하나로 정리합니다.
+**뷰가 쓰는 테이블은 TableSet 에서 non-nullable 로 선언합니다.** 위 `EventBundleView` 가 쓰는 `EventTable`, `WeaponTable`, `ArmorTable` 이 그렇습니다.
 
-- **뷰가 의존하는 테이블은 항상 함께 로드한다.** disable 그룹을 짤 때 뷰의 의존성도 함께 빠지도록 묶는다.
-- 어떤 테이블이 disable 됐을 때도 빌드를 통과시키고 싶다면 **뷰 생성자 안에서 `null` 분기를 명시** 한다. 예를 들어 `WeaponTable` 이 빠질 수 있는 환경이라면, 그 자리를 빈 시퀀스로 대체해 뷰가 빈 결과를 노출하도록 둘 수 있습니다.
+- 뷰 안에서 `!` 나 `null` 검사를 쓸 필요가 없습니다. 컴파일러가 `null` 이 아님을 압니다.
+- 누군가 그 테이블을 disable 하면 뷰를 만들기 전인 테이블 로드 단계에서 `NonNullableTableDisabled` 로 실패합니다. 오류에 테이블 이름이 들어 있어 무엇이 빠졌는지 바로 알 수 있습니다.
+
+뷰가 쓰는 테이블을 nullable 로 선언하고 `!` 로 꺼내는 방식은 쓰지 않습니다. disable 되었을 때 빌드 도중 `NullReferenceException` 이 발생해 `ViewsFailedToBuild` 안에 모이는데, 어느 테이블이 빠졌는지는 알려 주지 않습니다. 뷰마다 `null` 검사와 예외 문구를 직접 쓰는 방식도 같은 내용을 뷰 수만큼 되풀이하게 됩니다.
+
+### 테이블이 빠져도 만들어져야 하는 뷰
+
+어떤 테이블이 disable 된 환경에서도 뷰가 만들어져야 한다면, 그 테이블만 nullable 로 선언하고 **뷰 생성자 안에서 `null` 분기를 명시** 합니다. 예를 들어 `WeaponTable` 과 `ArmorTable` 이 빠질 수 있는 환경이라면 TableSet 에서 이 둘만 `WeaponTable?`, `ArmorTable?` 로 선언하고, 빠진 자리를 빈 시퀀스로 대체해 뷰가 빈 결과를 노출하도록 둘 수 있습니다.
 
 ```csharp
 private static UniqueIndex<EventBundle, int> Build(GameStaticData.TableSet t)
@@ -149,20 +156,17 @@ private static UniqueIndex<EventBundle, int> Build(GameStaticData.TableSet t)
     var armorsByEvent = new MultiIndex<ArmorRecord, int>(armorRecords, x => x.EventId);
 
     var bundles = new List<EventBundle>();
-    if (t.EventTable is not null)
+    foreach (var ev in t.EventTable.Records)
     {
-        foreach (var ev in t.EventTable.Records)
-        {
-            // 무기/방어구 테이블이 disable 되어 있어도 weaponsByEvent.Get(ev.Id) 는 빈 시퀀스를 돌려준다
-            ...
-        }
+        // 무기/방어구 테이블이 disable 되어 있어도 weaponsByEvent.Get(ev.Id) 는 빈 시퀀스를 돌려준다
+        ...
     }
 
     return new UniqueIndex<EventBundle, int>(bundles, b => b.Event.Id);
 }
 ```
 
-이런 분기는 "이 뷰가 어떤 환경에서도 빈 결과로 살아남아야 한다" 는 의도가 분명할 때만 유효합니다. 기본 권장은 첫 번째 — 뷰가 의존하는 테이블은 함께 로드한다 — 입니다. 뷰의 존재 자체가 "이 테이블들이 모두 있다" 는 가정에 깔리는 게 자연스럽습니다.
+이런 분기는 "이 뷰가 어떤 환경에서도 빈 결과로 살아남아야 한다" 는 의도가 분명할 때만 유효합니다. 기본은 non-nullable 선언입니다. 뷰의 존재 자체가 "이 테이블들이 모두 있다" 는 가정 위에 서는 것이 자연스럽습니다.
 
 </br></br></br>
 
@@ -206,7 +210,7 @@ ViewSet 자체에 잘못된 파라미터가 있으면 소스 제너레이터가 
 ```csharp
 var snapshot = staticData.Current;
 var bundle = snapshot.Views.EventBundleView.Get(1);
-var events = snapshot.Tables.EventTable!.Records;
+var events = snapshot.Tables.EventTable.Records;
 ```
 
 </br></br></br>
@@ -223,17 +227,17 @@ services.AddSingleton<GameStaticData>();
 services.AddScoped(sp =>
     sp.GetRequiredService<GameStaticData>().Current);
 
-// 각 테이블
+// 각 테이블 (뷰가 쓰는 테이블이라 TableSet 에서 non-nullable 로 선언했고 ! 가 없다)
 services.AddScoped<EventTable>(sp =>
-    sp.GetRequiredService<GameStaticData.TableAndViewSet>().Tables.EventTable!);
+    sp.GetRequiredService<GameStaticData.TableAndViewSet>().Tables.EventTable);
 
 services.AddScoped<WeaponTable>(sp =>
-    sp.GetRequiredService<GameStaticData.TableAndViewSet>().Tables.WeaponTable!);
+    sp.GetRequiredService<GameStaticData.TableAndViewSet>().Tables.WeaponTable);
 
 services.AddScoped<ArmorTable>(sp =>
-    sp.GetRequiredService<GameStaticData.TableAndViewSet>().Tables.ArmorTable!);
+    sp.GetRequiredService<GameStaticData.TableAndViewSet>().Tables.ArmorTable);
 
-// 각 View (ViewSet 멤버는 non-nullable 이라 ! 가 없다)
+// 각 View (ViewSet 멤버는 항상 non-nullable 이다)
 services.AddScoped<EventBundleView>(sp =>
     sp.GetRequiredService<GameStaticData.TableAndViewSet>().Views.EventBundleView);
 
@@ -271,6 +275,7 @@ public sealed class EventController(
 - 뷰는 `StaticDataView<TTableSet>` 를 상속하는 `partial` 클래스로 두고 TableSet 한 개를 받는 생성자에서 빌드를 끝낸다.
 - 필요하면 `Validate` 를 override 해서 뷰 자신의 사후 점검을 둔다.
 - ViewSet 은 non-nullable 뷰들을 가진 record 로 두고, 호출부는 `Current.Views` 로 접근한다.
+- 뷰가 쓰는 테이블은 TableSet 에서 non-nullable 로 선언한다. 빠져도 되는 테이블만 nullable 로 두고 뷰 안에서 분기한다.
 - TableSet 과 ViewSet 은 한 묶음으로 atomic 교체되므로 조회는 항상 정합한 묶음을 본다.
 
 ---

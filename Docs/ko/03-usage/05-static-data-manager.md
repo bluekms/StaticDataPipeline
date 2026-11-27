@@ -58,7 +58,7 @@ public sealed partial class GameStaticData(ILogger<GameStaticData> logger)
 네 가지 규칙이 있습니다.
 
 1. **TableSet record 의 파라미터 이름이 곧 TableSet 속성 이름** 이 된다. FK 가 도입되면 이 이름이 `[ForeignKey]` 의 첫 번째 인자와 일치해야 한다 ([3.6](./06-foreign-keys.md)).
-2. **각 테이블은 nullable 로 선언한다.** 매 로드마다 모든 테이블이 들어 있을 거라 가정하지 않기 때문이다. 뒤에서 설명하는 `disabledTables` 옵션으로 일부 테이블을 건너뛰면 그 자리는 `null` 이 된다.
+2. **건너뛸 수 있는 테이블은 nullable 로 선언한다.** 뒤에서 설명하는 `disabledTables` 옵션으로 일부 테이블을 건너뛰면 그 자리는 `null` 이 된다. 반대로 어떤 환경에서도 빠지면 안 되는 테이블은 non-nullable 로 선언한다. 뷰가 쓰는 테이블이 대표적이다 ([3.7](./07-static-data-view.md#disabledtables-와의-관계)).
 3. **`StaticDataManager<TTableSet>` 는 `ILogger` 를 생성자 인자로 요구한다.** 서브클래스에서 base 로 그대로 전달한다. 로드 진행 상황 (전체 완료, 테이블별 완료) 이 이 로거로 기록된다.
 4. **Manager 와 TableSet 모두 `partial` 로 선언한다.** 소스 제너레이터가 TableSet 에는 로드와 FK 검증 코드를, Manager 에는 그것을 연결하는 코드를 생성한다. 빠뜨리면 빌드 시 `SDP0219` / `SDP0202` 오류가 난다.
 
