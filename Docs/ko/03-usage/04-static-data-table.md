@@ -69,8 +69,8 @@ if (table.TryGet(2, out var sword))
 - 조회에 쓰는 타입은 `[Key]` 파라미터의 타입입니다. 타입 브랜딩 키 (`ItemRecord.ItemId`) 나 중첩 record 키도 그 타입 그대로 받습니다.
 - 인덱스는 Table 이 만들어질 때 Table 이 가진 `Records` 로 만듭니다. 생성자에서 행을 걸러 내는 Table 은 걸러진 뒤의 행만 찾습니다.
 - `[Key]` 가 없는 Record 의 Table 에는 아무것도 만들지 않습니다.
-- 같은 시그니처의 `Get` 이나 `TryGet` 을 직접 선언했으면 그 메서드는 만들지 않습니다. 둘 다 선언했으면 인덱스도 만들지 않습니다.
-- `StaticDataTable<TRecord>` 를 직접 상속하지 않고 다른 Table 을 거쳐 상속한 Table 에는 만들지 않습니다.
+- 키 타입을 받는 `Get` 이나 `TryGet` 을 Table 에 직접 선언했으면 인덱스와 두 메서드를 만들지 않습니다. 직접 만든 인덱스가 있다고 봅니다.
+- `abstract` Table 과, `StaticDataTable<TRecord>` 를 직접 상속하지 않고 다른 Table 을 거쳐 상속한 Table 에는 만들지 않습니다.
 
 키는 있지만 다른 경로로만 찾는 Table 은 `[NoKeyIndex]` 로 인덱스 생성을 끕니다. 인덱스 하나만큼의 메모리와 로드 시간을 아낍니다. 꺼도 로드의 키 중복 검사는 그대로 동작합니다.
 
