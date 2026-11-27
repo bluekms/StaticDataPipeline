@@ -168,7 +168,7 @@ public class CsvMapperGeneratorNullableBrandingTests(ITestOutputHelper testOutpu
     [InlineData("public sealed record QuestId([NullString(\"\")] string? Value);", "QuestId PrevQuestId", "SDP0021")]
     [InlineData("public record struct QuestId([NullString(\"\")] int? Value);", "[Length(2)] ImmutableArray<QuestId> PrevQuestId", "SDP0021")]
     [InlineData("public record struct QuestId([NullString(\"\")] int? Value);", "[Length(2)] FrozenSet<QuestId> PrevQuestId", "SDP0021")]
-    [InlineData("public sealed record QuestId([Key] [NullString(\"\")] int? Value);", "[Length(2)] FrozenDictionary<int, QuestId> PrevQuestId", "SDP0018")]
+    [InlineData("public sealed record QuestId([Key] [NullString(\"\")] int? Value);", "[Length(2)] FrozenDictionary<int, QuestId> PrevQuestId", "SDP0022")]
     [InlineData("public sealed record QuestId(int X, int Y);", "QuestId? PrevQuestId", "SDP0004")]
     [InlineData("public sealed record QuestId(int X, int Y);", "[NullString(\"\")] QuestId? PrevQuestId", "SDP0016")]
     [InlineData("public sealed record QuestId(int Value, [Ignore] string Memo);", "[NullString(\"\")] QuestId? PrevQuestId", "SDP0016")]
@@ -311,17 +311,13 @@ public class CsvMapperGeneratorNullableBrandingTests(ITestOutputHelper testOutpu
     [Theory]
     [InlineData("public record struct QuestId(int Value);")]
     [InlineData("public sealed record QuestId(int Value);")]
-    public void Emits_null_conditional_key_display_for_nullable_branding_key(string brandingDeclaration)
+    public void Reports_SDP0022_when_key_is_nullable_branding(string brandingDeclaration)
     {
         var logger = CreateLogger();
 
         // language=C#
         const string template = """
-            using System.Collections.Immutable;
-            using Microsoft.Extensions.Logging;
             using Sdp.Attributes;
-            using Sdp.Manager;
-            using Sdp.Table;
             namespace Test;
 
             __BRANDING__
@@ -329,25 +325,14 @@ public class CsvMapperGeneratorNullableBrandingTests(ITestOutputHelper testOutpu
             [StaticDataRecord("Quest", "Sheet")]
             public sealed partial record QuestRecord(
                 [Key] [NullString("")] QuestId? Id,
-                [NullString("")] [ForeignKey("Quest", "Id")] QuestId? PrevQuestId);
-
-            public sealed partial class QuestTable(ImmutableArray<QuestRecord> records)
-                : StaticDataTable<QuestRecord>(records);
-
-            public sealed partial class QuestStaticData(ILogger logger)
-                : StaticDataManager<QuestStaticData.TableSet>(logger)
-            {
-                public sealed partial record TableSet(QuestTable? Quest);
-            }
+                string Title);
             """;
         var source = template.Replace("__BRANDING__", brandingDeclaration, StringComparison.Ordinal);
 
-        var (result, final) = SourceGeneratorTestHelper.RunWithFinal(source);
+        var result = SourceGeneratorTestHelper.Run(source);
 
-        var code = string.Join("\n", result.GeneratedTrees.Select(tree => tree.ToString()));
-        Assert.Contains("QuestRecord[Id={__r.Id?.Value}]", code);
-
-        Assert.Empty(SourceGeneratorTestHelper.GetCompilationWarningsAndErrors(final));
+        var diagnostics = result.Results.SelectMany(r => r.Diagnostics).ToList();
+        Assert.Single(diagnostics, d => d.Id == "SDP0022");
         Assert.Empty(logger.Logs);
     }
 
