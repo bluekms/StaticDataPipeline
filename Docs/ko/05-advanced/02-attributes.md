@@ -467,7 +467,7 @@ public sealed partial record QuestRecord(int Id, string Title);
 |타겟 컬럼명이 존재하지 않음|빌드 시 `SDP0206`|
 |참조 컬럼과 타겟 컬럼의 타입이 다름|빌드 시 `SDP0211`|
 |`conditionValue` 가 조건 컬럼 타입으로 해석되지 않음|빌드 시 `SDP0212` (정수·bool·char·Guid 는 `SDP0220` ~ `SDP0223`)|
-|타겟 테이블이 `disabledTables` 로 빠짐|검증할 값이 있으면 로드 시 `FkTargetNotFound` 예외를 발생 (파라미터당 1회). 참조 값이 없으면 통과|
+|타겟 테이블이 `disabledTables` 로 빠짐|조건에 맞은 분기의 타겟이 빠졌으면 로드 시 `FkTargetNotFound` 예외를 발생 (그 타겟만 적고, 타겟 테이블마다 1회). 빠진 타겟을 가리키는 행이 없으면 통과|
 |조건 컬럼 값이 어느 분기에도 매칭되지 않음|값 검증 단계에서 `SwitchFkConditionValueNotMatched` 예외를 발생|
 |값 검증 실패|`AggregateException(FkValidationFailed, ...)` 내부에 `FkValueNotFound` (조건값 포함) 예외를 발생|
 

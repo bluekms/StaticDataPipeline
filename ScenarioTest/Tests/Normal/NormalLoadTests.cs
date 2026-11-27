@@ -278,7 +278,7 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
 
         var messages = exception.InnerExceptions.Select(x => x.Message).ToList();
         Assert.Equal(4, messages.Count);
-        Assert.Contains(messages, x => x.StartsWith("RewardRecord.TargetId", StringComparison.Ordinal));
+        Assert.Contains("RewardRecord.TargetId: FK target 'CurrencyTable' not loaded or disabled.", messages);
         Assert.Contains(messages, x => x.StartsWith("AttendanceRecord.RewardId", StringComparison.Ordinal));
         Assert.Contains(messages, x => x.StartsWith("FreeRewardRecord.CurrencyId", StringComparison.Ordinal));
         Assert.Contains(messages, x => x.StartsWith("ShopRecord.Prices.Key.Currency", StringComparison.Ordinal));

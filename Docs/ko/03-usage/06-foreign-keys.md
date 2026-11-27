@@ -67,11 +67,11 @@ ForeignKey 검증은 두 단계로 나뉩니다.
 
    위 검사는 테이블 Record 의 파라미터뿐 아니라 그 안에 중첩된 record 의 파라미터에도 똑같이 적용된다 ([중첩 record 안의 외래 키](#nested-foreign-keys)).
 2. **로드 시점 — `LoadAsync` 가 실제 값을 확인**
-   - 대상 테이블이 `disabledTables` 로 빠지지 않았는가? (검사할 값이 있는데 대상이 하나도 로드되지 않았으면 `FkTargetNotFound`, 파라미터당 한 번만 보고)
+   - 대상 테이블이 `disabledTables` 로 빠지지 않았는가? (검사할 값이 있는데 대상이 하나도 로드되지 않았으면 `FkTargetNotFound`, 파라미터당 한 번만 보고. `[SwitchForeignKey]` 는 조건에 맞은 분기의 대상이 빠졌으면 대상 테이블마다 한 번 보고)
    - 실제 CSV 값이 대상 테이블의 해당 컬럼 값 집합 안에 있는가? (`FkValueNotFound`)
    - `[SwitchForeignKey]` 의 조건 컬럼 값이 분기 조건 중 하나에 매칭되는가? (`SwitchFkConditionValueNotMatched`)
 
-로드 시점 검사가 생략되는 경우가 있습니다. 참조 컬럼을 가진 테이블 자체가 `disabledTables` 로 빠지면 그 테이블의 FK 검사는 전부 생략되고, nullable 참조 컬럼이 `null` 인 행은 검사하지 않습니다. 대상 테이블이 빠진 경우에는 로드된 대상에서 값이 발견되면 통과하고, 어느 로드된 대상에서도 발견되지 않을 때만 `FkTargetNotFound` 를 파라미터당 한 번 보고합니다. 참조할 값이 하나도 없으면 (행이 없거나 전부 `null`) 대상이 빠져 있어도 통과합니다.
+로드 시점 검사가 생략되는 경우가 있습니다. 참조 컬럼을 가진 테이블 자체가 `disabledTables` 로 빠지면 그 테이블의 FK 검사는 전부 생략되고, nullable 참조 컬럼이 `null` 인 행은 검사하지 않습니다. 대상 테이블이 빠진 경우에는 로드된 대상에서 값이 발견되면 통과하고, 어느 로드된 대상에서도 발견되지 않을 때만 `FkTargetNotFound` 를 파라미터당 한 번 보고합니다. `[SwitchForeignKey]` 는 조건에 맞은 분기의 대상만 보므로, 그 대상이 빠졌으면 다른 대상이 로드되어 있어도 `FkTargetNotFound` 를 대상 테이블마다 한 번 보고합니다. 참조할 값이 하나도 없으면 (행이 없거나 전부 `null`) 대상이 빠져 있어도 통과합니다.
 
 빌드 시점 진단은 모두 오류라 그 자리에서 빌드가 멈춥니다. 로드 시점 실패는 모든 테이블의 실패를 모아 `AggregateException(Messages.FkValidationFailed, ...)` 로 한 번에 던집니다.
 
@@ -312,7 +312,7 @@ AggregateException: FK 검증에 실패했습니다.
 |`FrozenSet<record>`|`FrozenSet<Objective> Objectives`|`MonsterRecord[Id=1001].Objectives.TargetId(9999)` — 집합은 순서가 없어 번호를 적지 않는다|
 |Map 의 Value record|`FrozenDictionary<int, LootSlot> Lootbox`|`MonsterRecord[Id=1001].Lootbox[Slot=5].ItemId(9999)` — Value record 의 `[Key]` 파라미터 이름과 값|
 
-대상 테이블이 `disabledTables` 로 빠졌을 때의 `FkTargetNotFound` 는 원소를 가리키지 않으므로 `MonsterRecord.Drops.ItemId` 처럼 번호 없이 파라미터당 한 번 보고합니다.
+대상 테이블이 `disabledTables` 로 빠졌을 때의 `FkTargetNotFound` 는 원소를 가리키지 않으므로 `MonsterRecord.Drops.ItemId` 처럼 번호 없이 파라미터당 한 번 보고합니다. `[SwitchForeignKey]` 는 조건에 맞은 분기의 대상 테이블만 적고, 대상 테이블마다 한 번 보고합니다.
 
 지켜야 할 규칙은 두 가지입니다.
 
