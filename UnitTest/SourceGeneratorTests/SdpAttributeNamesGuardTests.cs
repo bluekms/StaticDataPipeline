@@ -20,6 +20,7 @@ public class SdpAttributeNamesGuardTests(ITestOutputHelper testOutputHelper)
         Assert.Equal(nameof(StaticDataRecordAttribute), SdpAttributeNames.StaticDataRecord);
         Assert.Equal(nameof(ColumnNameAttribute), SdpAttributeNames.ColumnName);
         Assert.Equal(nameof(KeyAttribute), SdpAttributeNames.Key);
+        Assert.Equal(nameof(NoKeyIndexAttribute), SdpAttributeNames.NoKeyIndex);
         Assert.Equal(nameof(NullStringAttribute), SdpAttributeNames.NullString);
         Assert.Equal(nameof(DateTimeFormatAttribute), SdpAttributeNames.DateTimeFormat);
         Assert.Equal(nameof(TimeSpanFormatAttribute), SdpAttributeNames.TimeSpanFormat);
@@ -31,7 +32,6 @@ public class SdpAttributeNamesGuardTests(ITestOutputHelper testOutputHelper)
         Assert.Equal(nameof(ForeignKeyAttribute), SdpAttributeNames.ForeignKey);
         Assert.Equal(nameof(SwitchForeignKeyAttribute), SdpAttributeNames.SwitchForeignKey);
         Assert.Equal(nameof(IgnoreAttribute), SdpAttributeNames.Ignore);
-        Assert.Equal(nameof(NoKeyIndexAttribute), SdpAttributeNames.NoKeyIndex);
 
         Assert.Equal(SdpAttributeNames.Namespace, typeof(SingleColumnCollectionAttribute).Namespace);
 

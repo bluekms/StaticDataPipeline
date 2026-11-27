@@ -66,26 +66,19 @@ internal static class TableFactoryEmitter
             .Append(EmitHelper.EscapeIdentifier(keyIndex.KeyParameterName)).AppendLine(");");
         sb.Append(indent).AppendLine("}");
 
-        if (keyIndex.EmitsGet)
-        {
-            sb.AppendLine();
-            sb.Append(indent).Append("public ").Append(recordName).Append(" Get(")
-                .Append(keyIndex.FullyQualifiedKeyTypeName).AppendLine(" key)");
-            sb.Append(indent).AppendLine("{");
-            sb.Append(indent).AppendLine("    return __keyIndex.Get(key);");
-            sb.Append(indent).AppendLine("}");
-        }
-
-        if (keyIndex.EmitsTryGet)
-        {
-            sb.AppendLine();
-            sb.Append(indent).Append("public bool TryGet(").Append(keyIndex.FullyQualifiedKeyTypeName)
-                .Append(" key, [global::System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out ")
-                .Append(recordName).AppendLine("? record)");
-            sb.Append(indent).AppendLine("{");
-            sb.Append(indent).AppendLine("    return __keyIndex.TryGet(key, out record);");
-            sb.Append(indent).AppendLine("}");
-        }
+        sb.AppendLine();
+        sb.Append(indent).Append("public ").Append(recordName).Append(" Get(")
+            .Append(keyIndex.FullyQualifiedKeyTypeName).AppendLine(" key)");
+        sb.Append(indent).AppendLine("{");
+        sb.Append(indent).AppendLine("    return __keyIndex.Get(key);");
+        sb.Append(indent).AppendLine("}");
+        sb.AppendLine();
+        sb.Append(indent).Append("public bool TryGet(").Append(keyIndex.FullyQualifiedKeyTypeName)
+            .Append(" key, [global::System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out ")
+            .Append(recordName).AppendLine("? record)");
+        sb.Append(indent).AppendLine("{");
+        sb.Append(indent).AppendLine("    return __keyIndex.TryGet(key, out record);");
+        sb.Append(indent).AppendLine("}");
     }
 
     private static void EmitFactoryMethod(
