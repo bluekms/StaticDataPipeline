@@ -66,32 +66,18 @@ If the `Items` sheet has a row with `CategoryId=99` that does not exist, it fail
 
 ```
 AggregateException: FK validation failed.
-  - ItemRecord.CategoryId(99) not found in any of: [CategoryTable.Id]
+  - ItemRecord.CategoryId(99) not found in CategoryTable.Id
 ```
 
 If multiple rows are broken, each is placed in `InnerExceptions` one by one.
 
 </br></br></br>
 
-## Multiple ForeignKeys — "valid if present anywhere"
+## When there is more than one target
 
-There are cases where the same ID scheme is split across multiple tables. For example, a situation where `RewardRecord.TargetId` only needs to exist in either `ItemTable` or `CurrencyTable`. `[ForeignKey]` has `AllowMultiple = true`, so it can be attached multiple times to the same parameter, and **passes if either one matches**.
+`[ForeignKey]` can be attached to a parameter only once. Attaching it twice is a compile error (`CS0579`).
 
-```csharp
-[StaticDataRecord("GameItems", "Currencies")]
-public sealed record CurrencyRecord(
-    int Id,
-    string Name);
-
-[StaticDataRecord("GameItems", "Rewards")]
-public sealed record RewardRecord(
-    int Id,
-    [ForeignKey("ItemTable", "Id")]
-    [ForeignKey("CurrencyTable", "Id")]
-    int TargetId);
-```
-
-If `RewardRecord.TargetId` is `1`, it only needs to exist in either `ItemTable.Id == 1` or `CurrencyTable.Id == 1`. This is a pattern that works cleanly only when there is a guarantee that the two tables' ID schemes are completely separate and do not overlap.
+If the table a value points at differs by row, add a column that says which table it is and use `[SwitchForeignKey]` below. Other conditions, such as "must exist in every listed table", go in the Table's `Validate`.
 
 </br></br></br>
 
@@ -213,7 +199,7 @@ Row 4 of `Rewards`, `Currency / TargetId=9`, is not in `CurrencyTable.Id`, so va
 
 ## Summary
 
-- `[ForeignKey(tableSet, column)]` — a single target. Attaching it multiple times makes it "valid if present in any one of them."
+- `[ForeignKey(tableSet, column)]` — a single target. Only one per parameter.
 - `[SwitchForeignKey(conditionColumn, conditionValue, tableSet, column)]` — a branching target. Attach it multiple times to the same parameter to build a branch table.
 - Validation is processed inside `LoadAsync` in three stages — schema (whether the target exists), target resolution (whether the column / condition column exists), and value (whether the actual reference exists) — and failures are reported all at once as an `AggregateException`.
 - If you skip a target table with `disabledTables`, ForeignKey validation that references that table fails — it is safe to disable only independent groups.

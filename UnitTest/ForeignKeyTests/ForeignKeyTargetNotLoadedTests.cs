@@ -1,9 +1,11 @@
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Sdp.Attributes;
 using Sdp.Manager;
 using Sdp.Table;
 using UnitTest.Utility;
 using Xunit.Abstractions;
+using SdpMessages = Sdp.Resources.Messages;
 
 namespace UnitTest.ForeignKeyTests;
 
@@ -77,7 +79,12 @@ public partial class ForeignKeyTargetNotLoadedTests(ITestOutputHelper testOutput
             () => staticData.LoadAsync(dir.Path, new List<string> { "School" }));
 
         var inner = Assert.Single(ex.InnerExceptions);
-        Assert.Contains("School", inner.Message);
+        var expected = string.Format(
+            CultureInfo.CurrentCulture,
+            SdpMessages.Composite.FkTargetNotFound,
+            "StudentRecord.SchoolId",
+            "School");
+        Assert.Equal(expected, inner.Message);
         Assert.Empty(logger.Logs);
     }
 

@@ -1,6 +1,6 @@
 # Rpg 주제
 
-시나리오 테스트가 쓰는 RPG 게임 예제다. 워크북 하나(`Excel/Rpg.xlsx`)의 시트 17개를 Record 18개가 읽어 테이블 19개를 만든다.
+시나리오 테스트가 쓰는 RPG 게임 예제다. 워크북 하나(`Excel/Rpg.xlsx`)의 시트 16개를 Record 17개가 읽어 테이블 18개를 만든다.
 
 | 폴더 | 내용 |
 |---|---|
@@ -95,20 +95,16 @@ erDiagram
     }
 ```
 
-### 보상과 출석
+### 보상
 
-한 열이 아이템을 가리킬 수도, 재화를 가리킬 수도 있는 두 테이블이다.
+한 열이 아이템을 가리킬 수도, 재화를 가리킬 수도 있는 테이블이다.
 
 `RewardTable.TargetId` 는 `Kind` 가 Item 이면 `ItemTable`, Currency 면 `CurrencyTable` 을 가리킨다(`[SwitchForeignKey]`).
-
-`AttendanceTable.RewardId` 는 둘 중 어느 쪽에든 있으면 된다(`[ForeignKey]` 두 개).
 
 ```mermaid
 erDiagram
     ItemTable |o..o{ RewardTable : "TargetId (Kind=Item)"
     CurrencyTable |o..o{ RewardTable : "TargetId (Kind=Currency)"
-    ItemTable |o..o{ AttendanceTable : "RewardId"
-    CurrencyTable |o..o{ AttendanceTable : "RewardId"
 
     ItemTable {
         ItemId Id PK
@@ -120,10 +116,6 @@ erDiagram
         int Id PK
         RewardKind Kind
         int TargetId FK
-    }
-    AttendanceTable {
-        byte Day PK
-        int RewardId FK
     }
 ```
 

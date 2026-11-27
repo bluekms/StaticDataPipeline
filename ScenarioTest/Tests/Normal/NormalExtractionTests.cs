@@ -22,7 +22,6 @@ public class NormalExtractionTests(ExtractedCsvFixture fixture)
 
     private static readonly string[] RpgCsvFiles =
     [
-        "Rpg.Attendance.csv",
         "Rpg.Buffs.csv",
         "Rpg.Currencies.csv",
         "Rpg.FreeRewards.csv",

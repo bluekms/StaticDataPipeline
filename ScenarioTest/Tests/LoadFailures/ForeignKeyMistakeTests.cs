@@ -13,11 +13,11 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     [InlineData("Rpg.Monsters.csv", "Id", "Slime", "Drops[1].ItemId", "19999", "MonsterRecord[Id=Slime].Drops[1].ItemId(19999)", "ItemTable.Id")]
     [InlineData("Rpg.Shop.csv", "Id", "1", "Prices[1].Key.Currency", "999", "ShopRecord[Id=1].Prices[Key=", "Kind = Sale", ".Key.Currency(999)", "CurrencyTable.Id")]
     [InlineData("Rpg.Rewards.csv", "Id", "3", "TargetId", "10001", "RewardRecord[Id=3]", "TargetId(10001)", "(when Kind=Currency)")]
+    [InlineData("Rpg.Rewards.csv", "Id", "1", "TargetId", "77777", "RewardRecord[Id=1].TargetId(77777)", "ItemTable.Id", "(when Kind=Item)")]
     [InlineData("Rpg.SeasonPass.csv", "Id", "2", "RewardId", "99", "SeasonPassRecord[Id=2].RewardId(99)", "PremiumRewardTable.Id", "IsPremium=true")]
     [InlineData("Rpg.SeasonRewards.csv", "Id", "1", "SeasonStartDay", "2026-07-01", "has no matching condition for 'SeasonStartDay=2026-07-01'")]
     [InlineData("Rpg.SeasonRewards.csv", "Id", "1", "ItemId", "29999", "SeasonRewardRecord", "ItemId", "29999", "SeasonItemTable.Id", "SeasonStartDay=2026-06-01")]
     [InlineData("Rpg.SeasonRewards.csv", "Id", "2", "ItemId", "39999", "SeasonRewardRecord", "ItemId", "39999", "SeasonItemTableV2.Id", "SeasonStartDay=2026-11-01")]
-    [InlineData("Rpg.Attendance.csv", "Day", "1", "RewardId", "77777", "AttendanceRecord", "RewardId", "77777", "ItemTable.Id", "CurrencyTable.Id")]
     [InlineData("Rpg.PremiumRewards.csv", "Id", "1", "ItemId", "19999", "PremiumRewardRecord", "ItemId", "19999", "ItemTable.Id")]
     [InlineData("Rpg.Quests.csv", "Id", "3", "PrevQuestId", "99", "QuestRecord[Id=3].PrevQuestId(99)", "QuestTable.Id")]
     [InlineData("Rpg.Quests.csv", "Id", "2", "Collect.Item", "19999", "QuestRecord[Id=2].Collect.Item(19999)", "ItemTable.Id")]
@@ -82,8 +82,8 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     }
 
     [Theory]
-    [InlineData("de-DE", "not found in any of")]
-    [InlineData("ko-KR", "중 어디에도 존재하지 않습니다")]
+    [InlineData("de-DE", "not found in ClassRoomTable.Id")]
+    [InlineData("ko-KR", "ClassRoomTable.Id 에 존재하지 않습니다")]
     public async Task FkMessageLanguage_FollowsUICultureWithEnglishFallback(string cultureName, string expected)
     {
         using var culture = CultureScope.Of(cultureName);

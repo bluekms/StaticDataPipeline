@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -62,18 +63,14 @@ internal sealed class FkParameterCheckEmitter(
             body = nullGuardIndent + "    ";
         }
 
-        var fkBranches = fkParameter.Branches
-            .Where(static branch => !branch.IsSwitch)
-            .ToList();
-        if (fkBranches.Count > 0)
+        if (fkParameter.ForeignKey is not null)
         {
-            EmitForeignKeyBranches(fkBranches, body);
+            EmitForeignKeyBranch(fkParameter.ForeignKey, body);
         }
 
-        var switchBranches = FkSwitchCondition.SelectSwitchBranches(fkParameter);
-        if (switchBranches.Count > 0)
+        if (fkParameter.SwitchBranches.Length > 0)
         {
-            EmitSwitchBranches(switchBranches, body);
+            EmitSwitchBranches(fkParameter.SwitchBranches, body);
         }
 
         if (isNullable)
@@ -110,56 +107,21 @@ internal sealed class FkParameterCheckEmitter(
         return "{" + brandingAccess + "." + EmitHelper.EscapeIdentifier(valueDisplayMember) + "}";
     }
 
-    private void EmitForeignKeyBranches(List<FkBranch> fkBranches, string body)
+    private void EmitForeignKeyBranch(FkBranch branch, string body)
     {
-        sb.Append(body).AppendLine("    var __ok = false;");
+        var setVariable = targetSets.Find(branch, valueTypeName);
 
-        var parameterSetVariables = new List<string>();
-        var targetMemberBySetVariable = new Dictionary<string, string>();
-        foreach (var branch in fkBranches)
-        {
-            var setVariable = targetSets.Find(branch, valueTypeName);
-            if (!parameterSetVariables.Contains(setVariable))
-            {
-                parameterSetVariables.Add(setVariable);
-                targetMemberBySetVariable[setVariable] = branch.TableSetMember;
-            }
-
-            sb.Append(body).Append("    if (!__ok && ").Append(setVariable).Append(" is not null && ")
-                .Append(setVariable).AppendLine(".Contains(__v))");
-            sb.Append(body).AppendLine("    {");
-            sb.Append(body).AppendLine("        __ok = true;");
-            sb.Append(body).AppendLine("    }");
-        }
-
-        var fkTargets = string.Join(", ", fkBranches.Select(static branch => branch.TableSetMember + "." + branch.TargetColumn).Distinct());
-        var allTargetsLoadedCondition = string.Join(
-            " && ", parameterSetVariables.Select(static setVariable => setVariable + " is not null"));
-
-        sb.Append(body).AppendLine("    if (!__ok)");
+        sb.Append(body).Append("    if (").Append(setVariable).AppendLine(" is null)");
         sb.Append(body).AppendLine("    {");
-        sb.Append(body).Append("        if (").Append(allTargetsLoadedCondition).AppendLine(")");
-        sb.Append(body).AppendLine("        {");
-        AppendValueNotFoundError(body + "            ", fkTargets);
-        sb.Append(body).AppendLine("        }");
-
-        sb.Append(body).AppendLine("        else");
-        sb.Append(body).AppendLine("        {");
-        foreach (var setVariable in parameterSetVariables)
-        {
-            sb.Append(body).Append("            if (").Append(setVariable).AppendLine(" is null)");
-            sb.Append(body).AppendLine("            {");
-            var targetMember = targetMemberBySetVariable[setVariable];
-            AppendTargetNotLoadedError(body + "                ", missingReportedVariable, targetMember);
-            sb.Append(body).AppendLine("            }");
-        }
-
-        sb.Append(body).AppendLine("        }");
-
+        AppendTargetNotLoadedError(body + "        ", missingReportedVariable, branch.TableSetMember);
+        sb.Append(body).AppendLine("    }");
+        sb.Append(body).Append("    else if (!").Append(setVariable).AppendLine(".Contains(__v))");
+        sb.Append(body).AppendLine("    {");
+        AppendValueNotFoundError(body + "        ", branch.TableSetMember + "." + branch.TargetColumn);
         sb.Append(body).AppendLine("    }");
     }
 
-    private void EmitSwitchBranches(List<FkBranch> switchBranches, string body)
+    private void EmitSwitchBranches(ImmutableArray<FkBranch> switchBranches, string body)
     {
         var conditionColumn = switchBranches[0].ConditionColumn!;
         var conditionColumnAccess = EmitHelper.EscapeIdentifier(conditionColumn);
@@ -170,7 +132,7 @@ internal sealed class FkParameterCheckEmitter(
         var conditionDisplay = FkSwitchCondition.BuildDisplay(conditionAccess, switchBranches[0]);
         var conditionColumnLiteral = SymbolDisplay.FormatLiteral(conditionColumn, quote: true);
 
-        for (var branchIndex = 0; branchIndex < switchBranches.Count; branchIndex++)
+        for (var branchIndex = 0; branchIndex < switchBranches.Length; branchIndex++)
         {
             var branch = switchBranches[branchIndex];
             var conditionOperand = FkSwitchCondition.BuildOperand(fkParameter, branch, branchIndex);
@@ -216,14 +178,14 @@ internal sealed class FkParameterCheckEmitter(
         sb.Append(lineIndent).AppendLine("}");
     }
 
-    private void AppendValueNotFoundError(string lineIndent, string targets)
+    private void AppendValueNotFoundError(string lineIndent, string target)
     {
-        var targetsLiteral = SymbolDisplay.FormatLiteral(targets, quote: true);
+        var targetLiteral = SymbolDisplay.FormatLiteral(target, quote: true);
         sb.Append(lineIndent).Append("__errors.Add(global::Sdp.Manager.TableSetLoaderHelper.FkValueNotFoundError(")
             .AppendLine();
         sb.Append(lineIndent).Append("    ").Append(recordDisplayExpression).Append(", ").Append(elementNameExpression).AppendLine(",");
         sb.Append(lineIndent).Append("    global::System.FormattableString.Invariant($\"").Append(valueDisplay).Append("\"), ")
-            .Append(targetsLiteral).AppendLine("));");
+            .Append(targetLiteral).AppendLine("));");
     }
 
     private void AppendSwitchValueNotFoundError(
@@ -232,11 +194,11 @@ internal sealed class FkParameterCheckEmitter(
         string conditionColumnLiteral,
         string conditionDisplay)
     {
-        var branchTargetsLiteral = SymbolDisplay.FormatLiteral(branch.TableSetMember + "." + branch.TargetColumn, quote: true);
+        var targetLiteral = SymbolDisplay.FormatLiteral(branch.TableSetMember + "." + branch.TargetColumn, quote: true);
         sb.Append(lineIndent).AppendLine("__errors.Add(global::Sdp.Manager.TableSetLoaderHelper.SwitchFkValueNotFoundError(");
         sb.Append(lineIndent).Append("    ").Append(recordDisplayExpression).Append(", ").Append(elementNameExpression).AppendLine(",");
         sb.Append(lineIndent).Append("    global::System.FormattableString.Invariant($\"").Append(valueDisplay).Append("\"), ")
-            .Append(branchTargetsLiteral).AppendLine(",");
+            .Append(targetLiteral).AppendLine(",");
         sb.Append(lineIndent).Append("    ").Append(conditionColumnLiteral)
             .Append(", global::System.FormattableString.Invariant($\"").Append(conditionDisplay).AppendLine("\")));");
     }

@@ -5,16 +5,9 @@ namespace Sdp.SourceGenerator.Generators;
 
 internal static class FkSwitchCondition
 {
-    public static List<FkBranch> SelectSwitchBranches(FkParameter fkParameter)
-    {
-        return fkParameter.Branches
-            .Where(static branch => branch.IsSwitch)
-            .ToList();
-    }
-
     public static List<string> TargetMembers(FkParameter fkParameter)
     {
-        return SelectSwitchBranches(fkParameter)
+        return fkParameter.SwitchBranches
             .Select(static branch => branch.TableSetMember)
             .Distinct()
             .ToList();
@@ -32,10 +25,9 @@ internal static class FkSwitchCondition
         FkParameter fkParameter,
         string indent)
     {
-        var switchBranches = SelectSwitchBranches(fkParameter);
-        for (var branchIndex = 0; branchIndex < switchBranches.Count; branchIndex++)
+        for (var branchIndex = 0; branchIndex < fkParameter.SwitchBranches.Length; branchIndex++)
         {
-            var branch = switchBranches[branchIndex];
+            var branch = fkParameter.SwitchBranches[branchIndex];
             if (!branch.ConditionParsesAtRuntime)
             {
                 continue;

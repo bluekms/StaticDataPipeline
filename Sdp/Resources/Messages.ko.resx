@@ -22,7 +22,7 @@
     <value>{0}: FK 타겟 '{1}'이(가) 로드되지 않았거나 비활성화되어 있습니다.</value>
   </data>
   <data name="FkValueNotFound" xml:space="preserve">
-    <value>{0}.{1}({2})이(가) [{3}] 중 어디에도 존재하지 않습니다.</value>
+    <value>{0}.{1}({2})이(가) {3} 에 존재하지 않습니다.</value>
   </data>
   <data name="FkValidationFailed" xml:space="preserve">
     <value>FK 검증에 실패했습니다.</value>
@@ -136,6 +136,6 @@
     <value>Sdp.SourceGenerator: '{0}'에 CSV 매퍼가 아직 지원하지 않는 파라미터 타입이 있습니다.</value>
   </data>
   <data name="SwitchFkValueNotFound" xml:space="preserve">
-    <value>{0}.{1}({2})이(가) [{3}] 중 어디에도 존재하지 않습니다({4}={5}일 때).</value>
+    <value>{0}.{1}({2})이(가) {3} 에 존재하지 않습니다({4}={5}일 때).</value>
   </data>
 </root>

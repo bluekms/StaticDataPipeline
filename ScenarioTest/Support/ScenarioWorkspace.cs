@@ -30,7 +30,6 @@ public sealed class ScenarioWorkspace : IDisposable
         CopyFiles(Path.Combine(source, "Feature", "Rpg", "Records"), RecordsRpg, "*.cs");
         var recordsScience = Path.Combine(Root, "records", "Science");
         CopyFiles(Path.Combine(source, "Feature", "Science", "Records"), recordsScience, "*.cs");
-        CopyFiles(Path.Combine(source, "InvalidRecords"), Path.Combine(Root, "records", "Invalid"), "*.cs");
         Directory.CreateDirectory(LogRoot);
     }
 
@@ -55,11 +54,6 @@ public sealed class ScenarioWorkspace : IDisposable
     public string CsvScience { get; }
 
     public string LogRoot { get; }
-
-    public string InvalidRecord(string fileName)
-    {
-        return Path.Combine(Root, "records", "Invalid", fileName);
-    }
 
     public string WorkbookPath(string workbook)
     {

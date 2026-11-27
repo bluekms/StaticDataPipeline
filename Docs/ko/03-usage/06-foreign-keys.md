@@ -56,7 +56,6 @@ ForeignKey 검증은 두 단계로 나뉩니다.
    - 대상 컬럼이 컬렉션 타입은 아닌가? (`SDP0214`)
    - 참조 컬럼과 대상 컬럼의 타입이 같은가? (`SDP0211`) — nullable 은 비대칭이라 `int?` 참조 → `int` 대상은 허용되지만 `int` 참조 → `int?` 대상은 거부된다. 기본 타입 참조 컬럼은 **같은 타입을 감싼 브랜딩 키** (`int` → `record struct ItemId(int Value)` 인 `Id`) 도 가리킬 수 있고, 이때 로더는 대상 키의 안쪽 값으로 비교한다 (한 컬럼이 키 타입이 다른 두 테이블을 가리킬 때 쓴다). 참조 컬럼이 `ImmutableArray<int>` 처럼 원소가 단일 값인 컬렉션이면 원소 타입으로 비교하고 로드 시 원소마다 검사한다 (nullable 원소의 `null` 은 건너뜀). 원소가 브랜딩 record 인 컬렉션 (`FrozenSet<ItemRecord.ItemId>`) 도 같다. Map 이나 원소가 일반 Record 인 컬렉션은 참조 컬럼이 될 수 없다.
    - 같은 파라미터에 `[ForeignKey]` 와 `[SwitchForeignKey]` 가 함께 붙어 있지 않은가? (`SDP0204`)
-   - 같은 파라미터에 같은 대상이 두 번 붙어 있지 않은가? (`SDP0226`)
    - `[SwitchForeignKey]` 의 조건 컬럼이 같은 Record 안에 존재하는가? (`SDP0209`) — 중첩 record 안에 붙였다면 그 중첩 record 안에서 찾는다.
    - 한 파라미터에 붙은 `[SwitchForeignKey]` 들이 모두 같은 조건 컬럼을 쓰는가? (`SDP0210`)
    - `[SwitchForeignKey]` 의 조건 컬럼이 단일 값 타입인가? (컬렉션 `SDP0224`, 타입 브랜딩 record `SDP0227`)
@@ -71,7 +70,7 @@ ForeignKey 검증은 두 단계로 나뉩니다.
    - 실제 CSV 값이 대상 테이블의 해당 컬럼 값 집합 안에 있는가? (`FkValueNotFound`)
    - `[SwitchForeignKey]` 의 조건 컬럼 값이 분기 조건 중 하나에 매칭되는가? (`SwitchFkConditionValueNotMatched`)
 
-로드 시점 검사가 생략되는 경우가 있습니다. 참조 컬럼을 가진 테이블 자체가 `disabledTables` 로 빠지면 그 테이블의 FK 검사는 전부 생략되고, nullable 참조 컬럼이 `null` 인 행은 검사하지 않습니다. 대상 테이블이 빠진 경우에는 로드된 대상에서 값이 발견되면 통과하고, 어느 로드된 대상에서도 발견되지 않을 때만 `FkTargetNotFound` 를 파라미터당 한 번 보고합니다. `[SwitchForeignKey]` 는 조건에 맞은 분기의 대상만 보므로, 그 대상이 빠졌으면 다른 대상이 로드되어 있어도 `FkTargetNotFound` 를 대상 테이블마다 한 번 보고합니다. 참조할 값이 하나도 없으면 (행이 없거나 전부 `null`) 대상이 빠져 있어도 통과합니다.
+로드 시점 검사가 생략되는 경우가 있습니다. 참조 컬럼을 가진 테이블 자체가 `disabledTables` 로 빠지면 그 테이블의 FK 검사는 전부 생략되고, nullable 참조 컬럼이 `null` 인 행은 검사하지 않습니다. 대상 테이블이 빠진 경우에는 검사할 값이 하나라도 있으면 `FkTargetNotFound` 를 파라미터당 한 번 보고합니다. `[SwitchForeignKey]` 는 조건에 맞은 분기의 대상만 보므로, 그 대상이 빠졌으면 다른 대상이 로드되어 있어도 `FkTargetNotFound` 를 대상 테이블마다 한 번 보고합니다. 참조할 값이 하나도 없으면 (행이 없거나 전부 `null`) 대상이 빠져 있어도 통과합니다.
 
 빌드 시점 진단은 모두 오류라 그 자리에서 빌드가 멈춥니다. 로드 시점 실패는 모든 테이블의 실패를 모아 `AggregateException(Messages.FkValidationFailed, ...)` 로 한 번에 던집니다.
 
@@ -107,7 +106,7 @@ public async Task LoadAsync_WithExtractedCsv_Succeeds()
 
 ```
 AggregateException: FK 검증에 실패했습니다.
-  - ItemRecord.CategoryId(99)이(가) [CategoryTable.Id] 중 어디에도 존재하지 않습니다.
+  - ItemRecord.CategoryId(99)이(가) CategoryTable.Id 에 존재하지 않습니다.
 ```
 
 기본 문구는 영어이고 (`Sdp/Resources/Messages.resx`), 위처럼 한글로 나오는 것은 `CultureInfo.CurrentUICulture` 가 `ko` 일 때입니다. Record 에 `[Key]` 컬럼이 있으면 `ItemRecord[Id=4].CategoryId(99)` 처럼 키 값이 함께 표시되고, `[SwitchForeignKey]` 불일치는 값 뒤에 `(when Kind=Currency)` 가 붙습니다.
@@ -126,25 +125,11 @@ AggregateException: FK 검증에 실패했습니다.
 
 </br></br></br>
 
-## 여러 ForeignKey — "한 곳에라도 있으면 유효"
+## 대상이 여럿일 때
 
-같은 ID 체계를 여러 테이블이 나눠 갖는 경우가 있습니다. 예를 들어 `RewardRecord.TargetId` 가 `ItemTable` 또는 `CurrencyTable` 어느 한쪽에 들어 있기만 하면 되는 상황입니다. `[ForeignKey]` 는 `AllowMultiple = true` 라서 같은 파라미터에 여러 번 붙일 수 있고, **둘 중 하나라도 일치하면 통과** 시킵니다.
+`[ForeignKey]` 는 한 파라미터에 하나만 붙일 수 있습니다. 둘 이상 붙이면 컴파일 오류 (`CS0579`) 입니다.
 
-```csharp
-[StaticDataRecord("GameItems", "Currencies")]
-public sealed partial record CurrencyRecord(
-    int Id,
-    string Name);
-
-[StaticDataRecord("GameItems", "Rewards")]
-public sealed partial record RewardRecord(
-    int Id,
-    [ForeignKey("ItemTable", "Id")]
-    [ForeignKey("CurrencyTable", "Id")]
-    int TargetId);
-```
-
-`RewardRecord.TargetId` 가 `1` 이면, `ItemTable.Id == 1` 또는 `CurrencyTable.Id == 1` 어느 한쪽에 존재하면 됩니다. 두 테이블의 ID 체계가 완전히 분리되어 있어 겹치지 않는다는 보장이 있을 때만 깔끔하게 동작하는 패턴입니다.
+값이 가리키는 테이블이 행마다 다르면 어느 테이블인지 말해 주는 구분 컬럼을 두고 아래의 `[SwitchForeignKey]` 를 씁니다. "나열한 테이블 모두에 있어야 한다" 같은 그 밖의 조건은 Table 의 `Validate` 에 씁니다.
 
 </br></br></br>
 
@@ -300,7 +285,7 @@ public sealed partial record MonsterRecord(
 
 ```
 AggregateException: FK 검증에 실패했습니다.
-  - MonsterRecord[Id=1001].Drops[2].ItemId(9999)이(가) [ItemTable.Id] 중 어디에도 존재하지 않습니다.
+  - MonsterRecord[Id=1001].Drops[2].ItemId(9999)이(가) ItemTable.Id 에 존재하지 않습니다.
 ```
 
 메시지의 경로는 중첩된 자리에 따라 다음과 같이 적힙니다.
@@ -333,13 +318,13 @@ nullable 중첩 record (`Drop?`) 는 Sdp 가 지원하지 않는 선언이라 �
 
 ## 정리
 
-- `[ForeignKey(tableSet, column)]` — 단일 대상. 여러 번 붙이면 "어느 하나에 있으면 유효" 가 된다.
+- `[ForeignKey(tableSet, column)]` — 단일 대상. 한 파라미터에 하나만 붙인다.
 - `[SwitchForeignKey(conditionColumn, conditionValue, tableSet, column)]` — 분기 대상. 같은 파라미터에 여러 번 붙여 분기 표를 만든다.
 - 두 Attribute 모두 중첩 record 의 파라미터에도 붙일 수 있고, 어긋난 자리는 `Drops[2].ItemId` 같은 경로로 보고된다. `[SwitchForeignKey]` 의 조건 컬럼은 같은 record 안에서만 찾는다.
 - 선언의 구조 (타겟 테이블·컬럼 존재, 타입 일치 — nullable 은 참조 컬럼 쪽에만 허용되고 컬렉션 참조는 원소 타입 기준, 조건 중복) 는 빌드 시점 진단으로, 실제 참조 값은 `LoadAsync` 에서 검증되며 (컬렉션 참조는 원소마다), 로드 시점 실패는 `AggregateException` 으로 한 번에 통보된다.
-- `disabledTables` 로 대상 테이블을 건너뛰면 그 테이블을 참조하는 값은 검증할 수 없으므로, 로드된 다른 대상에서도 찾지 못한 값이 하나라도 있으면 `FkTargetNotFound` 로 실패한다 (참조 값이 없으면 통과하고, 참조하는 쪽 테이블도 함께 빠지면 검사 자체가 생략된다) — 독립된 그룹만 disable 하는 것이 안전하다.
+- `disabledTables` 로 대상 테이블을 건너뛰면 그 테이블을 참조하는 값은 검증할 수 없으므로, 그 테이블을 가리키는 값이 하나라도 있으면 `FkTargetNotFound` 로 실패한다 (참조 값이 없으면 통과하고, 참조하는 쪽 테이블도 함께 빠지면 검사 자체가 생략된다) — 독립된 그룹만 disable 하는 것이 안전하다.
 
-`[ForeignKey]` 와 `[SwitchForeignKey]` 자체의 Attribute 명세 (오사용 진단, 다중 허용 등) 는 [5.2 Attribute 카탈로그](../05-advanced/02-attributes.md) 에 정리되어 있습니다.
+`[ForeignKey]` 와 `[SwitchForeignKey]` 자체의 Attribute 명세 (오사용 진단 등) 는 [5.2 Attribute 카탈로그](../05-advanced/02-attributes.md) 에 정리되어 있습니다.
 
 ---
 

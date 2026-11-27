@@ -32,8 +32,7 @@ internal static class ForeignKeyValidationEmitter
             foreach (var fkParameter in fkParameters)
             {
                 // 읽지 않는 지역 변수는 생성 코드에 CS0219 를 내므로, 쓰는 분기가 있을 때만 선언한다.
-                var hasFkBranch = fkParameter.Branches.Any(static branch => !branch.IsSwitch);
-                if (hasFkBranch)
+                if (fkParameter.ForeignKey is not null)
                 {
                     sb.Append(indent).Append("        var __fkMissingReported").Append(fkParameter.Index).AppendLine(" = false;");
                 }

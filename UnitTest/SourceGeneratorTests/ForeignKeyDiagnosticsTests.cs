@@ -51,6 +51,13 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
         Assert.Contains(diagnostics, d => d.Id == diagnosticId && d.Severity == DiagnosticSeverity.Error);
     }
 
+    private static void AssertCompileError(string consumerSource, string errorId)
+    {
+        var output = SourceGeneratorTestHelper.RunWithFinal(Header + consumerSource);
+        var errors = SourceGeneratorTestHelper.GetCompilationErrors(output.Final);
+        Assert.Contains(errors, d => d.Id == errorId);
+    }
+
     [Fact]
     public void Reports_SDP0204_when_ForeignKey_and_SwitchForeignKey_coexist()
     {
@@ -309,7 +316,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
     }
 
     [Fact]
-    public void Reports_SDP0226_when_ForeignKey_target_is_duplicated()
+    public void Two_ForeignKey_attributes_on_one_parameter_are_a_compile_error()
     {
         var logger = CreateLogger();
 
@@ -333,7 +340,7 @@ public class ForeignKeyDiagnosticsTests(ITestOutputHelper testOutputHelper)
             }
             """;
 
-        AssertReportedAsError(source, "SDP0226");
+        AssertCompileError(source, "CS0579");
         Assert.Empty(logger.Logs);
     }
 

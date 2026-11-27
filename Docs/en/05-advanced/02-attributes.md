@@ -115,7 +115,7 @@ public sealed record ScheduleRecord(
 |-|-|
 |Target|Record parameter|
 |Arguments|`tableSetName` — the name of the TableSet property (= constructor parameter). `recordColumnName` — the property name of the target Record.|
-|Allow multiple|O (`AllowMultiple = true`) — "valid if it matches any one of multiple targets"|
+|Allow multiple|X — for more than one target, add a discriminator column and use `[SwitchForeignKey]`|
 |Validation timing|Scanner (blocks simultaneous FK/SFK attachment) + load (re-checks simultaneous FK/SFK attachment, target validation, reference validation)|
 |Attached together with `[SwitchForeignKey]`|Both the scanner and load reject it with the `FkSwitchFkConflict` diagnostic|
 |Target not present in the TableSet|Raises an `FkTargetNotFound` exception at load|
@@ -133,14 +133,6 @@ public sealed record ItemRecord(
     int Id,
     string Name,
     [ForeignKey("CategoryTable", "Id")] int CategoryId);
-
-// Valid if it matches any one of multiple targets
-[StaticDataRecord("GameItems", "Rewards")]
-public sealed record RewardRecord(
-    int Id,
-    [ForeignKey("ItemTable", "Id")]
-    [ForeignKey("CurrencyTable", "Id")]
-    int TargetId);
 ```
 
 ---

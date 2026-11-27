@@ -43,9 +43,7 @@ public partial class ForeignKeyPrimitiveColumnToBrandingKeyTests(ITestOutputHelp
     [StaticDataRecord("Attendance", "Sheet1")]
     private partial record AttendanceRecord(
         byte Day,
-        [ForeignKey("Item", "Id")]
-        [ForeignKey("Currency", "Id")]
-        int RewardId);
+        [ForeignKey("Item", "Id")] int RewardId);
 
     [StaticDataRecord("Reward", "Sheet1")]
     private partial record RewardRecord(
@@ -109,14 +107,14 @@ public partial class ForeignKeyPrimitiveColumnToBrandingKeyTests(ITestOutputHelp
     private const string ValidAttendanceCsv =
         """
         Day,RewardId
-        1,901
+        1,10002
         2,10001
         """;
 
     private const string MissingAttendanceCsv =
         """
         Day,RewardId
-        1,901
+        1,10002
         2,77777
         """;
 
@@ -153,7 +151,7 @@ public partial class ForeignKeyPrimitiveColumnToBrandingKeyTests(ITestOutputHelp
     }
 
     [Fact]
-    public async Task Load_PrimitiveColumnWithTwoBrandingTargets_Succeeds()
+    public async Task Load_PrimitiveColumnsPointingAtBrandingKeys_Succeeds()
     {
         var logger = CreateLogger();
 
@@ -168,7 +166,7 @@ public partial class ForeignKeyPrimitiveColumnToBrandingKeyTests(ITestOutputHelp
     }
 
     [Fact]
-    public async Task Load_PrimitiveColumnValueMissingFromBothTargets_ThrowsAggregateException()
+    public async Task Load_PrimitiveColumnValueMissingFromTarget_ThrowsAggregateException()
     {
         var logger = CreateLogger();
 
