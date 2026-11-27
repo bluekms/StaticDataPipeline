@@ -6,12 +6,13 @@
 
 ### Headers (List)
 - Day
+- Kind
 - RewardId
 - Amount
 
 ### Headers (TSV)
 ```
-Day	RewardId	Amount
+Day	Kind	RewardId	Amount
 ```
 
 ## ScenarioTest.Records.Rpg.BuffRecord

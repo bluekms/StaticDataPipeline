@@ -73,25 +73,11 @@ AggregateException: FK 验证失败。
 
 </br></br></br>
 
-## 多个 ForeignKey — “只要在某一处存在即有效”
+## 目标不止一个时
 
-存在多个表分担同一套 ID 体系的情况。例如 `RewardRecord.TargetId` 只需存在于 `ItemTable` 或 `CurrencyTable` 任一方即可。`[ForeignKey]` 的 `AllowMultiple = true`，因此可以在同一参数上附加多次，并且 **只要其中一个匹配即通过**。
+`[ForeignKey]` 在一个参数上只能附加一次。附加两次及以上会产生编译错误 (`CS0579`)。
 
-```csharp
-[StaticDataRecord("GameItems", "Currencies")]
-public sealed record CurrencyRecord(
-    int Id,
-    string Name);
-
-[StaticDataRecord("GameItems", "Rewards")]
-public sealed record RewardRecord(
-    int Id,
-    [ForeignKey("ItemTable", "Id")]
-    [ForeignKey("CurrencyTable", "Id")]
-    int TargetId);
-```
-
-如果 `RewardRecord.TargetId` 为 `1`，则只需存在于 `ItemTable.Id == 1` 或 `CurrencyTable.Id == 1` 任一方即可。这是只有在保证两个表的 ID 体系完全分离、互不重叠时才能干净地运作的模式。
+如果值指向的表因行而异，请增加一个说明是哪张表的区分列，并使用下面的 `[SwitchForeignKey]`。“必须存在于列出的所有表中”之类的其他条件写在 Table 的 `Validate` 中。
 
 </br></br></br>
 
@@ -213,7 +199,7 @@ Id,Kind,TargetId,Amount
 
 ## 小结
 
-- `[ForeignKey(tableSet, column)]` — 单一目标。附加多次后变为“在其中任一个里存在即有效”。
+- `[ForeignKey(tableSet, column)]` — 单一目标。一个参数上只能附加一次。
 - `[SwitchForeignKey(conditionColumn, conditionValue, tableSet, column)]` — 分支目标。在同一参数上附加多次以构建分支表。
 - 验证在 `LoadAsync` 内分三个阶段处理 — 架构 (目标是否存在)、目标解析 (列/条件列是否存在)、值 (实际引用是否存在) — 失败会作为 `AggregateException` 一次性通知。
 - 如果用 `disabledTables` 跳过目标表，则引用该表的 ForeignKey 验证会失败 — 仅 disable 独立的分组才是安全的。

@@ -58,7 +58,6 @@
 |`SDP0223`|Guid 조건 컬럼에 대해 `[SwitchForeignKey]` 조건값을 Guid 로 해석할 수 없다|Guid 표기로 고친다|
 |`SDP0224`|`[SwitchForeignKey]` 조건 컬럼이 컬렉션 타입이다|단일 값 컬럼을 조건으로 쓴다|
 |`SDP0225`|`[SwitchForeignKey]` 조건값이 표기만 다른 같은 값으로 중복된다 (예: `1` 과 `01`)|중복 분기를 제거한다|
-|`SDP0226`|같은 파라미터에 같은 (TableSet, 컬럼) 타겟의 `[ForeignKey]` 가 두 번 붙어 있다|하나만 남긴다|
 |`SDP0227`|`[SwitchForeignKey]` 조건 컬럼이 단일 값 타입이 아니다 (타입 브랜딩 record)|단일 값 컬럼을 조건으로 쓴다|
 |`SDP0228`|실수·날짜·시간·string 조건 컬럼에 대해 `[SwitchForeignKey]` 조건값을 그 타입의 값으로 해석할 수 없다|조건값을 고친다. 날짜·시간은 조건 컬럼의 `[DateTimeFormat]` / `[TimeSpanFormat]` 과 같은 표기로 적는다|
 |`SDP0229`|타입 브랜딩 record 의 안쪽 파라미터에 `[ForeignKey]` 또는 `[SwitchForeignKey]` 가 붙어 있다|안쪽의 Attribute 를 지우고, 그 브랜딩 타입으로 선언한 파라미터 중 검사가 필요한 곳 앞에 붙인다 ([5.3](./03-type-branding.md))|

@@ -1,6 +1,6 @@
 namespace Sdp.Attributes;
 
-[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = true)]
+[AttributeUsage(AttributeTargets.Parameter)]
 public class ForeignKeyAttribute(
     string tableSetName,
     string recordColumnName)

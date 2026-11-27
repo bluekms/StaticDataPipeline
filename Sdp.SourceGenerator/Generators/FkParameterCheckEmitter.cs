@@ -62,12 +62,11 @@ internal sealed class FkParameterCheckEmitter(
             body = nullGuardIndent + "    ";
         }
 
-        var fkBranches = fkParameter.Branches
-            .Where(static branch => !branch.IsSwitch)
-            .ToList();
-        if (fkBranches.Count > 0)
+        // [ForeignKey] 는 파라미터에 하나만 붙는다. 둘 이상이면 컴파일러가 CS0579 로 빌드를 멈춘다.
+        var foreignKeyBranch = fkParameter.Branches.FirstOrDefault(static branch => !branch.IsSwitch);
+        if (foreignKeyBranch is not null)
         {
-            EmitForeignKeyBranches(fkBranches, body);
+            EmitForeignKeyBranch(foreignKeyBranch, body);
         }
 
         var switchBranches = FkSwitchCondition.SelectSwitchBranches(fkParameter);
@@ -110,52 +109,17 @@ internal sealed class FkParameterCheckEmitter(
         return "{" + brandingAccess + "." + EmitHelper.EscapeIdentifier(valueDisplayMember) + "}";
     }
 
-    private void EmitForeignKeyBranches(List<FkBranch> fkBranches, string body)
+    private void EmitForeignKeyBranch(FkBranch branch, string body)
     {
-        sb.Append(body).AppendLine("    var __ok = false;");
+        var setVariable = targetSets.Find(branch, valueTypeName);
 
-        var parameterSetVariables = new List<string>();
-        var targetMemberBySetVariable = new Dictionary<string, string>();
-        foreach (var branch in fkBranches)
-        {
-            var setVariable = targetSets.Find(branch, valueTypeName);
-            if (!parameterSetVariables.Contains(setVariable))
-            {
-                parameterSetVariables.Add(setVariable);
-                targetMemberBySetVariable[setVariable] = branch.TableSetMember;
-            }
-
-            sb.Append(body).Append("    if (!__ok && ").Append(setVariable).Append(" is not null && ")
-                .Append(setVariable).AppendLine(".Contains(__v))");
-            sb.Append(body).AppendLine("    {");
-            sb.Append(body).AppendLine("        __ok = true;");
-            sb.Append(body).AppendLine("    }");
-        }
-
-        var fkTargets = string.Join(", ", fkBranches.Select(static branch => branch.TableSetMember + "." + branch.TargetColumn).Distinct());
-        var allTargetsLoadedCondition = string.Join(
-            " && ", parameterSetVariables.Select(static setVariable => setVariable + " is not null"));
-
-        sb.Append(body).AppendLine("    if (!__ok)");
+        sb.Append(body).Append("    if (").Append(setVariable).AppendLine(" is null)");
         sb.Append(body).AppendLine("    {");
-        sb.Append(body).Append("        if (").Append(allTargetsLoadedCondition).AppendLine(")");
-        sb.Append(body).AppendLine("        {");
-        AppendValueNotFoundError(body + "            ", fkTargets);
-        sb.Append(body).AppendLine("        }");
-
-        sb.Append(body).AppendLine("        else");
-        sb.Append(body).AppendLine("        {");
-        foreach (var setVariable in parameterSetVariables)
-        {
-            sb.Append(body).Append("            if (").Append(setVariable).AppendLine(" is null)");
-            sb.Append(body).AppendLine("            {");
-            var targetMember = targetMemberBySetVariable[setVariable];
-            AppendTargetNotLoadedError(body + "                ", missingReportedVariable, targetMember);
-            sb.Append(body).AppendLine("            }");
-        }
-
-        sb.Append(body).AppendLine("        }");
-
+        AppendTargetNotLoadedError(body + "        ", missingReportedVariable, branch.TableSetMember);
+        sb.Append(body).AppendLine("    }");
+        sb.Append(body).Append("    else if (!").Append(setVariable).AppendLine(".Contains(__v))");
+        sb.Append(body).AppendLine("    {");
+        AppendValueNotFoundError(body + "        ", branch.TableSetMember + "." + branch.TargetColumn);
         sb.Append(body).AppendLine("    }");
     }
 

@@ -73,25 +73,11 @@ AggregateException: FK の検証に失敗しました。
 
 </br></br></br>
 
-## 複数の ForeignKey — 「どこか 1 つにでもあれば有効」
+## 対象が複数あるとき
 
-同じ ID 体系を複数のテーブルが分け合って持つ場合があります。たとえば `RewardRecord.TargetId` が `ItemTable` または `CurrencyTable` のどちらか一方に入ってさえいればよい状況です。`[ForeignKey]` は `AllowMultiple = true` なので同じパラメーターに複数回付けることができ、**どちらか 1 つでも一致すれば通過** させます。
+`[ForeignKey]` は 1 つのパラメーターに 1 つだけ付けられます。2 つ以上付けるとコンパイルエラー (`CS0579`) になります。
 
-```csharp
-[StaticDataRecord("GameItems", "Currencies")]
-public sealed record CurrencyRecord(
-    int Id,
-    string Name);
-
-[StaticDataRecord("GameItems", "Rewards")]
-public sealed record RewardRecord(
-    int Id,
-    [ForeignKey("ItemTable", "Id")]
-    [ForeignKey("CurrencyTable", "Id")]
-    int TargetId);
-```
-
-`RewardRecord.TargetId` が `1` なら、`ItemTable.Id == 1` または `CurrencyTable.Id == 1` のどちらか一方に存在すればよいです。これは 2 つのテーブルの ID 体系が完全に分離されていて重複しないという保証があるときにのみ、きれいに動作するパターンです。
+値が指すテーブルが行ごとに異なる場合は、どのテーブルかを示す区分カラムを置き、下記の `[SwitchForeignKey]` を使います。「列挙したすべてのテーブルに存在すること」のようなそれ以外の条件は Table の `Validate` に書きます。
 
 </br></br></br>
 
@@ -213,7 +199,7 @@ Id,Kind,TargetId,Amount
 
 ## まとめ
 
-- `[ForeignKey(tableSet, column)]` — 単一の対象。複数回付けると「どれか 1 つにあれば有効」になる。
+- `[ForeignKey(tableSet, column)]` — 単一の対象。1 つのパラメーターに 1 つだけ付ける。
 - `[SwitchForeignKey(conditionColumn, conditionValue, tableSet, column)]` — 分岐する対象。同じパラメーターに複数回付けて分岐表を作る。
 - 検証は `LoadAsync` の中で 3 つのステージ — スキーマ (対象の存在有無)、ターゲット解決 (カラム/条件カラムの存在有無)、値 (実際の参照の存在) — で処理され、失敗は `AggregateException` として一度にまとめて通知される。
 - `disabledTables` で対象テーブルをスキップすると、そのテーブルを参照する ForeignKey 検証は失敗する — 独立したグループだけを disable するのが安全である。

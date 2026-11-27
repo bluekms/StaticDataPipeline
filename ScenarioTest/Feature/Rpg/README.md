@@ -101,14 +101,14 @@ erDiagram
 
 `RewardTable.TargetId` 는 `Kind` 가 Item 이면 `ItemTable`, Currency 면 `CurrencyTable` 을 가리킨다(`[SwitchForeignKey]`).
 
-`AttendanceTable.RewardId` 는 둘 중 어느 쪽에든 있으면 된다(`[ForeignKey]` 두 개).
+`AttendanceTable.RewardId` 도 같은 방식으로 `Kind` 가 가리키는 테이블에 있어야 한다.
 
 ```mermaid
 erDiagram
     ItemTable |o..o{ RewardTable : "TargetId (Kind=Item)"
     CurrencyTable |o..o{ RewardTable : "TargetId (Kind=Currency)"
-    ItemTable |o..o{ AttendanceTable : "RewardId"
-    CurrencyTable |o..o{ AttendanceTable : "RewardId"
+    ItemTable |o..o{ AttendanceTable : "RewardId (Kind=Item)"
+    CurrencyTable |o..o{ AttendanceTable : "RewardId (Kind=Currency)"
 
     ItemTable {
         ItemId Id PK
@@ -123,6 +123,7 @@ erDiagram
     }
     AttendanceTable {
         byte Day PK
+        RewardKind Kind
         int RewardId FK
     }
 ```

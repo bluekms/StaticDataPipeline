@@ -119,8 +119,8 @@ public sealed partial record ScheduleRecord(
 |-|-|
 |대상|Record 파라미터. 테이블 Record 안에 중첩된 record (record 하나, record 원소 컬렉션, Map 의 Value record) 의 파라미터 포함|
 |인자|`tableSetName` — TableSet 의 속성 (= 생성자 파라미터) 이름. `recordColumnName` — 대상 Record 의 속성 이름.|
-|다중 허용|O (`AllowMultiple = true`) — "여러 대상 중 하나라도 일치하면 유효" 방식|
-|검증 시점|스캐너 (FK/SFK 동시 부착 차단) + 빌드 (타겟 테이블·컬럼 존재, 타입 일치, 중복 타겟) + 로드 (참조 값 검증)|
+|다중 허용|X — 대상이 여럿이면 구분 컬럼을 두고 `[SwitchForeignKey]` 를 쓴다|
+|검증 시점|스캐너 (FK/SFK 동시 부착 차단) + 빌드 (타겟 테이블·컬럼 존재, 타입 일치) + 로드 (참조 값 검증)|
 |`[SwitchForeignKey]` 와 동시 부착|스캐너는 `FkSwitchFkConflict`, 빌드는 `SDP0204` 로 거부|
 |타겟이 TableSet 에 없음|빌드 시 `SDP0205`|
 |타겟이 `[SingleColumnCollection]` 컬럼|빌드 시 `SDP0207`|
@@ -128,7 +128,6 @@ public sealed partial record ScheduleRecord(
 |타겟이 컬렉션 타입 컬럼 (`ImmutableArray`, `FrozenSet`, `FrozenDictionary`)|빌드 시 `SDP0214`|
 |참조 컬럼과 타겟 컬럼의 타입이 다름|빌드 시 `SDP0211`|
 |참조 컬럼이 컬렉션 (`ImmutableArray`·`FrozenSet`, 원소가 단일 값)|허용 — 원소마다 검사하고 nullable 원소의 `null` 은 건너뜀. 원소 타입이 타겟과 다르거나 Map·Record 원소 컬렉션이면 `SDP0211`|
-|같은 타겟을 두 번 지정|빌드 시 `SDP0226`|
 |타입 브랜딩 record 의 안쪽 파라미터에 부착|빌드 시 `SDP0229`. 브랜딩 타입으로 선언한 파라미터 앞에 붙인다|
 |`[Ignore]` 파라미터에 부착|빌드 시 `SDP0230`. 읽지 않는 컬럼은 검사할 값이 없다|
 |타겟 테이블이 `disabledTables` 로 빠짐|검증할 값이 있으면 로드 시 `FkTargetNotFound` 예외를 발생 (파라미터당 1회). 참조 값이 없으면 통과|
@@ -144,14 +143,6 @@ public sealed partial record ItemRecord(
     int Id,
     string Name,
     [ForeignKey("CategoryTable", "Id")] int CategoryId);
-
-// 여러 대상 중 하나라도 일치하면 유효
-[StaticDataRecord("GameItems", "Rewards")]
-public sealed partial record RewardRecord(
-    int Id,
-    [ForeignKey("ItemTable", "Id")]
-    [ForeignKey("CurrencyTable", "Id")]
-    int TargetId);
 ```
 
 ---

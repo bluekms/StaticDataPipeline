@@ -196,8 +196,6 @@ internal static class ForeignKeyAttributeValidator
                 ForeignKeyTargetValidator.Validate(attr, param, membersByName, diagnostics);
             }
 
-            ForeignKeyTargetValidator.ValidateTargetUniqueness(recordType, param, fkAttrs, diagnostics);
-
             if (switchFkAttrs.Count > 0)
             {
                 foreach (var attr in switchFkAttrs)

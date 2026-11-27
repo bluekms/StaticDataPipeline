@@ -115,7 +115,7 @@ public sealed record ScheduleRecord(
 |-|-|
 |対象|Record パラメーター|
 |引数|`tableSetName` — TableSet のプロパティ (= コンストラクターパラメーター) 名。`recordColumnName` — 対象 Record のプロパティ名。|
-|複数許可|O (`AllowMultiple = true`) — 「複数の対象のうちいずれか一つでも一致すれば有効」方式|
+|複数許可|X — 対象が複数ある場合は区分カラムを置いて `[SwitchForeignKey]` を使う|
 |検証タイミング|スキャナ (FK/SFK 同時付与のブロック) + ロード (FK/SFK 同時付与の再確認、ターゲット検証、参照検証)|
 |`[SwitchForeignKey]` と同時付与|スキャナとロードの両方が `FkSwitchFkConflict` 診断で拒否|
 |ターゲットが TableSet に存在しない|ロード時に `FkTargetNotFound` 例外を発生|
@@ -133,14 +133,6 @@ public sealed record ItemRecord(
     int Id,
     string Name,
     [ForeignKey("CategoryTable", "Id")] int CategoryId);
-
-// 複数の対象のうちいずれか一つでも一致すれば有効
-[StaticDataRecord("GameItems", "Rewards")]
-public sealed record RewardRecord(
-    int Id,
-    [ForeignKey("ItemTable", "Id")]
-    [ForeignKey("CurrencyTable", "Id")]
-    int TargetId);
 ```
 
 ---

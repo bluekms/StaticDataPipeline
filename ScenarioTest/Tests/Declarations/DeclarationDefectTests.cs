@@ -18,6 +18,7 @@ public class DeclarationDefectTests
     [InlineData("UndeclaredType.cs", "is not found in the record source folder or in the runtime libraries")]
     [InlineData("BclEnumWithoutUsing.cs", "The type 'DayOfWeek'", "the project's implicit usings are not applied")]
     [InlineData("FkAndSwitchFkTogether.cs", "cannot be used together on the same parameter")]
+    [InlineData("TwoForeignKeys.cs", "CS0579")]
     [InlineData("GuidWithRange.cs", "RangeAttribute cannot be used")]
     [InlineData("GuidWithDateTimeFormat.cs", "DateTimeFormatAttribute cannot be used")]
     [InlineData("DateOnlyWithoutFormat.cs", "must use DateTimeFormatAttribute")]

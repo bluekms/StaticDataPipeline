@@ -115,7 +115,7 @@ public sealed record ScheduleRecord(
 |-|-|
 |目标|Record 参数|
 |参数|`tableSetName` — TableSet 的属性 (= 构造函数参数) 名。`recordColumnName` — 目标 Record 的属性名。|
-|允许多个|O (`AllowMultiple = true`) — “只要与多个目标中的任意一个匹配即有效”方式|
+|允许多个|X — 目标不止一个时，增加区分列并使用 `[SwitchForeignKey]`|
 |验证时机|扫描器 (阻止 FK/SFK 同时附加) + 加载 (重新检查 FK/SFK 同时附加、目标验证、引用验证)|
 |与 `[SwitchForeignKey]` 同时附加|扫描器和加载两侧均以 `FkSwitchFkConflict` 诊断拒绝|
 |目标不存在于 TableSet 中|加载时抛出 `FkTargetNotFound` 异常|
@@ -133,14 +133,6 @@ public sealed record ItemRecord(
     int Id,
     string Name,
     [ForeignKey("CategoryTable", "Id")] int CategoryId);
-
-// 只要与多个目标中的任意一个匹配即有效
-[StaticDataRecord("GameItems", "Rewards")]
-public sealed record RewardRecord(
-    int Id,
-    [ForeignKey("ItemTable", "Id")]
-    [ForeignKey("CurrencyTable", "Id")]
-    int TargetId);
 ```
 
 ---
