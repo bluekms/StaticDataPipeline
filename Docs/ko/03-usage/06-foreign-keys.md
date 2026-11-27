@@ -70,7 +70,7 @@ ForeignKey 검증은 두 단계로 나뉩니다.
    - 실제 CSV 값이 대상 테이블의 해당 컬럼 값 집합 안에 있는가? (`FkValueNotFound`)
    - `[SwitchForeignKey]` 의 조건 컬럼 값이 분기 조건 중 하나에 매칭되는가? (`SwitchFkConditionValueNotMatched`)
 
-로드 시점 검사가 생략되는 경우가 있습니다. 참조 컬럼을 가진 테이블 자체가 `disabledTables` 로 빠지면 그 테이블의 FK 검사는 전부 생략되고, nullable 참조 컬럼이 `null` 인 행은 검사하지 않습니다. 대상 테이블이 빠진 경우에는 로드된 대상에서 값이 발견되면 통과하고, 어느 로드된 대상에서도 발견되지 않을 때만 `FkTargetNotFound` 를 파라미터당 한 번 보고합니다. `[SwitchForeignKey]` 는 조건에 맞은 분기의 대상만 보므로, 그 대상이 빠졌으면 다른 대상이 로드되어 있어도 `FkTargetNotFound` 를 대상 테이블마다 한 번 보고합니다. 참조할 값이 하나도 없으면 (행이 없거나 전부 `null`) 대상이 빠져 있어도 통과합니다.
+로드 시점 검사가 생략되는 경우가 있습니다. 참조 컬럼을 가진 테이블 자체가 `disabledTables` 로 빠지면 그 테이블의 FK 검사는 전부 생략되고, nullable 참조 컬럼이 `null` 인 행은 검사하지 않습니다. 대상 테이블이 빠진 경우에는 검사할 값이 하나라도 있으면 `FkTargetNotFound` 를 파라미터당 한 번 보고합니다. `[SwitchForeignKey]` 는 조건에 맞은 분기의 대상만 보므로, 그 대상이 빠졌으면 다른 대상이 로드되어 있어도 `FkTargetNotFound` 를 대상 테이블마다 한 번 보고합니다. 참조할 값이 하나도 없으면 (행이 없거나 전부 `null`) 대상이 빠져 있어도 통과합니다.
 
 빌드 시점 진단은 모두 오류라 그 자리에서 빌드가 멈춥니다. 로드 시점 실패는 모든 테이블의 실패를 모아 `AggregateException(Messages.FkValidationFailed, ...)` 로 한 번에 던집니다.
 
@@ -324,7 +324,7 @@ nullable 중첩 record (`Drop?`) 는 Sdp 가 지원하지 않는 선언이라 �
 - 선언의 구조 (타겟 테이블·컬럼 존재, 타입 일치 — nullable 은 참조 컬럼 쪽에만 허용되고 컬렉션 참조는 원소 타입 기준, 조건 중복) 는 빌드 시점 진단으로, 실제 참조 값은 `LoadAsync` 에서 검증되며 (컬렉션 참조는 원소마다), 로드 시점 실패는 `AggregateException` 으로 한 번에 통보된다.
 - `disabledTables` 로 대상 테이블을 건너뛰면 그 테이블을 참조하는 값은 검증할 수 없으므로, 그 테이블을 가리키는 값이 하나라도 있으면 `FkTargetNotFound` 로 실패한다 (참조 값이 없으면 통과하고, 참조하는 쪽 테이블도 함께 빠지면 검사 자체가 생략된다) — 독립된 그룹만 disable 하는 것이 안전하다.
 
-`[ForeignKey]` 와 `[SwitchForeignKey]` 자체의 Attribute 명세 (오사용 진단, 다중 허용 등) 는 [5.2 Attribute 카탈로그](../05-advanced/02-attributes.md) 에 정리되어 있습니다.
+`[ForeignKey]` 와 `[SwitchForeignKey]` 자체의 Attribute 명세 (오사용 진단 등) 는 [5.2 Attribute 카탈로그](../05-advanced/02-attributes.md) 에 정리되어 있습니다.
 
 ---
 

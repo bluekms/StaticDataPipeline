@@ -159,7 +159,7 @@ public sealed partial record QuestRecord(
 
 `AssignedTo` 가 `CharId` 타입이므로 다른 ID 와 섞일 일이 없고, 동시에 `HeroTable.Id` 컬럼에 실제 값이 존재하는지 로드 시점에 검증됩니다.
 
-반대로 기본 타입 컬럼이 브랜딩 키를 가리킬 수도 있습니다. 한 컬럼이 키 타입이 서로 다른 두 테이블을 가리켜야 할 때 (`[SwitchForeignKey]`) 컬럼을 `int` 로 두면, 로더가 대상 키의 안쪽 값 (`Id.Value`) 으로 비교합니다.
+반대로 기본 타입 컬럼이 브랜딩 키를 가리킬 수도 있습니다. `[SwitchForeignKey]` 로 한 컬럼이 키 타입이 서로 다른 두 테이블을 가리켜야 할 때처럼, 컬럼을 `int` 로 두면, 로더가 대상 키의 안쪽 값 (`Id.Value`) 으로 비교합니다.
 
 ```csharp
 // ItemId 와 CurrencyId 가 둘 다 int 를 감싼 브랜딩이어도 int 컬럼 하나로 둘을 가리킬 수 있습니다
