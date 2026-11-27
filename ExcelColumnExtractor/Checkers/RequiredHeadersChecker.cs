@@ -9,7 +9,9 @@ using ExcelColumnExtractor.Scanners;
 using Microsoft.Extensions.Logging;
 using SchemaInfoScanner;
 using SchemaInfoScanner.Catalogs;
+using SchemaInfoScanner.Extensions;
 using SchemaInfoScanner.Schemata;
+using Sdp.Attributes;
 
 namespace ExcelColumnExtractor.Checkers;
 
@@ -28,8 +30,27 @@ public static class RequiredHeadersChecker
         var result = new Dictionary<RecordSchema, RequiredHeaderMapping>(recordSchemaCatalog.StaticDataRecordSchemata.Count);
 
         var failures = new List<ExtractionException.Failure>();
+        var missingWorkbookFailures = new Dictionary<string, ArgumentException>(StringComparer.Ordinal);
         foreach (var recordSchema in recordSchemaCatalog.StaticDataRecordSchemata)
         {
+            var workbookName = recordSchema.GetAttributeValue<StaticDataRecordAttribute, string>(0);
+            var isReportedWorkbook = missingWorkbookFailures.TryGetValue(workbookName, out var reportedFailure);
+            if (isReportedWorkbook)
+            {
+                failures.Add(new(recordSchema, reportedFailure!));
+                continue;
+            }
+
+            var missingWorkbookMessage = sheetNameMap.DescribeMissingWorkbook(workbookName);
+            if (missingWorkbookMessage is not null)
+            {
+                var missingWorkbookFailure = new ArgumentException(missingWorkbookMessage);
+                missingWorkbookFailures.Add(workbookName, missingWorkbookFailure);
+                failures.Add(new(recordSchema, missingWorkbookFailure));
+                LogWorkbookError(logger, missingWorkbookMessage, null);
+                continue;
+            }
+
             try
             {
                 var excelSheetName = sheetNameMap.Get(recordSchema);
@@ -235,4 +256,7 @@ public static class RequiredHeadersChecker
 
     private static readonly Action<ILogger, RecordSchema, string, Exception?> LogError =
         LoggerMessage.Define<RecordSchema, string>(LogLevel.Error, new EventId(0, nameof(LogError)), "{RecordSchema}: {ErrorMessage}");
+
+    private static readonly Action<ILogger, string, Exception?> LogWorkbookError =
+        LoggerMessage.Define<string>(LogLevel.Error, new EventId(0, nameof(LogWorkbookError)), "{ErrorMessage}");
 }

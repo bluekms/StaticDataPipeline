@@ -28,13 +28,48 @@ public class WorkbookMistakeTests
 
         var result = workspace.RunScience();
 
-        ExtractionAssert.FailsWith(result, "Workbook 'Science' not found. A Record reads its sheet 'Elements'.");
+        ExtractionAssert.FailsWith(result, "Workbook 'Science' not found.");
         ExtractionAssert.HasNoStackTrace(result);
         Assert.False(File.Exists(Path.Combine(workspace.CsvScience, "Science.Elements.csv")));
     }
 
     [Fact]
-    public void ExcelFolderEmptied_FailsNamingMissingWorkbooks()
+    public void ScienceWorkbookFileNameInLowerCase_FailsNamingTheFileAndCaseRule_WithoutCsv()
+    {
+        using var workspace = new ScenarioWorkspace();
+        var workbookPath = workspace.WorkbookPath("Science");
+        var lowerCasePath = Path.Combine(Path.GetDirectoryName(workbookPath)!, "science.xlsx");
+        File.Move(workbookPath, lowerCasePath);
+
+        var result = workspace.RunScience();
+
+        var expected = "Workbook name case does not match. Record workbook: 'Science', file: 'science.xlsx'. "
+            + "Workbook names are case-sensitive.";
+        ExtractionAssert.FailsWith(result, expected);
+        ExtractionAssert.HasNoStackTrace(result);
+        Assert.False(File.Exists(Path.Combine(workspace.CsvScience, "Science.Elements.csv")));
+        Assert.False(File.Exists(Path.Combine(workspace.CsvScience, "science.Elements.csv")));
+    }
+
+    [Fact]
+    public void SchoolWorkbookFileNameInLowerCase_IsReportedOnceForAllRecordsReadingIt()
+    {
+        using var workspace = new ScenarioWorkspace();
+        var workbookPath = workspace.WorkbookPath("School");
+        var lowerCasePath = Path.Combine(Path.GetDirectoryName(workbookPath)!, "school.xlsx");
+        File.Move(workbookPath, lowerCasePath);
+
+        var result = workspace.RunSchool();
+
+        var expected = "Workbook name case does not match. Record workbook: 'School', file: 'school.xlsx'. "
+            + "Workbook names are case-sensitive.";
+        ExtractionAssert.FailsWith(result, expected);
+        Assert.Single(result.Errors);
+        ExtractionAssert.HasNoStackTrace(result);
+    }
+
+    [Fact]
+    public void ExcelFolderEmptied_FailsNamingEachMissingWorkbookOnce()
     {
         using var workspace = new ScenarioWorkspace();
         foreach (var file in Directory.GetFiles(workspace.ExcelSchool))
@@ -45,6 +80,7 @@ public class WorkbookMistakeTests
         var result = workspace.RunSchool();
 
         ExtractionAssert.FailsWith(result, "Workbook 'School' not found.", "Workbook 'Library' not found.");
+        Assert.Equal(2, result.Errors.Count);
         ExtractionAssert.HasNoStackTrace(result);
     }
 
