@@ -58,12 +58,10 @@ public sealed partial class ReportCardView : StaticDataView<SchoolStaticData.Tab
 
     private static List<ReportCard> Build(SchoolStaticData.TableSet tables)
     {
-        var gradeByStudent = new UniqueIndex<GradeRecord, StudentRecord.StudentId>(tables.GradeTable.Records, x => x.StudentId);
-
         var cards = new List<ReportCard>();
         foreach (var student in tables.StudentTable.Records)
         {
-            gradeByStudent.TryGet(student.Id, out var grade);
+            tables.GradeTable.TryGet(student.Id, out var grade);
 
             var classRoom = tables.ClassRoomTable.Get(student.ClassRoomId);
             cards.Add(new ReportCard(student, classRoom, grade));
