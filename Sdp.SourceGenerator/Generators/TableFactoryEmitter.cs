@@ -95,11 +95,24 @@ internal static class TableFactoryEmitter
         sb.Append(indent).AppendLine("    global::Microsoft.Extensions.Logging.ILogger logger)");
         sb.Append(indent).AppendLine("{");
         sb.Append(indent).Append("    var path = global::System.IO.Path.Combine(csvDir, ").Append(fileNameLit).AppendLine(");");
-        sb.Append(indent).Append("    var records = await global::Sdp.Csv.CsvLoader.LoadAsync<")
+        sb.Append(indent).Append("    global::System.Collections.Immutable.ImmutableArray<")
+            .Append(analysis.FullyQualifiedRecordName).AppendLine("> records;");
+
+        // CSV 를 읽고 키를 검사하다 난 오류는 같은 CSV 를 읽는 Table 마다 똑같이 난다. 표시해 두면 로더가 한 번만 알린다.
+        sb.Append(indent).AppendLine("    try");
+        sb.Append(indent).AppendLine("    {");
+        sb.Append(indent).Append("        records = await global::Sdp.Csv.CsvLoader.LoadAsync<")
             .Append(analysis.FullyQualifiedRecordName).Append(">(path, ")
             .Append(analysis.FullyQualifiedRecordName).Append(".MapFromCsvRow, ")
             .Append(analysis.FullyQualifiedRecordName).AppendLine(".IsEmptyCsvRow).ConfigureAwait(false);");
-        KeyDuplicateCheckEmitter.Emit(sb, analysis.RecordSymbol, fileNameLit, indent + "    ");
+        KeyDuplicateCheckEmitter.Emit(sb, analysis.RecordSymbol, fileNameLit, indent + "        ");
+        sb.Append(indent).AppendLine("    }");
+        sb.Append(indent).AppendLine("    catch (global::System.Exception __csvError)");
+        sb.Append(indent).AppendLine("    {");
+        sb.Append(indent).AppendLine("        global::Sdp.Manager.TableSetLoaderHelper.MarkAsCsvError(__csvError);");
+        sb.Append(indent).AppendLine("        throw;");
+        sb.Append(indent).AppendLine("    }");
+        sb.AppendLine();
         sb.Append(indent).Append("    var __table = new ").Append(analysis.FullyQualifiedTypeName).AppendLine("(records);");
         sb.Append(indent).AppendLine("    __table.Validate();");
         sb.Append(indent).AppendLine("    return __table;");

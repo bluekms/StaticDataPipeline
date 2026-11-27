@@ -7,6 +7,8 @@ namespace Sdp.Manager;
 
 public static class TableSetLoaderHelper
 {
+    private const string CsvErrorMark = "Sdp.CsvError";
+
     public static async Task<T?> LoadTableOrSkipAsync<T>(
         string csvDir,
         string tableName,
@@ -149,12 +151,20 @@ public static class TableSetLoaderHelper
             conditionValue));
     }
 
-    public static void AddErrorsNotReportedBy(List<Exception> errors, IEnumerable<Exception> candidates, Task sameCsvReader)
+    public static void AddErrorsNotReportedBy(
+        List<Exception> errors,
+        IReadOnlyCollection<Exception> candidates,
+        params Task[] sameCsvReaders)
     {
         var reported = new HashSet<string>(StringComparer.Ordinal);
-        if (sameCsvReader.Exception is { } readerFailure)
+        foreach (var sameCsvReader in sameCsvReaders)
         {
-            foreach (var error in readerFailure.InnerExceptions)
+            if (sameCsvReader.Exception is null)
+            {
+                continue;
+            }
+
+            foreach (var error in sameCsvReader.Exception.InnerExceptions.Where(IsCsvError))
             {
                 reported.Add(ErrorIdentity(error));
             }
@@ -162,11 +172,23 @@ public static class TableSetLoaderHelper
 
         foreach (var candidate in candidates)
         {
-            if (!reported.Contains(ErrorIdentity(candidate)))
+            if (IsCsvError(candidate) && reported.Contains(ErrorIdentity(candidate)))
             {
-                errors.Add(candidate);
+                continue;
             }
+
+            errors.Add(candidate);
         }
+    }
+
+    public static void MarkAsCsvError(Exception error)
+    {
+        error.Data[CsvErrorMark] = true;
+    }
+
+    private static bool IsCsvError(Exception error)
+    {
+        return error.Data.Contains(CsvErrorMark);
     }
 
     private static string ErrorIdentity(Exception error)

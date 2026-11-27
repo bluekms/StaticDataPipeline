@@ -34,23 +34,24 @@ internal static class TableSetLoaderEmitter
         return sb.ToString();
     }
 
-    private static int FindEarlierTableOfSameRecord(StaticDataManagerAnalysis analysis, int tableIndex)
+    private static List<int> FindEarlierTablesOfSameRecord(StaticDataManagerAnalysis analysis, int tableIndex)
     {
+        var earlierTables = new List<int>();
         var record = analysis.Tables[tableIndex].RecordSymbol;
         if (record is null)
         {
-            return -1;
+            return earlierTables;
         }
 
         for (var i = 0; i < tableIndex; i++)
         {
             if (SymbolEqualityComparer.Default.Equals(analysis.Tables[i].RecordSymbol, record))
             {
-                return i;
+                earlierTables.Add(i);
             }
         }
 
-        return -1;
+        return earlierTables;
     }
 
     private static void EmitLoadAsync(
@@ -111,17 +112,19 @@ internal static class TableSetLoaderEmitter
         sb.Append(indent).AppendLine("    var __errors = new global::System.Collections.Generic.List<global::System.Exception>();");
         for (var i = 0; i < analysis.Tables.Length; i++)
         {
-            var sameCsvReader = FindEarlierTableOfSameRecord(analysis, i);
-            if (sameCsvReader < 0)
+            var sameCsvReaders = FindEarlierTablesOfSameRecord(analysis, i);
+            if (sameCsvReaders.Count == 0)
             {
                 sb.Append(indent).Append("    if (__t").Append(i).Append(".IsFaulted) __errors.AddRange(__t").Append(i).AppendLine(".Exception!.InnerExceptions);");
             }
             else
             {
-                // 같은 CSV 를 읽는 Table 들은 같은 행에서 같은 오류를 낸다. 먼저 읽은 Table 이 알린 것은 다시 담지 않는다.
+                // CSV 를 읽다 난 오류는 같은 CSV 를 읽는 Table 마다 똑같이 난다. 먼저 읽은 Table 이 알린 것은 다시 담지 않는다.
+                var readerTaskNames = sameCsvReaders.Select(static x => FormattableString.Invariant($"__t{x}"));
+                var readerTasks = string.Join(", ", readerTaskNames);
                 sb.Append(indent).Append("    if (__t").Append(i)
                     .Append(".IsFaulted) global::Sdp.Manager.TableSetLoaderHelper.AddErrorsNotReportedBy(__errors, __t").Append(i)
-                    .Append(".Exception!.InnerExceptions, __t").Append(sameCsvReader).AppendLine(");");
+                    .Append(".Exception!.InnerExceptions, ").Append(readerTasks).AppendLine(");");
             }
 
             sb.Append(indent).Append("    else if (__t").Append(i).Append(".IsCanceled) __errors.Add(new global::System.Threading.Tasks.TaskCanceledException(__t").Append(i).AppendLine("));");
