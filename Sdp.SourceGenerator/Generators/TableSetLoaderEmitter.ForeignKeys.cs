@@ -33,7 +33,18 @@ internal static partial class TableSetLoaderEmitter
 
             foreach (var fkParameter in fkParameters)
             {
-                sb.Append(indent).Append("        var __fkMissingReported").Append(fkParameter.Index).AppendLine(" = false;");
+                // 읽지 않는 지역 변수는 생성 코드에 CS0219 를 내므로, 쓰는 분기가 있을 때만 선언한다.
+                var hasFkBranch = fkParameter.Branches.Any(static branch => !branch.IsSwitch);
+                if (hasFkBranch)
+                {
+                    sb.Append(indent).Append("        var __fkMissingReported").Append(fkParameter.Index).AppendLine(" = false;");
+                }
+
+                foreach (var switchTargetMember in SwitchTargetMembers(fkParameter))
+                {
+                    var switchMissingReported = SwitchMissingReportedVariable(fkParameter, switchTargetMember);
+                    sb.Append(indent).Append("        var ").Append(switchMissingReported).AppendLine(" = false;");
+                }
             }
 
             foreach (var fkParameter in fkParameters)
@@ -170,6 +181,22 @@ internal static partial class TableSetLoaderEmitter
     {
         return "__switchCondition" + parameterIndex.ToString(CultureInfo.InvariantCulture)
             + "_" + branchIndex.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private static List<string> SwitchTargetMembers(FkParameter fkParameter)
+    {
+        return fkParameter.Branches
+            .Where(static branch => branch.IsSwitch)
+            .Select(static branch => branch.TableSetMember)
+            .Distinct()
+            .ToList();
+    }
+
+    private static string SwitchMissingReportedVariable(FkParameter fkParameter, string tableSetMember)
+    {
+        var targetIndex = SwitchTargetMembers(fkParameter).IndexOf(tableSetMember);
+        return "__fkMissingReported" + fkParameter.Index.ToString(CultureInfo.InvariantCulture)
+            + "_" + targetIndex.ToString(CultureInfo.InvariantCulture);
     }
 
     private sealed record FkTargetSetKey(string TableSetMember, string TargetColumn, string PropertyTypeName);
@@ -356,8 +383,6 @@ internal static partial class TableSetLoaderEmitter
             body = nullGuardIndent + "    ";
         }
 
-        sb.Append(body).AppendLine("    var __ok = false;");
-
         var fkBranches = new List<FkBranch>();
         var switchBranches = new List<FkBranch>();
         foreach (var branch in fkParameter.Branches)
@@ -372,12 +397,12 @@ internal static partial class TableSetLoaderEmitter
             }
         }
 
-        void AppendTargetNotLoadedError(string lineIndent, string targetMembers)
+        void AppendTargetNotLoadedError(string lineIndent, string reportedVariable, string targetMember)
         {
-            var targetLiteral = SymbolDisplay.FormatLiteral(targetMembers, quote: true);
-            sb.Append(lineIndent).Append("if (!").Append(missingReportedVariable).AppendLine(")");
+            var targetLiteral = SymbolDisplay.FormatLiteral(targetMember, quote: true);
+            sb.Append(lineIndent).Append("if (!").Append(reportedVariable).AppendLine(")");
             sb.Append(lineIndent).AppendLine("{");
-            sb.Append(lineIndent).Append("    ").Append(missingReportedVariable).AppendLine(" = true;");
+            sb.Append(lineIndent).Append("    ").Append(reportedVariable).AppendLine(" = true;");
             sb.Append(lineIndent).Append("    __errors.Add(global::Sdp.Manager.TableSetLoaderHelper.FkTargetNotLoadedError(")
                 .Append(sourceLiteral).Append(", ").Append(targetLiteral).AppendLine("));");
             sb.Append(lineIndent).AppendLine("}");
@@ -395,6 +420,8 @@ internal static partial class TableSetLoaderEmitter
 
         if (fkBranches.Count > 0)
         {
+            sb.Append(body).AppendLine("    var __ok = false;");
+
             var parameterSetVariables = new List<string>();
             var targetMemberBySetVariable = new Dictionary<string, string>();
             foreach (var branch in fkBranches)
@@ -431,7 +458,8 @@ internal static partial class TableSetLoaderEmitter
             {
                 sb.Append(body).Append("            if (").Append(setVariable).AppendLine(" is null)");
                 sb.Append(body).AppendLine("            {");
-                AppendTargetNotLoadedError(body + "                ", targetMemberBySetVariable[setVariable]);
+                var targetMember = targetMemberBySetVariable[setVariable];
+                AppendTargetNotLoadedError(body + "                ", missingReportedVariable, targetMember);
                 sb.Append(body).AppendLine("            }");
             }
 
@@ -446,7 +474,6 @@ internal static partial class TableSetLoaderEmitter
             var conditionColumnAccess = EmitHelper.EscapeIdentifier(conditionColumn);
 
             sb.Append(body).AppendLine("    var __matched = false;");
-            sb.Append(body).AppendLine("    var __switchTargetLoaded = false;");
 
             var conditionAccess = instanceAccess + conditionColumnAccess;
             var conditionDisplay = BuildConditionDisplay(conditionAccess, switchBranches[0]);
@@ -467,12 +494,7 @@ internal static partial class TableSetLoaderEmitter
                 sb.Append(body).AppendLine("        __matched = true;");
                 sb.Append(body).Append("        if (").Append(setVariable).AppendLine(" is not null)");
                 sb.Append(body).AppendLine("        {");
-                sb.Append(body).AppendLine("            __switchTargetLoaded = true;");
-                sb.Append(body).Append("            if (").Append(setVariable).AppendLine(".Contains(__v))");
-                sb.Append(body).AppendLine("            {");
-                sb.Append(body).AppendLine("                __ok = true;");
-                sb.Append(body).AppendLine("            }");
-                sb.Append(body).AppendLine("            else");
+                sb.Append(body).Append("            if (!").Append(setVariable).AppendLine(".Contains(__v))");
                 sb.Append(body).AppendLine("            {");
 
                 var branchTargetsLiteral = SymbolDisplay.FormatLiteral(branch.TableSetMember + "." + branch.TargetColumn, quote: true);
@@ -485,10 +507,14 @@ internal static partial class TableSetLoaderEmitter
                     .Append(", global::System.FormattableString.Invariant($\"").Append(conditionDisplay).AppendLine("\")));");
                 sb.Append(body).AppendLine("            }");
                 sb.Append(body).AppendLine("        }");
+
+                var switchMissingReported = SwitchMissingReportedVariable(fkParameter, branch.TableSetMember);
+                sb.Append(body).AppendLine("        else");
+                sb.Append(body).AppendLine("        {");
+                AppendTargetNotLoadedError(body + "            ", switchMissingReported, branch.TableSetMember);
+                sb.Append(body).AppendLine("        }");
                 sb.Append(body).AppendLine("    }");
             }
-
-            var switchTargetMembers = string.Join(", ", switchBranches.Select(static branch => branch.TableSetMember).Distinct());
 
             sb.Append(body).AppendLine("    if (!__matched)");
             sb.Append(body).AppendLine("    {");
@@ -496,10 +522,6 @@ internal static partial class TableSetLoaderEmitter
             sb.Append(body).Append("            ").Append(recordDisplayExpr).Append(", ").Append(propertyNameLiteral).AppendLine(",");
             sb.Append(body).Append("            ").Append(conditionColumnLiteral)
                 .Append(", global::System.FormattableString.Invariant($\"").Append(conditionDisplay).AppendLine("\")));");
-            sb.Append(body).AppendLine("    }");
-            sb.Append(body).AppendLine("    else if (!__ok && !__switchTargetLoaded)");
-            sb.Append(body).AppendLine("    {");
-            AppendTargetNotLoadedError(body + "        ", switchTargetMembers);
             sb.Append(body).AppendLine("    }");
         }
 
