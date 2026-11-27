@@ -52,7 +52,10 @@
     <value>Sheet '{0}' not found in workbook '{1}'. Sheets in the workbook: {2}</value>
   </data>
   <data name="WorkbookNotFound" xml:space="preserve">
-    <value>Workbook '{0}' not found. A Record reads its sheet '{1}'.</value>
+    <value>Workbook '{0}' not found.</value>
+  </data>
+  <data name="WorkbookNameCaseMismatch" xml:space="preserve">
+    <value>Workbook name case does not match. Record workbook: '{0}', file: '{1}'. Workbook names are case-sensitive.</value>
   </data>
   <data name="InvalidStartCellAddress" xml:space="preserve">
     <value>Invalid start cell address: '{0}'. Expected format: e.g., A1, B10.</value>

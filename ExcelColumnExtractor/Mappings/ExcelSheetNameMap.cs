@@ -31,11 +31,7 @@ public sealed class ExcelSheetNameMap(IReadOnlyDictionary<string, ExcelSheetName
             .ToList();
         if (sheetsInWorkbook.Count == 0)
         {
-            throw new ArgumentException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.WorkbookNotFound,
-                workbookName,
-                sheetName));
+            throw new ArgumentException(DescribeMissingWorkbook(workbookName));
         }
 
         throw new ArgumentException(string.Format(
@@ -44,6 +40,28 @@ public sealed class ExcelSheetNameMap(IReadOnlyDictionary<string, ExcelSheetName
             sheetName,
             workbookName,
             string.Join(", ", sheetsInWorkbook)));
+    }
+
+    internal string? DescribeMissingWorkbook(string workbookName)
+    {
+        var hasWorkbook = sheetNames.Values.Any(x => x.WorkbookName == workbookName);
+        if (hasWorkbook)
+        {
+            return null;
+        }
+
+        var sheetInWorkbookWithDifferentCase = sheetNames.Values
+            .FirstOrDefault(x => string.Equals(x.WorkbookName, workbookName, StringComparison.OrdinalIgnoreCase));
+        if (sheetInWorkbookWithDifferentCase is not null)
+        {
+            return string.Format(
+                CultureInfo.CurrentCulture,
+                Messages.Composite.WorkbookNameCaseMismatch,
+                workbookName,
+                Path.GetFileName(sheetInWorkbookWithDifferentCase.ExcelPath));
+        }
+
+        return string.Format(CultureInfo.CurrentCulture, Messages.Composite.WorkbookNotFound, workbookName);
     }
 
     internal bool TryGet(string excelFileName, string sheetName, [MaybeNullWhen(false)] out ExcelSheetName excelSheetName)
