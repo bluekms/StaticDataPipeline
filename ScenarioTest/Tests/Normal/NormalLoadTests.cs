@@ -41,14 +41,14 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
         Assert.Null(snapshot.Tables.TeacherTable.Get(new TeacherRecord.TeacherId(8)).Office);
         Assert.Empty(snapshot.Tables.TeacherTable.Get(new TeacherRecord.TeacherId(9)).Certificates);
 
-        var chuseok = snapshot.Tables.CalendarTable!.Records.Single(x => x.Id == 4);
+        var chuseok = snapshot.Tables.CalendarTable!.Get(4);
         Assert.Equal(new DateOnly(2026, 9, 26), chuseok.End);
-        Assert.Null(snapshot.Tables.CalendarTable.Records.Single(x => x.Id == 1).End);
-        Assert.Null(snapshot.Tables.ClubTable!.Records.Single(x => x.Id == 7).RequiresAudition);
-        var robotics = snapshot.Tables.ClubTable.Records.Single(x => x.Id == 3);
+        Assert.Null(snapshot.Tables.CalendarTable.Get(1).End);
+        Assert.Null(snapshot.Tables.ClubTable!.Get(7).RequiresAudition);
+        var robotics = snapshot.Tables.ClubTable.Get(3);
         Assert.Equal([DayOfWeek.Tuesday, DayOfWeek.Thursday], robotics.MeetingDays.ToArray());
         Assert.Equal(new TimeOnly(16, 30), robotics.MeetingTime);
-        Assert.Null(snapshot.Tables.ClubTable.Records.Single(x => x.Id == 5).MeetingTime);
+        Assert.Null(snapshot.Tables.ClubTable.Get(5).MeetingTime);
 
         var lunch = snapshot.Tables.CafeteriaTable!.Records[0];
         Assert.Equal(4, lunch.Menu.Length);
@@ -58,10 +58,10 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
         var secondTalk = snapshot.Tables.BookTalkTable.Records[1];
         Assert.Equal(Guid.Parse("{3f2504e0-4f89-11d3-9a0c-0305e82c3301}"), secondTalk.RoomId);
         Assert.Empty(snapshot.Tables.RecommendationTable!.Records);
-        var books = snapshot.Tables.BookTable!.Records;
-        Assert.Null(books.Single(x => x.Id == new BookId(2)).Isbn13);
-        Assert.Equal("도서관의\n밤", books.Single(x => x.Id == new BookId(3)).Title);
-        Assert.Null(books.Single(x => x.Id == new BookId(2)).ShelfCode);
+        var books = snapshot.Tables.BookTable!;
+        Assert.Null(books.Get(new BookId(2)).Isbn13);
+        Assert.Equal("도서관의\n밤", books.Get(new BookId(3)).Title);
+        Assert.Null(books.Get(new BookId(2)).ShelfCode);
     }
 
     [Fact]
@@ -127,20 +127,21 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
         Assert.Equal(180, dragonStage.MinClearSeconds);
         Assert.Equal(3u, dragonStage.DailyLimit);
         Assert.Null(serverStages.Get(new StageServerRecord.StageId(1)).DailyLimit);
-        var clientStages = tables.StageClientTable!.Records;
-        Assert.Equal(3, clientStages.Length);
-        var goblinStage = clientStages.Single(x => x.Id == new StageClientRecord.StageId(2));
+        var clientStages = tables.StageClientTable!;
+        Assert.Equal(3, clientStages.Records.Length);
+        var goblinStage = clientStages.Get(new StageClientRecord.StageId(2));
         Assert.Equal("고블린 숲", goblinStage.Name);
         Assert.Null(goblinStage.Bgm);
         Assert.Equal(5, goblinStage.RequiredLevel);
         Assert.Equal(MonsterId.Goblin, goblinStage.Boss);
-        Assert.Equal(3u, clientStages.Single(x => x.Id == new StageClientRecord.StageId(3)).DailyLimit);
+        Assert.Equal(3u, clientStages.Get(new StageClientRecord.StageId(3)).DailyLimit);
 
         Assert.Equal(2, tables.BuffTable!.Records.Length);
         Assert.Equal(2, tables.DebuffTable!.Records.Length);
-        Assert.Equal("독", tables.DebuffTable.Records.Single(x => x.Id == new BuffRecord.BuffId(3)).Name);
+        Assert.Equal("독", tables.DebuffTable.Get(new BuffRecord.BuffId(3)).Name);
+        Assert.False(tables.BuffTable.TryGet(new BuffRecord.BuffId(3), out _));
         Assert.Equal(3, tables.SkillTable!.Records.Length);
-        Assert.Null(tables.SkillTable.Records.Single(x => (int)x.Id == 1003).Cooldown);
+        Assert.Null(tables.SkillTable.Get((SkillId)1003).Cooldown);
 
         var items = tables.ItemTable;
         Assert.Equal(["healing", "consumable", "starter"], items.Records[0].Tags.ToArray());
@@ -150,25 +151,25 @@ public class NormalLoadTests(ExtractedCsvFixture fixture)
         Assert.Equal(9999999999L, tables.CurrencyTable!.Records[0].Cap);
 
         // 코드 이름 SeasonItemTable 은 OldSeasonItems 시트를, SeasonItemTableV2 는 SeasonItems 시트를 읽는다.
-        var oldSeasonItems = tables.SeasonItemTable!.Records;
-        Assert.Equal(3, oldSeasonItems.Length);
-        Assert.Equal("시즌1 기념 검", oldSeasonItems.Single(x => x.Id == new SeasonItemRecord.SeasonItemId(20001)).Name);
-        var newSeasonItems = tables.SeasonItemTableV2!.Records;
-        Assert.Equal(2, newSeasonItems.Length);
-        var bow = newSeasonItems.Single(x => x.Id == new SeasonItemRecordV2.SeasonItemId(30001));
+        var oldSeasonItems = tables.SeasonItemTable!;
+        Assert.Equal(3, oldSeasonItems.Records.Length);
+        Assert.Equal("시즌1 기념 검", oldSeasonItems.Get(new SeasonItemRecord.SeasonItemId(20001)).Name);
+        var newSeasonItems = tables.SeasonItemTableV2!;
+        Assert.Equal(2, newSeasonItems.Records.Length);
+        var bow = newSeasonItems.Get(new SeasonItemRecordV2.SeasonItemId(30001));
         Assert.Equal("시즌2 기념 활", bow.Name);
         Assert.Equal(Rarity.Rare, bow.Rarity);
 
-        var dragonNest = tables.QuestTable!.Records.Single(x => x.Id == new QuestRecord.QuestId(3));
+        var dragonNest = tables.QuestTable!.Get(new QuestRecord.QuestId(3));
         Assert.Equal(new QuestRecord.QuestId(2), dragonNest.PrevQuestId);
         Assert.Equal(new KillGoal(MonsterId.BossDragon, 1), dragonNest.Kill);
         Assert.Equal(new CollectGoal(new ItemRecord.ItemId(10003), 1), dragonNest.Collect);
         Assert.Equal(2, dragonNest.Rewards.Count);
         var potionReward = new QuestReward(new ItemRecord.ItemId(10001), 10);
         Assert.Contains(potionReward, (IReadOnlySet<QuestReward>)dragonNest.Rewards);
-        Assert.Null(tables.QuestTable.Records.Single(x => x.Id == new QuestRecord.QuestId(1)).PrevQuestId);
+        Assert.Null(tables.QuestTable.Get(new QuestRecord.QuestId(1)).PrevQuestId);
         Assert.Equal(100m, tables.GachaTable!.Records.Sum(x => x.Rate));
-        var ssr = tables.GachaTable.Records.Single(x => x.Grade == GachaGrade.SSR);
+        var ssr = tables.GachaTable.Get(GachaGrade.SSR);
         Assert.Equal([10002, 10003], ssr.PickupItemIds.Select(x => x.Value).Order());
         Assert.Equal("철 검", items.Get(ssr.PickupItemIds.Single(x => x.Value == 10002)).Name);
     }

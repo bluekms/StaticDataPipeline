@@ -32,7 +32,7 @@ public class CsvTamperingTests(ExtractedCsvFixture fixture)
     }
 
     [Fact]
-    public async Task GradeRowCopiedForSameStudent_FailsKeyDuplicateOfTableWithoutIndex()
+    public async Task GradeRowCopiedForSameStudent_FailsKeyDuplicate()
     {
         using var csv = fixture.CopySchoolCsv();
         csv.Edit("School.Grades.csv", x => x.DuplicateRow("StudentId.Value", "20260101"));
@@ -44,15 +44,27 @@ public class CsvTamperingTests(ExtractedCsvFixture fixture)
     }
 
     [Fact]
-    public async Task ItemRowCopied_FailsKeyDuplicateOnce_EvenThoughItemTableHasItsOwnIndex()
+    public async Task BuffRowCopied_FailsKeyDuplicateOnce_ThoughBuffAndDebuffTablesReadTheSameCsv()
     {
         using var csv = fixture.CopyRpgCsv();
-        csv.Edit("Rpg.Items.csv", x => x.DuplicateRow("Id", "10001"));
+        csv.Edit("Rpg.Buffs.csv", x => x.DuplicateRow("Id", "3"));
 
         await LoadAssert.FailsWithSingle(
             Load.Rpg(csv.Root),
             LoadAssert.TablesFailed,
-            "[Rpg.Items.csv] Duplicate key '10001' in ItemRecord.");
+            "[Rpg.Buffs.csv] Duplicate key '3' in BuffRecord.");
+    }
+
+    [Fact]
+    public async Task ElementNumberTypedTwice_FailsKeyDuplicate_ThoughElementTableHasNoKeyIndex()
+    {
+        using var csv = fixture.CopyScienceCsv();
+        csv.Edit("Science.Elements.csv", x => x.Set("Number", "79", "Number", "26"));
+
+        await LoadAssert.FailsWithSingle(
+            Load.Science(csv.Root),
+            LoadAssert.TablesFailed,
+            "[Science.Elements.csv] Duplicate key '26' in ElementRecord.");
     }
 
     [Fact]
