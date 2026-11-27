@@ -22,7 +22,6 @@ public sealed partial class RpgStaticData(ILogger logger)
         QuestTable? QuestTable,
         StageServerTable? StageServerTable,
         StageClientTable? StageClientTable,
-        AttendanceTable? AttendanceTable,
         ShopTable? ShopTable,
         BuffTable? BuffTable,
         DebuffTable? DebuffTable,

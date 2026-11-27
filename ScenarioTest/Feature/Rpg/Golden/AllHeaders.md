@@ -1,20 +1,5 @@
 # StaticDataHeaderGenerator Results
 
-## ScenarioTest.Records.Rpg.AttendanceRecord
-- Excel File: `Rpg.xlsx`
-- Sheet Name: `Attendance`
-
-### Headers (List)
-- Day
-- Kind
-- RewardId
-- Amount
-
-### Headers (TSV)
-```
-Day	Kind	RewardId	Amount
-```
-
 ## ScenarioTest.Records.Rpg.BuffRecord
 - Excel File: `Rpg.xlsx`
 - Sheet Name: `Buffs`
