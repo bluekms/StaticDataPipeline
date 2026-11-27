@@ -29,7 +29,7 @@ public class HeaderGeneratorTests(ExtractedCsvFixture fixture)
         List<HeaderSection> sections = [.. schoolSections, .. rpgSections];
 
         Assert.Equal(11, schoolSections.Count);
-        Assert.Equal(18, rpgSections.Count);
+        Assert.Equal(17, rpgSections.Count);
         foreach (var section in sections)
         {
             var sheetHeaders = ReadSheetHeaders(section);
