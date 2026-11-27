@@ -18,6 +18,7 @@ public class ForeignKeyMistakeTests(ExtractedCsvFixture fixture)
     [InlineData("Rpg.SeasonRewards.csv", "Id", "1", "ItemId", "29999", "SeasonRewardRecord", "ItemId", "29999", "SeasonItemTable.Id", "SeasonStartDay=2026-06-01")]
     [InlineData("Rpg.SeasonRewards.csv", "Id", "2", "ItemId", "39999", "SeasonRewardRecord", "ItemId", "39999", "SeasonItemTableV2.Id", "SeasonStartDay=2026-11-01")]
     [InlineData("Rpg.Attendance.csv", "Day", "1", "RewardId", "77777", "AttendanceRecord[Day=1].RewardId(77777)", "CurrencyTable.Id", "(when Kind=Currency)")]
+    [InlineData("Rpg.Attendance.csv", "Day", "3", "RewardId", "901", "AttendanceRecord[Day=3].RewardId(901)", "ItemTable.Id", "(when Kind=Item)")]
     [InlineData("Rpg.PremiumRewards.csv", "Id", "1", "ItemId", "19999", "PremiumRewardRecord", "ItemId", "19999", "ItemTable.Id")]
     [InlineData("Rpg.Quests.csv", "Id", "3", "PrevQuestId", "99", "QuestRecord[Id=3].PrevQuestId(99)", "QuestTable.Id")]
     [InlineData("Rpg.Quests.csv", "Id", "2", "Collect.Item", "19999", "QuestRecord[Id=2].Collect.Item(19999)", "ItemTable.Id")]
