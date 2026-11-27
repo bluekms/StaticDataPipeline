@@ -60,6 +60,7 @@ internal static class TableFactoryEmitter
             .Append(analysis.FullyQualifiedRecordName).Append(">(path, ")
             .Append(analysis.FullyQualifiedRecordName).Append(".MapFromCsvRow, ")
             .Append(analysis.FullyQualifiedRecordName).AppendLine(".IsEmptyCsvRow).ConfigureAwait(false);");
+        KeyDuplicateCheckEmitter.Emit(sb, analysis.RecordSymbol, fileNameLit, indent + "    ");
         sb.Append(indent).Append("    var __table = new ").Append(analysis.FullyQualifiedTypeName).AppendLine("(records);");
         sb.Append(indent).AppendLine("    __table.Validate();");
         sb.Append(indent).AppendLine("    return __table;");

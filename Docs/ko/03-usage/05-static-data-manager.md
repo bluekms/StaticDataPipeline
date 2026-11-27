@@ -87,7 +87,7 @@ foreach (var item in tables.ItemTable!.Records)
 
 TableSet 의 구조 — 주 생성자, 각 멤버가 `StaticDataTable` 인지, `[ForeignKey]` / `[SwitchForeignKey]` 의 타겟이 TableSet 과 Record 에 존재하는지 — 는 소스 제너레이터가 빌드 시점에 검사합니다. 그래서 `LoadAsync` 는 구조 검사 없이 바로 로드에 들어가며, 다음 순서로 동작합니다.
 
-1. **TableSet 병렬 로드** — 생성된 로드 코드가 각 테이블의 CSV 를 병렬 로드. 각 테이블 인스턴스화 직후 `StaticDataTable.Validate()` 가 호출되며, 테이블별 로드 시간은 `Trace` 레벨로 기록. 하나라도 실패하면 모든 실패를 모아 `AggregateException(Messages.TablesFailedToLoad, ...)` 으로 throw.
+1. **TableSet 병렬 로드** — 생성된 로드 코드가 각 테이블의 CSV 를 병렬 로드. Record 에 `[Key]` 가 있으면 테이블을 만들기 전에 키 중복을 검사. 각 테이블 인스턴스화 직후 `StaticDataTable.Validate()` 가 호출되며, 테이블별 로드 시간은 `Trace` 레벨로 기록. 하나라도 실패하면 모든 실패를 모아 `AggregateException(Messages.TablesFailedToLoad, ...)` 으로 throw.
 2. **FK 값 검증** — 모두 성공하면 TableSet 을 조립하고, FK 가 있다면 실제 값 검증. 검증 실패가 있으면 `AggregateException(Messages.FkValidationFailed, ...)` 으로 throw.
 3. **StaticDataManager 검증** — (override 했다면) StaticDataManager 의 `Validate(TTableSet)` 가 호출됨. 예외를 던지면 그대로 throw.
 4. **스냅샷 교체** — 모두 통과하면 `StaticDataManager.Current` 에 한 번에 교체하고, 전체 로드 시간을 `Information` 레벨로 기록.
@@ -106,7 +106,7 @@ sequenceDiagram
     M->>M: 진입 가드 (로딩 중이면 예외)
     M->>G: LoadTableSetAsync
     par 테이블별 병렬
-        G->>T: CSV 읽기 → MapFromCsvRow → 생성자 → Validate()
+        G->>T: CSV 읽기 → MapFromCsvRow → 키 중복 검사 → 생성자 → Validate()
         T-->>G: Table (또는 예외)
     end
     G-->>M: TableSet (실패는 AggregateException 으로 모음)

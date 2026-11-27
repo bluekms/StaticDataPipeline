@@ -96,6 +96,17 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
     }
 
     [Fact]
+    public async Task ClassRoomWithoutAnyStudent_FailsReportCardView()
+    {
+        using var csv = fixture.CopySchoolCsv();
+        csv.Edit("School.Teachers.csv", AddIdleTeacher);
+        csv.Edit("School.ClassRooms.csv", AddEmptyClassRoomOfIdleTeacher);
+        csv.Edit("School.Timetable.csv", x => x.Set("Slot.ClassRoomId", "101", "TeacherId", "11"));
+
+        await LoadAssert.FailsWithSingle(Load.School(csv.Root), LoadAssert.ViewsFailed, "학생이 없는 반: 302");
+    }
+
+    [Fact]
     public async Task GradeTableDisabled_FailsTableLoadBeforeReportCardViewIsBuilt()
     {
         await LoadAssert.FailsWithSingle(
@@ -145,7 +156,7 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
         var previous = school.Current;
         using var csv = fixture.CopySchoolCsv();
         csv.Edit("School.Teachers.csv", AddIdleTeacher);
-        csv.Edit("School.Grades.csv", x => x.DuplicateRow("StudentId.Value", "20260101"));
+        csv.Edit("School.ClassRooms.csv", AddEmptyClassRoomOfIdleTeacher);
 
         var exception = await LoadAssert.FailsWithAggregate(() => school.LoadAsync(csv.Root), LoadAssert.ViewsFailed);
 
@@ -185,6 +196,11 @@ public class ValidationRuleTests(ExtractedCsvFixture fixture)
         cells[teachers.ColumnIndex("Name")] = "최민호";
         cells[teachers.ColumnIndex("MainSubject")] = "PE";
         teachers.AddRow(cells);
+    }
+
+    private static void AddEmptyClassRoomOfIdleTeacher(CsvDocument classRooms)
+    {
+        classRooms.AddRow("302", "3", "3", "11");
     }
 
     private async Task<SchoolStaticData> LoadedSchool()

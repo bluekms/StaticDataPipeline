@@ -32,6 +32,30 @@ public class CsvTamperingTests(ExtractedCsvFixture fixture)
     }
 
     [Fact]
+    public async Task GradeRowCopiedForSameStudent_FailsKeyDuplicateOfTableWithoutIndex()
+    {
+        using var csv = fixture.CopySchoolCsv();
+        csv.Edit("School.Grades.csv", x => x.DuplicateRow("StudentId.Value", "20260101"));
+
+        await LoadAssert.FailsWithSingle(
+            Load.School(csv.Root),
+            LoadAssert.TablesFailed,
+            "[School.Grades.csv] Duplicate key '20260101' in GradeRecord.");
+    }
+
+    [Fact]
+    public async Task ItemRowCopied_FailsKeyDuplicateOnce_EvenThoughItemTableHasItsOwnIndex()
+    {
+        using var csv = fixture.CopyRpgCsv();
+        csv.Edit("Rpg.Items.csv", x => x.DuplicateRow("Id", "10001"));
+
+        await LoadAssert.FailsWithSingle(
+            Load.Rpg(csv.Root),
+            LoadAssert.TablesFailed,
+            "[Rpg.Items.csv] Duplicate key '10001' in ItemRecord.");
+    }
+
+    [Fact]
     public async Task TwoElementsWithSameSymbol_FailSymbolIndexOnLoad()
     {
         using var csv = fixture.CopyScienceCsv();

@@ -51,6 +51,9 @@ internal static class Messages
     internal static string DuplicateKey
         => ResourceManager.GetString("DuplicateKey", Culture)!;
 
+    internal static string CsvDuplicateKey
+        => ResourceManager.GetString("CsvDuplicateKey", Culture)!;
+
     internal static string KeyNotFound
         => ResourceManager.GetString("KeyNotFound", Culture)!;
 
@@ -163,6 +166,7 @@ internal static class Messages
         internal static CompositeFormat FkValueNotFound => CompositeFormat.Parse(Messages.FkValueNotFound);
         internal static CompositeFormat SwitchFkConditionValueNotMatched => CompositeFormat.Parse(Messages.SwitchFkConditionValueNotMatched);
         internal static CompositeFormat DuplicateKey => CompositeFormat.Parse(Messages.DuplicateKey);
+        internal static CompositeFormat CsvDuplicateKey => CompositeFormat.Parse(Messages.CsvDuplicateKey);
         internal static CompositeFormat KeyNotFound => CompositeFormat.Parse(Messages.KeyNotFound);
         internal static CompositeFormat CsvRowWithFile => CompositeFormat.Parse(Messages.CsvRowWithFile);
         internal static CompositeFormat CsvRowWithoutFile => CompositeFormat.Parse(Messages.CsvRowWithoutFile);
@@ -201,6 +205,7 @@ internal static class Messages
         internal static string FkValueNotFound => Messages.FkValueNotFound;
         internal static string SwitchFkConditionValueNotMatched => Messages.SwitchFkConditionValueNotMatched;
         internal static string DuplicateKey => Messages.DuplicateKey;
+        internal static string CsvDuplicateKey => Messages.CsvDuplicateKey;
         internal static string KeyNotFound => Messages.KeyNotFound;
         internal static string CsvRowWithFile => Messages.CsvRowWithFile;
         internal static string CsvRowWithoutFile => Messages.CsvRowWithoutFile;

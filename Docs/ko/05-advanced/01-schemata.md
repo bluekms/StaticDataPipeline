@@ -81,7 +81,9 @@ flowchart TB
 >
 > 변환을 마친 값에 [`[Range]`](./02-attributes.md#attr-range), [`[RegularExpression]`](./02-attributes.md#attr-regularexpression), [`[CountRange]`](./02-attributes.md#attr-countrange) 가 붙어 있으면, 런타임도 추출 단계와 같은 규칙으로 값을 다시 한번 검사합니다.
 >
-> 다만 Primary Key 중복이나 Record/Attribute 선언 정합성은 추출 단계(선언 검사 포함)에서만 검사합니다. 추출 단계를 거치지 않은 CSV 를 런타임에 직접 넣으면 이런 검사가 빠지므로, 정상적인 파이프라인은 항상 추출기를 거친 CSV 만 운영에 올립니다.
+> `[Key]` 가 붙은 컬럼의 값 중복도 런타임이 테이블을 만들기 전에 다시 검사합니다.
+>
+> 다만 Record/Attribute 선언 정합성은 추출 단계(선언 검사 포함)에서만 검사합니다. 추출 단계를 거치지 않은 CSV 를 런타임에 직접 넣으면 이런 검사가 빠지므로, 정상적인 파이프라인은 항상 추출기를 거친 CSV 만 운영에 올립니다.
 
 ---
 

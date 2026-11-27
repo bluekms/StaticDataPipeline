@@ -119,6 +119,16 @@ public static class TableSetLoaderHelper
             conditionValue));
     }
 
+    public static Exception DuplicateKeyError(string fileName, string recordName, string key)
+    {
+        return new InvalidOperationException(string.Format(
+            CultureInfo.CurrentCulture,
+            Messages.Composite.CsvDuplicateKey,
+            fileName,
+            key,
+            recordName));
+    }
+
     public static Exception FkTargetNotLoadedError(string source, string targets)
     {
         return new InvalidOperationException(string.Format(

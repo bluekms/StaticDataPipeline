@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using ScenarioTest.Managers;
 using ScenarioTest.Records.School;
+using ScenarioTest.Tables;
 using Sdp.Table;
 using Sdp.View;
 
@@ -10,12 +12,14 @@ public sealed record ReportCard(StudentRecord Student, ClassRoomRecord ClassRoom
 
 public sealed partial class ReportCardView : StaticDataView<SchoolStaticData.TableSet>
 {
+    private readonly ClassRoomTable classRooms;
     private readonly UniqueIndex<ReportCard, StudentRecord.StudentId> byStudent;
     private readonly MultiIndex<ReportCard, ClassRoomRecord.ClassRoomId> byClassRoom;
 
     public ReportCardView(SchoolStaticData.TableSet tables)
         : base(tables)
     {
+        classRooms = tables.ClassRoomTable;
         var cards = Build(tables);
         byStudent = new UniqueIndex<ReportCard, StudentRecord.StudentId>(cards, x => x.Student.Id);
         byClassRoom = new MultiIndex<ReportCard, ClassRoomRecord.ClassRoomId>(cards, x => x.ClassRoom.Id);
@@ -34,6 +38,22 @@ public sealed partial class ReportCardView : StaticDataView<SchoolStaticData.Tab
     public IReadOnlyList<ReportCard> GetByClassRoom(ClassRoomRecord.ClassRoomId classRoomId)
     {
         return byClassRoom.Get(classRoomId);
+    }
+
+    protected override void Validate()
+    {
+        var emptyClassRooms = classRooms.Records
+            .Where(x => byClassRoom.Get(x.Id).Count == 0)
+            .Select(x => x.Id.Value)
+            .ToList();
+
+        if (emptyClassRooms.Count > 0)
+        {
+            throw new InvalidOperationException(string.Format(
+                CultureInfo.InvariantCulture,
+                "학생이 없는 반: {0}",
+                string.Join(", ", emptyClassRooms)));
+        }
     }
 
     private static List<ReportCard> Build(SchoolStaticData.TableSet tables)
