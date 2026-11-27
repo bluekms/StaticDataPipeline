@@ -104,6 +104,8 @@ internal static class CsvMapperPipeline
         var rejectedSingleValueRecords = ValidateSingleValueRecordInnerValues(symbol, syntax, allParameters, diagnostics);
         specificallyRejected.UnionWith(rejectedSingleValueRecords);
 
+        specificallyRejected.UnionWith(ValidateKeyNullability(symbol, syntax, allParameters, diagnostics));
+
         var unsupportedParameterNames = parameters
             .Where(static param => !ParameterEmittability.IsParameterEmittable(param))
             .Where(param => !specificallyRejected.Contains(param.Name))
@@ -339,6 +341,33 @@ internal static class CsvMapperPipeline
         return rejected;
     }
 
+    private static HashSet<string> ValidateKeyNullability(
+        INamedTypeSymbol symbol,
+        RecordDeclarationSyntax syntax,
+        List<QualifiedParameter> allParameters,
+        List<Diagnostic> diagnostics)
+    {
+        var rejected = new HashSet<string>();
+
+        foreach (var qualified in allParameters)
+        {
+            var param = qualified.Parameter;
+            if (!param.IsKey || !param.IsNullable)
+            {
+                continue;
+            }
+
+            diagnostics.Add(Diagnostic.Create(
+                SdpDiagnostics.KeyMustBeNonNullable,
+                syntax.Identifier.GetLocation(),
+                symbol.ToDisplayString(),
+                qualified.Path));
+            rejected.Add(qualified.Path);
+        }
+
+        return rejected;
+    }
+
     private static HashSet<string> ValidateSingleValueRecordInnerValues(
         INamedTypeSymbol symbol,
         RecordDeclarationSyntax syntax,
@@ -406,6 +435,16 @@ internal static class CsvMapperPipeline
             }
 
             var keyParam = keyParams[0];
+
+            // nullable [Key] 는 ValidateKeyNullability 가 SDP0022 로 알린다.
+            // ? 만 지우면 Map 의 키 타입과 같아지는 경우에는 SDP0018 을 겹쳐 내지 않는다.
+            var keyTypeWithoutNullable = TypeClassifier.UnwrapNullable(keyParam.Type);
+            var isSameTypeWithoutNullable = SymbolEqualityComparer.Default.Equals(keyTypeWithoutNullable, info.KeyType);
+            if (keyParam.IsNullable && isSameTypeWithoutNullable)
+            {
+                continue;
+            }
+
             if (!ParameterEmittability.IsFrozenDictionaryKeyCompatible(info, keyParam))
             {
                 diagnostics.Add(Diagnostic.Create(

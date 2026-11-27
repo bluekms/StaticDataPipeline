@@ -33,8 +33,7 @@ internal static class KeyParameterResolver
         var valueDisplayMember = FkTargetResolver.ResolveValueDisplayMember(keyParameter.Type);
         if (valueDisplayMember is not null)
         {
-            var memberAccess = TypeClassifier.IsNullable(keyParameter.Type) ? "?." : ".";
-            access += memberAccess + EmitHelper.EscapeIdentifier(valueDisplayMember);
+            access += "." + EmitHelper.EscapeIdentifier(valueDisplayMember);
         }
 
         return "{" + access + "}";

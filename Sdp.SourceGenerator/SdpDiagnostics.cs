@@ -174,6 +174,14 @@ internal static class SdpDiagnostics
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
+    public static readonly DiagnosticDescriptor KeyMustBeNonNullable = new(
+        id: "SDP0022",
+        title: "[Key] parameter must be non-nullable",
+        messageFormat: "record '{0}'의 파라미터 '{1}'에는 [Key]가 붙어 있어 nullable 일 수 없습니다. 타입의 ? 를 지우세요.",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     public static readonly DiagnosticDescriptor TableSetRecordMustBePartial = new(
         id: "SDP0202",
         title: "TableSet record must be partial",
