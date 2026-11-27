@@ -14,8 +14,7 @@ internal static class FkSwitchCondition
 
     public static List<string> TargetMembers(FkParameter fkParameter)
     {
-        return fkParameter.Branches
-            .Where(static branch => branch.IsSwitch)
+        return SelectSwitchBranches(fkParameter)
             .Select(static branch => branch.TableSetMember)
             .Distinct()
             .ToList();
