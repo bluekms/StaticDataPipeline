@@ -18,7 +18,8 @@ public static class RecordPropertySchemaFactory
         INamedTypeSymbol propertySymbol,
         IReadOnlyList<AttributeInfo> attributeList,
         INamedTypeSymbol parentRecordSymbol,
-        SchemaFactoryContext context)
+        SchemaFactoryContext context,
+        bool allowsNull = false)
     {
         // 컬렉션 요소처럼 TypedPropertySchemaFactory 의 같은 검사를 거치지 않고 오는 경로가 있다.
         if (TypedPropertySchemaFactory.IsDeclaredOutsideRecordSources(propertySymbol))
@@ -52,7 +53,7 @@ public static class RecordPropertySchemaFactory
         {
             var memberSchemata = CreateMemberSchemata(propertySymbol, context);
 
-            return new RecordPropertySchema(propertyName, propertySymbol, attributeList, memberSchemata);
+            return new RecordPropertySchema(propertyName, propertySymbol, attributeList, memberSchemata, allowsNull);
         }
         finally
         {

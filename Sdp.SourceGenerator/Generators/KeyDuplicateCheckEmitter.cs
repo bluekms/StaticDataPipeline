@@ -14,12 +14,6 @@ internal static class KeyDuplicateCheckEmitter
             return;
         }
 
-        // nullable [Key] 는 선언 검사가 막는 결함이다. HashSet<T> 에 null 을 넣는 생성 코드가 경고를 내지 않게 건너뛴다.
-        if (TypeClassifier.IsNullable(keyParameter.Type))
-        {
-            return;
-        }
-
         var keyTypeName = keyParameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var keyAccess = "__r." + EmitHelper.EscapeIdentifier(keyParameter.Name);
         var recordNameLiteral = SymbolDisplay.FormatLiteral(recordSymbol.Name, quote: true);

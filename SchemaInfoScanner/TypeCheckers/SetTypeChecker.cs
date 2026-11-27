@@ -35,10 +35,7 @@ public static class SetTypeChecker
 
         if (typeArgument.NullableAnnotation is NullableAnnotation.Annotated)
         {
-            throw new NotSupportedException(string.Format(
-                CultureInfo.CurrentCulture,
-                Messages.Composite.NullableRecordHashSetNotSupported,
-                property.PropertyName.FullName));
+            NullableSingleValueRecordChecker.CheckElement(property, Messages.Composite.NullableRecordHashSetNotSupported);
         }
 
         if (property.HasAttribute<SingleColumnCollectionAttribute>())
@@ -50,6 +47,7 @@ public static class SetTypeChecker
         }
 
         var innerRecordSchema = property.FindInnerRecordSchema(recordSchemaCatalog);
+        SingleValueRecordChecker.CheckElement(property);
         RecordTypeChecker.Check(innerRecordSchema, recordSchemaCatalog, visited, logger);
     }
 

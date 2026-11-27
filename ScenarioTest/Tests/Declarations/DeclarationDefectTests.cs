@@ -11,6 +11,7 @@ public class DeclarationDefectTests
         "LengthWithSingleColumn.cs",
         "LengthAttribute and SingleColumnCollectionAttribute cannot be used together")]
     [InlineData("NullableWithoutNullString.cs", "nullable type must use NullStringAttribute")]
+    [InlineData("InnerNullableBranding.cs", "A single-value record must wrap a non-nullable value")]
     [InlineData("ColumnNameForbiddenChar.cs", "ColumnName \"a,b\" contains a forbidden character")]
     [InlineData("MapValueWithoutKey.cs", "KeyAttribute must be used in one of the parameters")]
     [InlineData("CircularRecord.cs", "Circular reference detected")]

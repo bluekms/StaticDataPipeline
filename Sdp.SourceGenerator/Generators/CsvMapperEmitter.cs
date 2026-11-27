@@ -221,6 +221,12 @@ internal static partial class CsvMapperEmitter
                 EmitHelpersRecursive(sb, nested.Parameters, emittedHelperTypes, indent, nestedTokens[nested.Symbol], nestedTokens);
             }
 
+            if (param.Nested is { } nullableBranding && param.IsNullable)
+            {
+                sb.AppendLine();
+                EmitNullableBrandingHelper(sb, param, nullableBranding, indent, ownerToken, nestedTokens);
+            }
+
             if (param.Collection is not null)
             {
                 sb.AppendLine();
@@ -230,11 +236,13 @@ internal static partial class CsvMapperEmitter
                 if (param.Collection.Kind == CollectionKind.ImmutableArray)
                 {
                     EmitCollectionElementNestedHelpers(sb, param, emittedHelperTypes, indent, nestedTokens);
+                    EmitCollectionElementNullableBrandingHelper(sb, param, indent, ownerToken, nestedTokens);
                     EmitArrayHelper(sb, param, indent, ownerToken, nestedTokens);
                 }
                 else if (param.Collection.Kind == CollectionKind.FrozenSet)
                 {
                     EmitCollectionElementNestedHelpers(sb, param, emittedHelperTypes, indent, nestedTokens);
+                    EmitCollectionElementNullableBrandingHelper(sb, param, indent, ownerToken, nestedTokens);
                     EmitSetHelper(sb, param, indent, ownerToken, nestedTokens);
                 }
                 else if (param.Collection.Kind == CollectionKind.FrozenDictionary)

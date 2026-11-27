@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Sdp.SourceGenerator.Generators;
 
-internal static partial class TableSetLoaderEmitter
+internal static class TableSetLoaderEmitter
 {
     public static string Emit(StaticDataManagerAnalysis analysis)
     {
@@ -26,7 +26,7 @@ internal static partial class TableSetLoaderEmitter
         var memberIndent = indent + "    ";
         EmitLoadAsync(sb, analysis, tableSetFullyQualifiedName, memberIndent);
         sb.AppendLine();
-        EmitValidateForeignKeys(sb, analysis, tableSetFullyQualifiedName, memberIndent);
+        ForeignKeyValidationEmitter.Emit(sb, analysis, tableSetFullyQualifiedName, memberIndent);
 
         sb.Append(indent).AppendLine("}");
         EmitHelper.CloseContainingTypes(sb, scope);

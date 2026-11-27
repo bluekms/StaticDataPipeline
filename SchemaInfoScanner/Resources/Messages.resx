@@ -171,6 +171,9 @@
   <data name="DateTimeFormatAttributeRequired" xml:space="preserve">
     <value>{0}({1}): DateTime / DateTimeOffset / DateOnly / TimeOnly types must use DateTimeFormatAttribute.</value>
   </data>
+  <data name="SingleValueRecordInnerMustBeNonNullable" xml:space="preserve">
+    <value>{0} is not supported. A single-value record must wrap a non-nullable value, but {1} is nullable. Make {1} non-nullable, and where a value can be missing declare the record type itself as nullable with [NullString].</value>
+  </data>
   <data name="NullStringAttributeRequiredForNullable" xml:space="preserve">
     <value>{0}({1}): nullable type must use NullStringAttribute.</value>
   </data>

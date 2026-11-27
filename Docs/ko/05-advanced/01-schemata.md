@@ -673,7 +673,7 @@ Id    Point.X    Point.Y
 내부 Record 의 각 파라미터가 자기 자리의 컬럼으로 펼쳐집니다. 펼쳐진 헤더가 길어지면 [3.2 표준 헤더 생성기](../03-usage/02-header-generator.md) 로 자동 조립할 수 있습니다.
 
 - 사용 가능한 Attribute: [`[ColumnName]`](./02-attributes.md#attr-columnname) 으로 헤더 접두사를 바꿀 수 있습니다.
-- **Nullable Record** (`Position?`) 는 허용되지 않습니다.
+- **Nullable Record** (`Position?`) 는 허용되지 않습니다. 파라미터가 하나뿐인 record (타입 브랜딩) 만 [`[NullString]`](./02-attributes.md#attr-nullstring) 과 함께 nullable 로 선언할 수 있습니다 ([5.3 타입 브랜딩](./03-type-branding.md) 참조).
 - 순환 참조 (Record 가 자기 자신을 직접/간접 포함) 도 거부됩니다.
 
 ---

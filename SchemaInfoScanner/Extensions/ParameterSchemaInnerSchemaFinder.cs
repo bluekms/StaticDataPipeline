@@ -36,7 +36,9 @@ public static class ParameterSchemaInnerSchemaFinder
         if (ArrayTypeChecker.IsSupportedArrayType(property.NamedTypeSymbol) ||
             SetTypeChecker.IsSupportedSetType(property.NamedTypeSymbol))
         {
-            return (INamedTypeSymbol)property.NamedTypeSymbol.TypeArguments.Single();
+            var elementSymbol = (INamedTypeSymbol)property.NamedTypeSymbol.TypeArguments.Single();
+
+            return RecordTypeChecker.UnwrapNullable(elementSymbol);
         }
         else if (MapTypeChecker.IsSupportedMapType(property.NamedTypeSymbol))
         {

@@ -97,9 +97,10 @@ internal sealed record FkBranch(
     bool ConditionParsesAtRuntime,
     string? ConditionDisplayFormat,
     FkConditionDisplayKind ConditionDisplayKind,
-    string? TargetUnwrapMember)
+    string? TargetUnwrapMember,
+    bool IsTargetNullable)
 {
-    public static FkBranch ForeignKey(string tableSetMember, string targetColumn, string? targetUnwrapMember)
+    public static FkBranch ForeignKey(string tableSetMember, string targetColumn, FkTargetResolution target)
     {
         return new FkBranch(
             tableSetMember,
@@ -111,7 +112,8 @@ internal sealed record FkBranch(
             ConditionParsesAtRuntime: false,
             ConditionDisplayFormat: null,
             ConditionDisplayKind: FkConditionDisplayKind.Default,
-            targetUnwrapMember);
+            target.TargetUnwrapMember,
+            target.IsTargetNullable);
     }
 
     public static FkBranch SwitchForeignKey(
@@ -123,7 +125,7 @@ internal sealed record FkBranch(
         bool conditionParsesAtRuntime,
         string? conditionDisplayFormat,
         FkConditionDisplayKind conditionDisplayKind,
-        string? targetUnwrapMember)
+        FkTargetResolution target)
     {
         return new FkBranch(
             tableSetMember,
@@ -135,6 +137,7 @@ internal sealed record FkBranch(
             conditionParsesAtRuntime,
             conditionDisplayFormat,
             conditionDisplayKind,
-            targetUnwrapMember);
+            target.TargetUnwrapMember,
+            target.IsTargetNullable);
     }
 }

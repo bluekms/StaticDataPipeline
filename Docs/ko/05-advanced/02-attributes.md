@@ -211,7 +211,7 @@ public sealed partial record ItemRecord(
 부수 규칙:
 
 - Record 전체로 `[Key]` 는 최대 하나입니다 (스캐너가 `StaticDataRecordMustHaveAtMostOneKey` 예외를 발생. 빌드 시 `SDP0003`).
-- `[Key]` 가 붙은 파라미터는 non-nullable 이어야 합니다 (스캐너가 `KeyAttributeMustBeNonNullable` 예외를 발생).
+- `[Key]` 가 붙은 파라미터는 non-nullable 이어야 합니다 (스캐너가 `KeyAttributeMustBeNonNullable` 예외를 발생. 빌드 시 `SDP0022`).
 - `[Key]` 는 컬렉션에 붙일 수 없습니다 (스캐너가 `KeyAttributeNotForCollection` 예외를 발생). 멤버가 여럿인 record 를 키로 쓰면 추출기의 중복 검사는 평탄화된 컬럼 전부를 묶어 비교합니다.
 - enum 파라미터에 `[Key]` 를 붙이면 매핑 시 정의된 멤버인지 검사하지 않습니다 — [5.3 타입 브랜딩 패턴](./03-type-branding.md) 참고.
 
@@ -258,7 +258,7 @@ public sealed partial record ItemRecord(
 |다중 허용|X|
 |검증 시점|스캐너 (존재 여부), 로드 (치환)|
 |누락 시|스캐너가 `NullStringAttributeRequiredForNullable` (또는 ...Array, ...Set, ...Map) 예외를 발생. 빌드 시 `SDP0004`|
-|오사용|Non-nullable 에 붙이면 스캐너가 `NullStringAttributeNotAllowed` 예외를 발생. 빌드 시 `SDP0016` (Non-nullable, Record, `FrozenDictionary` 파라미터 모두)|
+|오사용|Non-nullable 에 붙이면 스캐너가 `NullStringAttributeNotAllowed` 예외를 발생. 빌드 시 `SDP0016` (Non-nullable, nullable 타입 브랜딩이 아닌 Record, `FrozenDictionary` 파라미터 모두)|
 
 CSV 셀 값이 이 문자열과 일치하면 `null` 로 해석합니다. 흔히 `"NULL"`, `""`, `"N/A"` 등을 씁니다.
 

@@ -17,10 +17,27 @@ public record struct ItemId(int Value);
 
 같은 `int` 를 감싸도 record struct 타입이 다르므로 잘못된 대입이 컴파일 에러로 잡힙니다. `record struct` 대신 `record` (참조 타입) 로 선언해도 동일하게 동작합니다.
 
-브랜딩 타입 자체를 nullable (`CharId?`) 로 선언할 수는 없습니다 (스캐너 `NullableRecordNotSupported`, 빌드 `SDP0004`). "값 없음" 이 필요하면 내부 파라미터를 `int?` 로 두고 [`[NullString]`](./02-attributes.md#attr-nullstring) 을 내부 파라미터에 붙입니다.
+"값 없음" 이 필요한 자리에서는 브랜딩 타입에 `?` 를 붙이고 그 파라미터에 [`[NullString]`](./02-attributes.md#attr-nullstring) 을 붙입니다. 셀 값이 `[NullString]` 과 같으면 `null` 이고, 아니면 nullable 이 아닌 브랜딩과 똑같이 읽습니다. 헤더도 같습니다.
 
 ```csharp
+[NullString("")] [ForeignKey("QuestTable", "Id")] QuestId? PrevQuestId
+[Length(2)] [NullString("")] ImmutableArray<ItemId?> Rewards
+```
+
+- 직접 파라미터와, 여러 열로 펼치는 `ImmutableArray<T>` / `FrozenSet<T>` 의 원소에 쓸 수 있습니다. Map 의 키와 값에는 쓸 수 없습니다.
+- [`[NullString]`](./02-attributes.md#attr-nullstring) 이 없으면 스캐너가 `NullStringAttributeRequiredForNullable` 예외를 발생시키고 빌드는 `SDP0004` 입니다.
+- [`[ForeignKey]`](./02-attributes.md#attr-foreignkey) / [`[SwitchForeignKey]`](./02-attributes.md#attr-switchforeignkey) 는 값이 `null` 이면 검사를 건너뜁니다.
+- [`[Key]`](./02-attributes.md#attr-key) 파라미터는 nullable 일 수 없습니다 (빌드 시 `SDP0022`).
+
+브랜딩 타입의 내부 파라미터는 nullable 로 둘 수 없습니다. "값 없음" 은 값이 없을 수 있는 자리에서 브랜딩 타입에 `?` 를 붙여서만 표현합니다. 내부 파라미터가 nullable 이면 스캐너가 `SingleValueRecordInnerMustBeNonNullable` 예외를 발생시키고 빌드는 `SDP0021` 입니다.
+
+```csharp
+// 불가: 내부 파라미터가 nullable
 public record struct OptionalCharId([NullString("")] int? Value);
+
+// 대신 이렇게: 타입은 그대로 두고 쓰는 자리에 ? 를 붙입니다
+public record struct CharId(int Value);
+[NullString("")] CharId? Partner
 ```
 
 ```csharp
@@ -165,7 +182,8 @@ public sealed partial record QuestRecord(
 
 |Attribute|부착 위치|잘못 붙였을 때|
 |-|-|-|
-|[`[Range]`](./02-attributes.md#attr-range) (숫자 형태), [`[NullString]`](./02-attributes.md#attr-nullstring), [`[RegularExpression]`](./02-attributes.md#attr-regularexpression), [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat), [`[TimeSpanFormat]`](./02-attributes.md#attr-timespanformat)|내부 파라미터 (`Value`)|바깥 파라미터에 붙이면 빌드 시 `SDP0016` (예: `파라미터 'Id'의 타입에는 [Range]를 적용할 수 없습니다`)|
+|[`[NullString]`](./02-attributes.md#attr-nullstring)|바깥 파라미터 (`CharId? Id`). 브랜딩 타입에 `?` 를 붙였을 때만 붙입니다. 내부 파라미터는 nullable 일 수 없습니다 (`SDP0021`)|nullable 이 아닌 파라미터에 붙이면 빌드 시 `SDP0016`|
+|[`[Range]`](./02-attributes.md#attr-range) (숫자 형태), [`[RegularExpression]`](./02-attributes.md#attr-regularexpression), [`[DateTimeFormat]`](./02-attributes.md#attr-datetimeformat), [`[TimeSpanFormat]`](./02-attributes.md#attr-timespanformat)|내부 파라미터 (`Value`)|바깥 파라미터에 붙이면 빌드 시 `SDP0016` (예: `파라미터 'Id'의 타입에는 [Range]를 적용할 수 없습니다`)|
 |[`[Range]`](./02-attributes.md#attr-range) (`typeof` 형태)|내부 파라미터 (`Value`)|바깥 파라미터에 붙이면 빌드 시 `SDP0004`|
 |`[Key]` 의 enum 멤버 검사 생략|내부 파라미터 (`Value`)|바깥 파라미터의 `[Key]` 만으로는 내부 enum 의 멤버 검사가 생략되지 않음|
 |[`[Key]`](./02-attributes.md#attr-key) (추출기 중복 검사, Map 의 키), [`[ForeignKey]`](./02-attributes.md#attr-foreignkey), [`[SwitchForeignKey]`](./02-attributes.md#attr-switchforeignkey), [`[ColumnName]`](./02-attributes.md#attr-columnname)|바깥 파라미터 (`Id`)|`[ForeignKey]`, `[SwitchForeignKey]` 를 내부 파라미터에 붙이면 빌드 시 `SDP0229` (예: `'ItemId'는 타입 브랜딩 record 라서 안쪽 파라미터 'Value'에 붙인 [ForeignKey]는 검사되지 않습니다`). 나머지는 —|

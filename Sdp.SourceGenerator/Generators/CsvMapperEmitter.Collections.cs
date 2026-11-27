@@ -9,9 +9,12 @@ internal static partial class CsvMapperEmitter
 {
     private static string ElementTypeName(CollectionInfo info)
     {
-        if (info.ElementNested is not null)
+        if (info.ElementNested is { } nestedElement)
         {
-            return info.ElementType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            // FullyQualifiedFormat 은 참조 타입의 ? 를 찍지 않는다.
+            var nestedElementName = nestedElement.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            return TypeClassifier.IsNullable(info.ElementType) ? nestedElementName + "?" : nestedElementName;
         }
 
         var keyword = info.ElementKind == ScalarKind.Enum
@@ -30,6 +33,11 @@ internal static partial class CsvMapperEmitter
         var info = param.Collection!;
         if (info.ElementNested is { } elementNested)
         {
+            if (TypeClassifier.IsNullable(info.ElementType))
+            {
+                return $"{HelperName(NullableBrandingHelperPrefix, ownerToken, param.Name)}(headers, values, {keyExpression})";
+            }
+
             return $"__MapNested_{nestedTokens[elementNested.Symbol]}(headers, values, {keyExpression})";
         }
 

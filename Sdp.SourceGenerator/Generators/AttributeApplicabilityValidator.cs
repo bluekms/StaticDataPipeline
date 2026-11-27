@@ -117,9 +117,9 @@ internal sealed class AttributeApplicabilityValidator(
             return TypeClassifier.IsNullable(collection.ElementType);
         }
 
-        if (param.IsRecord)
+        if (param.Nested is { } nested)
         {
-            return false;
+            return param.IsNullable && nested.IsTypeBrandingRecord;
         }
 
         return param.IsNullable;

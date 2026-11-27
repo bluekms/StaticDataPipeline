@@ -47,7 +47,7 @@ internal static class TypeClassifier
         return IsNullableValueType(type);
     }
 
-    private static bool IsNullableValueType(ITypeSymbol type)
+    public static bool IsNullableValueType(ITypeSymbol type)
     {
         return type is INamedTypeSymbol namedType
             && namedType.IsValueType

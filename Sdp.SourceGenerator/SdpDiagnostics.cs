@@ -166,6 +166,22 @@ internal static class SdpDiagnostics
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
+    public static readonly DiagnosticDescriptor SingleValueRecordInnerMustBeNonNullable = new(
+        id: "SDP0021",
+        title: "Single-value record must wrap a non-nullable value",
+        messageFormat: "record '{0}'의 파라미터 '{1}'의 타입 '{2}'은(는) 값 하나를 감싼 record 인데 안쪽 파라미터 '{3}'이(가) nullable 입니다. 안쪽의 ? 를 지우고, 값이 없을 수 있는 자리에 '{2}?' 와 [NullString]을 붙이세요.",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor KeyMustBeNonNullable = new(
+        id: "SDP0022",
+        title: "[Key] parameter must be non-nullable",
+        messageFormat: "record '{0}'의 파라미터 '{1}'에는 [Key]가 붙어 있어 nullable 일 수 없습니다. 타입의 ? 를 지우세요.",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     public static readonly DiagnosticDescriptor TableSetRecordMustBePartial = new(
         id: "SDP0202",
         title: "TableSet record must be partial",
