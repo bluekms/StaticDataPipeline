@@ -91,6 +91,42 @@ public partial class KeyIndexGenerationTests
         public sealed partial record TableSet(FailingVisibleItemTable? Visible, FailingHiddenItemTable? Hidden);
     }
 
+    private sealed partial class SameMessageVisibleItemTable(ImmutableArray<ItemRecord> records)
+        : StaticDataTable<ItemRecord>(records.Where(x => !x.IsHidden).ToImmutableArray())
+    {
+        protected override void Validate()
+        {
+            throw new InvalidOperationException("items are invalid");
+        }
+    }
+
+    private sealed partial class SameMessageHiddenItemTable(ImmutableArray<ItemRecord> records)
+        : StaticDataTable<ItemRecord>(records.Where(x => x.IsHidden).ToImmutableArray())
+    {
+        protected override void Validate()
+        {
+            throw new InvalidOperationException("items are invalid");
+        }
+    }
+
+    private sealed partial class SameMessageStaticData(ILogger logger)
+        : StaticDataManager<SameMessageStaticData.TableSet>(logger)
+    {
+        public sealed partial record TableSet(SameMessageVisibleItemTable? Visible, SameMessageHiddenItemTable? Hidden);
+    }
+
+    private sealed partial class ThreeWayStaticData(ILogger logger)
+        : StaticDataManager<ThreeWayStaticData.TableSet>(logger)
+    {
+        public sealed partial record TableSet(ItemTable? All, VisibleItemTable? Visible, HiddenItemTable? Hidden);
+    }
+
+    private sealed partial class ItemWithGetPropertyTable(ImmutableArray<ItemRecord> records)
+        : StaticDataTable<ItemRecord>(records)
+    {
+        public int Get { get; } = records.Length;
+    }
+
     private sealed partial class SplitStaticData(ILogger logger)
         : StaticDataManager<SplitStaticData.TableSet>(logger)
     {
@@ -146,12 +182,26 @@ public partial class KeyIndexGenerationTests
     [InlineData(typeof(KeylessTable))]
     [InlineData(typeof(ItemByNameTable))]
     [InlineData(typeof(ItemWithOwnGetTable))]
+    [InlineData(typeof(ItemWithGetPropertyTable))]
     public void KeylessOptedOutOrSelfIndexedTable_HasNoGeneratedLookup(Type tableType)
     {
-        const BindingFlags declared = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+        const BindingFlags declared =
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
         Assert.Null(tableType.GetMethod("TryGet", declared));
         Assert.Null(tableType.GetField("__keyIndex", declared));
+    }
+
+    [Fact]
+    public async Task ThreeTablesSharingOneRecord_ReportOnce_EvenWhenTheFirstIsDisabled()
+    {
+        using var dir = new CsvTestDirectory();
+        dir.Write("Items.Sheet1.csv", "Id,Name,IsHidden\n1,Sword,false\n1,Bow,true");
+        var staticData = new ThreeWayStaticData(NullLogger.Instance);
+
+        var exception = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path, ["All"]));
+
+        Assert.Single(exception.InnerExceptions);
     }
 
     [Fact]
@@ -160,6 +210,18 @@ public partial class KeyIndexGenerationTests
         using var dir = new CsvTestDirectory();
         dir.Write("Items.Sheet1.csv", ItemsCsv);
         var staticData = new FailingSplitStaticData(NullLogger.Instance);
+
+        var exception = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
+
+        Assert.Equal(2, exception.InnerExceptions.Count);
+    }
+
+    [Fact]
+    public async Task TablesSharingOneRecord_KeepErrorsOfTheirOwn_EvenWithTheSameMessage()
+    {
+        using var dir = new CsvTestDirectory();
+        dir.Write("Items.Sheet1.csv", ItemsCsv);
+        var staticData = new SameMessageStaticData(NullLogger.Instance);
 
         var exception = await Assert.ThrowsAsync<AggregateException>(() => staticData.LoadAsync(dir.Path));
 
