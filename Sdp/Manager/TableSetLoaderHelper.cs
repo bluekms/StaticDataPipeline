@@ -119,6 +119,22 @@ public static class TableSetLoaderHelper
             conditionValue));
     }
 
+    public static List<Exception> RemoveRepeatedErrors(List<Exception> errors)
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var distinct = new List<Exception>(errors.Count);
+        foreach (var error in errors)
+        {
+            var identity = error.GetType().FullName + "\u0000" + error.Message;
+            if (seen.Add(identity))
+            {
+                distinct.Add(error);
+            }
+        }
+
+        return distinct;
+    }
+
     public static Exception DuplicateKeyError(string fileName, string recordName, string key)
     {
         return new InvalidOperationException(string.Format(

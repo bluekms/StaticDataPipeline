@@ -26,6 +26,12 @@ internal static class TableFactoryEmitter
 
         EmitFactoryMethod(sb, analysis, memberIndent);
 
+        if (analysis.KeyIndex is { } keyIndex)
+        {
+            sb.AppendLine();
+            EmitKeyIndex(sb, analysis, keyIndex, memberIndent);
+        }
+
         sb.Append(indent).AppendLine("}");
         EmitHelper.CloseContainingTypes(sb, scope);
 
@@ -40,6 +46,46 @@ internal static class TableFactoryEmitter
         sb.Append(indent).AppendLine("    : base(records)");
         sb.Append(indent).AppendLine("{");
         sb.Append(indent).AppendLine("}");
+    }
+
+    private static void EmitKeyIndex(
+        StringBuilder sb,
+        StaticDataTableAnalysis.TableFactory analysis,
+        KeyIndexInfo keyIndex,
+        string indent)
+    {
+        var recordName = analysis.FullyQualifiedRecordName;
+        var indexType = "global::Sdp.Table.UniqueIndex<" + recordName + ", " + keyIndex.FullyQualifiedKeyTypeName + ">";
+
+        // 필드 초기화는 base 생성자보다 먼저 돌므로, base 생성자가 부르는 BuildKeyIndex 가 넣은 값이 남는다.
+        sb.Append(indent).Append("private ").Append(indexType).AppendLine(" __keyIndex = null!;");
+        sb.AppendLine();
+        sb.Append(indent).AppendLine("protected override void BuildKeyIndex()");
+        sb.Append(indent).AppendLine("{");
+        sb.Append(indent).Append("    __keyIndex = new ").Append(indexType).Append("(Records, static x => x.")
+            .Append(EmitHelper.EscapeIdentifier(keyIndex.KeyParameterName)).AppendLine(");");
+        sb.Append(indent).AppendLine("}");
+
+        if (keyIndex.EmitsGet)
+        {
+            sb.AppendLine();
+            sb.Append(indent).Append("public ").Append(recordName).Append(" Get(")
+                .Append(keyIndex.FullyQualifiedKeyTypeName).AppendLine(" key)");
+            sb.Append(indent).AppendLine("{");
+            sb.Append(indent).AppendLine("    return __keyIndex.Get(key);");
+            sb.Append(indent).AppendLine("}");
+        }
+
+        if (keyIndex.EmitsTryGet)
+        {
+            sb.AppendLine();
+            sb.Append(indent).Append("public bool TryGet(").Append(keyIndex.FullyQualifiedKeyTypeName)
+                .Append(" key, [global::System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out ")
+                .Append(recordName).AppendLine("? record)");
+            sb.Append(indent).AppendLine("{");
+            sb.Append(indent).AppendLine("    return __keyIndex.TryGet(key, out record);");
+            sb.Append(indent).AppendLine("}");
+        }
     }
 
     private static void EmitFactoryMethod(

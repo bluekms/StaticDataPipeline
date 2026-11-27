@@ -24,19 +24,16 @@ public partial class StaticDataTableSampleTests
 
     private sealed partial class ItemTable : StaticDataTable<ItemRecord>
     {
-        private readonly UniqueIndex<ItemRecord, int> byId;
+        private readonly UniqueIndex<ItemRecord, string> byName;
 
         public ItemTable(ImmutableArray<ItemRecord> records)
             : base(records)
         {
-            byId = new UniqueIndex<ItemRecord, int>(records, x => x.Id);
+            byName = new UniqueIndex<ItemRecord, string>(records, x => x.Name);
         }
 
-        public ItemRecord Get(int id)
-            => byId.Get(id);
-
-        public bool TryGet(int id, out ItemRecord? record)
-            => byId.TryGet(id, out record);
+        public ItemRecord GetByName(string name)
+            => byName.Get(name);
     }
 
     private const string ItemsCsv =

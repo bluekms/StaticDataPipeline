@@ -34,6 +34,15 @@ internal static class TableSetLoaderEmitter
         return sb.ToString();
     }
 
+    private static bool HasTablesSharingRecord(StaticDataManagerAnalysis analysis)
+    {
+        var records = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+
+        return analysis.Tables
+            .Where(static x => x.RecordSymbol is not null)
+            .Any(x => !records.Add(x.RecordSymbol!));
+    }
+
     private static void EmitLoadAsync(
         StringBuilder sb,
         StaticDataManagerAnalysis analysis,
@@ -100,6 +109,12 @@ internal static class TableSetLoaderEmitter
                     .Append(".Result is null) __errors.Add(global::Sdp.Manager.TableSetLoaderHelper.NonNullableTableDisabledError(")
                     .Append(SymbolDisplay.FormatLiteral(analysis.Tables[i].ParameterName, quote: true)).AppendLine("));");
             }
+        }
+
+        if (HasTablesSharingRecord(analysis))
+        {
+            // 같은 CSV 를 읽는 Table 들은 같은 행에서 같은 오류를 낸다.
+            sb.Append(indent).AppendLine("    __errors = global::Sdp.Manager.TableSetLoaderHelper.RemoveRepeatedErrors(__errors);");
         }
 
         sb.Append(indent).AppendLine("    if (__errors.Count > 0)");

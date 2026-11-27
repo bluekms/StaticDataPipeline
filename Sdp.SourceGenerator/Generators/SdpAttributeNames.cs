@@ -21,6 +21,7 @@ internal static class SdpAttributeNames
     public const string ForeignKey = "ForeignKeyAttribute";
     public const string SwitchForeignKey = "SwitchForeignKeyAttribute";
     public const string Ignore = "IgnoreAttribute";
+    public const string NoKeyIndex = "NoKeyIndexAttribute";
 
     public static bool IsSdpAttribute(AttributeData attr)
         => attr.AttributeClass?.ContainingNamespace?.ToDisplayString() == Namespace;

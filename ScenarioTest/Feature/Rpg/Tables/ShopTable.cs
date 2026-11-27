@@ -5,21 +5,9 @@ using Sdp.Table;
 
 namespace ScenarioTest.Tables;
 
-public sealed partial class ShopTable : StaticDataTable<ShopRecord>
+public sealed partial class ShopTable(ImmutableArray<ShopRecord> records)
+    : StaticDataTable<ShopRecord>(records)
 {
-    private readonly UniqueIndex<ShopRecord, ShopRecord.ShopItemId> byId;
-
-    public ShopTable(ImmutableArray<ShopRecord> records)
-        : base(records)
-    {
-        byId = new UniqueIndex<ShopRecord, ShopRecord.ShopItemId>(records, x => x.Id);
-    }
-
-    public ShopRecord Get(ShopRecord.ShopItemId id)
-    {
-        return byId.Get(id);
-    }
-
     protected override void Validate()
     {
         foreach (var record in Records)

@@ -31,6 +31,7 @@ public class SdpAttributeNamesGuardTests(ITestOutputHelper testOutputHelper)
         Assert.Equal(nameof(ForeignKeyAttribute), SdpAttributeNames.ForeignKey);
         Assert.Equal(nameof(SwitchForeignKeyAttribute), SdpAttributeNames.SwitchForeignKey);
         Assert.Equal(nameof(IgnoreAttribute), SdpAttributeNames.Ignore);
+        Assert.Equal(nameof(NoKeyIndexAttribute), SdpAttributeNames.NoKeyIndex);
 
         Assert.Equal(SdpAttributeNames.Namespace, typeof(SingleColumnCollectionAttribute).Namespace);
 
