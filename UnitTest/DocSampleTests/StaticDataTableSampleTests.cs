@@ -33,7 +33,9 @@ public partial class StaticDataTableSampleTests
         }
 
         public ItemRecord GetByName(string name)
-            => byName.Get(name);
+        {
+            return byName.Get(name);
+        }
     }
 
     private const string ItemsCsv =
