@@ -71,7 +71,22 @@ internal sealed record FkParameter(
     ITypeSymbol ValueType,
     FkCollectionKind Collection,
     string? ValueDisplayMember,
-    ImmutableArray<FkBranch> Branches);
+    FkBranch? ForeignKey,
+    ImmutableArray<FkBranch> SwitchBranches)
+{
+    public ImmutableArray<FkBranch> Branches
+    {
+        get
+        {
+            if (ForeignKey is null)
+            {
+                return SwitchBranches;
+            }
+
+            return SwitchBranches.Insert(0, ForeignKey);
+        }
+    }
+}
 
 internal enum FkCollectionKind
 {
@@ -90,7 +105,6 @@ internal enum FkConditionDisplayKind
 internal sealed record FkBranch(
     string TableSetMember,
     string TargetColumn,
-    bool IsSwitch,
     string? ConditionColumn,
     string? ConditionValue,
     string? ConditionLiteral,
@@ -105,7 +119,6 @@ internal sealed record FkBranch(
         return new FkBranch(
             tableSetMember,
             targetColumn,
-            IsSwitch: false,
             ConditionColumn: null,
             ConditionValue: null,
             ConditionLiteral: null,
@@ -130,7 +143,6 @@ internal sealed record FkBranch(
         return new FkBranch(
             tableSetMember,
             targetColumn,
-            IsSwitch: true,
             conditionColumn,
             conditionValue,
             conditionLiteral,

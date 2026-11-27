@@ -148,7 +148,9 @@ internal static class ForeignKeyAnalyzer
         Dictionary<string, INamedTypeSymbol?> membersByName,
         int parameterIndex)
     {
-        var branchBuilder = ImmutableArray.CreateBuilder<FkBranch>();
+        // [ForeignKey] 는 파라미터에 하나만 붙는다. 둘 이상이면 컴파일러가 CS0579 로 빌드를 멈춘다.
+        FkBranch? foreignKey = null;
+        var switchBranchBuilder = ImmutableArray.CreateBuilder<FkBranch>();
         string? formatsConditionColumn = null;
         string? dateTimeFormat = null;
         string? timeSpanFormat = null;
@@ -172,7 +174,7 @@ internal static class ForeignKeyAnalyzer
                     continue;
                 }
 
-                branchBuilder.Add(FkBranch.ForeignKey(tableSetName, columnName, resolution));
+                foreignKey ??= FkBranch.ForeignKey(tableSetName, columnName, resolution);
             }
             else if (attr.AttributeClass.Name == SdpAttributeNames.SwitchForeignKey &&
                      args.Length >= 4 &&
@@ -212,7 +214,7 @@ internal static class ForeignKeyAnalyzer
                     continue;
                 }
 
-                branchBuilder.Add(FkBranch.SwitchForeignKey(
+                switchBranchBuilder.Add(FkBranch.SwitchForeignKey(
                     switchTableSetName,
                     switchColumnName,
                     conditionColumn,
@@ -225,7 +227,7 @@ internal static class ForeignKeyAnalyzer
             }
         }
 
-        if (branchBuilder.Count == 0)
+        if (foreignKey is null && switchBranchBuilder.Count == 0)
         {
             return null;
         }
@@ -238,7 +240,8 @@ internal static class ForeignKeyAnalyzer
             valueShape.ValueType,
             valueShape.Collection,
             valueShape.ValueDisplayMember,
-            branchBuilder.ToImmutable());
+            foreignKey,
+            switchBranchBuilder.ToImmutable());
     }
 
     private static FkConditionDisplayKind ResolveConditionDisplayKind(ITypeSymbol conditionColumnType)

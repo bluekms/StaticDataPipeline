@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -62,17 +63,14 @@ internal sealed class FkParameterCheckEmitter(
             body = nullGuardIndent + "    ";
         }
 
-        // [ForeignKey] 는 파라미터에 하나만 붙는다. 둘 이상이면 컴파일러가 CS0579 로 빌드를 멈춘다.
-        var foreignKeyBranch = fkParameter.Branches.FirstOrDefault(static branch => !branch.IsSwitch);
-        if (foreignKeyBranch is not null)
+        if (fkParameter.ForeignKey is not null)
         {
-            EmitForeignKeyBranch(foreignKeyBranch, body);
+            EmitForeignKeyBranch(fkParameter.ForeignKey, body);
         }
 
-        var switchBranches = FkSwitchCondition.SelectSwitchBranches(fkParameter);
-        if (switchBranches.Count > 0)
+        if (fkParameter.SwitchBranches.Length > 0)
         {
-            EmitSwitchBranches(switchBranches, body);
+            EmitSwitchBranches(fkParameter.SwitchBranches, body);
         }
 
         if (isNullable)
@@ -123,7 +121,7 @@ internal sealed class FkParameterCheckEmitter(
         sb.Append(body).AppendLine("    }");
     }
 
-    private void EmitSwitchBranches(List<FkBranch> switchBranches, string body)
+    private void EmitSwitchBranches(ImmutableArray<FkBranch> switchBranches, string body)
     {
         var conditionColumn = switchBranches[0].ConditionColumn!;
         var conditionColumnAccess = EmitHelper.EscapeIdentifier(conditionColumn);
@@ -134,7 +132,7 @@ internal sealed class FkParameterCheckEmitter(
         var conditionDisplay = FkSwitchCondition.BuildDisplay(conditionAccess, switchBranches[0]);
         var conditionColumnLiteral = SymbolDisplay.FormatLiteral(conditionColumn, quote: true);
 
-        for (var branchIndex = 0; branchIndex < switchBranches.Count; branchIndex++)
+        for (var branchIndex = 0; branchIndex < switchBranches.Length; branchIndex++)
         {
             var branch = switchBranches[branchIndex];
             var conditionOperand = FkSwitchCondition.BuildOperand(fkParameter, branch, branchIndex);
@@ -180,14 +178,14 @@ internal sealed class FkParameterCheckEmitter(
         sb.Append(lineIndent).AppendLine("}");
     }
 
-    private void AppendValueNotFoundError(string lineIndent, string targets)
+    private void AppendValueNotFoundError(string lineIndent, string target)
     {
-        var targetsLiteral = SymbolDisplay.FormatLiteral(targets, quote: true);
+        var targetLiteral = SymbolDisplay.FormatLiteral(target, quote: true);
         sb.Append(lineIndent).Append("__errors.Add(global::Sdp.Manager.TableSetLoaderHelper.FkValueNotFoundError(")
             .AppendLine();
         sb.Append(lineIndent).Append("    ").Append(recordDisplayExpression).Append(", ").Append(elementNameExpression).AppendLine(",");
         sb.Append(lineIndent).Append("    global::System.FormattableString.Invariant($\"").Append(valueDisplay).Append("\"), ")
-            .Append(targetsLiteral).AppendLine("));");
+            .Append(targetLiteral).AppendLine("));");
     }
 
     private void AppendSwitchValueNotFoundError(
@@ -196,11 +194,11 @@ internal sealed class FkParameterCheckEmitter(
         string conditionColumnLiteral,
         string conditionDisplay)
     {
-        var branchTargetsLiteral = SymbolDisplay.FormatLiteral(branch.TableSetMember + "." + branch.TargetColumn, quote: true);
+        var targetLiteral = SymbolDisplay.FormatLiteral(branch.TableSetMember + "." + branch.TargetColumn, quote: true);
         sb.Append(lineIndent).AppendLine("__errors.Add(global::Sdp.Manager.TableSetLoaderHelper.SwitchFkValueNotFoundError(");
         sb.Append(lineIndent).Append("    ").Append(recordDisplayExpression).Append(", ").Append(elementNameExpression).AppendLine(",");
         sb.Append(lineIndent).Append("    global::System.FormattableString.Invariant($\"").Append(valueDisplay).Append("\"), ")
-            .Append(branchTargetsLiteral).AppendLine(",");
+            .Append(targetLiteral).AppendLine(",");
         sb.Append(lineIndent).Append("    ").Append(conditionColumnLiteral)
             .Append(", global::System.FormattableString.Invariant($\"").Append(conditionDisplay).AppendLine("\")));");
     }
