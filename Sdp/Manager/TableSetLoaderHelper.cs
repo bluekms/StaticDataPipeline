@@ -89,7 +89,7 @@ public static class TableSetLoaderHelper
             tableName));
     }
 
-    public static Exception FkValueNotFoundError(string source, string propertyName, string value, string targets)
+    public static Exception FkValueNotFoundError(string source, string propertyName, string value, string target)
     {
         return new InvalidOperationException(string.Format(
             CultureInfo.CurrentCulture,
@@ -97,14 +97,14 @@ public static class TableSetLoaderHelper
             source,
             propertyName,
             value,
-            targets));
+            target));
     }
 
     public static Exception SwitchFkValueNotFoundError(
         string source,
         string propertyName,
         string value,
-        string targets,
+        string target,
         string conditionColumn,
         string conditionValue)
     {
@@ -114,7 +114,7 @@ public static class TableSetLoaderHelper
             source,
             propertyName,
             value,
-            targets,
+            target,
             conditionColumn,
             conditionValue));
     }
@@ -129,13 +129,13 @@ public static class TableSetLoaderHelper
             recordName));
     }
 
-    public static Exception FkTargetNotLoadedError(string source, string targets)
+    public static Exception FkTargetNotLoadedError(string source, string target)
     {
         return new InvalidOperationException(string.Format(
             CultureInfo.CurrentCulture,
             Messages.Composite.FkTargetNotFound,
             source,
-            targets));
+            target));
     }
 
     public static Exception SwitchFkConditionNotMatchedError(string source, string propertyName, string conditionColumn, string conditionValue)
